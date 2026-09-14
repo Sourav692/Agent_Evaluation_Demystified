@@ -21,6 +21,9 @@ Both are standalone — no build step, no server. Open the file.
   (also as [HTML](Agentic_AI_Evaluation_Decomposition_Case_Studies.html)) — 19 case studies in 8
   tiers, plus the Decomposition Spine, the silent-failure catalogue, and the misreadings that
   sound like insight.
+- [`Agentic_AI_Evaluation_Decomposition_Case_Studies_bn.md`](Agentic_AI_Evaluation_Decomposition_Case_Studies_bn.md)
+  — the same 19 cases in Bengali. Technical keywords, metric names and API names stay in English
+  (that is how you will say them in the round); the reasoning around them is translated.
 
 The two HTML files above are built from these; the Markdown is the canonical text.
 
