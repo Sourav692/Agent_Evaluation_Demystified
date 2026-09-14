@@ -1,12 +1,12 @@
 # RAG, Agent & Tool Evaluation — Tutorial
 
-**Status:** ✅ Built — all modules (0 through 5) complete. See `../TUTORIAL_PLAN.md` for the full build plan, source mapping, and build-time notes.
+**Status:** ✅ Built — all modules (0 through 5) complete. See `archive/TUTORIAL_PLAN.md` for the full build plan, source mapping, and build-time notes.
 
-A single, ordered learning path through everything this repo has for evaluating RAG systems, tool-calling agents, and multi-turn conversational agents — pulled together from the notebooks and scripts previously scattered across `RAG_Evaluation/`, `Agent_Evaluation/`, `multi-turn eval and tool evaluations/`, and `04_Agent_RAG_Eval/`. Nothing was deleted from those folders; this tutorial is additive and, where a module references material with real relative-path or live-service dependencies (Module 4's Arize labs, Module 5's CrewAI app), links to it in place rather than copying it.
+A single, ordered learning path through everything this repo has for evaluating RAG systems, tool-calling agents, and multi-turn conversational agents — pulled together from the notebooks and scripts previously scattered across `labs/rag-evaluation/`, `Agent_Evaluation/`, `labs/multiturn-and-tool-eval/`, and `labs/langgraph-agent-rag-eval/`. Nothing was deleted from those folders; this tutorial is additive and, where a module references material with real relative-path or live-service dependencies (Module 4's Arize labs, Module 5's CrewAI app), links to it in place rather than copying it.
 
 **Target environment:** `deepeval==4.1.8` (repo root `.venv`). If you run an original source notebook directly instead of this tutorial's version, check that notebook's own folder for a different pin first.
 
-**📖 [`TUTORIAL.md`](TUTORIAL.md)** — the theory-only companion to everything below: taxonomy, reference-based vs. referenceless, LLM-as-judge failure modes, every metric's definition and when to reach for it, and a master quick-reference table — with no code, no API calls, and no environment needed. Read it standalone (to study or prep for an interview) or alongside the notebooks as a concept lookup.
+**📖 [`rag-agent-tool-evaluation.md`](../../docs/concepts/rag-agent-tool-evaluation.md)** — the theory-only companion to everything below: taxonomy, reference-based vs. referenceless, LLM-as-judge failure modes, every metric's definition and when to reach for it, and a master quick-reference table — with no code, no API calls, and no environment needed. Read it standalone (to study or prep for an interview) or alongside the notebooks as a concept lookup.
 
 ## Table of contents
 
@@ -25,11 +25,11 @@ A single, ordered learning path through everything this repo has for evaluating 
 | 2.3 | [`10_Task_Completion_Evaluation.ipynb`](10_Task_Completion_Evaluation.ipynb) | `TaskCompletionMetric`, custom `GEval` rubrics, outcome verification | ✅ Built (not executed — needs `OPENAI_API_KEY`) |
 | 2.4 | [`11_Same_Evals_with_MLflow.ipynb`](11_Same_Evals_with_MLflow.ipynb) | Modules 2.1–2.2's questions, reimplemented via `mlflow.genai.evaluate()` (`Guidelines`, `make_judge`, `@scorer` over `Trace`/`SpanType.TOOL`) | ✅ Built (not executed — needs `OPENAI_API_KEY`; local SQLite MLflow store) |
 | 3 | [`12_Agent_Trajectory_Evaluation.ipynb`](12_Agent_Trajectory_Evaluation.ipynb) | Simple mocked trajectory scoring, then the full 9-metric trace-level suite (mocked, executed) on a realistic refund-agent scenario + Databricks mapping table, then a real tool-calling agent (needs `OPENAI_API_KEY`) | ✅ Built (Parts A–B executed; Part C needs `OPENAI_API_KEY`) |
-| 4 | [`13_Production_Grade_Agent_Eval_Overview.ipynb`](13_Production_Grade_Agent_Eval_Overview.ipynb) + links to the 5 Arize labs (left in place at `../Agent_Evaluation/DeepLearningAI_Arize/`) | Live tracing + offline experiments (Arize Phoenix); concept map from each lab back to Modules 1–3's vocabulary | ✅ Built (bridge notebook; labs need their own env — see notebook's Prerequisites) |
-| 5 | [`14_Capstone_CrewAI_Travel_Planner_Eval.ipynb`](14_Capstone_CrewAI_Travel_Planner_Eval.ipynb) | `TaskCompletionMetric` (Module 2.3) batch-scored against a real running 3-agent CrewAI app, left in place at `../Agent_Evaluation/CrewAI_Travel_Planner/` | ✅ Built (walkthrough; app is a separate live process — see notebook's Standing up the app) |
+| 4 | [`13_Production_Grade_Agent_Eval_Overview.ipynb`](13_Production_Grade_Agent_Eval_Overview.ipynb) + links to the 5 Arize labs (left in place at `labs/agent-evaluation/arize-phoenix-labs/`) | Live tracing + offline experiments (Arize Phoenix); concept map from each lab back to Modules 1–3's vocabulary | ✅ Built (bridge notebook; labs need their own env — see notebook's Prerequisites) |
+| 5 | [`14_Capstone_CrewAI_Travel_Planner_Eval.ipynb`](14_Capstone_CrewAI_Travel_Planner_Eval.ipynb) | `TaskCompletionMetric` (Module 2.3) batch-scored against a real running 3-agent CrewAI app, left in place at `labs/agent-evaluation/crewai-travel-planner/` | ✅ Built (walkthrough; app is a separate live process — see notebook's Standing up the app) |
 
 **If you only have an hour:** Module 0 → 1.2 → 2.2 → 3.
 
 ## Related, but out of scope for this tutorial
 
-- `07_Advanced_Agentic_Systems/Evaluation_and_Eval_Harnesses/red_teaming/` and `12_Production_and_Observability/Safety_and_Alignment/02_Red_Teaming_Agents_and_RAG.ipynb` — adversarial/safety testing (`deepteam`) answers "can this be made to misbehave?", a different question from the quality evaluation covered here.
+- `red_teaming/ (not in this repo)` and `12_Production_and_Observability/Safety_and_Alignment/02_Red_Teaming_Agents_and_RAG.ipynb` — adversarial/safety testing (`deepteam`) answers "can this be made to misbehave?", a different question from the quality evaluation covered here.

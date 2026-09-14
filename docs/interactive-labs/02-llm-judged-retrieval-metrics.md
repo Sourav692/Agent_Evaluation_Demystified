@@ -4,9 +4,9 @@
 
 Part 1's metrics need a hand-written `relevant_ids` list for every query. That does not scale past a curated eval set. DeepEval's three **Contextual** metrics answer the same "is retrieval working" question using an LLM judge instead of hand-labelled IDs — and they answer it three separate times, on purpose.
 
-**Companion lab:** `02-llm-judged-retrieval-metrics.html` — inject one failure at a time and watch exactly which of the three numbers reacts.
+**Companion lab:** `docs/interactive-labs/02-llm-judged-retrieval-metrics.html` — inject one failure at a time and watch exactly which of the three numbers reacts.
 
-**Source module:** `02_Retrieval_Metrics_LLM_Judged.ipynb`
+**Source module:** `courses/01-rag-agent-tool-evaluation/02_Retrieval_Metrics_LLM_Judged.ipynb`
 
 ---
 

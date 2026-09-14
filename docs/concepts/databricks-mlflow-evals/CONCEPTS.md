@@ -104,7 +104,7 @@ Every LLM-judged scorer contains a judge. A judge is not always acting as a scor
 | --- | --- | --- |
 | Judge, bare | `judges.meets_guidelines(guidelines=…, context={"request":…, "response":…})` | One call, one example. No dataset, no metric, no run — the right tool while *drafting* a rule, since re-running 12 rows × 8 scorers to test one wording is slow and expensive. |
 | Judge wrapped as a scorer | `Guidelines(name="concise", guidelines=…)` | Same judge underneath; now named, row-aware, and aggregated into a metric. |
-| `make_judge` | `resolution_status_judge`, `trajectory_judge` (`scorers.py`) | A judge object that is *also* usable directly as a scorer. This is the case that blurs the line. |
+| `make_judge` | `resolution_status_judge`, `trajectory_judge` (`courses/02-databricks-mlflow-evals/scorers.py`) | A judge object that is *also* usable directly as a scorer. This is the case that blurs the line. |
 
 Why the distinction earns its keep, rather than being pedantry:
 
@@ -257,7 +257,7 @@ forget because you never see the request. See **Judge vs. LLM-judged scorer** in
 Each carries an explicit *"otherwise this guideline is satisfied"* clause — without it, a row
 the rule doesn't apply to is judged a failure of it (§3, scorer prerequisites).
 
-## A.3 Custom scorers — `scorers.py`
+## A.3 Custom scorers — `courses/02-databricks-mlflow-evals/scorers.py`
 
 **Deterministic.** Free, instant, and reproducible, which is why their regression tolerance
 is zero: if the number moved, behaviour moved.
@@ -328,7 +328,7 @@ regression worth detecting.
 
 # Appendix B — The wider metric landscape
 
-What `07_Advanced_Agentic_Systems/Evaluation_and_Eval_Harnesses/` covers and this track
+What `labs/` covers and this track
 doesn't. Useful when someone asks "why isn't context precision in here?" — the answer is
 that it lives there, on a corpus big enough for it to mean something.
 
@@ -336,11 +336,11 @@ that it lives there, on a corpus big enough for it to mean something.
 
 | Metric | Decided by | Needs ground truth | Online | Where |
 | --- | --- | --- | --- | --- |
-| Precision@K, Recall@K, MRR, nDCG | Deterministic | **yes** — labelled chunk relevance | no | `Tutorial_.../01_Retrieval_Metrics_Deterministic.ipynb` |
-| `ContextualRelevancyMetric` | Judge | — | **yes** | DeepEval, `RAG_Evaluation/` |
-| `ContextualPrecisionMetric` | Judge | **yes** — expected output | no | `DeepEval_Metrics/Contextual_Precision.ipynb` |
-| `ContextualRecallMetric` | Judge | **yes** — expected output | no | `DeepEval_Metrics/Contexual_Recall.ipynb` |
-| RAGAS `context_precision` | Judge | **yes** (classic form) | no | `RAG_Evaluation/RAGAS/` |
+| Precision@K, Recall@K, MRR, nDCG | Deterministic | **yes** — labelled chunk relevance | no | `courses/01-rag-agent-tool-evaluation/01_Retrieval_Metrics_Deterministic.ipynb` |
+| `ContextualRelevancyMetric` | Judge | — | **yes** | DeepEval, `labs/rag-evaluation/` |
+| `ContextualPrecisionMetric` | Judge | **yes** — expected output | no | `labs/rag-evaluation/deepeval-metrics/Contextual_Precision.ipynb` |
+| `ContextualRecallMetric` | Judge | **yes** — expected output | no | `labs/rag-evaluation/deepeval-metrics/Contextual_Recall.ipynb` |
+| RAGAS `context_precision` | Judge | **yes** (classic form) | no | `labs/rag-evaluation/ragas-scripts/` |
 
 Note the inversion: the *deterministic* retrieval metrics are the offline-only ones. Cheap to
 compute, but they need per-chunk relevance labels — the most expensive labelling in the stack.

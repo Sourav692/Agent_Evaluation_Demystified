@@ -25,7 +25,7 @@ Two different kinds of expectation appear here, and the distinction matters:
   row must not). Criteria that apply to every row belong in a global `Guidelines(...)`
   scorer instead, not repeated here.
 - `expects_tool_call` — a **custom** key, added in Phase 3 and read by the
-  `tool_call_correctness` scorer in `scorers.py`. `expectations` is free-form: built-in
+  `tool_call_correctness` scorer in `courses/02-databricks-mlflow-evals/scorers.py`. `expectations` is free-form: built-in
   scorers look for the keys they know and ignore the rest, so your own scorers can define
   whatever ground truth they need. Only two rows expect a tool call, which is exactly why
   Phase 3 reports that metric split by direction — an agent that never calls a tool would
@@ -328,7 +328,7 @@ def resolve_gate_metrics(metrics: dict) -> tuple[dict, list]:
 # ============================================================================
 # `inputs` here carry `turns` rather than `query`, because these rows are evaluated with
 # `agent.converse` as the predict_fn rather than `agent.answer`. Two new expectation keys
-# appear, both read by the conversation scorers in `scorers.py`:
+# appear, both read by the conversation scorers in `courses/02-databricks-mlflow-evals/scorers.py`:
 #
 #   established_facts  -- things the customer states early that the agent must not re-ask for
 #   expected_tools     -- which tools should fire (Phase 9's second tool makes this meaningful)

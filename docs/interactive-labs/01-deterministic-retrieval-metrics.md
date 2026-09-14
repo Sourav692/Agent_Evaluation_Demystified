@@ -6,9 +6,9 @@
 
 Before any judge model, any API key, or any cost, there is a layer of retrieval evaluation that is pure arithmetic over labelled ground truth. It is the cheapest signal in the entire stack and it caps everything downstream — so it is where the tutorial starts.
 
-**Companion lab:** `01-deterministic-retrieval-metrics.html` — drag `K` and watch precision and recall pull in opposite directions while MRR refuses to move at all.
+**Companion lab:** `docs/interactive-labs/01-deterministic-retrieval-metrics.html` — drag `K` and watch precision and recall pull in opposite directions while MRR refuses to move at all.
 
-**Source module:** `01_Retrieval_Metrics_Deterministic.ipynb`
+**Source module:** `courses/01-rag-agent-tool-evaluation/01_Retrieval_Metrics_Deterministic.ipynb`
 
 > **Naming note:** Part 2 reuses "Precision" and "Recall" for its LLM-judged Contextual metrics, but the computations differ. Contextual Relevancy turns out to be the *same* unweighted `relevant/total` formula as Precision@K here; Contextual Precision is a different, rank-weighted metric. See Part 2's Core Mechanism section for the exact formulas.
 

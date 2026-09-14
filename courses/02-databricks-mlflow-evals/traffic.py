@@ -21,7 +21,7 @@ you draw the head of the distribution, which is precisely the part you already h
 **The tail contains things the curated dataset never tested**, deliberately:
 
 - questions the knowledge base genuinely cannot answer (family plans, pausing service,
-  5G) — these test *abstention*, which `eval_dataset.py` has no row for at all
+  5G) — these test *abstention*, which `courses/02-databricks-mlflow-evals/eval_dataset.py` has no row for at all
 - a non-English question
 - typo-laden and telegraphic phrasing
 - a rambling multi-part question

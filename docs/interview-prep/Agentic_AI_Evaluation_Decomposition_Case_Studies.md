@@ -1,6 +1,6 @@
 # Agentic AI System Design & Decomposition — Case-Study Question Bank
 
-**Source material:** `07_Advanced_Agentic_Systems/Evaluation_and_Eval_Harnesses/`, `07_Advanced_Agentic_Systems/Deep_Agents_and_Harness_Engineering/`, and `17_OpenAI_Applied_Engineer_Preparation/` from [AI-ENGINEERING-DEMYSTIFIED](https://github.com/Sourav692/AI-ENGINEERING-DEMYSTIFIED).
+**Source material:** `labs/`, `labs/ (formerly 07_Advanced_Agentic_Systems/Deep_Agents_and_Harness_Engineering/`, and `17_OpenAI_Applied_Engineer_Preparation/` from [AI-ENGINEERING-DEMYSTIFIED](https://github.com/Sourav692/AI-ENGINEERING-DEMYSTIFIED).
 
 **Target rounds:** Agentic AI system design / problem decomposition at OpenAI (Applied AI Engineer), Anthropic (Applied AI / Forward Deployed), Google (Applied AI Engineer, Vertex Agents), Microsoft (Copilot Applied Science / Cloud Solution Architect - AI).
 

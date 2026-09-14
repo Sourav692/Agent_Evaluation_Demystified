@@ -38,7 +38,7 @@ regressions through.
 
 PROMPT_NAME = "telcoassist_system_prompt"
 
-# Metrics produced by deterministic scorers in `scorers.py` -- same inputs, same verdict,
+# Metrics produced by deterministic scorers in `courses/02-databricks-mlflow-evals/scorers.py` -- same inputs, same verdict,
 # every time. Any drop in these is a real behavioural change, never measurement noise.
 DETERMINISTIC_METRICS = {
     "tool_call_correctness",
@@ -119,7 +119,7 @@ def promotion_decision(baseline_metrics, candidate_metrics, quality_gates, resol
     Args:
         baseline_metrics: `results.metrics` from the run of the current @production version.
         candidate_metrics: `results.metrics` from the candidate's run.
-        quality_gates: the QUALITY_GATES mapping from `eval_dataset.py`.
+        quality_gates: the QUALITY_GATES mapping from `courses/02-databricks-mlflow-evals/eval_dataset.py`.
         resolve_fn: `eval_dataset.resolve_gate_metrics` -- passed in rather than imported so
             this module stays independent of the dataset module.
 

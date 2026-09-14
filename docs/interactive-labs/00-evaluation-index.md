@@ -1,6 +1,6 @@
 # RAG, Agent & Tool Evaluation — Tutorial Index
 
-*A five-part interactive tutorial built from the `Tutorial_RAG_Agent_Tool_Evaluation` notebooks in `Sourav692/AI-ENGINEERING-DEMYSTIFIED`.*
+*A five-part interactive tutorial built from the `courses/01-rag-agent-tool-evaluation` notebooks in `Sourav692/AI-ENGINEERING-DEMYSTIFIED`.*
 
 Each part is a matched pair: an **interactive HTML lab** you can manipulate, and a **written companion** with diagrams, comparison tables and interview prep. Read them in order — every surface caps the ones downstream.
 
@@ -40,7 +40,7 @@ flowchart LR
 ## The Five Parts
 
 ### Part 01 — Deterministic Retrieval Metrics
-**Files:** `01-deterministic-retrieval-metrics.html` · `.md` — from `01_Retrieval_Metrics_Deterministic.ipynb`
+**Files:** `docs/interactive-labs/01-deterministic-retrieval-metrics.html` · `.md` — from `courses/01-rag-agent-tool-evaluation/01_Retrieval_Metrics_Deterministic.ipynb`
 
 Precision@K, Recall@K, MRR and nDCG@K over the notebook's exact toy eval set. No LLM, no API key, no cost.
 
@@ -48,7 +48,7 @@ Precision@K, Recall@K, MRR and nDCG@K over the notebook's exact toy eval set. No
 - **The payoff:** one relevant chunk was never retrieved, so three of the four metrics are structurally capped. No value of K fixes a retriever that cannot reach the chunk.
 
 ### Part 02 — LLM-Judged Retrieval
-**Files:** `02-llm-judged-retrieval-metrics.html` · `.md` — from `02_Retrieval_Metrics_LLM_Judged.ipynb`
+**Files:** `docs/interactive-labs/02-llm-judged-retrieval-metrics.html` · `.md` — from `courses/01-rag-agent-tool-evaluation/02_Retrieval_Metrics_LLM_Judged.ipynb`
 
 The same question without hand-labelled chunk IDs. Contextual Precision cares about order, Recall about coverage, Relevancy about signal-to-noise.
 
@@ -56,7 +56,7 @@ The same question without hand-labelled chunk IDs. Contextual Precision cares ab
 - **The payoff:** the "thin coverage" case scores **1.00 on precision and relevancy** and 0.50 on recall — a broken retriever that looks perfect if you only run the referenceless metric.
 
 ### Part 03 — Generator Metrics
-**Files:** `03-generator-metrics.html` · `.md` — from `03_Generator_Metrics_Referenceless.ipynb` + `04_Generator_Metrics_Reference_Based.ipynb`
+**Files:** `docs/interactive-labs/03-generator-metrics.html` · `.md` — from `courses/01-rag-agent-tool-evaluation/03_Generator_Metrics_Referenceless.ipynb` + `courses/01-rag-agent-tool-evaluation/04_Generator_Metrics_Reference_Based.ipynb`
 
 Faithfulness, Answer Relevancy, Hallucination, Answer Correctness (`GEval`) and Answer Semantic Similarity on four answers to one question.
 
@@ -64,7 +64,7 @@ Faithfulness, Answer Relevancy, Hallucination, Answer Correctness (`GEval`) and 
 - **The payoff:** the fourth answer scores **Faithfulness 1.00 and Answer Relevancy 1.00** while being flatly false. No referenceless metric can detect a corrupted knowledge base.
 
 ### Part 04 — Tool-Use Evaluation
-**Files:** `04-tool-use-evaluation.html` · `.md` — from `09_Tool_Use_Evaluation.ipynb` + `10_Task_Completion_Evaluation.ipynb`
+**Files:** `docs/interactive-labs/04-tool-use-evaluation.html` · `.md` — from `courses/01-rag-agent-tool-evaluation/09_Tool_Use_Evaluation.ipynb` + `courses/01-rag-agent-tool-evaluation/10_Task_Completion_Evaluation.ipynb`
 
 `ToolCorrectnessMetric` scored across six traces under three configurations.
 
@@ -72,7 +72,7 @@ Faithfulness, Answer Relevancy, Hallucination, Answer Correctness (`GEval`) and 
 - **The payoff:** adding `should_exact_match=True` catches all five broken traces and collapses the mean to **0.17**. The metric didn't change — the contract you asked it to enforce did.
 
 ### Part 05 — Agent Trajectory Evaluation
-**Files:** `05-agent-trajectory-evaluation.html` · `.md` — from `12_Agent_Trajectory_Evaluation.ipynb`
+**Files:** `docs/interactive-labs/05-agent-trajectory-evaluation.html` · `.md` — from `courses/01-rag-agent-tool-evaluation/12_Agent_Trajectory_Evaluation.ipynb`
 
 Nine trace-level metrics on a refund agent with one error, one recovery and one redundant call.
 
@@ -157,7 +157,7 @@ None is "the right one." DeepEval and RAGAS answer *is this output good*; MLflow
 
 ## Suggested Reading Order
 
-- **Open `00-evaluation-index.html`** for the interactive surface map.
+- **Open `docs/interactive-labs/00-evaluation-index.html`** for the interactive surface map.
 - **Part 01** — get deterministic retrieval metrics into CI. Free, fast, highest leverage available.
 - **Part 02** — add judged retrieval where labels don't exist, and validate the judge before trusting it.
 - **Part 03** — measure generation, and understand exactly which failure your referenceless metrics cannot see.

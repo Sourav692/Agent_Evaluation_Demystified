@@ -4,9 +4,9 @@
 
 Tool use is where agents actually fail. A travel bot that says *"Your flight is booked!"* is useless if it never called the booking API — and the sentence reads exactly the same either way. This part covers the metrics that look underneath the sentence, and the configuration decisions that determine whether they see anything at all.
 
-**Companion lab:** `04-tool-use-evaluation.html` — six traces, three metric configurations, and a default setting that scores four broken traces at 1.00.
+**Companion lab:** `docs/interactive-labs/04-tool-use-evaluation.html` — six traces, three metric configurations, and a default setting that scores four broken traces at 1.00.
 
-**Source modules:** `09_Tool_Use_Evaluation.ipynb`, `10_Task_Completion_Evaluation.ipynb`
+**Source modules:** `courses/01-rag-agent-tool-evaluation/09_Tool_Use_Evaluation.ipynb`, `courses/01-rag-agent-tool-evaluation/10_Task_Completion_Evaluation.ipynb`
 
 ---
 

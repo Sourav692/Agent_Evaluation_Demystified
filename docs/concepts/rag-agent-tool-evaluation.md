@@ -1,6 +1,6 @@
 # RAG, Agent & Tool Evaluation — Theory Guide
 
-This is the theory companion to the 14 hands-on notebooks in this folder (`00_Evaluation_Landscape.ipynb` through `14_Capstone_CrewAI_Travel_Planner_Eval.ipynb` — see `README.md` for the full table of contents). The notebooks teach each concept through runnable code; this document teaches the *why* and *what* on its own, so you can read it standalone — to study, to prep for an interview, or to refresh before touching the code again — without spinning up an environment or spending API calls.
+This is the theory companion to the 14 hands-on notebooks in this folder (`courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb` through `courses/01-rag-agent-tool-evaluation/14_Capstone_CrewAI_Travel_Planner_Eval.ipynb` — see `README.md` for the full table of contents). The notebooks teach each concept through runnable code; this document teaches the *why* and *what* on its own, so you can read it standalone — to study, to prep for an interview, or to refresh before touching the code again — without spinning up an environment or spending API calls.
 
 Every metric, class name, and framework mentioned here is exactly what the notebooks actually use (`deepeval==4.1.8`, `ragas`, `mlflow.genai.evaluate()`, Arize Phoenix) — this isn't a generic evaluation primer, it's the specific vocabulary this tutorial's code is built on, minus the code.
 

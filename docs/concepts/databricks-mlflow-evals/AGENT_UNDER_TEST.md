@@ -3,7 +3,7 @@
 A high-level view of the system these eleven notebooks evaluate: what it does, what it can
 reach, what data it holds, and — just as important — what it deliberately cannot do.
 
-Everything below is extracted from `../agent.py`, which is the single source of truth.
+Everything below is extracted from `courses/02-databricks-mlflow-evals/agent.py`, which is the single source of truth.
 
 ---
 
@@ -19,7 +19,7 @@ evaluation, and an agent that keeps changing makes every before/after comparison
 It exists to be *measurable*, not impressive.
 
 Grounded in **Case Study #2** (Customer-Support Agent) from
-`../../Sample_Questions/OpenAI Applied_Engineer_Problem_Decomposition_Questions.md`.
+`docs/interview-prep/OpenAI Applied_Engineer_Problem_Decomposition_Questions.md`.
 
 ## 2. How a request flows
 
@@ -91,7 +91,7 @@ Three design points that exist purely to make evaluation possible:
 
 ## 4. Data the agent holds
 
-All in-memory Python literals in `agent.py`. No database, no external service.
+All in-memory Python literals in `courses/02-databricks-mlflow-evals/agent.py`. No database, no external service.
 
 ```mermaid
 flowchart LR
@@ -192,7 +192,7 @@ platform-dependent model would make Phase 5's before/after comparison meaningles
 
 The prompt is a **parameter**, carried in graph state (`answer(..., system_prompt=...)`).
 That single design choice is what lets Phase 5 evaluate a version pulled from the MLflow
-Prompt Registry, and Phase 8 let GEPA swap candidates, without touching `agent.py`.
+Prompt Registry, and Phase 8 let GEPA swap candidates, without touching `courses/02-databricks-mlflow-evals/agent.py`.
 
 Its clauses map one-to-one onto scorers — the prompt and the eval criteria were written as
 a matched pair:

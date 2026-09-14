@@ -4,9 +4,9 @@
 
 Parts 1 and 2 asked whether the right chunks reached the prompt. This part asks whether the answer built on top of them is any good — and finds one failure that no referenceless metric can see, however many of them you run.
 
-**Companion lab:** `03-generator-metrics.html` — four answers to one question; the fourth scores 1.00 on both referenceless metrics while being flatly false.
+**Companion lab:** `docs/interactive-labs/03-generator-metrics.html` — four answers to one question; the fourth scores 1.00 on both referenceless metrics while being flatly false.
 
-**Source modules:** `03_Generator_Metrics_Referenceless.ipynb`, `04_Generator_Metrics_Reference_Based.ipynb`
+**Source modules:** `courses/01-rag-agent-tool-evaluation/03_Generator_Metrics_Referenceless.ipynb`, `courses/01-rag-agent-tool-evaluation/04_Generator_Metrics_Reference_Based.ipynb`
 
 ---
 

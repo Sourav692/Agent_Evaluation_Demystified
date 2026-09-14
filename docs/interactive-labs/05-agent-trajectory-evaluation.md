@@ -4,9 +4,9 @@
 
 Part 4's metrics score a finished interaction: given the tools called and the final answer, was it right? This part asks a different question. Given a **multi-step run**, was the *path* any good — not just where it ended up?
 
-**Companion lab:** `05-agent-trajectory-evaluation.html` — remove waste from a refund agent's trace one piece at a time and watch five of the nine metrics refuse to move.
+**Companion lab:** `docs/interactive-labs/05-agent-trajectory-evaluation.html` — remove waste from a refund agent's trace one piece at a time and watch five of the nine metrics refuse to move.
 
-**Source module:** `12_Agent_Trajectory_Evaluation.ipynb` (Part B)
+**Source module:** `courses/01-rag-agent-tool-evaluation/12_Agent_Trajectory_Evaluation.ipynb` (Part B)
 
 ---
 

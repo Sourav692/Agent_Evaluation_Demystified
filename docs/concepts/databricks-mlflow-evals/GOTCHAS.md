@@ -85,7 +85,7 @@ row belonging to the other kind.
 **Fix:** Wrap them so an inapplicable row returns `None`, which omits it from the metric
 cleanly. Return `None`, not a `"skip"` verdict: a pass rate counts `"skip"` as a non-pass
 and quietly deflates. See `correctness_when_facts_given` / `guidelines_when_specified` in
-`scorers.py`; both keep the built-in's metric name so runs stay comparable.
+`courses/02-databricks-mlflow-evals/scorers.py`; both keep the built-in's metric name so runs stay comparable.
 **Note:** This does **not** stop the run. The harness catches each exception and records a
 `SCORER_ERROR` assessment for that row, so the symptom is noise plus a vanished metric
 rather than a crash — easy to scroll past. An errored row is not a scored row.

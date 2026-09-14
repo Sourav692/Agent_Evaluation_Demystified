@@ -3,7 +3,7 @@ TelcoAssist — the minimal agent under evaluation
 ================================================
 
 This module is the *subject* of the Databricks AI Evals Tutorial, not the point of it.
-It implements the contract pinned down in `00_eval_strategy_worksheet.ipynb` (`AGENT_SPEC`)
+It implements the contract pinned down in `courses/02-databricks-mlflow-evals/00_eval_strategy_worksheet.ipynb` (`AGENT_SPEC`)
 and is then left alone — every later phase imports `answer` and evaluates it.
 
 Why a .py module instead of notebook cells

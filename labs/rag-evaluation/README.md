@@ -6,11 +6,11 @@ Core notebooks merged from `RAG_Demystified`'s "Evaluating RAG Systems" section.
 
 | Path | Topic |
 |---|---|
-| `1.Retriever_Evaluation_Metrics.ipynb` | Retriever evaluation metrics |
-| `2.Generator_Evaluation_Metrics.ipynb` | Generator evaluation metrics |
-| `3.Custom_LLM_as_a_Judge _(G-Eval).ipynb` | Custom LLM-as-judge (G-Eval) |
-| `4. End_to_End_RAG_System_Evaluation.ipynb` | End-to-end RAG evaluation |
-| `Build_RAG_Pipeline_with_Source.ipynb` | Supporting pipeline used by the evaluation notebooks |
+| `labs/rag-evaluation/1.Retriever_Evaluation_Metrics.ipynb` | Retriever evaluation metrics |
+| `labs/rag-evaluation/2.Generator_Evaluation_Metrics.ipynb` | Generator evaluation metrics |
+| `labs/rag-evaluation/3.Custom_LLM_as_a_Judge_(G-Eval).ipynb` | Custom LLM-as-judge (G-Eval) |
+| `labs/rag-evaluation/4.End_to_End_RAG_System_Evaluation.ipynb` | End-to-end RAG evaluation |
+| `labs/rag-evaluation/Build_RAG_Pipeline_with_Source.ipynb` | Supporting pipeline used by the evaluation notebooks |
 | `DeepEval_Metrics/` | Standalone DeepEval drills: contextual precision, recall, relevancy |
 | `RAGAS/` | RAGAS scripts + a small FastAPI/Streamlit RAG bot used as the eval target |
 

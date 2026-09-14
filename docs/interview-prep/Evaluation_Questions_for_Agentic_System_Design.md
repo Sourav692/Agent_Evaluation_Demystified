@@ -5,9 +5,9 @@ agentic system in an interview — not coding exercises, not metric derivations.
 here is judgement under a constraint: what to measure, why that and not something else, what
 it costs, and what you do when the number disagrees with the stakeholder.
 
-**Sources.** Grounded in `../../Databricks_AI_Evals_Tutorial/` (strategy → tracing → offline →
+**Sources.** Grounded in `courses/02-databricks-mlflow-evals/` (strategy → tracing → offline →
 judges → datasets → gating → online → alignment → optimisation → multi-turn → adversarial) and
-`07_Advanced_Agentic_Systems/Evaluation_and_Eval_Harnesses/` (RAG, tool, trajectory,
+`labs/` (RAG, tool, trajectory,
 task-completion and conversational evaluation). Companion to the 23 case studies in
 `../OpenAI Applied_Engineer_Problem_Decomposition_Questions.md` — that file covers whole-system
 design; this one covers the evaluation thread running through all of it.
