@@ -10,10 +10,11 @@ Prose. Nothing here executes.
 
 ## concepts/
 
-- [`rag-agent-tool-evaluation.md`](concepts/rag-agent-tool-evaluation.md) — the full
-  theory companion to course 01: the taxonomy, every metric's definition and when to use
-  it, LLM-as-judge failure modes, framework comparisons, a master quick-reference table.
-  No code, nothing to run.
+- [`rag-agent-tool-evaluation.md`](concepts/rag-agent-tool-evaluation.md) — the field
+  guide to course 01: the taxonomy, every check as what-it-catches / what-it-misses /
+  when-to-reach-for-it, LLM-as-judge failure modes, what each check looks like on a live
+  system, a debugging loop and a one-page cheat sheet. Tool-agnostic — no framework APIs,
+  no code, nothing to run.
 - [`databricks-mlflow-evals/`](concepts/databricks-mlflow-evals/) — companions to course 02:
   the agent under test, concepts by theme, 32 gotchas as symptom → cause → fix, and the
   numbers and decision rules in one sitting.
