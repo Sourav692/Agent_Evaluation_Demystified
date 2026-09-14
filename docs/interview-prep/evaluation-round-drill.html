@@ -1086,14 +1086,21 @@ function buildFound(){
   s.appendChild(cC);
 
   s.appendChild(el("h3","sub","4 · Reference-based vs referenceless"));
-  s.appendChild(el("p",null,"<span class='prose' style='display:block;color:var(--text-2)'>The axis that decides everything operational. <b>Reference-based gates the deploy; referenceless watches what happens after it.</b></span>"));
+  s.appendChild(el("p",null,"<span class='prose' style='display:block;color:var(--text-2)'>The axis that decides <b>where a check can run</b>. The implication runs one way only: <b>online forces referenceless — but referenceless is not confined to online.</b></span>"));
   s.appendChild(table(["","Reference-based","Referenceless"],[
     ["Needs","A human-authored correct answer","Nothing beyond the trace"],
     ["Cost","Labelling, forever","One judge call, or free if deterministic"],
-    ["Where it runs","Offline only","Offline <i>and</i> online"],
-    ["Role","The release gate","The production trend"],
+    ["Where it runs","<b>Offline only</b> — production has no ground truth","Offline <i>and</i> online"],
+    ["Its offline job","The correctness gate — the only check that can say the answer was <i>right</i>, not merely <i>supported</i>","<b>Also a blocking gate:</b> safety, groundedness, policy rules, every deterministic check"],
+    ["Its online job","Structurally impossible","The production trend, on sampled traffic"],
     ["Scales to traffic","No","Yes"],
   ]));
+  const cD = el("div","callout warn");
+  cD.innerHTML="<span class='lbl'>Don’t collapse this into “referenceless = online”</span>"+
+    "<p>In this repo’s own gate table, <b>6 of the 10 blocking release gates are referenceless</b> — safety, account protection, the approval gate, groundedness, escalation and relevance. They block the deploy <i>offline</i> and transfer to production unchanged. Referenceless does double duty; reference-based is the half that’s genuinely confined.</p>"+
+    "<p>What reference-based uniquely buys is the only check that can say the answer was <b>correct</b>, rather than merely <b>supported by the context it was given</b>. A groundedness score of 1.00 on a stale document is a faithful answer to a wrong source.</p>"+
+    "<p>§3’s mechanical test is this same split seen from the other side: <i>“does it read <code>expectations</code>?”</i> <b>is</b> <i>“is it reference-based?”</i></p>";
+  s.appendChild(cD);
 
   s.appendChild(el("h3","sub","5 · LLM-as-judge: the four failure modes"));
   s.appendChild(el("ul","pts","<li><b>Persuaded by fluency.</b> Confident, well-formed, wrong text scores well.</li>"+
