@@ -208,8 +208,8 @@ ul.pts li::marker{color:var(--accent)}
 .btn{font:inherit; font-size:13px; padding:6px 13px; border-radius:3px; cursor:pointer;
   border:1px solid var(--accent); background:var(--accent); color:#fff; font-weight:500}
 .btn:hover{filter:brightness(1.08)}
-:root[data-theme="dark"] .btn, :root:not([data-theme="light"]) .btn{color:var(--ink)}
-@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]) .btn{color:#fff} }
+:root[data-theme="dark"] .btn:not(.ghost), :root:not([data-theme="light"]) .btn:not(.ghost){color:var(--ink)}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]) .btn:not(.ghost){color:#fff} }
 .btn.ghost{background:transparent; color:var(--text-2); border-color:var(--rule)}
 .btn.ghost:hover{border-color:var(--accent); color:var(--accent-text); filter:none}
 .rate{display:flex; gap:5px; margin-left:auto; align-items:center}
