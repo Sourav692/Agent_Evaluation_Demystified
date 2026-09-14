@@ -17,7 +17,7 @@ Every metric, class name, and framework mentioned here is exactly what the noteb
 **By pipeline stage (RAG-specific):**
 
 | Stage | Question it answers | Failure it catches | Example metrics |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **Retrieval** | Did we fetch the right chunks? | Retriever returns irrelevant, missing, or badly-ranked context | Precision@K, Recall@K, MRR, nDCG, `ContextualPrecisionMetric`, `ContextualRecallMetric`, `ContextualRelevancyMetric` |
 | **Generation (referenceless)** | Given what we retrieved, is the answer grounded and on-topic? | Hallucination on top of correct context; answering a different question than the one asked | `FaithfulnessMetric`, `AnswerRelevancyMetric`, RAGAS Faithfulness |
 | **Generation (reference-based)** | Is the answer actually *correct*, against a known-good answer? | Grounded-but-wrong-because-the-context-itself-was-wrong; wording drift from the expected answer | Answer Correctness (custom `GEval`), Answer Semantic Similarity (embeddings) |
@@ -26,7 +26,7 @@ Every metric, class name, and framework mentioned here is exactly what the noteb
 **By behavior (agent-specific):**
 
 | Behavior | Question it answers | Failure it catches | Example metrics |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **Tool selection** | Did the agent call the right tools? | Wrong tool, missing tool, tool called when none was needed | `ToolCorrectnessMetric` (reference-based), Tool Selection Accuracy (trace-based, coverage-only) |
 | **Argument correctness** | Were the *arguments* passed to each tool correct? | Right tool, malformed or wrong arguments — a failure mode tool-selection checks can't see | `ArgumentCorrectnessMetric`, deterministic schema validation |
 | **Trajectory** | Across a multi-step run, was the *sequence* of actions sound? | Redundant calls, wasted steps, no recovery from an error, right destination via a wasteful path | Step-wise Accuracy, Redundant-Call detection, Recovery Rate, fuzzy Trajectory Match |
@@ -61,7 +61,7 @@ This is powerful — it's the only practical way to score open-ended text at all
 Four different tools show up across this material, deliberately, because the source content already used all four and because in practice you'll encounter systems built on each of them. Knowing what each is *for* is more useful than picking a favorite.
 
 | Tool | What it's really for |
-|---|---|
+| --- | --- |
 | **DeepEval** | A general-purpose metric library — dozens of pre-built metrics (retrieval, generation, tool use, task completion, conversational) plus `GEval` for custom LLM-judge rubrics. Pytest-friendly, good for CI. The primary framework throughout Parts 1–3. |
 | **RAGAS** | A RAG-specific metric library, older and narrower in scope than DeepEval but a common default in the RAG ecosystem — worth knowing on its own terms, and useful as a second opinion alongside DeepEval on the same test case. |
 | **MLflow (`mlflow.genai.evaluate()`)** | Evaluation as part of an experiment-tracking platform — the same conceptual metrics as DeepEval, but versioned, logged, and comparable across runs the way you'd compare model-training experiments. The right choice if your team already lives in MLflow for everything else. |
@@ -72,7 +72,7 @@ None of these are "the right one" in the abstract — DeepEval and RAGAS answer 
 ### 0.5 The shape of this material
 
 | Part | Answers | Primary tool(s) |
-|---|---|---|
+| --- | --- | --- |
 | **0 — Evaluation Landscape** | What kinds of evaluation exist, and how do the tools relate? | — |
 | **1 — RAG Evaluation** | Retrieval quality, generation quality (with and without reference), evaluation wired into the pipeline itself, and a full build-then-evaluate capstone | DeepEval, RAGAS |
 | **2 — Conversational, Tool & Task Evaluation** | Multi-turn conversational quality, tool-call correctness, task completion — then the same three questions again through MLflow | DeepEval, MLflow |
@@ -104,7 +104,7 @@ DeepEval's three **Contextual** metrics answer the same "is retrieval working" q
 All three take a `retrieval_context` (the chunks your retriever actually returned) and judge it against the query and/or a reference answer — but each checks a **different failure mode**, which is exactly why DeepEval ships all three rather than one general "is retrieval good" score:
 
 | Metric | Question | Needs `expected_output`? | Catches |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **Contextual Precision** | Are the *relevant* chunks ranked *higher* than the irrelevant ones? | Yes | A good chunk buried below noise — same failure Precision@K catches, but without hand-labeled IDs |
 | **Contextual Recall** | Does the retrieved context, as a whole, cover everything the expected answer needs? | Yes | Missing information — the retriever found *something*, but not *enough* |
 | **Contextual Relevancy** | Of everything retrieved, how much is actually on-topic? | No | Noise/off-topic chunks diluting the context, independent of ranking or completeness |
@@ -116,7 +116,7 @@ Precision cares about **order**, Recall cares about **coverage**, Relevancy care
 These move one step past retrieval: given whatever was retrieved, **is the generated answer any good** — without needing a hand-written reference answer for every query. They're the metrics you can realistically run against live production traffic, because none of them need labeled ground truth.
 
 | Metric | Question | Compares against |
-|---|---|---|
+| --- | --- | --- |
 | **Answer Relevancy** | Does the answer actually address the question asked? | `input` only |
 | **Faithfulness** | Is the answer grounded in what was retrieved, with no hallucinated claims? | `retrieval_context` |
 | **Hallucination** | Does the answer align with a trusted ground-truth `context`, regardless of what was retrieved? | a separately-supplied `context` (not `retrieval_context`) |
@@ -133,9 +133,9 @@ DeepEval also has a RAGAS binding for Answer Relevancy (`RAGASAnswerRelevancyMet
 
 **Answer Correctness has no dedicated DeepEval metric class**, unlike Faithfulness or Relevancy — and that's not an oversight. "Is it factually right" is inherently specific to what "right" means for your task, so DeepEval's own recommended pattern is to write a custom `GEval` rubric rather than ship one generic class.
 
-**Two ways to write a `GEval` rubric:**
-- **`criteria`** — a single sentence describing what to check. Quick, but DeepEval has to expand it into an evaluation procedure itself, which can be inconsistent.
-- **`evaluation_steps`** — you write the procedure yourself, step by step, and can weave in multiple test-case fields (e.g. relevance to `input`, agreement with `expected_output`, *and* grounding in `retrieval_context`, all in one rubric). More controllable — reach for this whenever a single-sentence criteria doesn't give you enough control over exactly what gets penalized.
+**Two ways to write a **`GEval`** rubric:**
+- `criteria` — a single sentence describing what to check. Quick, but DeepEval has to expand it into an evaluation procedure itself, which can be inconsistent.
+- `evaluation_steps` — you write the procedure yourself, step by step, and can weave in multiple test-case fields (e.g. relevance to `input`, agreement with `expected_output`, *and* grounding in `retrieval_context`, all in one rubric). More controllable — reach for this whenever a single-sentence criteria doesn't give you enough control over exactly what gets penalized.
 
 **Answer Semantic Similarity** isn't a DeepEval class at all — it's plain embedding cosine similarity, cheap and fast with no LLM judge call, but weaker at catching subtle factual errors: two answers can be semantically close (same topic, similar vocabulary) while disagreeing on a key number or fact. That's its known weakness — it measures *topical* closeness, not *factual* agreement, which is why it's paired with (not a replacement for) an LLM-judged Answer Correctness check when you actually need to catch a wrong number or fact.
 
@@ -182,9 +182,9 @@ Part 1 evaluated single request/response pairs — a query in, an answer out. Re
 
 DeepEval represents a dialogue as a `ConversationalTestCase`, a sequence of `Turn`s (each with a role and content), and applies conversational metrics to the whole thing:
 
-- **`TurnRelevancyMetric`** — constructs sliding windows of turns, then uses the LLM to determine whether the last turn in every window has assistant content relevant to the previous conversational context in that window.
-- **`KnowledgeRetentionMetric`** — evaluates whether the assistant correctly remembers and uses information from earlier turns.
-- **`ConversationalGEval`** — the multi-turn counterpart to the `GEval` custom rubric from 1.4. Write your own domain-specific criteria (e.g. "safe medical advice") and apply it across the whole conversation, not just one turn.
+- `TurnRelevancyMetric` — constructs sliding windows of turns, then uses the LLM to determine whether the last turn in every window has assistant content relevant to the previous conversational context in that window.
+- `KnowledgeRetentionMetric` — evaluates whether the assistant correctly remembers and uses information from earlier turns.
+- `ConversationalGEval` — the multi-turn counterpart to the `GEval` custom rubric from 1.4. Write your own domain-specific criteria (e.g. "safe medical advice") and apply it across the whole conversation, not just one turn.
 
 **Scaling beyond hand-written dialogues:** a `ConversationSimulator` synthesizes multi-turn dialogues from defined user intents — a simulated user has a goal and a policy for pursuing it, including curveballs like changing requirements mid-conversation. At the end of a simulated conversation, the same metrics can check whether the goal was met, giving an automatic success signal that scales to hundreds of scenarios without writing every dialogue by hand.
 
@@ -197,7 +197,7 @@ This makes tool-use evaluation fundamentally different from standard LLM evaluat
 DeepEval provides three dedicated metrics, each targeting a different dimension and granularity:
 
 | Metric | Type | Question | Best for |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **`ToolCorrectnessMetric`** | Reference-based | Do `tools_called` match `expected_tools`? | Regression/CI, when you already know correct tool behavior |
 | **`ArgumentCorrectnessMetric`** | Referenceless, LLM-judged | Were the arguments passed to each call correct for the task? | Dynamic workflows and production monitoring, where exact argument values can't be predetermined |
 | **`ToolUseMetric`** | Multi-turn (`ConversationalTestCase`) | Tool selection **and** argument correctness across a conversation | Chatbot-style agents where tool use spans multiple exchanges |
@@ -214,7 +214,7 @@ The three tool-use metrics above all judge the **mechanics** of tool use — wer
 
 That gap is real. An agent can call every tool correctly and still fail the task — booking the wrong hotel because it ignored a stated budget, silently dropping a constraint from a multi-part request, or handing back a technically-valid tool result wrapped in a confident sentence that doesn't reflect what actually happened. Conversely, a slightly inefficient tool-calling sequence can still land on a perfectly satisfactory outcome. Tool-level and outcome-level metrics answer different questions, and a production eval suite needs both.
 
-**`TaskCompletionMetric`** is DeepEval's dedicated answer: an LLM-judged, referenceless metric that looks at `input` (the user's goal) together with `actual_output` and `tools_called`, and asks whether the underlying task was actually accomplished.
+`TaskCompletionMetric` is DeepEval's dedicated answer: an LLM-judged, referenceless metric that looks at `input` (the user's goal) together with `actual_output` and `tools_called`, and asks whether the underlying task was actually accomplished.
 
 - It only strictly requires `input` and `actual_output` — `tools_called` is optional but strongly recommended, since it's what lets the judge see *how* the outcome was reached, not just what the agent claims happened.
 - The `task` parameter is optional and, if omitted, gets inferred from `input`. Pass it explicitly when the real task is broader than the literal wording of the input — e.g. an implicit constraint mentioned earlier in a conversation, or a richer definition of "done" than the raw request conveys.
@@ -228,7 +228,7 @@ That gap is real. An agent can call every tool correctly and still fail the task
 **Master question-to-metric table (Part 2):**
 
 | Question | Metric |
-|---|---|
+| --- | --- |
 | Were the right tools called, matching a known-good reference? | `ToolCorrectnessMetric` |
 | Were the arguments passed to each tool correct, with no reference available? | `ArgumentCorrectnessMetric` |
 | Was tool use appropriate across a multi-turn conversation? | `ToolUseMetric` |
@@ -242,7 +242,7 @@ MLflow's `mlflow.genai.evaluate()` doesn't ship dedicated, named metric classes 
 Every DeepEval check from 2.1–2.2 has an MLflow-primitive equivalent:
 
 | DeepEval | MLflow equivalent |
-|---|---|
+| --- | --- |
 | `TurnRelevancyMetric` | Custom `make_judge()` judge with sliding-window instructions |
 | `KnowledgeRetentionMetric` | Custom `make_judge()` judge over `{{ inputs }}` |
 | `ConversationalGEval` (safe advice) | `Guidelines` scorer |
@@ -282,7 +282,7 @@ Computed from one recorded trace (plus, where relevant, the real state of whatev
 ### How this maps onto a production stack (Databricks example)
 
 | Metric | Production mapping |
-|---|---|
+| --- | --- |
 | Tool Selection Accuracy | Gold tool set in a table; compared against tool spans captured by automatic tracing |
 | Tool Call Correctness | Tools defined with typed signatures so a malformed call fails validation before it executes |
 | Unnecessary Tool Calls | Query the trace store for duplicate `(tool, inputs)` spans within the same request |
@@ -342,7 +342,7 @@ Every metric discussed so far can be, and in this material mostly *is*, demonstr
 ### Question → metric lookup (all parts)
 
 | If you're asking... | Reach for... |
-|---|---|
+| --- | --- |
 | Did retrieval fetch the right chunks, and I have labeled relevant-chunk IDs? | Precision@K, Recall@K, MRR, nDCG (1.1) |
 | Did retrieval fetch the right chunks, and I *don't* have labeled IDs? | Contextual Precision / Recall / Relevancy (1.2) |
 | Is the generated answer grounded and on-topic, with no reference answer available? | Answer Relevancy, Faithfulness, Hallucination (1.3) |
@@ -358,7 +358,7 @@ Every metric discussed so far can be, and in this material mostly *is*, demonstr
 ### Framework cheat sheet
 
 | Framework | Unit of evaluation | Sync/async | Named metric classes? |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **DeepEval** | `LLMTestCase` / `ConversationalTestCase` | Sync (`.measure()`) | Yes — dozens, plus `GEval` for custom rubrics |
 | **RAGAS** | `SingleTurnSample` | Async (`single_turn_ascore`) | Yes, narrower scope than DeepEval, RAG-specific |
 | **MLflow** | A dataset row (`inputs`/`outputs`/`expectations`) + auto-captured `Trace` | Sync (`mlflow.genai.evaluate()`) | No — primitives (`Guidelines`, `make_judge`, `@scorer`) you assemble yourself |

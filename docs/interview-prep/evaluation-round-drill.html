@@ -236,6 +236,21 @@ ul.pts li::marker{color:var(--accent)}
   padding:11px 14px; margin:0; font-size:14.5px}
 .trapline b{color:var(--fail)}
 
+/* ---------- fast path ---------- */
+.fast{background:var(--ink); border-radius:4px; padding:26px 24px; margin:0 0 30px; color:#E4E9ED}
+.fast .fh{display:flex; flex-wrap:wrap; gap:12px; align-items:baseline; margin-bottom:8px}
+.fast h3{color:#fff; font-size:20px; font-weight:600; margin:0}
+.fast .fh .ft{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.12em;
+  text-transform:uppercase; color:#8FB6CE}
+.fast p{color:#A9BAC7; max-width:62ch; margin:0 0 14px; font-size:14.5px}
+.fast ol{color:#C7D3DC; padding-left:20px; margin:0 0 14px; font-size:14.5px}
+.fast li{margin-bottom:9px}
+.fast b{color:#fff}
+.fast .jump{font:inherit; font-size:12.5px; padding:3px 10px; margin-left:6px; border-radius:100px;
+  cursor:pointer; background:transparent; border:1px solid #35434F; color:#8FB6CE; white-space:nowrap}
+.fast .jump:hover{border-color:#8FB6CE; color:#fff}
+.fast .tail{border-top:1px solid #26333E; padding-top:13px; margin:0; color:#A9BAC7; font-size:14px}
+
 /* ---------- drill ---------- */
 .drill{background:var(--ink); color:#E4E9ED; border-radius:4px; padding:32px 26px; text-align:center;
   min-height:210px; display:flex; flex-direction:column; justify-content:center; gap:18px}
@@ -1012,6 +1027,24 @@ function buildOrient(){
   const s = el("section","stage"); s.id="st-orient";
   s.appendChild(head("Stage 00 · 30 minutes · Do this first","Orientation",
     "The decomposition round is not a knowledge quiz. Interviewers score roughly the same five axes — and the single highest-signal behaviour is treating evaluation as a <i>design input</i>, not a phase that happens after the build."));
+  const fast = el("div","fast");
+  fast.innerHTML =
+    "<div class='fh'><h3>If you only have 2\u20133 days</h3><span class='ft'>\u2248 10 hours</span></div>"+
+    "<p>The highest-probability ground, in order. Everything else is upside.</p>"+
+    "<ol>"+
+      "<li><b>Stage 00 \u2014 this page.</b> The Decomposition Spine and the taxonomy, both from memory.</li>"+
+      "<li><b>Stage 02, Parts 1, 2 and 5</b> \u2014 Q1\u2013Q9 and Q18\u2013Q21. Thirteen questions: the opener, the decomposition, and the offline\u2192online boundary."+
+        "<button class='jump' data-go='quiz' type='button'>Go \u2192</button></li>"+
+      "<li><b>Stage 03, Tiers B and F</b> \u2014 cases 4\u20136 and 15. Diagnosing a failing system, and designing production monitoring."+
+        "<button class='jump' data-go='cases' type='button'>Go \u2192</button></li>"+
+      "<li><b>Stage 05 \u2014 the numbers, the silent failures and the misreadings.</b> Both appendices of the case bank live here, not in Stage 03."+
+        "<button class='jump' data-go='numbers' type='button'>Go \u2192</button></li>"+
+    "</ol>"+
+    "<p class='tail'>Add <b>Stage 01</b> if you want the taxonomy properly solid rather than merely drawable \u2014 it is the difference between naming the five surfaces and being able to argue about which one a failure belongs to."+
+      "<button class='jump' data-go='found' type='button'>Go \u2192</button></p>";
+  fast.querySelectorAll(".jump").forEach(b=>b.addEventListener("click",()=>show(b.dataset.go)));
+  s.appendChild(fast);
+
   s.appendChild(el("h3","sub","What the round actually measures"));
   s.appendChild(table(["Axis","Weak answer","Strong answer"], AXES));
   const c1 = el("div","callout key");
