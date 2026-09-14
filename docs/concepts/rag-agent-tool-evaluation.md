@@ -263,12 +263,56 @@ A system can be fine turn-by-turn and fail as a conversation. The unit of evalua
 | **Argument correctness** | One run | No — judged from the task | Were the arguments right for the task? | Production, where values can't be predetermined |
 | **Multi-turn tool use** | Whole dialogue | Partly — selection needs one, arguments don't | Selection *and* arguments across a conversation | Chatbot agents where tool use spans exchanges |
 
-**Four properties worth carrying around:**
+**Four properties worth carrying around.** Running example: a travel agent that should call
+`search_flights`, then `book_flight`.
 
-- **Strict matching is a choice with consequences.** Demanding exact order fails an agent for a harmless extra lookup; accepting any covering set passes an agent that called everything it could think of. Reserve strict ordering for workflows where order *is* the requirement.
-- **Layer the two kinds of argument correctness.** Schema validation first — wrong keys, bad dates, free and deterministic. Only then the judged check for semantic appropriateness. Running the expensive one on input the cheap one would reject is pure waste.
-- **Combine sub-scores with minimum, not mean.** Perfect selection plus garbage arguments is a failure, not a 50%. Averaging lets a strong dimension hide a broken one.
-- **Absence is behaviour.** A question that correctly produces *no* tool call is a correct outcome worth scoring. Suites that only score calls that happened are blind to an agent that should have stayed still and didn't — and one that should have acted and froze.
+**1. "Did it call the right tools?" has more than one right answer — and you have to pick one.**
+
+How strictly you match is a decision, and both extremes are wrong:
+
+- *Too strict* (exact tools, exact order, nothing extra): the agent also calls `check_weather`,
+  which harmed nobody, and you fail the whole run. Nothing went wrong but the score says it did.
+- *Too loose* (the expected tools appear somewhere, extras fine): an agent that calls all eight
+  of its tools on every question passes every time. It is spraying, and your metric applauds.
+
+Demand strict ordering only where the order genuinely *is* the requirement. You cannot book
+before you search, so that ordering is real. Whether the weather lookup came first or third is not.
+
+**2. Check arguments in two passes, cheap one first.**
+
+"Were the arguments right?" is really two different questions:
+
+- *Is it even well-formed?* Does the `book_flight` call have a `date` field, and is `2026-02-31`
+  a real date? **Plain code answers this** — free, instant, same answer every time.
+- *Does it make sense for what was asked?* The user wanted a morning flight to Delhi; did it
+  book an evening flight to Dubai? **Only a judge can answer this.**
+
+Run the code check first and stop there if it fails. Paying for an LLM call to decide whether a
+malformed date is *semantically appropriate* is money for nothing.
+
+**3. Combining sub-scores: take the worst one, not the average.**
+
+Suppose tool selection scores 1.0 and arguments score 0.0 — it picked exactly the right tool and
+handed it nonsense. The mean says **0.5**, which reads as "half working". Nothing was half
+working: the booking failed. The minimum says **0.0**, which is the truth.
+
+Averaging lets a healthy dimension cover for a broken one — precisely the failure you built the
+metric to catch.
+
+**4. Doing nothing is behaviour, and it needs scoring too.**
+
+"What's your refund policy?" should produce **no tool call at all** — answer from knowledge and
+stop. That restraint is correct, and it deserves a pass.
+
+Most suites only inspect calls that actually happened, which leaves them blind in both directions:
+
+- **Should have stayed still, and moved.** It calls a tool it didn't need — wasted money, one more
+  thing to go wrong. Invisible, because you only score whether calls were *correct*, and it was.
+- **Should have moved, and stayed still.** It says "your flight is booked!" without ever calling
+  `book_flight`. Invisible, because there is no call to inspect.
+
+So the expected tool set has to be allowed to be **empty**, and an empty set has to be something
+you can pass or fail against.
 
 ## 2.3 Task completion
 
