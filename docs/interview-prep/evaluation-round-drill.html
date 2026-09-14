@@ -298,6 +298,36 @@ footer.foot{border-top:1px solid var(--rule); margin-top:56px; padding-top:22px;
   font-size:13.5px; color:var(--text-3); max-width:68ch}
 :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:2px}
 @media (prefers-reduced-motion:reduce){ *{transition:none !important; animation:none !important} }
+
+/* ---- decision tree: which kind of scorer ---- */
+.dtree{margin:22px 0}
+.dt-q{background:var(--surface); border:1px solid var(--rule); border-radius:3px; padding:13px 16px}
+.dt-q .qt{font-family:"Zilla Slab",Georgia,serif; font-weight:600; font-size:17px; line-height:1.3; margin:0}
+.dt-q .why{display:block; color:var(--text-2); font-size:14px; margin-top:7px}
+.dt-lbl{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--text-3); display:block; margin-bottom:6px}
+.dt-kids{margin-top:14px; border-left:2px solid var(--rule);
+  display:flex; flex-direction:column; gap:16px}
+.dt-branch{position:relative; padding-left:22px}
+.dt-branch::before{content:""; position:absolute; left:0; top:11px; width:14px; height:2px; background:var(--rule)}
+.dt-edge{display:inline-block; font-family:"IBM Plex Mono",monospace; font-size:10.5px;
+  letter-spacing:.11em; text-transform:uppercase; padding:2px 8px; border-radius:2px;
+  color:var(--accent-text); background:var(--accent-soft); margin-bottom:8px}
+.dt-edge.y{color:var(--pass); background:var(--pass-soft)}
+.dt-leaf{border:1px solid var(--rule); border-radius:3px; background:var(--surface); padding:13px 16px}
+.dt-leaf.det{border-color:var(--pass); background:var(--pass-soft)}
+.dt-leaf.jud{border-color:var(--accent); background:var(--accent-soft)}
+.dt-top{display:flex; justify-content:space-between; align-items:baseline; gap:6px 14px; flex-wrap:wrap}
+.dt-top .dt-h{font-family:"Zilla Slab",Georgia,serif; font-weight:600; font-size:16px; color:var(--text)}
+.dt-cost{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--text-3); white-space:nowrap}
+.dt-leaf p{margin:5px 0 0; font-size:14px; color:var(--text-2)}
+.dt-mod{margin:16px 0 0 22px; border:1px dashed var(--rule); border-radius:3px;
+  background:var(--surface-2); padding:12px 15px}
+.dt-mod p{margin:0; font-size:14px; color:var(--text-2)}
+@media (max-width:560px){
+  .dt-branch{padding-left:15px} .dt-branch::before{width:9px} .dt-mod{margin-left:15px}
+}
 </style>
 </head>
 <body>
@@ -518,7 +548,7 @@ const QUESTIONS = [
 {id:"Q22",p:6,q:"How do you decide whether a new prompt version is safe to ship?",
  issue:"A threshold alone is not a gate. It permits a system to degrade release by release without any single release failing.",
  checking:["Do you know both conditions and why each alone is insufficient?","Do you separate registering a version from serving it?"],
- strong:["<b>Two conditions, both must hold.</b>","<b>1. Absolute.</b> Every blocking dimension clears its bar.","<b>2. No regression.</b> No blocking metric has fallen meaningfully below the version currently serving traffic.","<b>Threshold-only permits slow erosion:</b> 0.98 → 0.91 still clears a 0.90 bar, and three “passing” releases later you’re on the floor with no single release to blame. <b>Regression-only</b> lets a candidate that improved on a bad baseline ship while still being bad.","<b>“Meaningfully” is defined per metric type.</b> A deterministic check has no noise, so any movement is real (tolerance 0.00). A judged metric wobbles on its own, so a tolerance below that wobble blocks good releases for no reason (0.02) — and a gate people learn to override is worse than no gate.","<b>Registering a version is not deploying it.</b> Keep those separate with evaluation in the gap. Rollback is then moving a pointer back, not an emergency revert-and-redeploy."],
+ strong:["<b>Two conditions, both must hold.</b>","<b>1. Absolute.</b> Every blocking dimension clears its bar.","<b>2. No regression.</b> No blocking metric has fallen meaningfully below the version currently serving traffic.","<b>Threshold-only permits slow erosion:</b> 0.98 → 0.95 → 0.92 → 0.91 — every one of those clears a 0.90 bar, and three “passing” releases later you’re on the floor with no single release to blame. <b>Regression-only</b> lets a candidate that improved on a bad baseline ship while still being bad.","<b>“Meaningfully” is defined per metric type.</b> A deterministic check has no noise, so any movement is real (tolerance 0.00). A judged metric wobbles on its own, so a tolerance below that wobble blocks good releases for no reason (0.02) — and a gate people learn to override is worse than no gate.","<b>Registering a version is not deploying it.</b> Keep those separate with evaluation in the gap. Rollback is then moving a pointer back, not an emergency revert-and-redeploy."],
  weak:"“If it beats the current version on our metrics and clears the quality thresholds, we ship it.”",
  weakWhy:"Close — but “beats on our metrics” glosses the hard part. Beats by how much? On which metrics, and what about the ones it lost on? Without per-metric-type tolerance the team argues about noise every release, then stops arguing and just ships.",
  push:{q:"“It improved on five metrics and dropped on one.”",a:"Depends entirely on whether the one is blocking and whether the drop exceeds its tolerance. An improvement elsewhere never buys down a blocking regression — that’s what “blocking” means."}},
@@ -737,7 +767,7 @@ const CASES = [
 {id:"C13",t:"E",q:"“Design the CI gate for an agent”",
  scen:"A platform team wants every prompt change, tool-schema change, and model upgrade to pass an automated gate before reaching production.",
  testing:"Whether you can turn measurement into enforcement — and whether you know the difference.",
- pts:["<b>Scorer ≠ gate.</b> Adding a scorer adds measurement, not enforcement. Scorers are informational by default.","<b>Two-condition promotion.</b> Absolute thresholds <i>and</i> no regression versus current production. Either alone is insufficient.","<b>Threshold-only gates permit erosion.</b> 0.98 → 0.91 still clears a 0.90 bar. Three times and you’re on the floor, having passed every gate.","<b>Per-metric-type tolerance.</b> Zero for deterministic metrics — no noise to absorb. A small budget for judged ones.","<b>A regression report is a diagnosis, not a verdict.</b> It should name the prompt clause to fix, not just say FAIL.","<b>Alias as indirection.</b> Production points at an alias, not a version. Rollback is moving a pointer.","<b>Resolve gates against the keys the run actually produced.</b> A mistyped metric name looks up nothing, defaults to 0, and reports as a catastrophically broken agent. Unmatched gates must report <b>“not measured”</b>.","<b>Fixed vs current datasets, and you need both.</b> The curated regression set must not drift; the mined set must stay fresh."],
+ pts:["<b>Scorer ≠ gate.</b> Adding a scorer adds measurement, not enforcement. Scorers are informational by default.","<b>Two-condition promotion.</b> Absolute thresholds <i>and</i> no regression versus current production. Either alone is insufficient.","<b>Threshold-only gates permit erosion.</b> 0.98 → 0.95 → 0.92 → 0.91 all clear a 0.90 bar. Three drops and you’re on the floor, having passed every gate.","<b>Per-metric-type tolerance.</b> Zero for deterministic metrics — no noise to absorb. A small budget for judged ones.","<b>A regression report is a diagnosis, not a verdict.</b> It should name the prompt clause to fix, not just say FAIL.","<b>Alias as indirection.</b> Production points at an alias, not a version. Rollback is moving a pointer.","<b>Resolve gates against the keys the run actually produced.</b> A mistyped metric name looks up nothing, defaults to 0, and reports as a catastrophically broken agent. Unmatched gates must report <b>“not measured”</b>.","<b>Fixed vs current datasets, and you need both.</b> The curated regression set must not drift; the mined set must stay fresh."],
  trap:"<b>The recurring failure to name:</b> a scorer added without a corresponding gate entry. An agent opening a support ticket nobody asked for was measured and released, because the scorer existed and the gate didn’t.",
  follow:[{q:"“Judged metrics are non-deterministic. How do you gate on them without flaky CI?”",a:"Fixed judge model and version, temperature 0 where available, a tolerance band sized from a measured run-to-run variance study, and a rerun-on-boundary policy. Never gate on a single row."},
          {q:"“How long should the gate take?”",a:"Whatever keeps it in the merge path. A 40-minute gate gets bypassed. Tier it: deterministic scorers on every commit, full judged suite on merge to main."}]},
@@ -896,8 +926,8 @@ const SPINE = [
   "<p>“Ground truth” just means <b>the right answer, written down by a person</b>, so you have something to compare against.</p><p>There are two separate questions here, and teams collapse them into one:</p><ul><li><b>Where do the questions come from?</b> Easy once you’re live — copy real ones out of your logs. Free.</li><li><b>Where do the right answers come from?</b> Somebody has to sit down and write them. Not free. Never free.</li></ul><p>Teams plan the first and forget the second. Then in month four nobody has budgeted anyone’s time, and they quietly start using <b>the agent’s own past answers</b> as the right answers. That’s circular — the agent now passes automatically, and today’s bugs become the official definition of correct.</p><p>Also record <i>who</i> wrote each answer: expert, contractor, or script. You’ll need that later when someone asks why the bar is where it is.</p>",0],
  ["Design the gate",
   "Absolute threshold AND no-regression vs the current production version.",
-  "Each alone fails differently. A threshold permits slow erosion — 0.98 → 0.91 clears a 0.90 bar, three times running. No-regression alone lets a candidate that improved on a bad baseline ship while still being bad.",
-  "<p>A “gate” is the automatic check that decides whether a change is allowed to ship. It needs <b>two</b> rules, not one:</p><ul><li><b>Is it good enough?</b> Every important number clears its bar.</li><li><b>Is it worse than what’s already live?</b> No important number dropped compared with the version serving customers right now.</li></ul><p>Each rule alone has a hole:</p><ul><li><b>Bar only:</b> your score slides 0.98 → 0.95 → 0.92 → 0.91. Every release passed the 0.90 bar. You’re now on the floor and no single release is to blame.</li><li><b>Comparison only:</b> a version that’s better than a bad version still ships — and it’s still bad.</li></ul><p>One more thing: <b>creating a new version isn’t the same as switching customers onto it.</b> Keep those two steps apart, and put the gate in the gap between them. Then undoing a bad release is moving a pointer back, not an emergency.</p>",1],
+  "Each alone fails differently. A threshold permits slow erosion — 0.98 → 0.95 → 0.92 → 0.91, every one of them clearing a 0.90 bar, and no single release in that sequence is the one to blame. No-regression alone lets a candidate that improved on a bad baseline ship while still being bad.",
+  "<p>A <b>gate</b> is the automatic check that sits between “we changed something” and “customers are using it.” It answers yes or no, and nothing ships without its yes.</p><p>It has to ask <b>two</b> questions. Most teams only ask one.</p><ul><li><b>Is it good enough?</b> Every number you care about is above the line you set.</li><li><b>Is it a step down?</b> No number you care about is worse than the version customers are on right now.</li></ul><p>Drop either question and you get a specific kind of trouble.</p><ul><li><b>Only the line.</b> Say the line is 90. One release scores 98, the next 95, then 92, then 91. Every one of them passed. Nobody broke a rule. You have quietly lost 7 points, and there is no single release to blame — which is exactly why nobody notices and nobody gets asked to fix it.</li><li><b>Only the comparison.</b> If what is live is bad, anything slightly less bad gets in. You have made “better than yesterday” the standard, and yesterday was bad.</li></ul><p>One last piece, and it is what turns a bad release from a crisis into a shrug: <b>building a new version and putting customers on it are two separate actions.</b> Most teams do them in one motion. Pull them apart, and run the gate in the gap between them.</p><p>Picture a sticker that reads <i>this is the live one</i>. Deploying is moving the sticker onto the new version. Every older version still exists, untouched — so undoing a bad release is just moving the sticker back. Seconds, not a fire drill.</p>",1],
  ["Design the rollout",
   "Assistive → gated-write → autonomous, by risk tier, not by calendar.",
   "Each tier earns autonomy on its own evidence, so “is it safe?” becomes a per-action question instead of one number. And assistive mode is a free labelling factory: every human override is a ground-truth label with perfect provenance.",
@@ -909,7 +939,7 @@ const SPINE = [
 ];
 
 const LADDER = [
- ["Retrieval","stage 1","Deterministic: precision@k, recall@k, MRR, NDCG · LLM-judged: contextual relevancy / precision / recall"],
+ ["Retrieval","stage 1","Reference-based: precision@k, recall@k, MRR, NDCG (deterministic) · contextual precision / recall (LLM-judged) · Referenceless: contextual relevancy"],
  ["Generation","stage 2","Referenceless: faithfulness, answer relevancy · Reference-based: correctness, expected_facts"],
  ["Tool mechanics","stage 3","Tool selection accuracy · argument correctness · redundant &amp; unexpected calls"],
  ["Trajectory","stage 4","Step-wise accuracy · trajectory match · recovery / self-correction rate · cost &amp; efficiency proxy"],
@@ -965,6 +995,39 @@ function table(head, rows, cls){
   t.innerHTML = "<thead><tr>"+head.map(h=>"<th>"+h+"</th>").join("")+"</tr></thead><tbody>"+
     rows.map(r=>"<tr>"+r.map((c,i)=>"<td"+(cls&&cls[i]?' class="'+cls[i]+'"':"")+">"+c+"</td>").join("")+"</tr>").join("")+"</tbody>";
   w.appendChild(t); return w;
+}
+
+function scorerTree(){
+  const d = el("div","dtree");
+  d.innerHTML =
+   "<div class='dt-q'><span class='dt-lbl'>Question 1</span>"+
+     "<p class='qt'>Can <b>code</b> decide it \u2014 from the inputs, the outputs, or the trace?</p>"+
+     "<span class='why'>If code can check it, checking it with a judge is waste.</span></div>"+
+   "<div class='dt-kids'>"+
+     "<div class='dt-branch'><span class='dt-edge y'>yes</span>"+
+       "<div class='dt-leaf det'>"+
+         "<div class='dt-top'><span class='dt-h'>Deterministic scorer</span><span class='dt-cost'>free</span></div>"+
+         "<p>Instant, free to re-run, and identical every time.</p></div></div>"+
+     "<div class='dt-branch'><span class='dt-edge'>no \u2014 a judge has to read it</span>"+
+       "<div class='dt-q'><span class='dt-lbl'>Question 2</span>"+
+         "<p class='qt'>What are you judging \u2014 the <b>answer</b>, or the <b>path</b>?</p></div>"+
+       "<div class='dt-kids'>"+
+         "<div class='dt-branch'><span class='dt-edge'>the answer</span>"+
+           "<div class='dt-leaf jud'>"+
+             "<div class='dt-top'><span class='dt-h'>Custom judge</span><span class='dt-cost'>1 call / row</span></div>"+
+             "<p>Categorical when partial outcomes are real.</p></div></div>"+
+         "<div class='dt-branch'><span class='dt-edge'>the path</span>"+
+           "<div class='dt-leaf jud'>"+
+             "<div class='dt-top'><span class='dt-h'>Trace-based judge</span><span class='dt-cost'>1 large call / row</span></div>"+
+             "<p>Reads spans, tool calls and ordering. This is trajectory evaluation.</p></div></div>"+
+       "</div>"+
+       "<div class='dt-mod'><span class='dt-lbl'>Applies to either judge \u2014 not a third branch</span>"+
+         "<p>If the judge can\u2019t extract the context it needs, wrap a built-in guideline judge in a "+
+         "<b>custom scorer</b> and assemble the context yourself. That changes how the scorer is built, "+
+         "not which one you picked \u2014 same cost either way.</p></div>"+
+     "</div>"+
+   "</div>";
+  return d;
 }
 
 /* ============================ meter ============================ */
@@ -1145,14 +1208,9 @@ function buildFound(){
   s.appendChild(tri);
 
   s.appendChild(el("h3","sub","2 · Which kind of scorer?"));
-  s.appendChild(table(["Ask","Then use","Cost"],[
-    ["Does the rule have a definite answer, computable from inputs, outputs or trace?","<b>Deterministic scorer</b> — free, instant, reproducible","free"],
-    ["No — and the judge needs context it can’t extract itself?","<b>Custom scorer wrapping a built-in guideline judge</b>; you assemble the context","1 call/row"],
-    ["No — and you’re judging the <b>path</b> the agent took?","<b>Trace-based judge</b> reading spans, tool calls, ordering — this is trajectory evaluation","1 large call/row"],
-    ["No — and you’re judging the <b>answer</b>?","<b>Custom judge</b>; categorical when partial outcomes are real","1 call/row"],
-  ]));
+  s.appendChild(scorerTree());
   const cA = el("div","callout");
-  cA.innerHTML="<p><b>If code can check it, checking it with a judge is waste.</b> And the reason is determinism before cost: deterministic scorers are <i>reproducible</i>, so when the number moves, behaviour moved. Judges move on their own.</p>";
+  cA.innerHTML="<p><b>Determinism before cost.</b> The first branch is not really about saving money. A deterministic scorer is <i>reproducible</i>, so when its number moves, behaviour moved. A judge moves on its own — re-run it against an unchanged system and the score drifts — so every judged metric costs you a slice of your ability to attribute a change.</p>";
   s.appendChild(cA);
 
   s.appendChild(el("h3","sub","3 · Can this scorer run online?"));

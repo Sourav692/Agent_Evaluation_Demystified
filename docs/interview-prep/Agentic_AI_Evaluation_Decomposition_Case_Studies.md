@@ -58,8 +58,8 @@ Almost every follow-up in this round is a disguised version of *"which layer are
 ```mermaid
 flowchart LR
     subgraph L1["Retrieval"]
-        R1["deterministic<br/>precision@k, recall@k, MRR, NDCG"]
-        R2["LLM-judged<br/>contextual relevancy / precision / recall"]
+        R1["reference-based<br/>precision@k, recall@k, MRR, NDCG (deterministic)<br/>contextual precision / recall (LLM-judged)"]
+        R2["referenceless<br/>contextual relevancy (LLM-judged)"]
     end
     subgraph L2["Generation"]
         G1["referenceless<br/>faithfulness, answer relevancy"]
@@ -406,7 +406,7 @@ flowchart LR
 
 - **Scorer ≠ gate.** Adding a scorer adds measurement, not enforcement. Scorers are informational by default. An ungated scorer blocks nothing.
 - **Two-condition promotion.** Absolute thresholds *and* no regression versus the current production version. Either alone is insufficient.
-- **Threshold-only gates permit erosion.** 0.98 → 0.91 still clears a 0.90 bar. Repeat that three times and you are sitting on the floor, having passed every gate.
+- **Threshold-only gates permit erosion.** 0.98 → 0.95 → 0.92 → 0.91 all clear a 0.90 bar. Three drops and you are sitting on the floor, having passed every gate.
 - **Per-metric-type tolerance.** Zero tolerance for deterministic metrics — there is no noise to absorb, so any movement is real. A small budget for judged ones, because they move on their own.
 - **A regression report is a diagnosis, not a verdict.** It should name the prompt clause to fix, not just say FAIL.
 - **Alias as indirection.** Production points at an alias, not a version. Rollback is moving a pointer, not a revert-and-redeploy.

@@ -949,9 +949,9 @@ Two conditions, both must hold:
 2. **No regression.** No blocking metric has fallen meaningfully below the version currently
    serving traffic.
 
-Each alone fails differently. Threshold-only permits slow erosion: a score sliding 0.98 → 0.91
-still clears a 0.90 bar, and three "passing" releases later you're on the floor with no single
-release to blame. Regression-only lets a candidate that improved on a bad baseline ship while
+Each alone fails differently. Threshold-only permits slow erosion: a score sliding
+0.98 → 0.95 → 0.92 → 0.91 clears a 0.90 bar at every step, and three "passing" releases
+later you're on the floor with no single release to blame. Regression-only lets a candidate that improved on a bad baseline ship while
 still being bad.
 
 Two supporting details:

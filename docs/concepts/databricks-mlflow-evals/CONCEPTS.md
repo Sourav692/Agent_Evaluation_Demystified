@@ -73,7 +73,7 @@ Two properties hold it together:
 
 | Concept | In one line | Phase |
 | --- | --- | --- |
-| **Cost hierarchy** | Deterministic (free, instant) → wrapped judge → `make_judge` → trace-based judge (LLM call, large prompt). | 3 |
+| **Cost hierarchy** | Deterministic (free, instant) → `make_judge` (1 call/row) → trace-based judge (1 large call/row). Wrapping a built-in judge so you can assemble its context is a *modifier* on whichever judge you picked, not a rung of its own. | 3 |
 | **Determinism beats cost as a reason** | Deterministic scorers are *reproducible*; when one moves, behaviour really changed. Judges move on their own. | 3, 5 |
 | **Scorer prerequisites** | Every scorer demands something (`expected_facts`, a RETRIEVER span). A row missing one is *errored*, not scored low — the run finishes and the metric quietly drops out. | 2 |
 | **Guard a scorer on a mixed dataset** | `Correctness()` and `ExpectationsGuidelines()` raise on rows that aren't theirs; wrap them to return `None` so an inapplicable row is skipped, not errored. | 2 |

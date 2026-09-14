@@ -114,8 +114,8 @@ tr:last-child td{border-bottom:0}
 <p>Almost every follow-up in this round is a disguised version of <em>"which layer are you actually measuring?"</em> Have this ready.</p>
 <div class="mermaid">flowchart LR
     subgraph L1[&quot;Retrieval&quot;]
-        R1[&quot;deterministic&lt;br/&gt;precision@k, recall@k, MRR, NDCG&quot;]
-        R2[&quot;LLM-judged&lt;br/&gt;contextual relevancy / precision / recall&quot;]
+        R1[&quot;reference-based&lt;br/&gt;precision@k, recall@k, MRR, NDCG (deterministic)&lt;br/&gt;contextual precision / recall (LLM-judged)&quot;]
+        R2[&quot;referenceless&lt;br/&gt;contextual relevancy (LLM-judged)&quot;]
     end
     subgraph L2[&quot;Generation&quot;]
         G1[&quot;referenceless&lt;br/&gt;faithfulness, answer relevancy&quot;]

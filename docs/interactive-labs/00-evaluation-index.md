@@ -122,7 +122,7 @@ Mature setups run **both**, at different points in the lifecycle — not as a ch
 
 | Notebook | Covers | Lab |
 |---|---|---|
-| `00_Evaluation_Landscape` | Taxonomy, reference-based vs referenceless, judge failure modes, tooling map | this index |
+| `00_Evaluation_Landscape` | Taxonomy, reference-based vs referenceless, judge failure modes, code-vs-judge scorer choice, tooling map | this index |
 | `01_Retrieval_Metrics_Deterministic` | Precision@K, Recall@K, MRR, nDCG | **01** |
 | `02_Retrieval_Metrics_LLM_Judged` | Contextual Precision / Recall / Relevancy | **02** |
 | `03_Generator_Metrics_Referenceless` | Faithfulness, Answer Relevancy, Hallucination | **03** |

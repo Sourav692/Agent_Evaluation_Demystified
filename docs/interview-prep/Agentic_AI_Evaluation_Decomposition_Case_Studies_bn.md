@@ -71,8 +71,8 @@ flowchart TD
 ```mermaid
 flowchart LR
     subgraph L1["Retrieval"]
-        R1["deterministic<br/>precision@k, recall@k, MRR, NDCG"]
-        R2["LLM-judged<br/>contextual relevancy / precision / recall"]
+        R1["reference-based<br/>precision@k, recall@k, MRR, NDCG (deterministic)<br/>contextual precision / recall (LLM-judged)"]
+        R2["referenceless<br/>contextual relevancy (LLM-judged)"]
     end
     subgraph L2["Generation"]
         G1["referenceless<br/>faithfulness, answer relevancy"]
@@ -422,7 +422,7 @@ flowchart LR
 
 - **Scorer ≠ gate.** একটা scorer যোগ করলে measurement যোগ হয়, enforcement নয়। Scorer default-এ informational। Gate ছাড়া scorer কিছুই আটকায় না।
 - **দুই-শর্তের promotion.** Absolute threshold *এবং* বর্তমান production version-এর তুলনায় no regression। একটা একা যথেষ্ট নয়।
-- **শুধু threshold-এর gate ক্ষয় হতে দেয়।** ০.৯৮ → ০.৯১ এখনো ০.৯০-এর বার পেরোয়। এটা তিনবার হলে আপনি মেঝেতে বসে আছেন — অথচ প্রতিটা gate pass করেছেন।
+- **শুধু threshold-এর gate ক্ষয় হতে দেয়।** ০.৯৮ → ০.৯৫ → ০.৯২ → ০.৯১ — প্রত্যেকটিই ০.৯০-এর বার পেরোয়। তিনবার নামলেই আপনি মেঝেতে বসে আছেন — অথচ প্রতিটা gate pass করেছেন।
 - **Metric-type অনুযায়ী আলাদা tolerance।** Deterministic metric-এ শূন্য tolerance — সেখানে শুষে নেওয়ার মতো কোনো noise নেই, তাই যেকোনো নড়াচড়াই আসল। Judged metric-এ সামান্য budget, কারণ ওরা নিজে থেকেই নড়ে।
 - **Regression report একটা রোগনির্ণয়, নিছক রায় নয়।** সেটা শুধু FAIL না বলে কোন prompt clause সারাতে হবে সেটা বলা উচিত।
 - **Alias-ই indirection।** Production একটা alias-এর দিকে তাক করা থাকে, কোনো version-এর দিকে নয়। তখন rollback মানে একটা pointer সরানো, revert-and-redeploy নয়।

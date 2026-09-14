@@ -54,16 +54,17 @@ The same −0.015 delta is *tolerated* on a judged metric and *blocks* on a dete
 
 ```mermaid
 flowchart TD
-    Q{"Does the rule have a definite answer,<br/>computable from inputs, outputs or trace?"}
+    Q{"Can code decide it — from the<br/>inputs, the outputs, or the trace?"}
 
     Q -- yes --> DET["deterministic @scorer<br/>free · instant · reproducible<br/>e.g. tool_call_correctness, no_account_leakage"]
-    Q -- no --> C{"Does the judge need context<br/>it cannot extract by itself?"}
+    Q -- "no — a judge has to read it" --> P{"Judging the ANSWER it gave,<br/>or the PATH it took?"}
 
-    C -- yes --> WRAP["custom scorer wrapping meets_guidelines<br/>you assemble the context dict"]
-    C -- no --> P{"Judging the PATH the agent took,<br/>or the ANSWER it gave?"}
+    P -- answer --> J["make_judge<br/>1 call/row<br/>categorical when partial outcomes are real"]
+    P -- path --> TJ["make_judge with the trace template<br/>1 large call/row<br/>spans, tool calls, ordering — trajectory evaluation"]
 
-    P -- path --> TJ["make_judge with the trace template<br/>inspects spans, tool calls, ordering<br/>this is trajectory evaluation"]
-    P -- answer --> J["make_judge<br/>categorical when partial outcomes are real"]
+    J -.-> WRAP
+    TJ -.-> WRAP
+    WRAP["MODIFIER, NOT A BRANCH<br/>if the judge cannot extract the context it needs,<br/>wrap a built-in guideline judge in a custom scorer<br/>and assemble the context dict yourself — same cost"]
 
     style DET fill:#e6f4ea,stroke:#137333
     style WRAP fill:#fef7e0,stroke:#f9ab00
@@ -73,6 +74,10 @@ flowchart TD
 
 Green is free and reproducible; red costs an LLM call per row and can move between runs.
 **If code can check it, checking it with a judge is waste.**
+
+Two questions, not four. Context assembly is a *modifier* on whichever judge you picked —
+it changes how the scorer is built, not which one you chose. Draw it as a third rung of the
+cascade and you imply a trace-based judge never needs context you assemble, which is false.
 
 ### Can this scorer run online?
 

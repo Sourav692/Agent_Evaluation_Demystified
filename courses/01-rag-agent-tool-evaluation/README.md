@@ -12,7 +12,7 @@ A single, ordered learning path through everything this repo has for evaluating 
 
 | # | Notebook | Covers | Status |
 |---|---|---|---|
-| 0 | [`00_Evaluation_Landscape.ipynb`](00_Evaluation_Landscape.ipynb) | Taxonomy of RAG/agent evaluation, reference-based vs. referenceless, LLM-as-judge and its failure modes, the DeepEval/RAGAS/MLflow/Arize tooling landscape, and a question → module/metric lookup table | ✅ Built |
+| 0 | [`00_Evaluation_Landscape.ipynb`](00_Evaluation_Landscape.ipynb) | Taxonomy of RAG/agent evaluation, reference-based vs. referenceless, LLM-as-judge and its failure modes, the code-vs-judge scorer decision in plain language, the DeepEval/RAGAS/MLflow/Arize tooling landscape, and a question → module/metric lookup table | ✅ Built |
 | 1.1 | [`01_Retrieval_Metrics_Deterministic.ipynb`](01_Retrieval_Metrics_Deterministic.ipynb) | Precision@K, Recall@K, MRR, nDCG — no API calls | ✅ Built (executed) |
 | 1.2 | [`02_Retrieval_Metrics_LLM_Judged.ipynb`](02_Retrieval_Metrics_LLM_Judged.ipynb) | Contextual Precision/Recall/Relevancy — condensed from the 3 `DeepEval_Metrics/` drill notebooks, hand-constructed test cases (no live-pipeline dependency) | ✅ Built (not executed — needs `OPENAI_API_KEY`) |
 | 1.3 | [`03_Generator_Metrics_Referenceless.ipynb`](03_Generator_Metrics_Referenceless.ipynb) | Faithfulness, Answer Relevancy, Hallucination (DeepEval + RAGAS) | ✅ Built (not executed — needs `OPENAI_API_KEY`) |
