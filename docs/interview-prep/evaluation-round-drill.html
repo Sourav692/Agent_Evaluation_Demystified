@@ -150,15 +150,18 @@ ul.pts li::marker{color:var(--accent)}
 
 /* ---------- spine ---------- */
 .spine{list-style:none; margin:22px 0; padding:0; counter-reset:sp}
-.spine li{position:relative; padding:0 0 20px 50px; counter-increment:sp}
+.spine li{position:relative; padding:0 0 26px 50px; counter-increment:sp}
 .spine li::before{content:counter(sp,decimal-leading-zero); position:absolute; left:0; top:1px;
   font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600; color:var(--accent);
   background:var(--accent-soft); width:31px; height:31px; border-radius:50%;
   display:flex; align-items:center; justify-content:center}
 .spine li::after{content:""; position:absolute; left:15px; top:36px; bottom:2px; width:1px; background:var(--rule)}
 .spine li:last-child::after{display:none}
-.spine b{display:block; font-family:"Zilla Slab",serif; font-size:17px; font-weight:600; margin-bottom:3px}
-.spine span{color:var(--text-2); font-size:14.5px}
+.spine li > b{display:block; font-family:"Zilla Slab",serif; font-size:17px; font-weight:600; margin-bottom:3px}
+.spine .why b{color:var(--text)}
+.spine .do{display:block; color:var(--text); font-size:14.5px}
+.spine .why{display:block; color:var(--text-2); font-size:14px; margin-top:8px;
+  border-left:2px solid var(--rule); padding-left:12px}
 .spine li.hi::before{background:var(--accent); color:#fff}
 
 /* ---------- taxonomy ladder ---------- */
@@ -851,14 +854,30 @@ const AXES = [
 ];
 
 const SPINE = [
- ["Clarify","Who is the user, what does the current workflow cost, what decision changes.",0],
- ["Define “good” numerically","Thresholds BEFORE architecture. Which are blocking, which informational.",1],
- ["Decompose into measurable components","Each with an input contract, an output contract, and its own failure mode.",0],
- ["Pick the measurement per component","Deterministic → wrapped judge → custom judge → trace-based judge. The cheapest that works.",0],
- ["Design the ground truth","Where do inputs come from, where do labels come from, who authors them.",0],
- ["Design the gate","Absolute threshold AND no-regression vs the current production version.",1],
- ["Design the rollout","Assistive → gated-write → autonomous, by risk tier, not by calendar.",0],
- ["Design the feedback loop","Online monitoring discovers; offline gates prevent recurrence. → back to step 2.",1],
+ ["Clarify",
+  "Who is the user, what does the current workflow cost, what decision changes.",
+  "A complaint is not a specification. Until you have one failing example, a named person who decides what “good” is, and the consequence of getting it wrong, any metric you propose is a guess dressed as rigour.",0],
+ ["Define “good” numerically",
+  "Thresholds BEFORE architecture. Which are blocking, which informational.",
+  "Criteria fixed before the results exist are a standard; criteria chosen after them are a rationalisation — and a reviewer can tell the difference. Blocking vs informational is also your negotiating room when the customer wants tone measured.",1],
+ ["Decompose into measurable components",
+  "Each with an input contract, an output contract, and its own failure mode.",
+  "Bad retrieval, ungrounded generation and a stale-but-faithfully-quoted source look identical from outside and have completely different fixes. A monolith tells you <i>that</i> it broke, never <i>where</i>.",0],
+ ["Pick the measurement per component",
+  "Deterministic → wrapped judge → custom judge → trace-based judge. The cheapest that works.",
+  "Cheapest is the tiebreak; <b>determinism is the reason</b>. When a deterministic check moves, behaviour moved. A judge moves on its own, which is why it needs a tolerance and can never certify what it was optimised against.",0],
+ ["Design the ground truth",
+  "Where do inputs come from, where do labels come from, who authors them.",
+  "Mining production traffic gives you inputs, not labels — the free half. Expert time to author the expectations is the binding constraint, and the line item nobody budgets is what kills eval programmes in month three.",0],
+ ["Design the gate",
+  "Absolute threshold AND no-regression vs the current production version.",
+  "Each alone fails differently. A threshold permits slow erosion — 0.98 → 0.91 clears a 0.90 bar, three times running. No-regression alone lets a candidate that improved on a bad baseline ship while still being bad.",1],
+ ["Design the rollout",
+  "Assistive → gated-write → autonomous, by risk tier, not by calendar.",
+  "Each tier earns autonomy on its own evidence, so “is it safe?” becomes a per-action question instead of one number. And assistive mode is a free labelling factory: every human override is a ground-truth label with perfect provenance.",0],
+ ["Design the feedback loop",
+  "Online monitoring discovers; offline gates prevent recurrence. → back to step 2.",
+  "A finding that stops at the dashboard helps you once. Carried into a gated offline test it protects every release after — which is why the arrow returns to step 2 rather than ending the diagram.",1],
 ];
 
 const LADDER = [
@@ -1054,7 +1073,8 @@ function buildOrient(){
   s.appendChild(el("h3","sub","The Decomposition Spine"));
   s.appendChild(el("p",null,"<span class='prose' style='display:block;color:var(--text-2)'>The backbone for every case in this guide. Deliberately eval-first. Learn to draw it from memory before anything else.</span>"));
   const ol = el("ol","spine");
-  SPINE.forEach(([t,d,hi])=>{ const li=el("li",hi?"hi":""); li.innerHTML="<b>"+t+"</b><span>"+d+"</span>"; ol.appendChild(li); });
+  SPINE.forEach(([t,d,w,hi])=>{ const li=el("li",hi?"hi":"");
+    li.innerHTML="<b>"+t+"</b><span class='do'>"+d+"</span><span class='why'>"+w+"</span>"; ol.appendChild(li); });
   s.appendChild(ol);
   const c2 = el("div","callout");
   c2.innerHTML = "<span class='lbl'>Two properties to say out loud when you draw it</span>"+
