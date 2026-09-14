@@ -12,20 +12,21 @@ system — judgement under a constraint, not coding exercises or metric derivati
 
 Both are standalone — no build step, no server. Open the file.
 
-## Source documents
+## The source document
 
-- [`Evaluation_Questions_for_Agentic_System_Design.md`](Evaluation_Questions_for_Agentic_System_Design.md)
-  — 35 questions across 9 parts. Each gives the issue underneath the question, what they're
-  checking, a strong answer, a weak answer *with why it reads badly*, and the follow-up to expect.
-- [`Agentic_AI_Evaluation_Decomposition_Case_Studies.md`](Agentic_AI_Evaluation_Decomposition_Case_Studies.md)
-  (also as [HTML](Agentic_AI_Evaluation_Decomposition_Case_Studies.html)) — 19 case studies in 8
-  tiers, plus the Decomposition Spine, the silent-failure catalogue, and the misreadings that
-  sound like insight.
-- [`Agentic_AI_Evaluation_Decomposition_Case_Studies_bn.md`](Agentic_AI_Evaluation_Decomposition_Case_Studies_bn.md)
-  — the same 19 cases in Bengali. Technical keywords, metric names and API names stay in English
-  (that is how you will say them in the round); the reasoning around them is translated.
+- [`QUESTION_BANK.md`](QUESTION_BANK.md) — **everything in one file.** Part 0 is the framing
+  (what the round measures, the Decomposition Spine, the taxonomy). Parts 1–9 are 35 questions,
+  each with the issue underneath it, what they're checking, a strong answer, a weak answer *with
+  why it reads badly*, and the follow-up to expect. Tiers A–H are 19 case studies answered out
+  loud in 30–45 minutes. Appendices A–E carry the silent-failure catalogue, the misreadings
+  that sound like insight, company-specific flavour, a rapid-fire drill set and the closing notes.
+- [`QUESTION_BANK_cases_bn.md`](QUESTION_BANK_cases_bn.md) — the **19 case studies** in Bengali
+  (Tiers A–H only — it does not cover Parts 1–9 or the appendices). Technical keywords, metric
+  names and API names stay in English, because that is how you will say them in the round; the
+  reasoning around them is translated.
 
-The two HTML files above are built from these; the Markdown is the canonical text.
+The two HTML files above are built from `QUESTION_BANK.md`; the Markdown is the canonical text.
+Edit there, not in the HTML.
 
 ## The shape of an answer
 

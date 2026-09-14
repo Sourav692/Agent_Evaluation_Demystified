@@ -1,6 +1,6 @@
 # Agentic AI System Design ও Decomposition — Case-Study প্রশ্নব্যাংক (বাংলা সংস্করণ)
 
-> এটি [`Agentic_AI_Evaluation_Decomposition_Case_Studies.md`](Agentic_AI_Evaluation_Decomposition_Case_Studies.md)-এর বাংলা রূপান্তর। **প্রযুক্তিগত শব্দ (keyword, metric-এর নাম, API-র নাম) ইচ্ছাকৃতভাবে ইংরেজিতে রাখা হয়েছে** — কারণ ইন্টারভিউয়ে এগুলো ইংরেজিতেই বলতে হবে। ব্যাখ্যা, যুক্তি আর সূক্ষ্মতাগুলো বাংলায়।
+> এটি [`QUESTION_BANK.md`](QUESTION_BANK.md)-এর বাংলা রূপান্তর। **প্রযুক্তিগত শব্দ (keyword, metric-এর নাম, API-র নাম) ইচ্ছাকৃতভাবে ইংরেজিতে রাখা হয়েছে** — কারণ ইন্টারভিউয়ে এগুলো ইংরেজিতেই বলতে হবে। ব্যাখ্যা, যুক্তি আর সূক্ষ্মতাগুলো বাংলায়।
 
 **উৎস-উপকরণ (Source material):** `labs/`, `labs/ (আগে 07_Advanced_Agentic_Systems/Deep_Agents_and_Harness_Engineering/`, এবং `17_OpenAI_Applied_Engineer_Preparation/` — [AI-ENGINEERING-DEMYSTIFIED](https://github.com/Sourav692/AI-ENGINEERING-DEMYSTIFIED) থেকে।
 

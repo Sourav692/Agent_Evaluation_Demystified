@@ -144,7 +144,7 @@ code{font-family:var(--mono);font-size:11.5px}
       <h3>Deterministic Retrieval Metrics — four numbers that disagree on purpose</h3>
       <p>Precision@K, Recall@K, MRR and nDCG@K over the notebook's exact toy eval set. No LLM, no key, no cost — and one relevant chunk that was never retrieved, which caps three of the four metrics permanently.</p>
       <div class="drag">→ drag K from 1 to 5 and watch MRR refuse to move</div>
-      <div class="files">01-deterministic-retrieval-metrics.html · .md</div>
+      <div class="files">01-deterministic-retrieval-metrics.html</div>
     </a>
 
     <a class="card j" href="02-llm-judged-retrieval-metrics.html">
@@ -152,7 +152,7 @@ code{font-family:var(--mono);font-size:11.5px}
       <h3>LLM-Judged Retrieval — Contextual Precision, Recall and Relevancy</h3>
       <p>The same "is retrieval working" question without hand-labelled chunk IDs. Three metrics because there are three failures: order, coverage, and signal-to-noise.</p>
       <div class="drag">→ switch to "bad ranking" — same chunks reordered, precision falls to 0.58 alone</div>
-      <div class="files">02-llm-judged-retrieval-metrics.html · .md</div>
+      <div class="files">02-llm-judged-retrieval-metrics.html</div>
     </a>
 
     <a class="card g" href="03-generator-metrics.html">
@@ -160,7 +160,7 @@ code{font-family:var(--mono);font-size:11.5px}
       <h3>Generator Metrics — referenceless vs reference-based</h3>
       <p>Faithfulness, Answer Relevancy, Hallucination, Answer Correctness and Semantic Similarity on four answers to one question — including one that scores 1.00 on both referenceless metrics while being flatly false.</p>
       <div class="drag">→ open "faithful to bad context" and read the two perfect scores</div>
-      <div class="files">03-generator-metrics.html · .md</div>
+      <div class="files">03-generator-metrics.html</div>
     </a>
 
     <a class="card t" href="04-tool-use-evaluation.html">
@@ -168,7 +168,7 @@ code{font-family:var(--mono);font-size:11.5px}
       <h3>Tool-Use Evaluation — the metric is only as strict as its constructor</h3>
       <p><code>ToolCorrectnessMetric</code> scores six traces. With the default name-only comparison, an extra billed call, a reversed sequence and a wrong booking date all pass at 1.00.</p>
       <div class="drag">→ start on config A, mean 0.92, then switch to C and watch it hit 0.17</div>
-      <div class="files">04-tool-use-evaluation.html · .md</div>
+      <div class="files">04-tool-use-evaluation.html</div>
     </a>
 
     <a class="card a" href="05-agent-trajectory-evaluation.html">
@@ -176,7 +176,7 @@ code{font-family:var(--mono);font-size:11.5px}
       <h3>Agent Trajectory Evaluation — nine metrics, five of which never move</h3>
       <p>A refund agent's five-step trace with one error, one recovery and one redundant call. Task success, end-state and trajectory match all report a clean pass while 40% of the steps were waste.</p>
       <div class="drag">→ step through all four variants and watch rows 1, 2, 5, 6 and 7 stay frozen</div>
-      <div class="files">05-agent-trajectory-evaluation.html · .md</div>
+      <div class="files">05-agent-trajectory-evaluation.html</div>
     </a>
   </div>
 

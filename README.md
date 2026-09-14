@@ -22,10 +22,13 @@ Four entry points, depending on what you want:
 |---|---|---|
 | **Learn it in order, start to finish** | [`courses/01-rag-agent-tool-evaluation/`](courses/01-rag-agent-tool-evaluation/) | 15 notebooks, 6 modules: deterministic retrieval metrics → LLM-judged → generator → tool use → trajectory → CrewAI capstone |
 | **Learn the production/MLOps side** | [`courses/02-databricks-mlflow-evals/`](courses/02-databricks-mlflow-evals/) | 11 notebooks: one agent built in Phase 1, then offline eval, custom judges, datasets from traces, regression gating, online monitoring, judge alignment |
-| **Read, not run** | [`docs/`](docs/) | Theory companions, interactive HTML labs, interview prep — nothing to execute |
+| **Read, not run** | [`docs/`](docs/) | Two theory companions, six interactive HTML labs, one question bank — nothing to execute |
 | **Prep for an eval-heavy interview** | [`docs/interview-prep/`](docs/interview-prep/) | A staged study plan and a 54-item self-quiz drill, both standalone HTML — open the file, no setup |
 
 **If you only have an hour:** course 01, modules 0 → 1.2 → 2.2 → 3.
+
+**Looking for one specific thing?** [`INDEX.md`](INDEX.md) is the lookup table — every
+document, what each section covers, and a find-it-by-topic index down to the section number.
 
 ---
 
@@ -46,11 +49,12 @@ labs/        Raw source material. Runnable, but not a curriculum — reach for t
   multiturn-and-tool-eval/        Multi-turn + tool metrics, DeepEval vs MLflow side by side
   llm-as-judge/                   G-Eval smoke test
 
-docs/        Prose only. Nothing executes.
-  concepts/                       Theory companions to both courses
-  interactive-labs/               6 standalone HTML labs + written companions + PDF
-  interview-prep/                 35 questions + 19 cases, plus a study plan and
-                                  a self-quiz drill as standalone HTML
+docs/        Prose only. Nothing executes. See INDEX.md for a section-level lookup.
+  concepts/                       One theory companion per course
+  interactive-labs/               6 standalone HTML labs
+  interview-prep/                 One question bank (35 questions + 25 metric questions
+                                  + 19 cases), plus a study plan and a self-quiz drill
+                                  as standalone HTML
 
 shared/      Small LLM/embedding provider helpers (OpenAI, Groq, Databricks)
 archive/     Superseded material, kept for reference — see archive/README.md

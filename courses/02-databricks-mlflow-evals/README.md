@@ -36,13 +36,15 @@ by name throughout, not redefined):
 Companion material that does what a sequential notebook can't — random access. It does
 **not** repeat the notebooks' explanations (there are ~15,900 words of those already):
 
-- `docs/concepts/databricks-mlflow-evals/AGENT_UNDER_TEST.md` — a high-level view of TelcoAssist itself: functionality,
+`docs/concepts/databricks-mlflow-evals.md`, in four parts:
+
+- **Part 1 — the agent under test.** A high-level view of TelcoAssist itself: functionality,
   tools, the data it holds, models, trace shape, and its deliberate non-goals
-- `docs/concepts/databricks-mlflow-evals/CONCEPTS.md` — every concept defined in a line or two, grouped **by theme**, with
+- **Part 2 — concept map.** Every concept defined in a line or two, grouped **by theme**, with
   a pointer to the phase that demonstrates it
-- `docs/concepts/databricks-mlflow-evals/GOTCHAS.md` — 32 traps as symptom → cause → fix, led by the silent failures that
+- **Part 3 — gotchas.** 32 traps as symptom → cause → fix, led by the silent failures that
   look like success
-- `docs/concepts/databricks-mlflow-evals/QUICK_REFERENCE.md` — the numbers, thresholds and decision rules, compressible to
+- **Part 4 — quick reference.** The numbers, thresholds and decision rules, compressible to
   one sitting
 
 ### Shared modules

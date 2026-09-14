@@ -25,7 +25,7 @@ eval tutorials skip — **online/production evaluation** via Unity Catalog trace
 and continuous monitoring of live traffic.
 
 Grounded against the `databricks-mlflow-evaluation` skill's `CRITICAL-interfaces.md` and
-`docs/concepts/databricks-mlflow-evals/GOTCHAS.md` (MLflow 3 GenAI API surface: `mlflow.genai.evaluate()`, built-in scorers,
+`docs/concepts/databricks-mlflow-evals.md` (MLflow 3 GenAI API surface: `mlflow.genai.evaluate()`, built-in scorers,
 judges, UC trace ingestion, production monitoring, MemAlign judge alignment, GEPA prompt
 optimization) — not written from memory.
 

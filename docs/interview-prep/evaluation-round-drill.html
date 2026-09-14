@@ -1189,7 +1189,7 @@ function buildOrient(){
     "<p>Right tool with right arguments does not guarantee a sound sequence, and a sound sequence does not guarantee the user’s goal was met. Evaluate all three, not just the cheapest to check.</p>"+
     "<p><b>The strongest signal is always end-state verification.</b> Wherever a real, checkable side effect exists — a database row, a booking, a sent message, a created ticket — reading the system of record beats every LLM-judged metric. It cannot be fooled by a confident sentence that misrepresents what actually happened.</p>";
   s.appendChild(c3);
-  s.appendChild(el("p","srcnote","Source: <code>docs/interview-prep/Agentic_AI_Evaluation_Decomposition_Case_Studies.md</code> §0–2"));
+  s.appendChild(el("p","srcnote","Source: <code>docs/interview-prep/QUESTION_BANK.md</code> §0–2"));
   return s;
 }
 
@@ -1412,7 +1412,7 @@ function buildNumbers(){
 
   s.appendChild(el("h3","sub","Closers"));
   s.appendChild(el("ul","pts", CLOSERS.map(c=>"<li>"+c+"</li>").join("")));
-  s.appendChild(el("p","srcnote","Source: <code>docs/concepts/databricks-mlflow-evals/QUICK_REFERENCE.md</code> and <code>GOTCHAS.md</code>"));
+  s.appendChild(el("p","srcnote","Source: <code>docs/concepts/databricks-mlflow-evals.md</code> and <code>GOTCHAS.md</code>"));
   return s;
 }
 
