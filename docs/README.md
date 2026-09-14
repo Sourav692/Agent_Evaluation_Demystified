@@ -6,7 +6,7 @@ Prose. Nothing here executes.
 |---|---|
 | [`concepts/`](concepts/) | Theory companions to both courses — definitions, gotchas, quick-reference tables. Written for random access, not sequential reading. |
 | [`interactive-labs/`](interactive-labs/) | Six standalone HTML labs you can open in a browser and manipulate, each paired with a written companion. Built from course 01's notebooks. Start at [`00-evaluation-index.md`](interactive-labs/00-evaluation-index.md). |
-| [`interview-prep/`](interview-prep/) | Evaluation questions for agentic system-design rounds, and 23 decomposition case studies. Judgement-under-constraint, not metric derivations. |
+| [`interview-prep/`](interview-prep/) | Evaluation questions for agentic system-design rounds and 19 decomposition case studies — plus a staged [study plan](interview-prep/evaluation-study-plan.html) and a [self-quiz drill](interview-prep/evaluation-round-drill.html), both standalone HTML. |
 
 ## concepts/
 

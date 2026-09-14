@@ -16,13 +16,14 @@ frameworks, so the concept survives the tool going out of fashion.
 
 ## Where to start
 
-Three entry points, depending on what you want:
+Four entry points, depending on what you want:
 
 | I want to… | Go to | Shape |
 |---|---|---|
 | **Learn it in order, start to finish** | [`courses/01-rag-agent-tool-evaluation/`](courses/01-rag-agent-tool-evaluation/) | 15 notebooks, 6 modules: deterministic retrieval metrics → LLM-judged → generator → tool use → trajectory → CrewAI capstone |
 | **Learn the production/MLOps side** | [`courses/02-databricks-mlflow-evals/`](courses/02-databricks-mlflow-evals/) | 11 notebooks: one agent built in Phase 1, then offline eval, custom judges, datasets from traces, regression gating, online monitoring, judge alignment |
 | **Read, not run** | [`docs/`](docs/) | Theory companions, interactive HTML labs, interview prep — nothing to execute |
+| **Prep for an eval-heavy interview** | [`docs/interview-prep/`](docs/interview-prep/) | A staged study plan and a 54-item self-quiz drill, both standalone HTML — open the file, no setup |
 
 **If you only have an hour:** course 01, modules 0 → 1.2 → 2.2 → 3.
 
@@ -48,7 +49,8 @@ labs/        Raw source material. Runnable, but not a curriculum — reach for t
 docs/        Prose only. Nothing executes.
   concepts/                       Theory companions to both courses
   interactive-labs/               6 standalone HTML labs + written companions + PDF
-  interview-prep/                 Evaluation questions and decomposition case studies
+  interview-prep/                 35 questions + 19 cases, plus a study plan and
+                                  a self-quiz drill as standalone HTML
 
 shared/      Small LLM/embedding provider helpers (OpenAI, Groq, Databricks)
 archive/     Superseded material, kept for reference — see archive/README.md

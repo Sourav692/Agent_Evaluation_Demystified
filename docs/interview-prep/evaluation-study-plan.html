@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluation Study Plan</title>
+<meta name="description" content="A staged reading path through this repository for the applied AI engineering problem-decomposition round, weighted toward evaluation.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{color-scheme:light dark}
+:root{
+  --ink:#141A21; --paper:#ECEEF0; --surface:#FFFFFF; --surface-2:#F5F6F8;
+  --text:#1B232C; --text-2:#4A5866; --text-3:#71818F;
+  --rule:#D3D8DE; --rule-2:#E3E7EB;
+  --accent:#2F5D7C; --accent-soft:#E4EDF3; --accent-text:#24485F;
+  --pass:#3F6F52; --pass-soft:#E3EDE6;
+  --fail:#9A3B2E; --fail-soft:#F4E4E1;
+  --unmeas:#8A7455; --unmeas-soft:#F0EADF;
+  --shadow:0 1px 2px rgba(20,26,33,.06), 0 4px 14px rgba(20,26,33,.05);
+  --maxw:1080px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#0C1116; --paper:#10161C; --surface:#19212A; --surface-2:#1F2933;
+    --text:#E4E9ED; --text-2:#AAB7C2; --text-3:#7D8C99;
+    --rule:#2C3742; --rule-2:#232D37;
+    --accent:#7FB3D5; --accent-soft:#1C2C38; --accent-text:#9CC8E4;
+    --pass:#6FA588; --pass-soft:#17281F;
+    --fail:#D4776A; --fail-soft:#2E1B18;
+    --unmeas:#C4A87A; --unmeas-soft:#2A2318;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#0C1116; --paper:#10161C; --surface:#19212A; --surface-2:#1F2933;
+  --text:#E4E9ED; --text-2:#AAB7C2; --text-3:#7D8C99;
+  --rule:#2C3742; --rule-2:#232D37;
+  --accent:#7FB3D5; --accent-soft:#1C2C38; --accent-text:#9CC8E4;
+  --pass:#6FA588; --pass-soft:#17281F;
+  --fail:#D4776A; --fail-soft:#2E1B18;
+  --unmeas:#C4A87A; --unmeas-soft:#2A2318;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--text);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px; line-height:1.62; -webkit-font-smoothing:antialiased}
+img{max-width:100%}
+h1,h2,h3,h4{font-family:"Zilla Slab",Georgia,serif; text-wrap:balance; margin:0; line-height:1.2}
+code{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace; font-size:.88em;
+  background:var(--surface-2); padding:1px 5px; border-radius:2px; border:1px solid var(--rule-2);
+  word-break:break-word}
+a{color:var(--accent-text)}
+
+.mast{background:var(--ink); border-bottom:3px solid var(--accent)}
+.mast-in{max-width:var(--maxw); margin:0 auto; padding-block:32px 28px; padding-inline:20px}
+.mast .kicker{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em;
+  text-transform:uppercase; color:#8FB6CE; margin-bottom:9px}
+.mast h1{font-size:clamp(30px,5.2vw,46px); font-weight:700; letter-spacing:-.015em; color:#fff}
+.mast p{margin:11px 0 0; color:#A9BAC7; max-width:62ch; font-size:15.5px}
+.mast .drilllink{display:inline-flex; gap:8px; align-items:center; margin-top:18px;
+  background:var(--accent); color:#fff; text-decoration:none; font-size:14px; font-weight:500;
+  padding:8px 15px; border-radius:3px}
+.mast .drilllink:hover{filter:brightness(1.1)}
+
+.shell{max-width:var(--maxw); margin:0 auto; padding-inline:20px; padding-block:0 70px;
+  display:grid; grid-template-columns:194px minmax(0,1fr); gap:40px; align-items:start}
+@media (max-width:880px){ .shell{grid-template-columns:1fr; gap:0} }
+nav.rail{position:sticky; top:16px; padding-top:30px}
+@media (max-width:880px){
+  nav.rail{position:static; padding-top:16px; margin-inline:-20px; padding-inline:20px;
+    overflow-x:auto; border-bottom:1px solid var(--rule)}
+  .rail ol{display:flex; gap:6px; padding-bottom:14px}
+  .rail li{flex:0 0 auto}
+  .rail .railnote{display:none}
+}
+.rail ol{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:1px}
+.rail a{display:flex; gap:9px; align-items:baseline; text-decoration:none; color:var(--text-2);
+  font-size:13.5px; padding:7px 11px; border-radius:3px; white-space:nowrap; line-height:1.35}
+.rail a:hover{background:var(--surface-2); color:var(--text)}
+.rail .n{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--text-3)}
+.rail .railnote{font-size:11.5px; color:var(--text-3); padding:14px 11px 0; line-height:1.5;
+  border-top:1px solid var(--rule-2); margin-top:12px}
+
+main{padding-top:30px; min-width:0}
+.prose{max-width:70ch}
+p{margin:0 0 15px}
+.lede{font-size:17.5px; color:var(--text-2); max-width:66ch; margin-bottom:26px}
+
+.stage{margin-bottom:52px; scroll-margin-top:20px}
+.stage-head{display:flex; flex-wrap:wrap; gap:14px; align-items:baseline;
+  border-bottom:2px solid var(--ink); padding-bottom:12px; margin-bottom:18px}
+.stage-head .sn{font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600;
+  letter-spacing:.11em; color:var(--accent); background:var(--accent-soft);
+  padding:4px 9px; border-radius:2px}
+.stage-head h2{font-size:clamp(22px,3.3vw,29px); font-weight:700; letter-spacing:-.01em; flex:1 1 auto}
+.stage-head .time{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--text-3);
+  white-space:nowrap}
+.why{color:var(--text-2); max-width:70ch; margin-bottom:18px}
+
+.tbl-wrap{overflow-x:auto; margin:18px 0; border:1px solid var(--rule); border-radius:3px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:14.5px; min-width:440px}
+th,td{text-align:left; padding:10px 14px; border-bottom:1px solid var(--rule-2); vertical-align:top}
+thead th{background:var(--surface-2); font-family:"IBM Plex Mono",monospace; font-size:11px;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--text-2); font-weight:600; white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+
+.callout{border-left:3px solid var(--accent); background:var(--surface); padding:15px 18px;
+  margin:20px 0; border-radius:0 3px 3px 0; box-shadow:var(--shadow); max-width:70ch}
+.callout p{margin:0} .callout p + p{margin-top:10px}
+.callout.warn{border-left-color:var(--fail)}
+.callout.key{border-left-color:var(--unmeas)}
+.callout.good{border-left-color:var(--pass)}
+.callout .lbl{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--text-3); display:block; margin-bottom:7px}
+
+ul.pts{margin:0 0 15px; padding-left:19px; max-width:70ch} ul.pts li{margin-bottom:8px}
+ul.pts li::marker{color:var(--accent)}
+ol.steps{margin:0 0 15px; padding-left:21px; max-width:70ch} ol.steps li{margin-bottom:9px}
+
+.reading{list-style:none; margin:18px 0; padding:0; display:flex; flex-direction:column; gap:9px}
+.reading li{display:flex; gap:13px; align-items:flex-start; background:var(--surface);
+  border:1px solid var(--rule); border-radius:3px; padding:13px 16px; box-shadow:var(--shadow)}
+.reading input{margin-top:5px; width:17px; height:17px; accent-color:var(--accent); flex:0 0 auto; cursor:pointer}
+.reading label{cursor:pointer; display:block}
+.reading .rt{font-weight:600; display:block; margin-bottom:3px}
+.reading .rd{font-size:14px; color:var(--text-2); display:block}
+.reading li:has(input:checked) .rt{color:var(--text-3); text-decoration:line-through}
+.reading li:has(input:checked) .rd{color:var(--text-3)}
+
+.tag{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.09em;
+  text-transform:uppercase; padding:3px 7px; border-radius:2px; white-space:nowrap; font-weight:500}
+.tag-pri{background:var(--fail-soft); color:var(--fail)}
+.tag-mid{background:var(--accent-soft); color:var(--accent-text)}
+.tag-low{background:var(--surface-2); color:var(--text-3); border:1px solid var(--rule-2)}
+.tag-run{background:var(--pass-soft); color:var(--pass)}
+
+.fast{background:var(--ink); border-radius:4px; padding:28px 26px; margin:34px 0; color:#E4E9ED}
+.fast h3{color:#fff; font-size:21px; font-weight:600; margin-bottom:10px}
+.fast p{color:#A9BAC7; max-width:64ch}
+.fast ol{color:#C7D3DC; padding-left:20px; margin:0}
+.fast li{margin-bottom:7px}
+.fast b{color:#fff}
+
+footer.foot{border-top:1px solid var(--rule); margin-top:54px; padding-top:22px;
+  font-size:13.5px; color:var(--text-3); max-width:70ch}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:2px}
+@media (prefers-reduced-motion:reduce){ *{transition:none !important} }
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+@media print{
+  .mast{background:none; border-bottom:2px solid #000}
+  .mast h1,.mast .kicker,.mast p{color:#000}
+  .mast .drilllink{display:none}
+  nav.rail{display:none}
+  .shell{display:block}
+  .fast{background:none; border:2px solid #000; color:#000}
+  .fast h3,.fast p,.fast ol,.fast b{color:#000}
+}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="mast-in">
+    <div class="kicker">Applied AI Engineering · Problem Decomposition</div>
+    <h1>Evaluation Study Plan</h1>
+    <p>A staged path through this repository, ordered by what the round actually tests.
+       Roughly 20 hours of reading, plus one optional sitting of code at the end.
+       Coding is secondary here — this is a system-design and decomposition round.</p>
+    <a class="drilllink" href="evaluation-round-drill.html">Open the self-quiz drill →</a>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" aria-label="Stages">
+    <ol>
+      <li><a href="#s0"><span class="n">00</span><span>Orientation</span></a></li>
+      <li><a href="#s1"><span class="n">01</span><span>Taxonomy</span></a></li>
+      <li><a href="#s2"><span class="n">02</span><span>35 Questions</span></a></li>
+      <li><a href="#s3"><span class="n">03</span><span>19 Cases</span></a></li>
+      <li><a href="#s4"><span class="n">04</span><span>Separators</span></a></li>
+      <li><a href="#s5"><span class="n">05</span><span>The numbers</span></a></li>
+      <li><a href="#s6"><span class="n">06</span><span>Run code</span></a></li>
+      <li><a href="#fast"><span class="n">—</span><span>Fast path</span></a></li>
+      <li><a href="#skip"><span class="n">—</span><span>What to skip</span></a></li>
+      <li><a href="#ready"><span class="n">—</span><span>Readiness</span></a></li>
+    </ol>
+    <p class="railnote">Tick items as you go — progress is saved in this browser.</p>
+  </nav>
+
+  <main>
+    <p class="lede">This repository already contains a layer built for exactly this round:
+      <code>docs/interview-prep/</code> is 2,200 lines of 35 evaluation questions and 19 case
+      studies written for the agentic system-design interview. <strong>Start there, not in the
+      notebooks.</strong> Everything below orders that material and fills in the theory around it.</p>
+
+    <div class="callout key">
+      <span class="lbl">The one behaviour being scored above all others</span>
+      <p>Treat evaluation as a <b>design input</b>, not a phase that happens after the build.
+         If you cannot describe how you would measure a component, you have not finished
+         designing it. Every stage below serves that one sentence.</p>
+    </div>
+
+    <!-- ===================== STAGE 0 ===================== -->
+    <section class="stage" id="s0">
+      <div class="stage-head">
+        <span class="sn">00</span><h2>Get the answer skeleton</h2><span class="time">30 min</span>
+      </div>
+      <p class="why">Before any content, get the reusable shape of an answer. Section 1 of the
+        case-study bank is the <b>Decomposition Spine</b> — an eight-step flow from clarifying the
+        ask to designing the feedback loop, deliberately eval-first. It is the backbone for every
+        case in the document, and the single highest-leverage thing to memorise.</p>
+
+      <ul class="reading">
+        <li><input type="checkbox" id="r0a"><label for="r0a">
+          <span class="rt">Case studies, Sections 0–2 only</span>
+          <span class="rd"><code>Agentic_AI_Evaluation_Decomposition_Case_Studies.md</code> — what the round measures (five scoring axes), the Decomposition Spine, and the evaluation taxonomy you must be able to draw.</span></label></li>
+      </ul>
+
+      <div class="callout">
+        <span class="lbl">Two properties to say out loud when you draw the Spine</span>
+        <p><b>Online discovers; offline prevents recurrence.</b> A finding that stops at the
+           monitoring dashboard helps once. Carried into a gated offline test, it protects every
+           release after.</p>
+        <p><b>The gate is the only thing that can deploy.</b> Human-written and machine-optimised
+           prompts pass the identical check — if anything the machine-written one deserves more
+           scrutiny, because it was optimised against a metric sitting <i>inside</i> the gate.</p>
+      </div>
+      <p><b>Done when:</b> you can draw the eight steps from memory and say what happens at each.</p>
+    </section>
+
+    <!-- ===================== STAGE 1 ===================== -->
+    <section class="stage" id="s1">
+      <div class="stage-head">
+        <span class="sn">01</span><h2>The taxonomy you must be able to draw</h2><span class="time">2–3 h</span>
+      </div>
+      <p class="why">Almost every follow-up in this round is a disguised version of
+        <i>“which layer are you actually measuring?”</i> You need the five surfaces — retrieval,
+        generation, tool mechanics, trajectory, outcome — with at least one metric and one failure
+        mode each, and you need the reference-based vs referenceless axis, because it decides
+        everything operational downstream.</p>
+
+      <ul class="reading">
+        <li><input type="checkbox" id="r1a"><label for="r1a">
+          <span class="rt">Module 0 — The Evaluation Landscape <span class="tag tag-mid">read, don’t run</span></span>
+          <span class="rd"><code>courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb</code> — 2,014 words of prose, one code cell. Taxonomy by pipeline stage <i>and</i> by behaviour, reference-based vs referenceless as the axis that decides cost, LLM-as-judge failure modes, and the tooling map.</span></label></li>
+        <li><input type="checkbox" id="r1b"><label for="r1b">
+          <span class="rt">Theory guide, Parts 0–3 + Master Quick Reference</span>
+          <span class="rd"><code>docs/concepts/rag-agent-tool-evaluation.md</code> — the same ground with every metric defined and a note on when to reach for it.</span></label></li>
+        <li><input type="checkbox" id="r1c"><label for="r1c">
+          <span class="rt">The interactive labs <span class="tag tag-run">zero setup</span></span>
+          <span class="rd"><code>docs/interactive-labs/00-evaluation-index.md</code> for the five-surfaces map, then open the <code>.html</code> labs in a browser. Drag K from 1 to 5 and watch precision move non-monotonically while recall stalls at 0.67 and MRR pins at 0.50. Twenty minutes, and you will redraw those curves on a whiteboard from memory.</span></label></li>
+      </ul>
+
+      <div class="callout">
+        <span class="lbl">The four things to carry forward</span>
+        <p><b>1.</b> The five surfaces, in order, with end-state verification as the strongest signal available.
+           <b>2.</b> Reference-based gates the deploy; referenceless watches what happens after it.
+           <b>3.</b> The scorer cost ladder — deterministic → wrapped judge → custom judge → trace-based judge.
+           <b>4.</b> The four judge failure modes: persuaded by fluency, rubric-sensitive, non-deterministic, circular when it is also the optimisation target.</p>
+      </div>
+    </section>
+
+    <!-- ===================== STAGE 2 ===================== -->
+    <section class="stage" id="s2">
+      <div class="stage-head">
+        <span class="sn">02</span><h2>The 35 questions</h2><span class="time">6–8 h · the core</span>
+      </div>
+      <p class="why">This is the centre of the plan.
+        <code>Evaluation_Questions_for_Agentic_System_Design.md</code> gives each question an issue,
+        what they are checking, a strong answer, a weak answer <i>with why it reads badly</i>, and
+        the follow-up to expect. <b>Do not read it linearly.</b> Go in the order below, which is
+        roughly descending by how often each part decides the round.</p>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Read</th><th>Part</th><th>Theme</th><th>Why here</th></tr></thead>
+          <tbody>
+            <tr><td><b>1st</b></td><td>Part 1 · Q1–Q4</td><td>Vague ask → evaluation plan</td><td><span class="tag tag-pri">Always asked</span> The opener.</td></tr>
+            <tr><td><b>2nd</b></td><td>Part 2 · Q5–Q9</td><td>Decomposing what to measure</td><td><span class="tag tag-pri">Core</span> Q5/Q6 (RAG vs agent-with-tools) and Q9 (evaluating an agent that decides <i>not</i> to answer) are the round in miniature.</td></tr>
+            <tr><td><b>3rd</b></td><td>Part 5 · Q18–Q21</td><td>Offline → online</td><td><span class="tag tag-pri">Separator</span> Where most candidates are weakest.</td></tr>
+            <tr><td>4th</td><td>Part 6 · Q22–Q25</td><td>Gating, regressions, rollback</td><td><span class="tag tag-mid">High</span> Turning measurement into enforcement.</td></tr>
+            <tr><td>5th</td><td>Part 4 · Q14–Q17</td><td>Judges, and who validates them</td><td><span class="tag tag-mid">High</span> The most common naivety in eval work.</td></tr>
+            <tr><td>6th</td><td>Part 3 · Q10–Q13</td><td>Ground truth and datasets</td><td><span class="tag tag-low">Then</span> Where eval programmes actually die.</td></tr>
+            <tr><td>7th</td><td>Part 7 · Q26–Q29</td><td>Multi-turn, tools, agency</td><td><span class="tag tag-low">Then</span> Composition arithmetic, scope of validity.</td></tr>
+            <tr><td>8th</td><td>Part 8 · Q30–Q32</td><td>Adversarial, safety, governance</td><td><span class="tag tag-low">Then</span> Eval-set design as its own discipline.</td></tr>
+            <tr><td>9th</td><td>Part 9 · Q33–Q35</td><td>Cost, ownership, rollout</td><td><span class="tag tag-low">Then</span> The dimension candidates forget entirely.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <span class="lbl">Method matters more than coverage</span>
+        <p>Read the question, answer it <b>out loud or on paper</b>, <i>then</i> read the answer.
+           If you read answers first you are training recognition, and this round tests recall
+           under pressure. The <a href="evaluation-round-drill.html">self-quiz drill</a> enforces
+           this — answers stay hidden until you reveal them, and you rate your own recall so a
+           second pass targets only the gaps.</p>
+      </div>
+
+      <ul class="reading">
+        <li><input type="checkbox" id="r2a"><label for="r2a">
+          <span class="rt">Parts 1, 2 and 5 — the priority block</span>
+          <span class="rd">Q1–Q9 and Q18–Q21. If you do nothing else in this stage, do these thirteen.</span></label></li>
+        <li><input type="checkbox" id="r2b"><label for="r2b">
+          <span class="rt">Parts 6 and 4</span>
+          <span class="rd">Q22–Q25 and Q14–Q17 — gating and judge validation.</span></label></li>
+        <li><input type="checkbox" id="r2c"><label for="r2c">
+          <span class="rt">Parts 3, 7, 8 and 9</span>
+          <span class="rd">Q10–Q13, Q26–Q35 — datasets, multi-turn, adversarial, cost and ownership.</span></label></li>
+        <li><input type="checkbox" id="r2d"><label for="r2d">
+          <span class="rt">The document’s own closing notes</span>
+          <span class="rd">“What gets people marked down” and “Lines worth having ready”. Short, and disproportionately useful.</span></label></li>
+      </ul>
+    </section>
+
+    <!-- ===================== STAGE 3 ===================== -->
+    <section class="stage" id="s3">
+      <div class="stage-head">
+        <span class="sn">03</span><h2>Rehearsal on the 19 cases</h2><span class="time">4–6 h</span>
+      </div>
+      <p class="why">Each case is written to be answered out loud in 30–45 minutes with an
+        interviewer pushing back. Apply the Decomposition Spine to each one <i>before</i> reading
+        the decomposition given. These are practice cases, not leaked questions — the value is in
+        rehearsing the shape of an answer, not in memorising nineteen specific ones.</p>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Tier</th><th>Theme</th><th>Cases</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>A</td><td>Building an evaluation strategy from zero</td><td>1–3</td><td></td></tr>
+            <tr><td><b>B</b></td><td>Diagnosing a failing system in production</td><td>4–6</td><td><span class="tag tag-pri">Goes deep here</span></td></tr>
+            <tr><td>C</td><td>Trajectory and multi-agent evaluation</td><td>7–9</td><td></td></tr>
+            <tr><td>D</td><td>Judges and human calibration</td><td>10–12</td><td></td></tr>
+            <tr><td>E</td><td>Release gating and CI</td><td>13–14</td><td></td></tr>
+            <tr><td><b>F</b></td><td>Online monitoring and statistics</td><td>15</td><td><span class="tag tag-pri">Goes deep here</span></td></tr>
+            <tr><td>G</td><td>Adversarial and edge-case evaluation</td><td>16–17</td><td></td></tr>
+            <tr><td>H</td><td>Harness and platform engineering</td><td>18–19</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="reading">
+        <li><input type="checkbox" id="r3a"><label for="r3a">
+          <span class="rt">Tiers B and F first</span>
+          <span class="rd">Cases 4–6 and 15. Model upgrade regression, polite tool failure, peak-only latency, and production monitoring design — where this round usually goes deep.</span></label></li>
+        <li><input type="checkbox" id="r3b"><label for="r3b">
+          <span class="rt">Tiers A, C, D, E, G, H</span>
+          <span class="rd">The remaining fifteen cases.</span></label></li>
+        <li><input type="checkbox" id="r3c"><label for="r3c">
+          <span class="rt">Appendix A — The Silent-Failure Catalogue <span class="tag tag-pri">read twice</span></span>
+          <span class="rd">Eleven failures that report nothing and read as fine. Dropping two or three into an answer unprompted is the fastest way to signal you have operated a system rather than read about one.</span></label></li>
+        <li><input type="checkbox" id="r3d"><label for="r3d">
+          <span class="rt">Appendix B — Misreadings That Sound Like Insight <span class="tag tag-pri">read twice</span></span>
+          <span class="rd">Ten claims that sound sophisticated and are wrong. This is about not sounding smart-but-wrong, which is the most common way strong candidates lose points.</span></label></li>
+        <li><input type="checkbox" id="r3e"><label for="r3e">
+          <span class="rt">Appendix C — Company-specific flavour</span>
+          <span class="rd">The core decomposition is identical everywhere; what differs is which follow-up you get pushed hardest on.</span></label></li>
+      </ul>
+    </section>
+
+    <!-- ===================== STAGE 4 ===================== -->
+    <section class="stage" id="s4">
+      <div class="stage-head">
+        <span class="sn">04</span><h2>The four separators</h2><span class="time">3–4 h</span>
+      </div>
+      <p class="why">Four areas where a strong answer visibly separates from a competent one.
+        Every notebook below is prose-led — <b>read the markdown and skip every code cell</b>.</p>
+
+      <ul class="reading">
+        <li><input type="checkbox" id="r4a"><label for="r4a">
+          <span class="rt">The offline/online boundary</span>
+          <span class="rd"><code>courses/02-databricks-mlflow-evals/06_online_eval_production_monitoring.ipynb</code> — 1,486 words. “Production has no ground truth” as the structural fact, sampling economics vs statistical resolution as <i>different questions</i>, and the loop between the two. The most quoted material in Q19, Q21 and Case 15.</span></label></li>
+        <li><input type="checkbox" id="r4b"><label for="r4b">
+          <span class="rt">Release gating</span>
+          <span class="rd"><code>courses/02-…/05_prompt_versioning_and_regression.ipynb</code> — the two-condition gate, per-metric-type tolerance, alias-as-indirection, and the rollback drill.</span></label></li>
+        <li><input type="checkbox" id="r4c"><label for="r4c">
+          <span class="rt">Judge validation</span>
+          <span class="rd"><code>courses/02-…/07_judge_alignment_memalign.ipynb</code> — agreement not mean score, and why an aligned judge scoring <i>lower</i> is the success condition.</span></label></li>
+        <li><input type="checkbox" id="r4d"><label for="r4d">
+          <span class="rt">Trajectory and tool use</span>
+          <span class="rd"><code>courses/01-…/12_Agent_Trajectory_Evaluation.ipynb</code> (2,378 words) and <code>09_Tool_Use_Evaluation.ipynb</code> — the nine trace-level metrics, end-state verification, and why an unexpected tool call is a failure rather than an inefficiency.</span></label></li>
+        <li><input type="checkbox" id="r4e"><label for="r4e">
+          <span class="rt">Adversarial design</span>
+          <span class="rd"><code>courses/02-…/10_capstone_edge_cases_and_crossref.ipynb</code> — attack classes × variants rather than a flat string list, and reporting per class because the aggregate is what hides a class sitting at zero.</span></label></li>
+      </ul>
+    </section>
+
+    <!-- ===================== STAGE 5 ===================== -->
+    <section class="stage" id="s5">
+      <div class="stage-head">
+        <span class="sn">05</span><h2>The numbers, last and repeatedly</h2><span class="time">1 h, then re-skim</span>
+      </div>
+      <p class="why">Specific numbers are what make an answer sound operated rather than read.
+        Do this stage last, then re-skim it the morning of the interview.</p>
+
+      <ul class="reading">
+        <li><input type="checkbox" id="r5a"><label for="r5a">
+          <span class="rt">Quick Reference — numbers, decision rules, agreement measures</span>
+          <span class="rd"><code>docs/concepts/databricks-mlflow-evals/QUICK_REFERENCE.md</code> — the p<sup>n</sup> conversation table, the Wilson resolution table, regression tolerance by scorer type, and the three agreement measures with when each fails.</span></label></li>
+        <li><input type="checkbox" id="r5b"><label for="r5b">
+          <span class="rt">“Lines worth being able to say out loud” <span class="tag tag-pri">memorise</span></span>
+          <span class="rd">Same file. Seven pre-written statements on sampling, judges, conversations, tool use, adversarial testing and what you would do next. Interview-ready verbatim.</span></label></li>
+        <li><input type="checkbox" id="r5c"><label for="r5c">
+          <span class="rt">Gotchas §A and §C</span>
+          <span class="rd"><code>docs/concepts/databricks-mlflow-evals/GOTCHAS.md</code> — silent failures (§A) and misreadings where the number is right and the interpretation isn’t (§C).</span></label></li>
+      </ul>
+
+      <div class="callout good">
+        <span class="lbl">The four numbers to have cold</span>
+        <p><b>95% per turn is 77% over five turns</b> — and more likely failed than not by turn 14.<br>
+           <b>A 5% sample of 2,000 traces/day resolves to ±4.5 points</b> — so a 2-point alert fires on noise; catching 2 points needs ≈606 scored traces, or 30% sampling.<br>
+           <b>Regression tolerance is 0.00 deterministic, 0.02 judged</b> — the same −0.015 delta is tolerated on one and blocks on the other.<br>
+           <b>Two judges, identical exact agreement and identical plain kappa, scored +0.71 and −0.82</b> under quadratic weighted kappa.</p>
+      </div>
+    </section>
+
+    <!-- ===================== STAGE 6 ===================== -->
+    <section class="stage" id="s6">
+      <div class="stage-head">
+        <span class="sn">06</span><h2>Run code — at the end, one sitting</h2><span class="time">2–3 h · optional</span>
+      </div>
+      <p class="why">Coding is not what this round tests, so keep execution to the few places where
+        it makes an abstraction concrete. Ordered cheapest first.</p>
+
+      <ul class="reading">
+        <li><input type="checkbox" id="r6a"><label for="r6a">
+          <span class="rt">The interactive labs <span class="tag tag-run">no setup</span></span>
+          <span class="rd"><code>docs/interactive-labs/*.html</code> — open in a browser. Best effort-to-insight ratio in the repository.</span></label></li>
+        <li><input type="checkbox" id="r6b"><label for="r6b">
+          <span class="rt">Deterministic retrieval metrics <span class="tag tag-run">no API key</span></span>
+          <span class="rd"><code>courses/01-…/01_Retrieval_Metrics_Deterministic.ipynb</code> — seeing three of four metrics structurally capped because one chunk was never retrieved is worth more than reading it.</span></label></li>
+        <li><input type="checkbox" id="r6c"><label for="r6c">
+          <span class="rt">Agent trajectory, Parts A–B <span class="tag tag-run">mocked</span></span>
+          <span class="rd"><code>courses/01-…/12_Agent_Trajectory_Evaluation.ipynb</code> — the nine-metric suite on a refund-agent scenario, no key needed.</span></label></li>
+        <li><input type="checkbox" id="r6d"><label for="r6d">
+          <span class="rt">Offline eval fundamentals</span>
+          <span class="rd"><code>courses/02-…/02_offline_eval_fundamentals.ipynb</code> — needs <code>OPENAI_API_KEY</code>. Run it for the ship/no-ship gate decision, which is Q22 made real.</span></label></li>
+      </ul>
+    </section>
+
+    <!-- ===================== FAST PATH ===================== -->
+    <section class="stage" id="fast">
+      <div class="fast">
+        <h3>If you only have 2–3 days</h3>
+        <p>Roughly ten hours, covering the highest-probability ground.</p>
+        <ol>
+          <li><b>Stage 0</b> — the Decomposition Spine and the taxonomy. Non-negotiable.</li>
+          <li><b>Stage 2, Parts 1, 2 and 5</b> — Q1–Q9 and Q18–Q21.</li>
+          <li><b>Stage 3, Tiers B and F</b> — cases 4–6 and 15, plus both appendices.</li>
+          <li><b>Stage 5</b> — the numbers and the lines to say out loud.</li>
+        </ol>
+        <p style="margin-top:14px">Add Stage 1’s landscape notebook if you want the taxonomy
+           properly solid rather than merely drawable.</p>
+      </div>
+    </section>
+
+    <!-- ===================== SKIP ===================== -->
+    <section class="stage" id="skip">
+      <div class="stage-head">
+        <span class="sn">—</span><h2>Skip entirely for this round</h2><span class="time">saves ~15 h</span>
+      </div>
+      <ul class="pts">
+        <li><b>All of <code>labs/</code></b> — framework API mechanics, not design thinking. Nothing in that directory will come up.</li>
+        <li><b><code>courses/01</code> modules 1.2–1.7</b> — DeepEval and RAGAS call signatures.</li>
+        <li><b><code>courses/02</code> phase 8 (GEPA)</b> — know the <i>idea</i>, which is Q23 and Case 11: an optimised prompt passes the same gate as a human one, and deserves more scrutiny rather than less, because it was tuned against a metric inside that gate. Skip the implementation.</li>
+        <li><b><code>archive/</code></b> — superseded material kept for provenance.</li>
+      </ul>
+      <div class="callout">
+        <p>The instinct to read everything is the wrong one here. The round rewards depth on
+           decomposition and measurement judgement, and a candidate who can name the failure mode
+           of a tool-selection scorer beats one who can recite four frameworks’ APIs.</p>
+      </div>
+    </section>
+
+    <!-- ===================== READINESS ===================== -->
+    <section class="stage" id="ready">
+      <div class="stage-head">
+        <span class="sn">—</span><h2>Readiness check</h2><span class="time">do it cold</span>
+      </div>
+      <p class="why">You are ready when you can do all six on a blank whiteboard, without notes.</p>
+      <ul class="reading">
+        <li><input type="checkbox" id="rd1"><label for="rd1"><span class="rt">Draw the Decomposition Spine</span><span class="rd">All eight steps, and what happens at each.</span></label></li>
+        <li><input type="checkbox" id="rd2"><label for="rd2"><span class="rt">Draw the five evaluation surfaces</span><span class="rd">Retrieval → generation → tool mechanics → trajectory → outcome, with one metric and one failure mode per surface.</span></label></li>
+        <li><input type="checkbox" id="rd3"><label for="rd3"><span class="rt">State which metrics are structurally impossible online</span><span class="rd">And give the mechanical test: does it read expectations?</span></label></li>
+        <li><input type="checkbox" id="rd4"><label for="rd4"><span class="rt">Signal or noise?</span><span class="rd">Given “a metric dropped two points this week”, answer it <i>and show the arithmetic</i>.</span></label></li>
+        <li><input type="checkbox" id="rd5"><label for="rd5"><span class="rt">Explain why a falling judge score after alignment is the success condition</span><span class="rd">Without hedging, and before the stakeholder objects.</span></label></li>
+        <li><input type="checkbox" id="rd6"><label for="rd6"><span class="rt">Name three silent failures unprompted</span><span class="rd">Symptom → cause → fix, from memory.</span></label></li>
+      </ul>
+
+      <div class="callout key">
+        <span class="lbl">The throughline, if you remember one thing</span>
+        <p><b>Task success alone is never enough, and aggregates hide the thing you need to see.</b>
+           A trace can reach the right final answer while being inefficient, unsafe, or lucky rather
+           than reliable. A dashboard can be green while an entire attack class is at zero, an entire
+           customer segment is failing, or the monitor itself stopped running three weeks ago.
+           Say that out loud in the round, then show the decomposition that would have caught it.</p>
+      </div>
+    </section>
+
+    <footer class="foot">
+      Built from <code>docs/interview-prep/</code> and <code>docs/concepts/</code> in the
+      Agent Evaluation Demystified repository. Companion to the
+      <a href="evaluation-round-drill.html">self-quiz drill</a>, which holds the same 35 questions
+      and 19 cases with the answers hidden until you have attempted them.
+      Checkbox progress is stored in this browser only.
+    </footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  var KEY = "evalplan.v1", state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { state = {}; }
+  var boxes = document.querySelectorAll('.reading input[type="checkbox"]');
+  for (var i = 0; i < boxes.length; i++) {
+    (function(b){
+      b.checked = !!state[b.id];
+      b.addEventListener("change", function(){
+        if (b.checked) { state[b.id] = true; } else { delete state[b.id]; }
+        try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+      });
+    })(boxes[i]);
+  }
+})();
+</script>
+</body>
+</html>
