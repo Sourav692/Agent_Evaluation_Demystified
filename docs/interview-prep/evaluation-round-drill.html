@@ -150,19 +150,39 @@ ul.pts li::marker{color:var(--accent)}
 
 /* ---------- spine ---------- */
 .spine{list-style:none; margin:22px 0; padding:0; counter-reset:sp}
-.spine li{position:relative; padding:0 0 26px 50px; counter-increment:sp}
-.spine li::before{content:counter(sp,decimal-leading-zero); position:absolute; left:0; top:1px;
+.spine > li{position:relative; padding:0 0 26px 50px; counter-increment:sp}
+.spine > li::before{content:counter(sp,decimal-leading-zero); position:absolute; left:0; top:1px;
   font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600; color:var(--accent);
   background:var(--accent-soft); width:31px; height:31px; border-radius:50%;
   display:flex; align-items:center; justify-content:center}
-.spine li::after{content:""; position:absolute; left:15px; top:36px; bottom:2px; width:1px; background:var(--rule)}
-.spine li:last-child::after{display:none}
-.spine li > b{display:block; font-family:"Zilla Slab",serif; font-size:17px; font-weight:600; margin-bottom:3px}
+.spine > li::after{content:""; position:absolute; left:15px; top:36px; bottom:2px; width:1px; background:var(--rule)}
+.spine > li:last-child::after{display:none}
+.spine > li > b{display:block; font-family:"Zilla Slab",serif; font-size:17px; font-weight:600; margin-bottom:3px}
 .spine .why b{color:var(--text)}
+.spine details.plain{margin-top:10px}
+.spine details.plain summary{display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--accent-text); background:var(--accent-soft); border:1px solid transparent;
+  padding:4px 10px; border-radius:100px; list-style:none; width:max-content}
+.spine details.plain summary::-webkit-details-marker{display:none}
+.spine details.plain summary::before{content:"+"; font-weight:600; font-size:12px; line-height:1}
+.spine details.plain[open] summary::before{content:"\2212"}
+.spine details.plain summary:hover{border-color:var(--accent)}
+.spine .plainbody{margin-top:10px; padding:14px 16px; background:var(--surface);
+  border:1px solid var(--rule); border-radius:3px; font-size:14.5px; color:var(--text-2); line-height:1.62}
+.spine .plainbody p{margin:0 0 11px} .spine .plainbody p:last-child{margin-bottom:0}
+.spine .plainbody b{color:var(--text)}
+.spine .plainbody ul{margin:0 0 11px; padding-left:19px}
+.spine .plainbody ul:last-child{margin-bottom:0}
+.spine .plainbody li{position:static; padding:0; margin-bottom:7px; counter-increment:none}
+.spine .plainbody li::before, .spine .plainbody li::after{content:none}
+.spine .plainbody li > b{display:inline; font:inherit; font-weight:600; margin:0}
+.spine .plainbody li::marker{color:var(--accent)}
+.spine .plainbody .mono{font-size:13px; color:var(--accent-text)}
 .spine .do{display:block; color:var(--text); font-size:14.5px}
 .spine .why{display:block; color:var(--text-2); font-size:14px; margin-top:8px;
   border-left:2px solid var(--rule); padding-left:12px}
-.spine li.hi::before{background:var(--accent); color:#fff}
+.spine > li.hi::before{background:var(--accent); color:#fff}
 
 /* ---------- taxonomy ladder ---------- */
 .ladder{display:flex; flex-direction:column; gap:9px; margin:22px 0}
@@ -856,28 +876,36 @@ const AXES = [
 const SPINE = [
  ["Clarify",
   "Who is the user, what does the current workflow cost, what decision changes.",
-  "A complaint is not a specification. Until you have one failing example, a named person who decides what “good” is, and the consequence of getting it wrong, any metric you propose is a guess dressed as rigour.",0],
+  "A complaint is not a specification. Until you have one failing example, a named person who decides what “good” is, and the consequence of getting it wrong, any metric you propose is a guess dressed as rigour.",
+  "<p>Someone says the agent “isn’t good enough”. That’s a feeling, not something you can work on. Get three things before you touch anything.</p><ul><li><b>One conversation they think is bad</b>, and what the agent should have said instead. One real example tells you more than an hour of discussion.</li><li><b>The name of the person whose opinion settles it.</b> A support lead, a lawyer and a product manager will each point at a different thing as the worst failure. If nobody is named, you’ll end up measuring whatever is easiest.</li><li><b>What it costs when it goes wrong.</b> Getting the opening hours wrong is annoying. Reading out someone else’s account balance is a different kind of problem — and that difference is what decides how strict you have to be.</li></ul>",0],
  ["Define “good” numerically",
   "Thresholds BEFORE architecture. Which are blocking, which informational.",
-  "Criteria fixed before the results exist are a standard; criteria chosen after them are a rationalisation — and a reviewer can tell the difference. Blocking vs informational is also your negotiating room when the customer wants tone measured.",1],
+  "Criteria fixed before the results exist are a standard; criteria chosen after them are a rationalisation — and a reviewer can tell the difference. Blocking vs informational is also your negotiating room when the customer wants tone measured.",
+  "<p>Write down the pass marks <b>before</b> you build anything, and before you’ve seen a single result.</p><p>The order is the whole point. If you set the bar after seeing the score, you’ll set it just under wherever you happened to land. Everyone does. Deciding first is what makes it a standard rather than an excuse.</p><p>For each thing you care about, write three things: what you’re measuring, what number counts as a pass, and whether missing it <b>stops the release</b> or is just something to watch.</p><p>That last column is your negotiating room. When a customer insists you measure “tone”, say yes — and make it watch-only. You’ve agreed without letting it block a ship.</p>",1],
  ["Decompose into measurable components",
   "Each with an input contract, an output contract, and its own failure mode.",
-  "Bad retrieval, ungrounded generation and a stale-but-faithfully-quoted source look identical from outside and have completely different fixes. A monolith tells you <i>that</i> it broke, never <i>where</i>.",0],
+  "Bad retrieval, ungrounded generation and a stale-but-faithfully-quoted source look identical from outside and have completely different fixes. A monolith tells you <i>that</i> it broke, never <i>where</i>.",
+  "<p>Treat the system as an assembly line, not one box:<br><span class='mono'>question → retriever → chunks → generator → answer</span></p><p>If you only ask “was the answer right?”, you know the line made a bad product but not <b>which station broke</b> — so you guess, and usually fix the wrong one.</p><p>Give each station a job description: what it takes in, what it hands on, and how <i>that station specifically</i> goes wrong.</p><p>Here’s why it pays. A wrong answer has three causes that look identical from outside:</p><ul><li>The right document was <b>never fetched</b> → fix the retriever.</li><li>It <b>was</b> fetched and the model <b>made something up</b> → fix the prompt, add a grounding check.</li><li>It was fetched and quoted <b>faithfully</b> — but the document is <b>out of date</b> → fix your content, not your model.</li></ul><p>Same symptom, three different fixes, maybe three different teams. And notice no prompt change on earth helps the third one.</p><p><b>The test:</b> for every part you’ve named, finish the sentence “this part is broken if ___”. If you can’t finish it, it isn’t a component yet — it’s a blob with a name on it.</p>",0],
  ["Pick the measurement per component",
   "Deterministic → wrapped judge → custom judge → trace-based judge. The cheapest that works.",
-  "Cheapest is the tiebreak; <b>determinism is the reason</b>. When a deterministic check moves, behaviour moved. A judge moves on its own, which is why it needs a tolerance and can never certify what it was optimised against.",0],
+  "Cheapest is the tiebreak; <b>determinism is the reason</b>. When a deterministic check moves, behaviour moved. A judge moves on its own, which is why it needs a tolerance and can never certify what it was optimised against.",
+  "<p>For each part, pick the <b>cheapest check that actually answers the question</b>. Four options, cheapest first:</p><ul><li><b>Plain code.</b> “Did it mention an account number?” A regular expression answers that. Free, instant, same answer every time.</li><li><b>A ready-made judge.</b> A model with a standard rubric, for things like “is this answer supported by the source?”</li><li><b>Your own judge.</b> The same, but with a rubric you wrote for your domain.</li><li><b>A judge that reads the whole trace.</b> Expensive — it reads every step the agent took. Only worth it for questions about <i>the route</i>, like “did it take a sensible path?”</li></ul><p>The rule: <b>if code can decide it, never pay a model to decide it.</b></p><p>But saving money isn’t the real reason. Code gives the same answer every time, so when the number moves, <b>the system moved</b>. A model judge changes its mind between runs — so when its number moves, you can’t tell whether anything actually happened.</p>",0],
  ["Design the ground truth",
   "Where do inputs come from, where do labels come from, who authors them.",
-  "Mining production traffic gives you inputs, not labels — the free half. Expert time to author the expectations is the binding constraint, and the line item nobody budgets is what kills eval programmes in month three.",0],
+  "Mining production traffic gives you inputs, not labels — the free half. Expert time to author the expectations is the binding constraint, and the line item nobody budgets is what kills eval programmes in month three.",
+  "<p>“Ground truth” just means <b>the right answer, written down by a person</b>, so you have something to compare against.</p><p>There are two separate questions here, and teams collapse them into one:</p><ul><li><b>Where do the questions come from?</b> Easy once you’re live — copy real ones out of your logs. Free.</li><li><b>Where do the right answers come from?</b> Somebody has to sit down and write them. Not free. Never free.</li></ul><p>Teams plan the first and forget the second. Then in month four nobody has budgeted anyone’s time, and they quietly start using <b>the agent’s own past answers</b> as the right answers. That’s circular — the agent now passes automatically, and today’s bugs become the official definition of correct.</p><p>Also record <i>who</i> wrote each answer: expert, contractor, or script. You’ll need that later when someone asks why the bar is where it is.</p>",0],
  ["Design the gate",
   "Absolute threshold AND no-regression vs the current production version.",
-  "Each alone fails differently. A threshold permits slow erosion — 0.98 → 0.91 clears a 0.90 bar, three times running. No-regression alone lets a candidate that improved on a bad baseline ship while still being bad.",1],
+  "Each alone fails differently. A threshold permits slow erosion — 0.98 → 0.91 clears a 0.90 bar, three times running. No-regression alone lets a candidate that improved on a bad baseline ship while still being bad.",
+  "<p>A “gate” is the automatic check that decides whether a change is allowed to ship. It needs <b>two</b> rules, not one:</p><ul><li><b>Is it good enough?</b> Every important number clears its bar.</li><li><b>Is it worse than what’s already live?</b> No important number dropped compared with the version serving customers right now.</li></ul><p>Each rule alone has a hole:</p><ul><li><b>Bar only:</b> your score slides 0.98 → 0.95 → 0.92 → 0.91. Every release passed the 0.90 bar. You’re now on the floor and no single release is to blame.</li><li><b>Comparison only:</b> a version that’s better than a bad version still ships — and it’s still bad.</li></ul><p>One more thing: <b>creating a new version isn’t the same as switching customers onto it.</b> Keep those two steps apart, and put the gate in the gap between them. Then undoing a bad release is moving a pointer back, not an emergency.</p>",1],
  ["Design the rollout",
   "Assistive → gated-write → autonomous, by risk tier, not by calendar.",
-  "Each tier earns autonomy on its own evidence, so “is it safe?” becomes a per-action question instead of one number. And assistive mode is a free labelling factory: every human override is a ground-truth label with perfect provenance.",0],
+  "Each tier earns autonomy on its own evidence, so “is it safe?” becomes a per-action question instead of one number. And assistive mode is a free labelling factory: every human override is a ground-truth label with perfect provenance.",
+  "<p>Don’t ask “can it run on its own?” once, about the whole system. Ask it <b>per action</b>, based on how much damage one wrong call does.</p><p>A rough ladder: reading things → suggesting things a human approves → doing small reversible things → acting alone.</p><p>Each rung earns its promotion separately. Looking up a policy document can go autonomous on day one; issuing refunds might never.</p><p>And there’s a bonus most people miss. While a human is still approving everything, <b>every time they change the agent’s suggestion, that’s a correct answer written by an expert, with a record of why</b> — arriving for free. That’s the expensive thing from step 5, landing in your lap, as long as you remember to record it.</p>",0],
  ["Design the feedback loop",
   "Online monitoring discovers; offline gates prevent recurrence. → back to step 2.",
-  "A finding that stops at the dashboard helps you once. Carried into a gated offline test it protects every release after — which is why the arrow returns to step 2 rather than ending the diagram.",1],
+  "A finding that stops at the dashboard helps you once. Carried into a gated offline test it protects every release after — which is why the arrow returns to step 2 rather than ending the diagram.",
+  "<p>Testing and production find different problems, and you need both, feeding each other.</p><ul><li><b>Testing (offline)</b> runs a fixed list of cases, thoroughly, before release. It can only catch problems someone already thought to put on the list.</li><li><b>Production (online)</b> sees what real users actually do — including everything nobody imagined. But there’s no “right answer” to compare against, so it shows you trends, not pass or fail.</li></ul><p>So: <b>production finds new problems; testing stops them coming back.</b></p><p>The rule that turns it into a loop: every time production surfaces a failure, <b>add it to the permanent test list</b>. Fix only the one incident and you’ve helped yourself once. Put it on the list and it protects every release from then on.</p><p>That’s why the last arrow goes back to step 2 instead of ending the diagram.</p>",1],
 ];
 
 const LADDER = [
@@ -1073,8 +1101,10 @@ function buildOrient(){
   s.appendChild(el("h3","sub","The Decomposition Spine"));
   s.appendChild(el("p",null,"<span class='prose' style='display:block;color:var(--text-2)'>The backbone for every case in this guide. Deliberately eval-first. Learn to draw it from memory before anything else.</span>"));
   const ol = el("ol","spine");
-  SPINE.forEach(([t,d,w,hi])=>{ const li=el("li",hi?"hi":"");
-    li.innerHTML="<b>"+t+"</b><span class='do'>"+d+"</span><span class='why'>"+w+"</span>"; ol.appendChild(li); });
+  SPINE.forEach(([t,d,w,pl,hi])=>{ const li=el("li",hi?"hi":"");
+    li.innerHTML="<b>"+t+"</b><span class='do'>"+d+"</span><span class='why'>"+w+"</span>"+
+      "<details class='plain'><summary>Plain version</summary><div class='plainbody'>"+pl+"</div></details>";
+    ol.appendChild(li); });
   s.appendChild(ol);
   const c2 = el("div","callout");
   c2.innerHTML = "<span class='lbl'>Two properties to say out loud when you draw it</span>"+
