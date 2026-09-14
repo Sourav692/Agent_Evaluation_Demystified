@@ -1,35 +1,38 @@
-# evals3-i
+# Multi-turn & Tool Evaluation
 
-Multi-turn and tool use evaluation scripts with DeepEval framework.
+Three questions — did the conversation hold together, did the agent call the right tool
+with the right arguments, did the task actually complete — answered **twice**: once with
+DeepEval, once with MLflow's eval APIs, as a direct framework comparison.
+
+| File | What it is |
+|---|---|
+| `evaluation.ipynb` | DeepEval: `ConversationalGEval`, `TurnRelevancyMetric`, `KnowledgeRetentionMetric`, then `ToolCorrectnessMetric` / `ArgumentCorrectnessMetric` / `ToolUseMetric`, then `TaskCompletionMetric` |
+| `mlflow_evaluation.ipynb` | The same three areas via `mlflow.genai.evaluate()` — `Guidelines`, `make_judge`, `@scorer` over `Trace` / `SpanType.TOOL` |
+| `test_conv.py` | Multi-turn conversational evaluation as a runnable script |
+| `test_tools1.py` · `test_tools2.py` · `test_tools3.py` | Tool-use evaluation, one metric per script |
+
+**Distilled into:** course 01 modules 2.1–2.4
+([`../../courses/01-rag-agent-tool-evaluation/`](../../courses/01-rag-agent-tool-evaluation/)),
+where module 2.4 keeps the MLflow comparison deliberately adjacent to the DeepEval versions.
 
 ## Setup
 
-Install dependencies with `uv`:
+> **This lab has its own environment.** It pins `deepeval==3.8.8`, older than the repo
+> root's `>=4.1.8`. Run it here, not from the root venv.
 
 ```bash
+cd labs/multiturn-and-tool-eval
 uv sync
+python test_conv.py      # or test_tools1.py, test_tools2.py, test_tools3.py
 ```
 
-## Running Tests
+Python 3.12 (see `.python-version`).
 
-Run evaluations:
+## LLM provider
 
-```bash
-python test_conv.py
-python test_tools1.py
-python test_tools2.py
-python test_tools3.py
-```
+By default this project points `OPENAI_API_KEY` at **OpenRouter** via an alternative base
+URL (`https://openrouter.ai/api/v1`). To use OpenAI directly, supply an OpenAI key and the
+standard base URL.
 
-## Requirements
-
-- Python 3.12
-
-### LLM Provider Configuration
-
-By default, this setup uses **OpenRouter** by configuring an alternative base URL. You have the following options:
-
-- **OpenRouter** (default): Use your OpenRouter API key for the `OPENAI_API_KEY` environment variable. The base URL used is `https://openrouter.ai/api/v1`.
-- **OpenAI directly**: Use your OpenAI API key with the standard OpenAI base URL.
-
-**Important:** Regardless of which option you choose, make sure to use OpenAI models for utmost consistency with the evaluation framework defaults.
+Either way, use OpenAI **models** — DeepEval's metric defaults assume them, and swapping
+the underlying model changes the scores.

@@ -1,0 +1,19 @@
+# docs
+
+Prose. Nothing here executes.
+
+| Folder | What it is |
+|---|---|
+| [`concepts/`](concepts/) | Theory companions to both courses — definitions, gotchas, quick-reference tables. Written for random access, not sequential reading. |
+| [`interactive-labs/`](interactive-labs/) | Six standalone HTML labs you can open in a browser and manipulate, each paired with a written companion. Built from course 01's notebooks. Start at [`00-evaluation-index.md`](interactive-labs/00-evaluation-index.md). |
+| [`interview-prep/`](interview-prep/) | Evaluation questions for agentic system-design rounds, and 23 decomposition case studies. Judgement-under-constraint, not metric derivations. |
+
+## concepts/
+
+- [`rag-agent-tool-evaluation.md`](concepts/rag-agent-tool-evaluation.md) — the full
+  theory companion to course 01: the taxonomy, every metric's definition and when to use
+  it, LLM-as-judge failure modes, framework comparisons, a master quick-reference table.
+  No code, nothing to run.
+- [`databricks-mlflow-evals/`](concepts/databricks-mlflow-evals/) — companions to course 02:
+  the agent under test, concepts by theme, 32 gotchas as symptom → cause → fix, and the
+  numbers and decision rules in one sitting.

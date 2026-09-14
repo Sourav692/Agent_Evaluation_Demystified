@@ -1,39 +1,85 @@
 [project]
-name = "langgraph-fundamentals"
+name = "agent-evaluation-demystified"
 version = "0.1.0"
-description = "Standalone env for 03_LangGraph_Fundamentals notebooks"
+description = "Hands-on material for evaluating RAG systems, tool-calling agents and multi-turn conversational agents: DeepEval, RAGAS, MLflow 3 GenAI and Arize Phoenix."
+readme = "README.md"
 requires-python = ">=3.12"
+
+# Core: everything courses/ needs, and most of labs/.
+# Install:  uv sync          (or: pip install -e .)
 dependencies = [
-    "langchain==1.4.0",
-    "langchain-core==1.6.1",
-    "langchain-community==0.4.2",
-    "langchain-classic==1.0.8",
-    "langchain-openai==1.6.0",
-    "langchain-anthropic==1.7.1",
-    "langchain-chroma==1.1.0",
+    # Evaluation frameworks — the subject of this repo
+    "deepeval>=4.1.8",          # courses/01, labs/rag-evaluation, labs/llm-as-judge
+    "ragas>=0.4.3",             # courses/01 module 1.6, labs/rag-evaluation/ragas-scripts
+    "mlflow>=3.15.1",           # courses/01 module 2.4, courses/02 (entire track)
+
+    # LangChain / LangGraph — the systems under evaluation
+    "langchain>=1.4.0",
+    "langchain-core>=1.6.1",
+    "langchain-community>=0.4.2",
+    "langchain-openai>=1.6.0",
+    "langchain-chroma>=1.1.0",
+    # Pinned, not floated: resolving ragas or mlflow can silently pull langgraph
+    # back to 1.0.x, which drops langgraph.runtime.ExecutionInfo and breaks every
+    # LangGraph notebook in courses/01 and labs/langgraph-agent-rag-eval.
     "langgraph==1.2.11",
-    "rank-bm25==0.2.2",
-    "langsmith==0.12.1",
-    "databricks-langchain==0.20.0",
-    "databricks-sdk==0.135.0",
-    "numpy==2.5.2",
-    "pandas==3.0.5",
-    "pydantic==2.12.5",
-    "typing-extensions==4.16.0",
-    "python-dotenv==1.2.3",
-    "requests==2.34.2",
-    "rich==14.3.4",
-    "tqdm==4.70.0",
-    "ipython==9.17.1",
+    "langgraph-prebuilt>=1.0.10",
+
+    # Models and data
+    "openai>=2.24.0",
+    "pandas>=2.2",
+    "numpy>=2.4",
+    "pydantic>=2.12",
+    "datasets>=3.0",
+
+    # Utilities
+    "python-dotenv>=1.2",
+    "requests>=2.32",
+    "tqdm>=4.67",
+
+    # Notebook environment. ipykernel alone (not the `jupyter` metapackage) is
+    # enough to register this venv as a kernel for VS Code or an existing
+    # Jupyter Lab — it skips ~80 packages a standalone server would need.
+    "ipython>=8.30",
     "ipykernel",
 ]
 
-# NOTE: notebooks also import the local `helpers` package (from helpers import
-# get_llm, get_embeddings). It is deliberately NOT declared as a dependency
-# here (e.g. via [tool.uv.sources]) because the root pyproject.toml's
-# dependency list applies to the whole monorepo package, so an editable
-# install of the repo root would pull in ~65 unrelated packages (chromadb,
-# mcp, deepagents, every provider integration, etc.). Install it separately,
-# without its declared deps, after `uv sync`:
-#
-#   uv pip install -e .. --no-deps --python .venv
+[project.optional-dependencies]
+# labs/agent-evaluation/arize-phoenix-labs — live tracing + experiments
+phoenix = [
+    "arize-phoenix>=5.0",
+    "openinference-instrumentation-openai>=0.1",
+    "openinference-instrumentation-langchain>=0.1",
+    "opentelemetry-sdk>=1.27",
+    "opentelemetry-exporter-otlp>=1.27",
+    "duckdb>=1.1",
+    "nest-asyncio>=1.6",
+]
+
+# labs/agent-evaluation/crewai-travel-planner — the live app under evaluation
+crewai = [
+    "crewai>=0.80",
+    "crewai-tools>=0.17",
+    "fastapi>=0.115",
+    "uvicorn>=0.32",
+    "openpyxl>=3.1",        # reads trip_questions.xlsx
+    "pytest>=8.3",
+]
+
+# courses/02-databricks-mlflow-evals against a real workspace
+# (phases 0-5 and 9-10 run locally against SQLite and do not need these)
+databricks = [
+    "databricks-langchain>=0.20.0",
+    "databricks-sdk>=0.135.0",
+]
+
+# labs/rag-evaluation Streamlit demos
+apps = [
+    "streamlit>=1.40",
+    "streamlit-option-menu>=0.4",
+]
+
+dev = ["pytest>=8.3", "ruff>=0.8"]
+
+[tool.setuptools]
+packages = ["shared"]
