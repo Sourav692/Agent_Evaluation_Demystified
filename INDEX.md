@@ -9,7 +9,18 @@ Everything here is prose or notebooks. Nothing on this page executes.
 
 ## 1. Find it by topic
 
-Section numbers are live — jump straight to them rather than scrolling.
+**The four short names used in every table below:**
+
+| Short name | Is this file | What it is |
+|---|---|---|
+| **Field guide** | [`docs/concepts/rag-agent-tool-evaluation.md`](docs/concepts/rag-agent-tool-evaluation.md) | Course 01 theory. Tool-agnostic: what each check catches and misses, no framework APIs |
+| **Question bank** | [`docs/interview-prep/QUESTION_BANK.md`](docs/interview-prep/QUESTION_BANK.md) | 35 questions + 25 metric questions + 19 cases + appendices |
+| **Databricks ref** | [`docs/concepts/databricks-mlflow-evals.md`](docs/concepts/databricks-mlflow-evals.md) | Course 02 theory. Framework-specific: MLflow scorers, gotchas, the numbers |
+| **Drill page** | [`docs/interview-prep/evaluation-round-drill.html`](docs/interview-prep/evaluation-round-drill.html) | The self-quiz. Open in a browser |
+
+`§` is a section number inside that file — **§1.1** is the field guide's section 1.1, **§6.1**
+its section 6.1. Jump to the section rather than scrolling. `lab 0N-…` means
+[`docs/interactive-labs/`](docs/interactive-labs/)`0N-*.html`.
 
 ### Retrieval
 
