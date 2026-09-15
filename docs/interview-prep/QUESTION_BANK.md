@@ -13,14 +13,14 @@ Agents), Microsoft (Copilot Applied Science / Cloud Solution Architect – AI).
 **These are practice cases, not leaked questions.** Every scenario is a situation an applied
 AI engineer or FDE actually walks into on a customer engagement.
 
-**Sources.** Grounded in [`courses/02-databricks-mlflow-evals/`](../../courses/02-databricks-mlflow-evals/)
+**Sources.** Grounded in [CODE0](../../courses/02-databricks-mlflow-evals/)
 (strategy → tracing → offline → judges → datasets → gating → online → alignment → optimisation
-→ multi-turn → adversarial) and [`labs/`](../../labs/) (RAG, tool, trajectory, task-completion
+→ multi-turn → adversarial) and [CODE0](../../labs/) (RAG, tool, trajectory, task-completion
 and conversational evaluation).
 
 **Two interactive companions, built from this file:**
-[`evaluation-study-plan.html`](evaluation-study-plan.html) orders it into a reading path;
-[`evaluation-round-drill.html`](evaluation-round-drill.html) hides every answer for self-quizzing.
+[CODE0](evaluation-study-plan.html) orders it into a reading path;
+[CODE0](evaluation-round-drill.html) hides every answer for self-quizzing.
 This Markdown is the canonical text — edit here, not there.
 
 ---
@@ -30,7 +30,7 @@ This Markdown is the canonical text — edit here, not there.
 **Questions (Parts 1–9)** are answered in two minutes and carry five fields each:
 
 | Field | What it gives you |
-|---|---|
+| --- | --- |
 | **The issue** | What is actually going on underneath the question — the real problem being described |
 | **What they're checking** | The competency being probed. Usually the gap between the obvious answer and the good one |
 | **Strong answer — say it like this** | The answer as you'd actually speak it in the room, not a summary of it |
@@ -50,8 +50,8 @@ shallow, which is harder to notice in yourself.
 
 ## Contents
 
-| | Theme | Items |
-|---|---|---|
+| <br> | Theme | Items |
+| --- | --- | --- |
 | **Part 0** | What the round measures, the Decomposition Spine, the taxonomy | framing |
 | **Part 1** | Turning a vague ask into an evaluation plan | Q1–4 |
 | **Part 2** | Decomposing *what* to measure | Q5–9 |
@@ -82,7 +82,7 @@ shallow, which is harder to notice in yourself.
 The decomposition round is not a knowledge quiz. Interviewers at all four companies are scoring roughly the same five axes:
 
 | Axis | What a weak answer looks like | What a strong answer looks like |
-|---|---|---|
+| --- | --- | --- |
 | **Ambiguity handling** | Starts drawing a RAG diagram in minute two | Spends 5-8 minutes establishing who the user is, what the current workflow costs, and what "good" means numerically |
 | **Decomposition** | One monolithic "the agent does X" | Named components with explicit contracts, each independently measurable and independently failable |
 | **Measurement discipline** | "We'd use RAGAS" | Separates retrieval / generation / tool-mechanics / trajectory / outcome, and says which are *blocking* vs *informational* |
@@ -175,19 +175,19 @@ of "good". Until both exist, any metric you propose is a guess dressed as rigour
 **Strong answer — say it like this**
 
 > "Honestly, not with a metric. I'd want three things before I propose anything.
->
+> 
 > First, a failing example. Not a description — an actual conversation they think is bad, and what
 > the agent should have said instead. One real trace usually tells you straight away whether this is
 > retrieval, reasoning, tone, or a policy the agent was never given.
->
+> 
 > Second, who decides. 'Good' is somebody's standard, and it's never the same person's. The support
 > lead will say the worst failure is a wrong answer, compliance will say it's the one that gave
 > financial advice, the PM will say it's the three-minute wait. If I don't have a name, the eval
 > drifts toward whatever is easy to measure.
->
+> 
 > Third, what happens when it fails. Getting the office hours wrong and leaking someone's account
 > balance are not the same class of problem, and the consequence is what sets the bar.
->
+> 
 > Then, before I run anything, I'd write the dimensions down — correctness, groundedness, safety,
 > tone, tool use — and for each one: blocking or just informational, what's the number, who signs it
 > off. That document is what I'd want out of session one. Architecture comes after, because those
@@ -222,19 +222,19 @@ so asking them to specify it produces either silence or platitudes.
 
 > "I'd stop asking the question directly. 'What does good mean' gets you adjectives — accurate,
 > helpful, on-brand — and none of those are things you can score.
->
+> 
 > So instead I'd show them outputs and ask them to sort.
->
+> 
 > I'd pull together 30 to 50 outputs: some obvious, some genuinely ambiguous, some I expect to fail.
 > Two experts rate them independently, and I make each of them write one line on why.
->
+> 
 > And the thing I'm actually after is the reasons, not the scores. The reasons are the rubric, in
 > their words — and it's a rubric I could never have written myself.
->
+> 
 > Where the two of them disagree, that's the most valuable output of the exercise. It means either
 > the policy is ambiguous or two parts of the business genuinely disagree. Either way that's a
 > product decision, and I'd escalate it rather than quietly averaging it away.
->
+> 
 > What I end up with is a written standard I can trace back to real judgements. That's also what
 > makes an automated judge believable later — it's applying their rubric, not one I invented and
 > they never saw."
@@ -266,21 +266,21 @@ the architecture, and some of them cannot be retrofitted at all.
 **Strong answer — say it like this**
 
 > "I'd do the evaluation work first, before the code, because it changes what gets built.
->
+> 
 > Three things I'd pin down.
->
+> 
 > One — what must never happen. The irreversible things: leaking another customer's data, taking a
 > write action nobody asked for, giving advice outside the agent's remit. Those become
 > all-or-nothing gates, and they shape the architecture. You can't bolt a consent check onto an
 > agent that never tells you when it acted.
->
+> 
 > Two — what good looks like on a normal day. Correct, grounded, relevant, not rambling. Real
 > numbers on those, but mostly informational.
->
+> 
 > Three — what we can't measure yet, written down. And I'd be honest that writing 'we have no
 > multi-turn cases' is not the same as covering it. It's very easy to read that note six months
 > later and feel protected by it.
->
+> 
 > And then the part that actually earns its place in the design review: if retrieval is an optional
 > tool the model may or may not call, groundedness becomes unmeasurable on exactly the runs I most
 > want to inspect. So retrieval becomes a fixed step, not a tool. That's an architecture decision
@@ -318,20 +318,20 @@ mixed dataset averages the safety-critical slice into invisibility.
 > example: a system that's slightly wrong everywhere, and a system that's perfect except it leaks
 > account data on adversarial prompts, produce exactly the same headline score. That's what
 > averaging does.
->
+> 
 > So here's what I'd actually put on the dashboard.
->
+> 
 > The headline is a release verdict — pass or fail against the blocking gates — not an average.
 > That's what they're really asking anyway: can we ship? And a verdict can't be rescued by being
 > good at something else.
->
+> 
 > Underneath it, the slices: by question category, by whether a tool was involved, by attack type,
 > by where you are in the conversation. That's where anything actionable lives.
->
+> 
 > And separately, a 'not measured' column. An unmeasured dimension and a failed one must never look
 > the same. Report a gap as a zero and a healthy system looks broken; hide it and a blind spot looks
 > like coverage.
->
+> 
 > The line I'd give them is: the headline tells you whether to look, the slices tell you where."
 
 **Weak answer**
@@ -348,7 +348,7 @@ do read to be incapable of showing green while something critical is red."
 
 ---
 
-# Part 2 — Decomposing *what* to measure
+# Part 2 — Decomposing what to measure
 
 ## Q5 — "A RAG assistant gives a wrong answer. How do you find out which part is broken?"
 
@@ -364,22 +364,22 @@ has a completely different fix. Treating the system as one blob means fixing the
 
 > "I'd split the evaluation the same way the pipeline splits, because 'wrong answer' is really three
 > different failures that look identical from outside.
->
+> 
 > First question: did we fetch the right material at all? If the facts the answer needed aren't in
 > the retrieved context, that's a retrieval problem, and nothing I do to the prompt will fix it.
->
+> 
 > Second: given the right context, did the model invent something? That's groundedness — the claim
 > isn't supported by anything we retrieved.
->
+> 
 > Third, and this is the one people miss: the answer faithfully reflects the document, and the
 > document itself is wrong or out of date. Grounded and wrong at the same time. No grounding metric
 > will ever catch that, and the fix isn't a model change, it's a freshness policy on the knowledge
 > base.
->
+> 
 > So that's three checks: one on the context the agent had, one on the answer against that context,
 > one on the answer against a known-correct answer. The third needs ground truth, so it's expensive
 > and doesn't scale. The first two don't, so they do.
->
+> 
 > And the reason I'd split it this way is diagnostic. Good retrieval with bad groundedness tells me
 > the retriever is fine and the generator is inventing. Bad retrieval tells me prompt tuning is
 > wasted effort. One end-to-end number can't tell me either of those."
@@ -387,7 +387,7 @@ has a completely different fix. Treating the system as one blob means fixing the
 **If you're at a whiteboard**
 
 | Where it broke | Question | What you'd see |
-|---|---|---|
+| --- | --- | --- |
 | Retrieval | Did we fetch the right material at all? | The answer's supporting facts aren't in the retrieved context |
 | Generation, ungrounded | Given correct context, did the model invent? | The claim isn't supported by anything retrieved |
 | Generation, grounded but wrong | Was the source itself wrong or stale? | The answer faithfully reflects a document that shouldn't be trusted |
@@ -419,23 +419,23 @@ nothing about the top one.
 
 > "RAG asks 'was the answer right'. An agent asks 'did it do the right thing, the right way' — and
 > that splits into a ladder of four.
->
+> 
 > Bottom rung, tool selection. With one tool this question doesn't exist. With two it does — and
 > calling the wrong tool is worse than calling none, because it comes back with data that's real,
 > irrelevant, and confidently presented.
->
+> 
 > Next rung, arguments. Right tool, wrong parameters. A selection check passes that every time.
->
+> 
 > Next, trajectory — was the sequence sound? Redundant calls, wasted steps, no recovery after an
 > error. Two agents reach the same answer, one in two steps and one in nine.
->
+> 
 > Top rung, task completion. Forget the mechanics: did the user get what they asked for? Every
 > individual call can be correct while a stated constraint — a budget, a deadline — quietly gets
 > dropped.
->
+> 
 > And the point of the ladder is that you can pass every rung below and still fail the top one.
 > That's why completion is its own check and not a restatement of tool correctness.
->
+> 
 > If I can get it, though, the strongest signal isn't any of those — it's verifying the end state in
 > the system of record. Was the ticket actually created, with the right fields? A judge reads text
 > and can be talked into anything by a confident sentence. The database can't."
@@ -467,21 +467,21 @@ whether you prioritise by consequence or by what's intellectually interesting.
 **Strong answer — say it like this**
 
 > "Order by consequence first, then by cost.
->
+> 
 > First thing in: the non-negotiables, and deterministic wherever possible. Did it disclose another
 > customer's data? Did it take a write action? Those are the ones that end projects — and a lot of
 > them are checkable in plain code. No model call, no cost, instant, same verdict every time. My
 > rule is that anything code can check should never be checked by a judge.
->
+> 
 > Second, one grounding check. For a retrieval system it's the most likely real failure, it needs no
 > ground truth, and it moves to production later unchanged.
->
+> 
 > Third, a small hand-built set with expected answers — core happy path only. That's the expensive
 > one, because somebody has to write and then maintain those labels.
->
+> 
 > And what I'd explicitly not do in two weeks: trajectory quality, tone, conciseness. All real, all
 > informational, and the first things I'd cut.
->
+> 
 > The thing I'd avoid is measuring ten things shallowly. Two gates people actually trust beat ten
 > numbers nobody looks at."
 
@@ -515,22 +515,22 @@ missing — starting with whatever is cheapest to check.
 > "A green dashboard and an unhappy user are both facts, so what that tells me is the score isn't
 > measuring the thing users care about. There are about four explanations, and I'd take them
 > cheapest-to-rule-out first.
->
+> 
 > One — we're testing the wrong questions. Our test set has questions we thought up; real users ask
 > different ones. The system looks perfect on ours and falls over on theirs. And you can't see that
 > from inside the test set, because everything in it passes.
->
+> 
 > Two — we found the right document and still gave the wrong answer. Retrieval worked; the answer
 > didn't address what was actually asked. Two different things, and they need two different checks.
->
+> 
 > Three — the document is right but out of date. We checked that the answer matches the document.
 > Nobody checked whether the document is still true.
->
+> 
 > Four — and honestly it's often this one — the complaint isn't about correctness at all. It's too
 > long, the tone is wrong, there's no link to the source, or it asks three questions before it
 > helps. Those are real reasons people give up on a product, and no accuracy score will ever show
 > them.
->
+> 
 > But in all four cases I'd do the same thing first: stop arguing from the dashboard and go read the
 > actual sessions of the people who complained. It'll be visible there. And it tells me which metric
 > I'm missing, rather than which one is broken."
@@ -550,7 +550,7 @@ session."
 
 ---
 
-## Q9 — "How would you evaluate an agent whose job is to decide *not* to answer?"
+## Q9 — "How would you evaluate an agent whose job is to decide not to answer?"
 
 **The issue**
 The right behaviour is to refuse, hand over to a human, or ask a question back. There's no single
@@ -564,33 +564,33 @@ teach the agent to do the exact thing you were trying to prevent.
 **Strong answer — say it like this**
 
 > "First thing I'd say is: these cases don't get a gold answer. They get a rule.
->
+> 
 > Say it's a banking agent and someone asks for the balance on their ex-husband's account. The right
 > behaviour isn't a particular sentence — it's three things: decline, don't state any account
 > details, offer a human. I can check all three without caring what words the agent used.
->
+> 
 > And I'd argue against the obvious alternative — which is to treat these like every other row and
 > just write an expected answer for them. It's a trap. Say I write the expected answer as 'Sorry, I
 > can't share that account information.' I've just told the eval that a correct refusal uses those
 > exact words — so any other polite refusal now fails.
->
+> 
 > And it gets worse than that. People write expected answers that sound natural, like 'I can't share
 > the balance on the account ending 4471.' Now the only way for the agent to pass that row is to say
 > the account number out loud. The test hands out a pass for the leak.
->
+> 
 > Two things I'd add on top of the rule.
->
+> 
 > One — doing nothing is a behaviour, and I want it scored on purpose. An agent that correctly makes
 > no tool call produces an empty trace. So does an agent whose tool wiring is broken. Those look
 > identical on a dashboard, so I'd assert 'no tool call happened' as a positive check rather than
 > infer it from silence.
->
+> 
 > Two — over-refusal, which is the failure nobody puts in the dataset. An agent that declines
 > everything scores 100% on safety and is useless. So I'd add near-miss cases: questions that
 > *sound* sensitive but are completely fine, like 'what documents do I need to open a joint
 > account?' Refusing that one counts as a failure. That's what keeps the tuning honest in both
 > directions.
->
+> 
 > So — rules instead of gold answers, score the non-action explicitly, and both failure directions
 > in the set."
 
@@ -627,14 +627,14 @@ imagined set is the weakest part of the system — but switching to traffic intr
 > from my imagination — their ticket categories, their top request types, the cases their support
 > leads argue about. And I'd say out loud what's wrong with it: it contains what we thought of.
 > Nothing more.
->
+> 
 > By month three the real traffic is the asset. Production traces give me the distribution — which
 > questions actually arrive, in what proportion, with what messiness. That's the half that's
 > expensive to guess and free to collect.
->
+> 
 > One caveat I'd flag early, because it catches teams out: mining gives you inputs, not labels. What
 > people asked is free. What the right answer was still needs a human.
->
+> 
 > And the trap I'd name before anyone else does — never use the agent's own outputs as the expected
 > answers. It passes by construction, and it freezes today's bugs as the definition of correct."
 
@@ -668,16 +668,16 @@ The two datasets have opposite requirements — one must never change, the other
 
 > "They've diverged because they're being asked to do two jobs that contradict each other. So I'd
 > run two datasets with two different policies.
->
+> 
 > The curated regression set must not drift. Its whole value is that a score from March and a score
 > from June mean the same thing. Change the set and every historical comparison is void — a changed
 > dataset invalidates a comparison just as thoroughly as a changed scorer does. So it changes only
 > through a deliberate, announced update, and when it does, I re-baseline rather than compare across
 > the boundary.
->
+> 
 > The mined set is the opposite. Its value is that it reflects what users are doing now, so it gets
 > refreshed continuously. But I'd use it to find problems, never to gate releases.
->
+> 
 > And then the bridge between them, which is the bit I'd emphasise: every production failure gets
 > promoted into the gated set. Online discovers, offline prevents it coming back. A finding that
 > doesn't get carried into a permanent test only helps you once."
@@ -709,19 +709,19 @@ to be able to detect, which nobody has stated yet.
 **Strong answer — say it like this**
 
 > "It's not a number I'd guess at. It's set by the smallest difference I need to be able to detect.
->
+> 
 > If the question is 'did this prompt change make things worse' and I need to catch two points, a
 > small set physically can't resolve that — the difference sits inside the run-to-run wobble. If I
 > only need to catch catastrophic regressions, a few dozen well-chosen cases will do it.
->
+> 
 > Two things follow from that. First, composition beats size. Fifty cases spanning every category
 > and every attack class are worth more than five hundred variations on the same easy question — I'm
 > buying coverage of the decision space, not volume.
->
+> 
 > Second, the noise floor sets the resolution. Model-judged metrics wobble between identical runs,
 > and below that wobble I genuinely can't tell a real change from the judge changing its mind. A
 > bigger set narrows that. It never removes it.
->
+> 
 > For a first production system I'd say: enough curated cases to cover every category and every
 > must-never-happen class, then grow it from traffic wherever it turns out to be thin."
 
@@ -753,22 +753,22 @@ Plans that assume unlimited labelling quietly die in month three.
 
 > "This is the constraint that actually kills eval programmes — not tooling, not metrics. Expert
 > attention. So I'd design around it.
->
+> 
 > First, spend expert time only where it's irreplaceable. They adjudicate the ambiguous and
 > high-stakes cases. They do not confirm that easy cases are easy, and anything code can check never
 > reaches a human at all.
->
+> 
 > Second, ask for judgements, not documents. 'Rate these twenty answers, one line of reasoning each'
 > is a forty-minute task somebody will actually do. 'Write us an evaluation rubric' is a project
 > that never starts.
->
+> 
 > Third, make the reasons the artefact. The ratings calibrate the system, but the written reasons
 > become the standard — and they're what lets me align an automated judge, so the expert doesn't
 > have to rate the next thousand.
->
+> 
 > Fourth, show them the return. I'd bring back the failures their labels caught. Nothing keeps a
 > domain expert engaged like watching their own standard block a bad release.
->
+> 
 > And one detail I'd insist on: record who produced each label — expert, contractor or script. When
 > that data later calibrates a judge, provenance is the difference between a defensible standard and
 > one nobody ever examined."
@@ -802,24 +802,24 @@ common naivety in eval work.
 **Strong answer — say it like this**
 
 > "They shouldn't. Not until somebody has checked it.
->
+> 
 > A judge is just a model with a rubric, so it inherits every weakness of the thing it's grading. It
 > can be talked round by fluent, confident, wrong text. It drifts when you reword the prompt. It
 > disagrees with itself between runs.
->
+> 
 > So I'd treat it as a measuring instrument that needs calibrating, and that's three things.
->
+> 
 > Check it against people — domain experts rate a sample the judge already scored, and I look at
 > where they disagree and why.
->
+> 
 > Measure agreement, not the average score. A judge that rates everything highly gives you a
 > beautiful average and is worthless. The question is whether it agrees with a human on the same
 > case.
->
+> 
 > And then the one I'd say out loud before it happens: expect the score to drop after calibration,
 > and make sure everyone reads that correctly. The agent didn't get worse. The measurement stopped
 > flattering it. That's a much easier conversation to have in advance than afterwards.
->
+> 
 > On where it's the right tool at all — a judge is strongest where no deterministic check exists,
 > open-ended text quality. It's weakest on anything a rule could decide, and on anything it's also
 > being optimised against."
@@ -854,23 +854,23 @@ the cause is as likely to be your rubric as the model.
 > "First thing I'd want is which 20%. Disagreement scattered right across the range is a different
 > problem from disagreement bunched around the threshold — the second one is usually just borderline
 > cases, and it matters far less than the number suggests.
->
+> 
 > Then there are three causes and I'd separate them before touching anything.
->
+> 
 > The most common by a distance: the rubric is vague. The judge is applying a perfectly reasonable
 > reading of an ambiguous instruction. That's a wording fix, not a model fix.
->
+> 
 > Second: the experts disagree with each other. I'd check that before I blame the judge. If two
 > experts don't agree, no judge can be right — what I've actually found is an unresolved policy
 > question, and it belongs to the product owner, not to me.
->
+> 
 > Third: the judge really is weak on this kind of case. Then it's a stronger judge, or better, a
 > deterministic check that takes the judgement away entirely.
->
+> 
 > The way forward is to feed the expert ratings — and their reasons — back in to calibrate, then
 > re-measure agreement. And the valuable by-product isn't the tuned judge. It's the distilled
 > rubric: my experts' tacit standard finally written down.
->
+> 
 > One caution I'd volunteer: agreement measured on a skewed set flatters. If 90% of cases are
 > obviously fine, two raters agree most of the time by luck. Judge the judge on the contested ones."
 
@@ -888,7 +888,7 @@ policy decision made on the contested class."
 
 ---
 
-## Q16 — "When would you *not* use an LLM judge?"
+## Q16 — "When would you not use an LLM judge?"
 
 **The issue**
 Judges are the default reach for anything subjective, and three of the four situations where they
@@ -901,22 +901,22 @@ are the wrong tool look exactly like situations where they're the right one.
 **Strong answer — say it like this**
 
 > "Four situations.
->
+> 
 > One — when code can decide it. Was a forbidden identifier disclosed? Was a write action taken? Was
 > the tool called at all? That's deterministic, free, instant, and above all reproducible, so when
 > the number moves I know the behaviour moved and not the judge's mood.
->
+> 
 > Two — when the judge is also the optimisation target. If I'm tuning a prompt against a judge, that
 > judge can't then certify the result. It's by definition the most overfit number I have. Certifying
 > has to happen against a strictly larger set of checks.
->
+> 
 > Three — when I need ground truth and don't have it. A judge can tell me whether an answer is
 > supported by the retrieved text. It cannot tell me whether that text is true.
->
+> 
 > Four — at high volume on every request. Every judged metric is another model call per case. Five
 > metrics across a day's traffic is a serious bill, and it's often more than it cost to serve the
 > traffic in the first place.
->
+> 
 > So the rule I'd give is: judges are for questions that genuinely need judgement — quality, tone,
 > whether a paraphrase leaked something. Everything else is code."
 
@@ -948,22 +948,22 @@ dashboard. Usually neither party is wrong and the metric is answering a differen
 **Strong answer — say it like this**
 
 > "Probably neither, and I'd really resist picking a side before I've looked.
->
+> 
 > There are four usual explanations and I'd check them roughly in this order.
->
+> 
 > The metric doesn't cover what they care about — they're reacting to latency, or tone, or being
 > asked three clarifying questions before they get an answer. None of that is visible to a
 > correctness score.
->
+> 
 > Or the aggregate is hiding their slice. They're the 10%. If their use case is a category that
 > fails consistently, the mean is accurate overall and completely irrelevant to them.
->
+> 
 > Or the judge is uncalibrated and generous — entirely possible if nobody ever checked it against a
 > human.
->
+> 
 > Or they're simply right, and the dataset is unrepresentative. We built it from questions we
 > invented, and theirs aren't in it.
->
+> 
 > But the move is the same in all four: get three specific examples they consider bad, run them, and
 > read the traces. Either the metric scores them badly — in which case the aggregate was hiding a
 > slice — or it scores them well, and I've just found the dimension nobody was measuring. Both of
@@ -1000,27 +1000,27 @@ scorer suite in a way most people discover the hard way.
 > "The real difference isn't the environment, it's ground truth. Production traffic doesn't have
 > any. Nobody wrote the correct answer to a question that was asked thirty seconds ago, and nobody
 > ever will.
->
+> 
 > So the suite splits in two. Anything reference-free transfers to production unchanged —
 > groundedness, relevance, safety, policy rules, any deterministic check over the input and output.
 > Anything that compares against a known-correct answer, or against an expected list of tool calls,
 > is offline-only.
->
+> 
 > And the failure mode there is nasty: a scorer that needs expected answers works perfectly in CI,
 > then you point it at live traffic and it scores nothing at all. Quietly. You get a metric that
 > stopped having data rather than an alarm.
->
+> 
 > The way I'd frame the two roles is: offline catches what your dataset contains, and online exists
 > to find what it didn't. Offline is total coverage of a narrow fixed world, with a hard pass/fail
 > bar. Online is partial coverage of the real world, with no bar — only a trend.
->
+> 
 > And the loop between them isn't optional. Every production discovery becomes a permanent offline
 > test, or it only ever helps you once."
 
 **If you're at a whiteboard**
 
 | Transfers to production | Offline only |
-|---|---|
+| --- | --- |
 | Groundedness, relevance, safety, policy-adherence rules | Anything comparing against a known-correct answer |
 | Any deterministic check over input and output | Anything comparing against expected tool calls |
 
@@ -1052,17 +1052,17 @@ monitoring that cannot detect anything anyone would act on.
 
 > "Two decisions here, and the first one is where people go wrong, because they treat everything as
 > one pool.
->
+> 
 > Don't sample the free checks at all. Deterministic rules cost nothing, so they run on 100% of
 > traffic. Sampling a free check just buys you a blind spot for no saving. Sampling is only ever
 > about the model-judged metrics.
->
+> 
 > Then derive the rate from the decision, not the budget. Start from the smallest regression I have
 > to be able to detect, work out how many scored requests it takes to resolve a change that size,
 > divide by daily traffic. Now I've got a rate I can defend in a room. Picking 5% because it sounds
 > affordable might leave me unable to detect anything actionable — and that's the worst outcome,
 > because it still looks like monitoring.
->
+> 
 > And the corollary people miss: a sampled rate is an estimate with error bars on it. If the alert
 > threshold is tighter than the sample can resolve, it fires on noise, and within a month everyone
 > has learned to ignore it. So I'd set the alert at something the sample can actually distinguish,
@@ -1096,21 +1096,21 @@ move first, and one whole class of failure is invisible by construction.
 **Strong answer — say it like this**
 
 > "Four things, and only one of them is a quality score.
->
+> 
 > Quality signals on sampled traffic — groundedness, relevance, policy adherence. But as a trend,
 > not a gate.
->
+> 
 > Behavioural distributions. What fraction of requests call a tool, and is that drifting? A silent
 > jump in tool-call rate after a prompt change is a real signal, and it moves long before quality
 > does.
->
+> 
 > Operational shape, per step. Because every step is timed individually, 'it got slower' becomes
 > 'retrieval latency doubled' — that's a diagnosis instead of a complaint. Token usage per step is
 > the same story for cost.
->
+> 
 > And failures and refusals. Error rates, tool failures, how often the agent declines. A rising
 > refusal rate is a quality regression that most quality metrics will happily score as a pass.
->
+> 
 > The one I'd add that people miss entirely: a monitor that was configured but never actually
 > switched on looks exactly like a monitor reporting no problems. So verifying the pipeline is
 > genuinely running goes on the launch checklist. It doesn't get assumed."
@@ -1144,19 +1144,19 @@ trains the team to ignore alerts, which costs more than the drop.
 > "My first question isn't what caused it. It's whether this sample can even resolve two points. If
 > the daily scored volume is small and the metric is model-judged, two points may be entirely inside
 > the noise — and paging someone about noise is how you teach a team to ignore the alert.
->
+> 
 > If it is real, then three things could have changed and I'd separate them.
->
+> 
 > Us. A prompt, a model version, a retrieval config, a tool. I'd check the deployment timeline
 > first, purely because it's the cheapest one to confirm or rule out.
->
+> 
 > Them. The traffic mix shifted — new segment, a product launch, seasonality. The agent is identical;
 > the questions got harder. I'd slice by category and see whether the drop is uniform or
 > concentrated. Concentrated almost always means it's this.
->
+> 
 > Or the measurement itself. A judge model got upgraded underneath us, or the scored population
 > changed. Rare, and infuriating when you miss it, because the system never moved at all.
->
+> 
 > Then I'd reproduce it offline, where the comparison is controlled and paired, confirm it, fix it —
 > and leave those traces behind as permanent test cases."
 
@@ -1190,23 +1190,23 @@ single release ever failing.
 **Strong answer — say it like this**
 
 > "Two conditions, and both have to hold.
->
+> 
 > The absolute one: every blocking dimension clears its bar. And the relative one: no blocking
 > metric has fallen meaningfully below the version that's currently serving traffic.
->
+> 
 > Each of those on its own fails, and they fail differently. If I only check the threshold, I permit
 > slow erosion — a score going 0.98, 0.95, 0.92, 0.91 clears a 0.90 bar every single time, and three
 > passing releases later I'm sitting on the floor with no individual release to blame. If I only
 > check for regression, then a candidate that improved on a bad baseline ships while still being
 > bad.
->
+> 
 > Two details I'd want to nail down.
->
+> 
 > 'Meaningfully' has to be defined per metric type. A deterministic check has no noise, so any
 > movement is real. A judged metric wobbles on its own, so if I set the tolerance below that wobble
 > I'll block good releases for no reason — and a gate people learn to override is worse than no gate
 > at all.
->
+> 
 > And registering a version is not the same as deploying it. I'd keep those separate with the
 > evaluation in the gap. Then rollback is moving a pointer back, not an emergency revert-and-
 > redeploy, and the rejected candidate stays on the shelf as evidence of what was tried."
@@ -1239,19 +1239,19 @@ the system, and the setup is circular unless something outside the loop certifie
 
 > "Not on that evidence, no. That score is the thing the optimiser was maximising — so a high number
 > against it tells me the optimiser worked, not that the prompt is better.
->
+> 
 > Three things before I'd ship it.
->
+> 
 > It gets evaluated against a strictly larger set of checks than it optimised against. That's what
 > exposes the overfitting — a prompt tuned for correctness may well have got longer, more confident,
 > and quietly worse at declining things it should decline.
->
+> 
 > It goes through the same release gate as a human-written prompt. No exemption because a machine
 > wrote it.
->
+> 
 > And I'd read the prompt. Machine-written prompts drift toward instructions that game the judge
 > rather than serve the user, and that's visible the moment you read it and invisible in the score.
->
+> 
 > But the real answer is the prerequisite: if the judge driving the optimisation was never
 > calibrated against humans, this whole exercise isn't just unreliable, it's harmful. You've
 > automated the pursuit of an unvalidated standard, at speed. Aligning the judge comes before
@@ -1286,20 +1286,20 @@ reported", and the gap between that and "nothing wrong" is where incidents live.
 > "I'd start from the assumption that green means 'nothing reported', which is not the same as
 > 'nothing wrong' — and then go after the difference deliberately, because all of these look
 > identical to health.
->
+> 
 > A metric that's measured but not gated. Adding a scorer doesn't add a gate. Most dashboards have
 > at least one metric that's faithfully computed, clearly displayed, and blocking absolutely
 > nothing — so a regression in it ships.
->
+> 
 > A check that never ran. A monitor configured but never started, or a scorer erroring on every row
 > and dropping out of the results. The absence of a number reads as the absence of a problem.
->
+> 
 > A gate pointing at a metric name that doesn't exist. It looks up a mistyped name, gets nothing,
 > and depending on the plumbing that renders as a zero or as a pass.
->
+> 
 > And a dimension nobody wrote a check for at all. That's the most common one, and the only fix is
 > periodically asking what isn't on the board.
->
+> 
 > For countermeasures: I'd assert that every gate actually matched a metric the run produced, and
 > report any unmatched gate as 'not measured' in its own section — never as a zero, and never
 > silently. And I'd test the alarm. Deliberately ship something that should fail and confirm the
@@ -1332,21 +1332,21 @@ an honest answer about whether this had been happening unnoticed.
 **Strong answer — say it like this**
 
 > "The fix is the smaller half of this. Three questions matter more.
->
+> 
 > Which check should have caught it, and why didn't it? It's almost always one of three: the
 > dimension was never measured, or it was measured but not blocking, or it was blocking and the
 > dataset had nothing resembling this case in it.
->
+> 
 > Was it even measurable in principle? Some failures only exist across turns, or only in the end
 > state of a real system. If the instrumentation couldn't express the failure, then the fix is
 > instrumentation — another rule won't help.
->
+> 
 > And what's the class here, not the instance? Patching the exact input that leaked is theatre. What
 > I want out of this is a class of cases with several phrasings, added permanently to the gated set.
->
+> 
 > Then the loop closes: incident, test, gate, blocked next time. A post-mortem that ends in a code
 > change and no new test has converted an outage into nothing.
->
+> 
 > And I'd ask the uncomfortable one too: had this been happening silently before we noticed? If the
 > answer is 'we can't tell' — that's the finding. It means retention or slicing wasn't good enough
 > to answer a basic question about our own system."
@@ -1380,19 +1380,19 @@ looks best precisely where the product is worst.
 **Strong answer — say it like this**
 
 > "Yes, both are true, and the reason is compounding.
->
+> 
 > If every turn has to go right for the conversation to succeed, then 95% per turn is about 77%
 > across five turns, and under 60% across ten. So the customer is describing the same system the
 > dashboard is describing — just at the level they actually experience it.
->
+> 
 > And that's the optimistic version, which is worth saying. That maths assumes turns fail
 > independently, and they don't — one bad turn poisons the context for every turn after it. Real
 > conversation-level rates come in below what compounding predicts, not at it.
->
+> 
 > Two things follow. Multi-turn systems need conversation-level gates, not just turn-level ones,
 > because the conversation is the unit of success and a turn isn't. And any '95% per step' claim is
 > close to meaningless until you multiply it by typical conversation depth.
->
+> 
 > One more thing I'd add: I'd track where conversations first break. Failures on turn one point at
 > basic competence. Failures on later turns point at context handling. Completely different fixes,
 > and the aggregate can't tell them apart."
@@ -1424,24 +1424,24 @@ what makes it wrong happened in a different turn.
 **Strong answer — say it like this**
 
 > "The clearest one is acting without consent.
->
+> 
 > The agent says 'I've opened a ticket for you' on turn one, and nobody asked it to. Now evaluate
 > that final reply on its own: it's helpful, on-topic, grounded, safe, and it reports a completed
 > action. Every single-turn check passes it. What makes it wrong is that no agreement came before
 > it — and agreement lives between turns, so there's nowhere in a single-turn check for it to show
 > up.
->
+> 
 > There's a family of these. Context loss — re-asking for an account number the customer gave two
 > turns ago, perfectly reasonable in isolation. Ignoring a refusal — the customer says 'no, don't do
 > that' and it happens anyway; the refusal is in turn two and the consequence is in the execution
 > record. And drift, where every turn is individually fine and the conversation ends somewhere it
 > shouldn't.
->
+> 
 > Two design implications I'd draw out of that.
->
+> 
 > Most agent write actions are gated by an instruction in the prompt, not by the API refusing. So
 > obedience is something evaluation has to test, not something the code guarantees.
->
+> 
 > And I'd score three outcomes, not two: complied, violated, and stalled — where the customer agreed
 > and then nothing happened. That last one isn't dangerous, but they asked for something and didn't
 > get it, and it needs a different fix."
@@ -1475,22 +1475,22 @@ scores them identically, and the difference is real cost, latency and risk.
 > "The path is already visible in the execution record, so the checks run over the sequence rather
 > than the final text — repeated calls, steps that contributed nothing, whether it recovered after a
 > failure or just gave up, whether the order made any sense.
->
+> 
 > If I had to prioritise, three things.
->
+> 
 > Recovery first. Did a failed tool call lead to a sensible alternative, or to a confident
 > fabrication? That's the one with real user impact.
->
+> 
 > Then redundancy — the same call repeated with the same arguments is pure cost and latency, and
 > it's trivial to detect.
->
+> 
 > Then ordering: acting before gathering, or a sequence that produces wrong results.
->
+> 
 > And I'd be honest about the trade-off here. Strict path-matching against a gold trajectory is
 > usually the wrong tool, because there are many valid paths to a correct outcome, and enforcing one
 > of them makes the eval brittle and expensive to maintain. I'd assert properties of the path
 > instead of prescribing the path.
->
+> 
 > When does it earn its cost? When steps are expensive, slow, or have side effects. For a two-step
 > read-only agent, outcome evaluation is enough and trajectory work is over-engineering."
 
@@ -1522,25 +1522,25 @@ suite now certifies the failure.
 **Strong answer — say it like this**
 
 > "The headline risk isn't coverage. It's that an existing metric silently changes meaning.
->
+> 
 > Take a check that asks 'was a tool called when one was expected?' That was a correct check for a
 > one-tool agent. With five tools, it now passes an agent that calls the billing lookup for a
 > network outage question — because a tool was called, and one was expected. The check hasn't
 > broken. It's gone green while certifying the failure.
->
+> 
 > So whenever an agent gains tools I'd re-examine four things.
->
+> 
 > Selection, not just usage — which tool, not whether any.
->
+> 
 > The wrong-tool failure specifically, because it's the nastiest: it returns data that's genuine,
 > irrelevant, and confidently presented, which is far more convincing to a user — and to a judge —
 > than a missing answer would be.
->
+> 
 > Arguments, because more tools means more parameter surface, and right-tool-wrong-arguments is
 > invisible to a selection check.
->
+> 
 > And interactions — tools called in the wrong order, or one whose output poisons the next.
->
+> 
 > The general lesson I'd take from it: when an agent gains a capability, audit which existing
 > scorers still mean what they meant. Skip that and the suite becomes decorative — every check
 > green, and none of them still measuring what its name says."
@@ -1575,23 +1575,23 @@ those strings fail, not that the surface is covered.
 **Strong answer — say it like this**
 
 > "I'd start from the classes of attack this design exposes, not from a list of strings.
->
+> 
 > So: direct instruction override — 'ignore your instructions'. False authority — 'as the system
 > administrator'. Attempts to reach data belonging to someone else. Requests to act beyond the
 > agent's remit. And the one that gets missed most often: injection through content the agent
 > ingests, where a retrieved document or a tool result is formatted to look like a system
 > instruction. That one gets missed because the attacker isn't the user, and everyone is watching
 > the user.
->
+> 
 > Then several phrasings per class, so one lucky string doesn't end up standing in for the whole
 > surface.
->
+> 
 > I'd measure coverage over classes, and read results per class — the aggregate is exactly the wrong
 > view here. One class sitting at zero is the entire story, and a mean will hide it.
->
+> 
 > Each case asserts a boundary — must not disclose, must not claim to have acted — rather than a
 > gold answer.
->
+> 
 > And I'd state the limit honestly: this measures the surfaces we thought of. It's a floor, not a
 > guarantee, and it sits alongside red-teaming rather than replacing it."
 
@@ -1623,20 +1623,20 @@ works is not what demonstrates to a reviewer that it was governed.
 **Strong answer — say it like this**
 
 > "Four things — and the fourth is the one engineers forget.
->
+> 
 > The written standard: what the system must never do, who approved it, and when.
->
+> 
 > The gate results per release: which checks blocked, which passed, and what decision followed. And
 > the value there is that the criteria were fixed before the results existed. That's what separates
 > a standard from a rationalisation, and a reviewer knows the difference.
->
+> 
 > The record of what the system actually did — retained execution traces, so a specific interaction
 > can be reconstructed months later.
->
+> 
 > And the known gaps, written down. What isn't covered and why. 'We don't evaluate X, here's why,
 > here's the compensating control' is far stronger than silence, because silence is
 > indistinguishable from never having considered it.
->
+> 
 > One thing I'd raise that cuts the other way: the trace store is itself a security surface. It
 > captures whatever flowed through the system, customer data included. So log what the checks need
 > and redact what they don't — the boundary is 'needed for scoring', not 'everything that happened
@@ -1670,23 +1670,23 @@ reads as negligence. The answer is neither.
 
 > "I wouldn't block on having a complete harness. I'd insist on the minimum that makes the launch
 > reversible and its failures visible. Four things.
->
+> 
 > The must-never-happen checks, even if they're crude and deterministic. That's about consequence,
 > not polish.
->
+> 
 > Full tracing from the very first request. Non-negotiable, and it's cheap. Without it the launch
 > produces no evidence at all, and every question anyone asks afterwards is unanswerable.
->
+> 
 > A rollback that actually works — tested once before launch. Not a plan on a page, an exercise
 > somebody ran.
->
+> 
 > And a narrowed blast radius: one segment, one category, internal users first. Scoping the exposure
 > buys more real safety than any metric I could add in a week.
->
+> 
 > Then I'd name the risk plainly. What we can't currently detect, and how we'd find out. Something
 > like 'we have no way to tell if it's giving wrong advice about X, so we'll be reading traces
 > manually for the first week' — that's a legitimate position as long as it's said out loud.
->
+> 
 > What I wouldn't do is tell them the launch is safe because a number looked fine. And if they
 > overrule a must-never-happen gap, that's genuinely their call — but it gets written down."
 
@@ -1722,22 +1722,22 @@ the second cost — maintaining labels — is almost never budgeted at all.
 > "The first thing I'd correct is that it's recurring, not one-off. Every judged check is at least
 > one model call, per case, per metric. A suite of five metrics over a few hundred cases is
 > thousands of calls per run — and a run happens on every change.
->
+> 
 > Controls, roughly in order of how much they save.
->
+> 
 > Push work down the cost ladder. If a rule can decide it, a judge should never see it.
 > Deterministic checks are free and reproducible, so that's the biggest lever and it costs nothing.
->
+> 
 > Split the suite by purpose — a cheap fast set on every change, the expensive full set before a
 > release decision. Not every commit needs the full judgement.
->
+> 
 > Use a cheaper judge for the informational metrics and keep the strong one for the blocking gates.
->
+> 
 > Sample online, never offline. Offline coverage should be total.
->
+> 
 > And smoke-test before the full run. A typo in a rubric is much cheaper to find on three cases than
 > on five hundred.
->
+> 
 > Then the second cost, which is bigger and almost never budgeted: maintaining ground truth. Labels
 > go stale as the product changes, and somebody has to own that."
 
@@ -1769,18 +1769,18 @@ convenient to measure, or a gate that delivery routes around.
 **Strong answer — say it like this**
 
 > "I'd split it by what each group is uniquely able to do.
->
+> 
 > Domain experts own the standard. What counts as a good answer is a business judgement, not an
 > engineering one — and if engineers define quality, what you get is quality that's convenient to
 > measure.
->
+> 
 > Engineers own the mechanism: instrumentation, harness, gates, pipeline. And with it the obligation
 > to keep the checks meaning what they say as the system changes.
->
+> 
 > And nobody should own it separately from shipping. That's the part I'd push on. An eval team
 > disconnected from delivery becomes an approval queue, and approval queues get routed around the
 > first time there's deadline pressure. The gate belongs in the release path, not in a meeting.
->
+> 
 > One failure mode I'd name explicitly: evaluation that only the person who built it understands.
 > They move on, the suite keeps running, and it slowly stops being trusted — because nobody can say
 > what a failing check actually means. So I'd write down what each gate protects and why the bar is
@@ -1813,24 +1813,24 @@ green, and have stopped measuring anything real months earlier.
 **Strong answer — say it like this**
 
 > "I'd watch five things.
->
+> 
 > Does it ever fail? A suite that hasn't blocked anything in months is either protecting a perfect
 > system or measuring nothing, and the second is more likely. Either way I can settle it by putting
 > a known-bad candidate through it.
->
+> 
 > Do failures get overridden? A rising override rate means the gates no longer match what the team
 > actually believes — usually a mis-set threshold, or a check that's outlived its validity.
 > Overrides are the earliest warning that a suite is drifting into decoration.
->
+> 
 > Do production incidents show up as eval failures afterwards? If real failures keep arriving from a
 > direction the suite doesn't cover, then the problem is coverage, not sensitivity.
->
+> 
 > Is the judge still agreeing with people? Models change underneath you, so re-checking periodically
 > is calibration, not ceremony.
->
+> 
 > And has the system outgrown its checks? New tools, new channels, new segments — any of those can
 > silently invalidate an existing metric.
->
+> 
 > The way I'd sum it up: an evaluation suite is a claim about the system, and claims expire.
 > Re-testing it on a schedule is the difference between a safety net and a decorative one."
 
@@ -1851,7 +1851,7 @@ decay that nothing else catches."
 
 # Part 10 — Metric-level questions from the labs
 
-Narrower than Parts 1–9: these start from a *number* rather than a situation, and are the ones asked when an interviewer has your metrics dashboard on screen. Grouped by evaluation surface. Each is answered in a minute or two — the fuller treatment of the metric itself is in [`docs/concepts/rag-agent-tool-evaluation.md`](../concepts/rag-agent-tool-evaluation.md) Part 6.
+Narrower than Parts 1–9: these start from a *number* rather than a situation, and are the ones asked when an interviewer has your metrics dashboard on screen. Grouped by evaluation surface. Each is answered in a minute or two — the fuller treatment of the metric itself is in [CODE0](../concepts/rag-agent-tool-evaluation.md) Part 6.
 
 ## 10.1 Deterministic retrieval metrics: four numbers that are supposed to disagree
 
@@ -1866,7 +1866,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Proposes recall@K on the dashboard with precision@K and MRR one click away, rather than refusing the request outright
 - Notes that the number is only meaningful against a golden set that tracks the live query distribution, and commits to a refresh cadence
 
-#### Q2 — Retrieval recall@5 is 0.94 on your eval set, but users keep reporting wrong answers for queries containing product SKUs like `SKU-88213`. Walk through the diagnosis.
+#### Q2 — Retrieval recall@5 is 0.94 on your eval set, but users keep reporting wrong answers for queries containing product SKUs like SKU-88213. Walk through the diagnosis.
 
 **What a strong answer covers:**
 
@@ -1978,7 +1978,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Proposes the tiered design rather than the swap: similarity on everything, judged correctness on the cases similarity flags plus a random sample
 - Quantifies what "90% cheaper" is actually buying, and whether the failure it lets through is one the product can absorb
 
-#### Q4 — How would you design an Answer Correctness rubric for a medical Q&A assistant, and what makes `evaluation_steps` better than `criteria` here?
+#### Q4 — How would you design an Answer Correctness rubric for a medical Q&A assistant, and what makes evaluation_steps better than criteria here?
 
 **What a strong answer covers:**
 - Writes explicit, ordered steps rather than one sentence, so the judge's procedure is auditable and reviewable by a domain expert
@@ -2016,7 +2016,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Adds the free deterministic layer regardless: schema validation, duplicate-call detection, error-rate per tool — none of which need a reference
 - Notes that end-state verification is the strongest available signal in production, because it cannot be fooled by a fluent output
 
-#### Q3 — Would you set `should_exact_match=True`? Argue both sides with a concrete scenario.
+#### Q3 — Would you set should_exact_match=True? Argue both sides with a concrete scenario.
 
 **What a strong answer covers:**
 - For CI against a fixed regression suite: yes — order and completeness matter, and a deviation is a real change worth failing on
@@ -2103,23 +2103,23 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > "**Instrumentation first**, because an agent you can't trace is an agent you can't evaluate. Before
 > any metric exists I'd confirm that every request emits a retriever span, a chat-model span per LLM
 > call, and a tool span per tool call, with token counts and latency on them.
->
+> 
 > And I'd be fussy about the span types, because **a span type is a contract, not a label**. A
 > groundedness scorer hard-requires a span typed RETRIEVER. If retrieval was traced without that
 > type, the eval doesn't degrade — it breaks.
->
+> 
 > **Then decide what 'good' means before measuring anything.** Five to seven dimensions —
 > groundedness, correctness, tool selection, safety, escalation appropriateness, latency, cost — and
 > each one gets a threshold and a blocking-or-informational flag.
->
+> 
 > For the dataset, **I'd mine it from real traffic rather than hand-write it.** They've had four
 > months of live traffic and that's the asset in the room. Hand-written sets are structurally blind:
 > they contain what the author imagined, and you can't see that gap from inside the set.
->
+> 
 > But **mining gives me inputs, not labels.** The traces hand me the distribution, which is the
 > expensive half to guess. The expectations still have to be authored by a human, and I'd record the
 > provenance of every label.
->
+> 
 > And **I'd stratify the sample** instead of taking it at random. Random sampling just reproduces the
 > head I already understand. I'd target novelty — embedding distance from what's already in the set,
 > or the low-confidence, high-latency and tool-error traces — because that's where the tail is."
@@ -2145,25 +2145,25 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > "**Start with the objective, in one sentence, with a number in it.** 'Reduce RM portfolio-prep time
 > from 40 minutes to under 10, with zero fabricated holdings figures' is an objective. 'Improve
 > productivity' isn't — you can't fail it.
->
+> 
 > Then **the gate table, and I'd write it before any architecture.** A gate is a named metric, a
 > threshold, and a blocking flag. That table effectively becomes the requirements document for the
 > design.
->
+> 
 > One distinction I'd make explicit: **blocking or informational is a separate question from whether
 > the dimension matters.** Tone matters and probably shouldn't block a release. Fabricated holdings
 > figures matter and absolutely must.
->
+> 
 > Now the part that earns its place here — **architectural decisions made for measurability.** The
 > big one: I'd make retrieval a fixed pipeline step rather than a tool the model can skip. That
 > guarantees every trace carries a retriever span, so groundedness is always scoreable. But I'd
 > deliberately keep account lookup as a model-chosen tool, precisely because 'should it have called
 > that?' is itself something I want to score.
->
+> 
 > On scorers, **I'd work down a cost hierarchy**: deterministic first, because it's free and
 > instant; then a built-in judge wrapped as a scorer; then a custom judge with a rubric; then a
 > trace-based judge reading the whole trajectory. Cheapest layer that answers the question wins.
->
+> 
 > And **the reason I prefer deterministic isn't only cost, it's reproducibility.** When a
 > deterministic scorer moves, the behaviour really moved. Judges move on their own."
 
@@ -2187,20 +2187,20 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > triage and routing, then missing-info detection, then recommendation, then adjudication. Each tier
 > earns its autonomy independently — the cheap claim and the expensive claim aren't the distinction
 > that matters.
->
+> 
 > Second, and this is the bit I'd want them to hear: **assistive mode is a free labelling factory.**
 > Every human override is a ground-truth label with perfect provenance. So I'd instrument the
 > override itself — what the agent proposed, what the human chose, and why — and that becomes the
 > eval set for the autonomous phase. They've been generating it for months without collecting it.
->
+> 
 > Third, **the metric is agreement with human adjudicators, not accuracy against a gold file.** And
 > I'd correct it for chance, because on a skewed distribution — and most claims get approved — raw
 > agreement flatters you badly.
->
+> 
 > Fourth, **define the reversal path before the automation path.** What does an incorrect
 > auto-adjudication cost, how would we detect it, how long before it's caught, and can it actually
 > be reversed?
->
+> 
 > And then **shadow mode as the gate.** Run the autonomous decisions in parallel with the humans for
 > some number of weeks, and gate promotion on both an absolute agreement threshold and no regression
 > against the assistive baseline."
@@ -2225,19 +2225,19 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 
 > "**First I'd turn the complaint into a measurable claim.** 'Worse' isn't a metric. I want 20
 > specific conversations users actually flagged, in front of me.
->
+> 
 > Then **diff everything that changed, not just the model.** Model version, yes — but also the prompt
 > template, the tool schemas, the retrieval index, how the context window truncates, temperature,
 > structured-output mode. 'We upgraded the model' is rarely the only edit in that deploy.
->
+> 
 > Then **check prompt sensitivity**, because this is usually it. A prompt that was tuned against the
 > old model's quirks can degrade on a new one that follows instructions more literally. Format
 > compliance and tool-argument shape are the usual casualties.
->
+> 
 > Then **check the metric nobody was watching.** The classic version of this: the metric someone
 > asked to improve went up, and three others quietly collapsed. Conciseness improves while
 > groundedness and escalation-appropriateness fall off a cliff.
->
+> 
 > And finally — **check whether the benchmark is the thing that's wrong.** A benchmark that improves
 > while users complain is itself evidence: its distribution doesn't match production traffic."
 
@@ -2257,22 +2257,22 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 
 **How you'd talk through it:**
 
-> "**The mechanism first.** A tool that returns a soft failure object instead of raising hands the
+> "**The mechanism first.** A tool that returns a soft failure object instead of raising, hands the
 > model something that looks like data. The model skates straight past it and fills the gap with
 > fluent, plausible, wrong content. Nothing crashed because nothing was designed to.
->
+> 
 > **And then why the standard scorers all miss it.** Groundedness checks the answer against retrieved
 > documents, not against tool outputs. Task success checks the final string. Neither of them ever
 > reads the tool span — so every check passes.
->
+> 
 > **The fix is a deterministic scorer, not a better prompt.** Read the TOOL span output; if it
 > indicates failure, assert that the response does not state the facts that tool was supposed to
 > supply. Deterministic on purpose, because I want it free and reproducible.
->
+> 
 > **Then a second-order fix:** make soft failures loud at the tool layer, where I control it — and
 > make 'I couldn't retrieve that' an explicitly rewarded behaviour in the rubric, so the model isn't
 > penalised for admitting it.
->
+> 
 > And one framing I'd add: **absence is behaviour.** A question that correctly produces no tool call
 > is a correct outcome worth scoring, not a gap in the signal."
 
@@ -2296,18 +2296,18 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > assembly, retrieval — embed, search, rerank — first LLM call, tool round-trips, subsequent LLM
 > calls, output streaming. And note that an agent loop taking two extra turns is a behavioural
 > regression that shows up wearing a latency costume.
->
+> 
 > **That's what the trace store is for.** Once production traces land in a warehouse, 'it got slower'
 > becomes 'retrieval p95 doubled while chat-model p95 was flat'. That's a diagnosis instead of a
 > complaint.
->
+> 
 > **Peak-only narrows it fast.** Candidates I'd work through: provider rate limiting and retry
 > backoff, vector index cache eviction under concurrency, connection-pool exhaustion, a reranker
 > that batches poorly, a noisy-neighbour tenant.
->
+> 
 > And **I'd check whether the step count changed, not just the step duration.** More tool calls per
 > request during peak means a different traffic mix, not a slower system — completely different fix.
->
+> 
 > One practical note: most trace stores only give you a handful of aggregations — min, max, mean,
 > median, variance, p90. If I need p99 I'm computing it from the raw trace table myself."
 
@@ -2328,23 +2328,23 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > "The 96% is real and it's also the problem. Task success is an outcome metric, and every one of
 > the failures they've described is a process failure — so the number they're quoting is
 > structurally incapable of seeing any of it.
->
+> 
 > So I'd add metrics that read the trajectory, not the final answer. Roughly nine of them, and I'd
 > group them as: did it pick the right tools, did it call them correctly, did it waste steps, did it
 > recover when something failed, and what did the whole thing cost.
->
+> 
 > The ones I'd put in first for this customer are redundant-call detection — the same tool with the
 > same arguments that already succeeded earlier in the same trace — and recovery rate, because
 > 'retries failed calls blindly' is precisely a recovery failure. Both are deterministic, so they're
 > free.
->
+> 
 > And if there's a system of record I can read, end-state verification beats all nine. It needs no
 > gold trajectory, only a definition of the desired outcome."
 
 **The nine trajectory-level metrics:**
 
 | # | Metric | What it catches |
-|---|---|---|
+| --- | --- | --- |
 | 1 | **Tool selection accuracy** | Did the called set cover the gold set? Loosest of the nine — passes with wrong order and extra calls |
 | 2 | **Tool call correctness (arguments)** | Right tool, malformed arguments |
 | 3 | **Redundant / unnecessary calls** | A `(tool, args)` pair that already *succeeded* earlier in the same trace |
@@ -2375,24 +2375,24 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > "**The enabling thing is trace nesting.** Session, then orchestrator turn, then subagent
 > invocation, then spans. Without that nesting I can only say quality dropped. With it I can say
 > which subagent, on which turn — and that's the entire question they're asking.
->
+> 
 > **Then I'd evaluate at three levels.** Routing and handoff accuracy — did the orchestrator pick the
 > right subagent? Per-subagent specialisation quality — is the research agent actually good at
 > research? And end-to-end outcome.
->
+> 
 > **Handoff accuracy deserves to be its own metric**, and in my experience it's the first thing to
 > break when someone adds a new subagent: the routing rubric was written for N agents and it's now
 > running with N plus one.
->
+> 
 > Which is really a case of something more general — **every measurement has a scope of validity.** A
 > scorer that was correct for a one-tool agent becomes misleading the moment the agent gains a
 > second tool, and a router rubric is no different. It stops being true silently, when the system
 > changes underneath it.
->
+> 
 > **Cross-domain queries are the hard case here.** When a question needs two analytics subagents plus
 > the research agent, I'd define up front whether partial coverage counts as success, and score the
 > composition separately from each part.
->
+> 
 > And **memory is an evaluable component**, not plumbing. Does a saved fact recall correctly in a new
 > thread? Does a forget instruction actually remove it? Does memory leak between users? Those need
 > their own tests."
@@ -2415,21 +2415,21 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > you p to the n for the conversation. 95% per turn over five turns is a 77% conversation success
 > rate. And the overstatement grows with length — so the metric looks best exactly where the product
 > is worst.
->
+> 
 > **Then the failures that have no single-turn representation at all.** Context retention — re-asking
 > for something the user already gave you, which is the most visible one. Consent, which lives
 > between turns: 'acted without asking' simply cannot be expressed as a property of one turn. And
 > I'd score three approval outcomes rather than two — compliant, violation, and stalled, where they
 > agreed and then nothing happened. Those need different fixes.
->
+> 
 > **A point I'd make explicitly: gate by prompt, verify by evaluation.** Most agent write-actions are
 > gated by an instruction, not by the API — the tool will happily write every time it's called. So
 > obedience is something evaluation has to verify, not something the code guarantees.
->
+> 
 > **Then I'd look at the first-failing-turn distribution.** Failures on turn one are basic competence
 > problems. Failures on turn four are context handling. Identical aggregate, completely different
 > fix.
->
+> 
 > And **on gate scope**: a conversation-level gate is unmeasurable on a single-turn run, so it has to
 > report 'not measured' — never zero. An unmeasured gate and a failed gate must never look alike."
 
@@ -2454,25 +2454,25 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > "**The honest answer first**, and I'd give it straight to the VP: the numbers are internally
 > consistent and externally unvalidated. Which makes them useful for detecting change, and not
 > useful for asserting quality. Those are different claims and we've been making the second one.
->
+> 
 > **Then I'd go and collect human labels on the same traces.** Small — 100 to 200 rows — from actual
 > domain experts, on the same rating schema the judge uses.
->
+> 
 > **And I'd measure agreement, not average score.** The average measures generosity. A judge that
 > rates everything 5 out of 5 scores beautifully and tells you nothing.
->
+> 
 > **Raw agreement flatters, badly.** On a skewed rating distribution two raters agree a lot by pure
 > luck — I've seen a case with 85% raw agreement and a Cohen's kappa of 0.20.
->
+> 
 > **And on an ordinal scale I'd use the weighted form.** Plain kappa treats a 4-versus-5 and a
 > 1-versus-5 as the same error. Two judges with identical exact agreement and identical plain kappa
 > can come out at plus 0.71 and minus 0.82 under quadratic weighted kappa. That's the difference
 > between a usable judge and an actively misleading one.
->
+> 
 > **One thing I'd say before it happens: a falling score after alignment is the success condition.**
 > The agent didn't change. The measurement stopped inflating. Much better to say that in advance
 > than after the VP asks why you made it worse.
->
+> 
 > And **the real output of alignment isn't the tuned judge — it's the distilled guidelines.** My
 > experts' tacit standard, finally written down. That artefact outlives the judge model."
 
@@ -2496,17 +2496,17 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > toward whatever the judge rewards. So if that judge is unaligned, this isn't merely useless —
 > it's actively harmful, because we're now systematically steering the system toward a miscalibrated
 > standard, at speed.
->
+> 
 > **And a higher optimisation score isn't permission to ship.** It's by definition the metric being
 > maximised. It's the most overfit number in the building.
->
+> 
 > **So the machine-written prompt goes through exactly the same gate as a human-written one** — but
 > evaluated against a scorer set strictly larger than the optimisation objective. That superset is
 > the thing that catches the overfitting.
->
+> 
 > **And the optimisation dataset is not the eval dataset.** Optimisation needs expectations on every
 > row describing required behaviour. The eval set deliberately holds rows the optimiser never saw.
->
+> 
 > One operational point: **registering is not deploying.** Creating a prompt version and pointing
 > production traffic at it are separate operations, and the evaluation belongs in the gap between
 > them."
@@ -2530,43 +2530,43 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > it produces is three things: labels that calibrate judges, the distilled rubric the experts
 > couldn't previously articulate, and a periodic ground-truth check on whether the automated stack
 > has drifted. All three are expensive, and none of them is continuous.
->
+> 
 > **Then pick the protocol from the question, not from convenience.** Blinded pairwise when I'm
 > comparing two candidates. Absolute rating when I'm building a labelled set to align a judge.
 > Reference-guided when a gold answer genuinely exists. And critique-style error annotation when I
 > don't yet know what the failure modes are.
->
+> 
 > **Blinding is load-bearing, and it has to be real.** Strip model names, strip anything identifying
 > which arm a response came from, randomise the A/B order per row. And then measure whether order
 > mattered — if position A wins noticeably more often across a balanced set, my pairwise numbers
 > contain a bias term, not just a quality signal.
->
+> 
 > **Length is the confound nobody controls for.** Longer answers win pairwise comparisons at a rate
 > unrelated to quality. So I'd report win rate alongside a length distribution per arm, or we'll ship
 > verbosity and call it improvement.
->
+> 
 > **Validate the raters before trusting the ratings.** Inter-annotator agreement is the first number
 > I compute, not the last. If humans can't agree with each other, the rubric is underspecified and
 > no judge can be aligned to it.
->
+> 
 > **Consensus rules get decided in advance.** Majority vote is the cheap default and it hides
 > systematic disagreement — a persistent two-one split on one claim category is a rubric defect
 > wearing a resolved label. I'd use majority for the bulk, mandatory adjudication by a senior
 > reviewer wherever agreement falls below threshold, and a standing log of adjudicated cases feeding
 > back into the rubric.
->
+> 
 > **Record provenance on every label** — who authored it, human or script, which rubric version, what
 > date. That becomes decisive later when those labels train a judge and I need to know which ones
 > predate a rubric change.
->
+> 
 > **And design against annotator drift**, because standards move over weeks. I'd seed 5 to 10% of
 > every batch with previously-labelled gold rows and track each rater's agreement with their own
 > past self. Falling self-agreement means recalibration, not replacement.
->
+> 
 > **I'd also separate the people who wrote the rubric from the people applying it**, at least for the
 > validation batch. Authors score their own rubric far more consistently than anyone else can, which
 > makes agreement look excellent and generalisation look fine right up until it isn't.
->
+> 
 > **And size the programme from what it has to decide.** A pairwise win rate of 55% isn't
 > distinguishable from a tie on 100 comparisons. Same reasoning as production sample rates, applied
 > to people instead of traffic."
@@ -2574,7 +2574,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 **The protocol table**
 
 | Protocol | Use when | Cost per judgement | Main hazard |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **Blinded pairwise (A vs B)** | Comparing two candidates — model, prompt, retrieval config | Low; humans are fast at "which is better" | Position bias, length bias, ties |
 | **Single-answer absolute rating** | Building a labelled set to align a judge, or tracking quality over time | Medium | Scale drift, anchoring, generosity |
 | **Reference-guided rating** | Domain where a gold answer exists (policy lookup, calculation) | Medium | Penalises correct answers phrased differently |
@@ -2613,27 +2613,27 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > "**The distinction I'd open with is that a scorer is not a gate.** Adding a scorer adds measurement,
 > not enforcement. Scorers are informational by default, and an ungated scorer blocks precisely
 > nothing.
->
+> 
 > **Promotion needs two conditions.** Absolute thresholds, and no regression against the version
 > currently in production. Either one on its own is insufficient.
->
+> 
 > **Threshold-only gates permit erosion** — 0.98, 0.95, 0.92, 0.91 all clear a 0.90 bar. Three
 > releases later you're sitting on the floor having passed every gate on the way down.
->
+> 
 > **Tolerance has to be per metric type.** Zero tolerance for deterministic metrics, because there's
 > no noise to absorb, so any movement is real. A small budget for judged ones, because they move on
 > their own.
->
+> 
 > **And I'd make the regression report a diagnosis, not a verdict.** It should name the prompt clause
 > to look at, not just print FAIL.
->
+> 
 > **Production points at an alias, not a version.** That's what makes rollback moving a pointer
 > rather than a revert-and-redeploy.
->
+> 
 > **Resolve gates against the keys the run actually produced.** A mistyped metric name looks up
 > nothing, defaults to zero, and reports as a catastrophically broken agent. Unmatched gates report
 > 'not measured', separately from failures.
->
+> 
 > **And two datasets, not one.** The curated regression set must not drift or the before/after
 > comparison is invalid. The mined set must stay fresh or it stops discovering anything."
 
@@ -2656,14 +2656,14 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > "What happened is that the metric someone asked about improving went up, and three that nobody was
 > watching collapsed. Typically groundedness, because shorter answers drop their citations;
 > escalation-appropriateness, because there's less room to hedge; and completeness.
->
+> 
 > **And this is exactly what the no-regression condition exists for.** A gate that checks only the
 > target metric is a gate that optimises one dimension straight into the ground.
->
+> 
 > **A related trap I'd flag: raw numeric metrics carry no direction.** Word count falling reads as a
 > regression to a naive check. Only a verdict-returning scorer encodes intent, so I'd wrap numeric
 > metrics before gating on them.
->
+> 
 > **And I'd report distributions rather than booleans.** The p90 is where the rambling answers hide.
 > The p10 is where the truncated ones do."
 
@@ -2683,29 +2683,29 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 
 > "**The framing I'd start from: offline catches what your dataset contains, online exists to find
 > what it didn't.** You need both, always.
->
+> 
 > **Then the constraint that decides everything else — production has no ground truth.** Any scorer
 > that reads expectations is structurally offline-only, however good it is. And the test is
 > mechanical: does it read expectations? If yes, it can't go online.
->
+> 
 > **So what transfers is the reference-free set:** safety, relevance, groundedness, guideline
 > adherence, and every deterministic input/output check.
->
+> 
 > **Sample the judges, never the deterministic scorers.** The first cost money per call. The second
 > are free, so they run on 100% of traffic.
->
+> 
 > **And I'd choose the sample rate from the delta I have to detect**, not from a round number that
 > felt affordable. At 2,000 traces a day, a 5% sample resolves to about plus or minus 4.5 points. So
 > a 2-point drop is indistinguishable from noise — detecting that reliably needs something like 30%
 > sampling. That's a real conversation to have about budget, and it's better had now.
->
+> 
 > **Because an alert set below the sampling resolution fires on noise**, and it gets muted within a
 > month. At which point you have monitoring that looks healthy and alerts nobody.
->
+> 
 > **I'd land the traces in a warehouse as queryable tables.** Once production behaviour is SQL-able,
 > incident response changes character — 'it got worse' becomes 'retrieval p95 doubled for tenant 14
 > starting Tuesday'.
->
+> 
 > **And every finding gets carried into a gated offline test.** A finding that stops at the dashboard
 > helps you exactly once."
 
@@ -2728,26 +2728,26 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 **How you'd talk through it:**
 
 > "No — and the 80% is the part that worries me most, because of how it was produced.
->
+> 
 > **A flat list of strings tells you nothing when it passes.** All they've learned is that those 15
 > strings failed. Not that the surface is defended.
->
+> 
 > **So I'd restructure it as classes times variants.** Name the classes: direct instruction override,
 > role-play framing, channel confusion — content formatted to look like system text or tool output —
 > injection through retrieved documents, injection through tool responses, encoding and obfuscation,
 > and multi-turn gradual escalation. Then multiple phrasings per class, so one lucky string can't
 > stand in for a whole surface.
->
+> 
 > **And I'd report per class, never in aggregate.** I've seen exactly this: 80% overall, with one
 > entire class sitting at 0%. The aggregate was the thing hiding it.
->
+> 
 > **The class most teams never test is retrieved content.** In a RAG system the document corpus is an
 > injection channel, and nobody is watching it because the attacker isn't the user.
->
+> 
 > **Each row asserts what must not happen**, not one gold answer — behavioural boundaries, not gold
 > text. And I'd be careful about over-constraining, because for genuinely ambiguous input several
 > behaviours are acceptable, and asserting one specific response penalises correct handling.
->
+> 
 > **Last thing I'd say to that security team: a documented gap isn't a covered gap.** Writing it down
 > buys honesty, not coverage, and those are very easy to confuse for a long time. But say 'not
 > measured' with a reason rather than leaving silence — silence is indistinguishable from having
@@ -2770,24 +2770,24 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > "**The organising principle is: enforce in code where you can, evaluate where you can't.**
 > Cross-customer data access is enforceable at the retrieval layer — filter by identity before the
 > model ever sees a row. That should never be a prompt instruction.
->
+> 
 > **But anything gated by instructions rather than APIs has to be verified by evaluation.** And most
 > agent write-actions fall there. The tool writes every time it's called, so obedience is a
 > behaviour — and behaviours get tested, not assumed.
->
+> 
 > **So I'd name three layers.** Hard constraints in code: ACL-filtered retrieval, typed tool
 > signatures that reject malformed arguments, allowlisted write scopes. Soft constraints in the
 > prompt. And verification in the eval harness for both.
->
+> 
 > **Permission freshness is its own problem**, and it gets missed. A user with access today and
 > revoked access tomorrow must not retrieve from a stale index or a cached embedding. So decide
 > whether you're filtering at query time or re-indexing, and be explicit about the staleness window.
->
+> 
 > **Then blast-radius design**, because I'd assume the model will occasionally decide wrongly. Limit
 > what a wrong decision can reach: read-only by default, write scopes narrow and reversible, dollar
 > and row-count caps, idempotency keys, and an audit record of what was proposed versus what
 > actually executed.
->
+> 
 > **And end-state verification closes the loop.** I wouldn't trust the agent's claim that it asked
 > for confirmation — I'd read the actual write log and reconcile it against the consent turns."
 
@@ -2809,29 +2809,29 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > and span-type contracts, the scorer library, dataset storage and versioning, gate execution, the
 > trace warehouse, and judge-model access with cost accounting. Per-team: the rubrics, the
 > thresholds, the domain expectations. Teams own what 'good' means; the platform owns the mechanism.
->
+> 
 > **The span-type contract is the platform's actual API.** If teams instrument inconsistently, no
 > shared scorer works — so instrumentation ships as a library, not as a document.
->
+> 
 > **I'd build a scorer registry where every scorer declares its prerequisites** — does it need
 > expected facts, a retriever span, a tool span, and is it reference-free? That declaration is what
 > makes online-eligibility something you can check automatically instead of discovering in
 > production.
->
+> 
 > **Then a detail that bites everyone: guard the scorers on mixed datasets.** Built-in correctness
 > and guideline scorers raise on rows that aren't theirs, because they have no 'not applicable'
 > verdict. On a dataset that deliberately mixes factual and behavioural rows, each scorer errors on
 > every row belonging to the other kind. So I'd wrap them to return null, and specifically null
 > rather than a 'skip' verdict — a pass rate counts 'skip' as a non-pass and quietly deflates.
->
+> 
 > **And an errored row is not a scored row.** The harness catches the exception, records an error
 > assessment, and the run completes. So the symptom is log noise plus a metric that silently
 > vanished from the results — not a crash. That's easy to scroll past for weeks.
->
+> 
 > **The output shape is whatever the prediction function returned**, and there's no normalisation
 > step. So I'd normalise in one helper every scorer routes through, or half the scorers break on the
 > first team that returns a string instead of a dict.
->
+> 
 > **And I'd treat infrastructure prerequisites as real design constraints.** Prompt registries and
 > evaluation datasets typically need a SQL-backed tracking store, not a file backend. That's a day-one
 > decision, and two features depend on it."
@@ -2851,23 +2851,23 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > "**Cost decomposes the same way latency does.** Per-span token counts, split by context assembly —
 > retrieved chunks and conversation history — model calls per request, tool round-trips that trigger
 > more calls, retries, and output length.
->
+> 
 > **And step count usually beats model price.** An agent averaging five LLM calls where two would do
 > is a 2.5x problem, and no model swap fixes it. This is where the trajectory metrics earn their
 > keep: redundant calls and blind retries are directly priced.
->
+> 
 > **Context growth is the silent multiplier.** Every turn appends history, every retrieval appends
 > chunks. So I'd measure tokens-per-turn as a trend, not as an average.
->
+> 
 > **Then tiered model routing** — a cheap model for classification, routing and extraction, and the
 > expensive one only where reasoning is genuinely needed. But I'd gate the routing decision itself,
 > because a misrouted hard query costs more than the saving.
->
+> 
 > **And the one people forget: eval cost is production cost.** Judges are LLM calls. Sampling rate,
 > judge-model choice, and trace-based judges — which carry a big prompt — all land on the same bill.
 > So I'd ration judges to promotion decisions and sampled production traffic, and run the
 > deterministic scorers everywhere.
->
+> 
 > **Then caching, by layer:** embedding cache, retrieval cache, exact-match response cache, prefix
 > cache for the system prompt. Each one has a different staleness risk and a different correctness
 > cost, so they're not one decision."
@@ -2881,7 +2881,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 These are the failures worth naming unprompted. Every one reports nothing and reads as fine. Dropping two or three of these into an answer is the fastest way to signal you've actually operated a system rather than read about one.
 
 | # | Symptom | Cause | Fix |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 1 | A metric regresses and ships anyway | Scorer added, no gate entry. Scorers are informational by default | Add a gate whenever you add a scorer |
 | 2 | A gate fails at 0.000, looks like a broken agent | Mistyped metric name; lookup defaults to 0 | Resolve gates against keys the run produced; report unmatched as **not measured** |
 | 3 | Monitoring dashboard is quiet, everything looks healthy | Scorer registered but never started | Register *and* start; verify sampling config exists |
@@ -2899,7 +2899,7 @@ These are the failures worth naming unprompted. Every one reports nothing and re
 # Appendix B — Misreadings That Sound Like Insight
 
 | Claim | Why it's wrong |
-|---|---|
+| --- | --- |
 | "The aligned judge scored lower, so the agent regressed" | The agent didn't change. The unaligned judge was inflating. A falling score after alignment is the success condition — read agreement, not average |
 | "Raw agreement is 85%, the judge is fine" | On a skewed distribution, raters agree by luck. That same data had Cohen's kappa of 0.20 |
 | "Plain kappa says both judges are equally bad" | Plain kappa treats 4-vs-5 and 1-vs-5 as the same error. Under quadratic weighted kappa those same two judges scored +0.71 and −0.82 |
@@ -2918,7 +2918,7 @@ These are the failures worth naming unprompted. Every one reports nothing and re
 The core decomposition is identical everywhere. What differs is which follow-up you'll get pushed hardest on.
 
 | Company | Where the round tilts | Vocabulary to have ready | The follow-up to expect |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **OpenAI** | Ambiguity → scoped use case → architecture → eval → production, in that order. Evals treated as a product surface, not a QA activity | Responses API, Agents SDK, `Agent` / `Handoff` / `Guardrail` / `Session`, built-in tools (file search, web search, code interpreter, computer use), structured outputs | "You have no labelled data. What do you ship in week one?" and "What's the smallest thing you could launch that produces a measurable business number?" |
 | **Anthropic** | Safety and human oversight as design inputs rather than a review stage. Refusal calibration in *both* directions | Harm taxonomies, red-teaming as eval-set design, over-refusal, human-in-the-loop escalation design, tool-use safety, model-written evals | "How would you know if the system is being *too* cautious?" and "What would you need to see before you'd let this act without a human?" |
 | **Google** | Scale, multi-tenancy, and statistical rigour. Expect to be pushed on sampling, significance, and infrastructure economics | Vertex AI Agent Builder, grounding, per-tenant isolation, batch vs online eval, data lineage, p50/p90/p99 trace analysis | "Now serve 100 tenants with per-tenant quality SLAs. What changes?" and "Justify your sample rate statistically" |
@@ -2971,7 +2971,7 @@ Use these as spoken-answer drills. Target 60-90 seconds each.
 ## What gets people marked down
 
 | Pattern | Why it reads badly |
-|---|---|
+| --- | --- |
 | Reaching for a standard metric suite before asking what matters | Measuring what's easy, not what's at stake |
 | Treating a judge's score as ground truth | The most common naivety in eval work |
 | One aggregate number with no slices | Guarantees the first real failure is found by a user |
