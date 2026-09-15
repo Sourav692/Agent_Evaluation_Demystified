@@ -2276,6 +2276,41 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > And one framing I'd add: **absence is behaviour.** A question that correctly produces no tool call
 > is a correct outcome worth scoring, not a gap in the signal."
 
+**In plain English:**
+
+One concrete run. A user asks: *"What's the balance on account ACC-99231?"* Three things happen, and all three get recorded:
+
+```
+1. USER INPUT   "What's the balance on account ACC-99231?"
+2. TOOL SPAN    called get_account("ACC-99231")
+                got back {"found": false, "balance": null, "plan": null}
+3. FINAL OUTPUT "Your Premium plan has a balance of $45.20."
+```
+
+That account doesn't exist. The answer is invented. Nothing crashed.
+
+**"Span" just means one recorded step.** A trace is the flight recorder for a single run, split into spans — one per thing that happened. Step 2 is the tool span: which tool was called, and what came back.
+
+**Why the tool stayed quiet.** Two ways a lookup can fail:
+
+```python
+raise AccountNotFound("ACC-99231")                  # loud — the agent loop stops
+{"found": false, "balance": null, "plan": null}     # polite — HTTP 200, no exception
+```
+
+The second is the problem. The model receives a well-formed object, reads it as a successful call, and fills the gap with fluent, plausible, wrong content.
+
+**Now what each scorer is actually looking at.**
+
+- **Groundedness** asks *is every claim in the answer backed by the documents we retrieved?* It is built for RAG: you fetch text, the model writes, groundedness compares the two. This run has no retrieved documents — it has a tool call. So it either has nothing to compare against or compares against unrelated context. Either way it never opens step 2. It does not know `found: false` exists.
+- **Task success** asks *did the agent do the job?* It reads the **final string** and judges whether it is a complete, on-topic response. And it is: names a plan, gives a balance, answers what was asked, reads fluently. Pass.
+
+One scorer is looking at step 3 against documents that aren't there. The other is looking at step 3 alone. **Step 2 — the only place the failure is visible — is read by nobody.**
+
+**The analogy.** Two inspectors review a clerk's report. The first checks the report against the filing cabinet — but the clerk never opened the cabinet, so there is nothing to compare, and the inspector signs off. The second checks that a report exists and reads professionally. It does. Signs off. Neither asks the clerk *"what did you actually get back when you went to look?"* The clerk came back empty-handed and wrote the report anyway.
+
+**Why this one is dangerous.** The checks aren't weak — each does its job correctly. The failure simply happens somewhere no check is pointed. Your dashboard is green and *honestly* green; the metrics aren't broken, they are aimed elsewhere. That is why the fix is a deterministic check that reads the tool span, and why a better prompt can only reduce how often it happens — never make it visible.
+
 **The trap:** Proposing to fix this with prompt engineering alone. Instructions reduce the rate; they don't make it detectable.
 
 **Killer follow-ups:**
@@ -2310,6 +2345,39 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > 
 > One practical note: most trace stores only give you a handful of aggregations — min, max, mean,
 > median, variance, p90. If I need p99 I'm computing it from the raw trace table myself."
+
+**In plain English:**
+
+One concrete run. p95 used to be 3 seconds. Now it is 9. Only between 9am and 6pm.
+
+The instinct is to ask "why is the system slow?" That question has no answer, because **"the system" is not one thing that has a speed.** A single request is a chain of steps, and the 9 seconds is the sum of them. So the first move is to stop looking at the total and open the trace:
+
+```
+TOTAL 9.1s
+├─ input assembly       0.1s
+├─ retrieval            5.8s   ← embed 0.2 · vector search 5.1 · rerank 0.5
+├─ LLM call #1          1.2s
+├─ tool round-trip      0.9s
+├─ LLM call #2          1.0s
+└─ output streaming     0.1s
+```
+
+Against last month's trace, where retrieval was 0.9s, "it got slower" becomes **"vector search p95 went 0.9s → 5.1s while the chat model never moved."** That is a diagnosis. The first version was a complaint.
+
+**Now the part most people miss: did the steps get slower, or did the number of steps go up?** Two traces, both 9 seconds, completely different problems:
+
+| | What the trace shows | What it means | What you fix |
+|---|---|---|---|
+| **Slower steps** | Same 6 steps, one of them takes 5s instead of 1s | Infrastructure is struggling | The slow component |
+| **More steps** | 10 steps instead of 6, each at normal speed | The agent is doing **more work**, not working slower | Nothing in infra — the traffic changed, or behaviour regressed |
+
+The second case is what "a behavioural regression wearing a latency costume" means. Nothing got slower. The agent started taking two extra turns — retrying, re-searching, asking itself another question — and the only symptom the dashboard can show you is the clock. Optimise the infrastructure and you will fix nothing, because nothing is broken.
+
+**The analogy.** A delivery that used to take 30 minutes now takes 90. Two possible reasons: the driver is slower on each leg, or the driver is making three extra stops at normal speed. **Timing the whole delivery cannot tell you which.** You need the per-leg log — which is exactly what a trace is, and exactly why per-span timing is the thing to instrument.
+
+**Why "only at peak" is a gift.** It rules out everything that would be equally true at 3am. The code is the same code. So the cause has to be something that only appears under concurrency: provider rate limiting and retry backoff, vector index cache eviction, connection-pool exhaustion, a reranker that batches badly, another tenant crowding you out. That is a short list, and every item on it is checkable.
+
+**One practical trap.** Most trace stores hand you a fixed set of aggregations — min, max, mean, median, variance, p90. If the conversation is about p99, you are computing it yourself off the raw trace table. Worth knowing before you promise someone a number.
 
 **Killer follow-up:** *"Latency is fine at p50 and terrible at p90. Which do you optimise and why?"* → "Depends entirely on whether that tail correlates with a user segment or an intent class. I'd slice before optimising anything."
 
