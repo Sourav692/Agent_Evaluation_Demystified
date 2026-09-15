@@ -1,0 +1,63 @@
+{
+  "skill_name": "plain-english-explainer",
+  "evals": [
+    {
+      "id": 0,
+      "name": "explain-two-confusable-metrics",
+      "prompt": "I keep mixing up Contextual Precision and Contextual Recall. Explain the difference to me in plain english - what does each one actually compare against what. Write it to explain-contextual.md",
+      "expected_output": "A markdown file opening on a concrete worked example with real chunk/score values, defining jargon at point of use, a contrast table, one everyday analogy after the mechanism, and a one-line closing. Short paragraphs, bullets over prose.",
+      "files": [],
+      "assertions": [
+        "Opens on a concrete worked example with real values (a trace, numbers, named fields) rather than an abstract definition",
+        "No prose paragraph exceeds 3 sentences",
+        "Uses a table or bullet list for the central contrast rather than parallel paragraphs",
+        "Structural lines (bullets/table rows) are at least 25% of the body \u2014 bullets favoured over prose",
+        "Contains exactly one everyday analogy, and it appears after the mechanism is explained, not instead of it",
+        "Defines each jargon term inline at first use rather than in a glossary up front",
+        "Closing takeaway is a single sentence",
+        "No hedging ('may sometimes', 'generally advisable', 'several aspects to consider') and no preamble ('let's break this down')",
+        "Correctly states what each metric compares: Contextual Precision is about the ORDER/ranking of retrieved chunks, Contextual Recall is about COVERAGE of the expected output",
+        "Makes clear both metrics need expected_output, i.e. they are reference-based"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "explain-why-answer-is-weak",
+      "prompt": "In an eval interview, a candidate is asked 'Your judge scores 0.9 and the customer says the output is terrible. Who is wrong?' and answers: 'The judge is a strong model so I'd trust the score, and I'd ask the customer for specific examples.' Explain in plain english why that reads as a weak answer. Save it to why-weak.md",
+      "expected_output": "Concedes the correct part of the intuition first, then a concrete run showing the mechanism, what the judge is actually looking at, one analogy, and a one-line payoff. Bullets and one-liners, not essay prose.",
+      "files": [],
+      "assertions": [
+        "Opens on a concrete worked example with real values (a trace, numbers, named fields) rather than an abstract definition",
+        "No prose paragraph exceeds 3 sentences",
+        "Uses a table or bullet list for the central contrast rather than parallel paragraphs",
+        "Structural lines (bullets/table rows) are at least 25% of the body \u2014 bullets favoured over prose",
+        "Contains exactly one everyday analogy, and it appears after the mechanism is explained, not instead of it",
+        "Defines each jargon term inline at first use rather than in a glossary up front",
+        "Closing takeaway is a single sentence",
+        "No hedging ('may sometimes', 'generally advisable', 'several aspects to consider') and no preamble ('let's break this down')",
+        "Concedes the correct part of the candidate's intuition before criticising it",
+        "Names the actual failure: the judge was never validated against human judgement \u2014 agreement was never measured, so a uniformly generous judge passes untouched"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "author-plain-block-for-case",
+      "prompt": "Read docs/interview-prep/QUESTION_BANK.md and look at Case 7 (the agent that gets the right answer in six steps). Write the 'In plain English' block for it in the same style as Cases 5 and 6 already have. Do NOT edit QUESTION_BANK.md - write the block to case7-plain.md and tell me exactly where it would be inserted and what else in the repo would need the same change.",
+      "expected_output": "A block matching the Case 5/6 house format, plus correct placement (after the talk-through, before The trap) and correctly identifying that evaluation-round-drill.html needs a matching plain: field.",
+      "files": [],
+      "assertions": [
+        "Opens on a concrete worked example with real values (a trace, numbers, named fields) rather than an abstract definition",
+        "No prose paragraph exceeds 3 sentences",
+        "Uses a table or bullet list for the central contrast rather than parallel paragraphs",
+        "Structural lines (bullets/table rows) are at least 25% of the body \u2014 bullets favoured over prose",
+        "Contains exactly one everyday analogy, and it appears after the mechanism is explained, not instead of it",
+        "Defines each jargon term inline at first use rather than in a glossary up front",
+        "Closing takeaway is a single sentence",
+        "No hedging ('may sometimes', 'generally advisable', 'several aspects to consider') and no preamble ('let's break this down')",
+        "Block matches the house format of Cases 5 and 6 (concrete run, mechanism, one analogy, payoff)",
+        "States the correct insertion point: after the 'How you'd talk through it' block and before 'The trap'",
+        "Identifies that docs/interview-prep/evaluation-round-drill.html needs a matching plain: field on the C7 case object so the two surfaces do not drift"
+      ]
+    }
+  ]
+}
