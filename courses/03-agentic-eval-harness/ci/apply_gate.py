@@ -46,8 +46,8 @@ GATE_CONFIG = {
         "intent": {"billing": 0.75, "account": 0.75,
                    "knowledge": 0.70, "escalation": 0.80, "multi_intent": 0.70},
     },
-    # Strata smaller than this are reported but never blocked on. Notebook 03's
-    # `stratum_floor()` policy decides this number.
+    # Strata smaller than this are reported but never blocked on. Notebook 10's
+    # detection-limit arithmetic is where this number comes from.
     "min_cases_to_gate": 8,
 
     # 4. Cost ceiling — per resolved conversation, in USD.

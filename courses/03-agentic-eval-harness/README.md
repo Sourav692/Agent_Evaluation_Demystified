@@ -199,13 +199,12 @@ notebooks.
 
 ---
 
-## Two cells are left for you to write
+## One cell is left for you to write
 
-Both are judgment calls that encode risk tolerance, not facts:
+It is a judgment call that encodes risk tolerance, not a fact:
 
 | Notebook | Cell | The decision |
 |---|---|---|
-| 03 | `stratum_floor()` | How few cases is too few to block a release on — and whether an under-sized stratum is report-only, gated anyway, or merged upward |
 | 04 | `RUBRICS` | Where the boundaries sit between a wrong call, a defensible call and a right call when the corpus only *partly* covers a question |
 
 ---
