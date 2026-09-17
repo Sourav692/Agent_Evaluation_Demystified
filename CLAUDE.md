@@ -45,7 +45,7 @@ Set by the restructure; each folder has a `README.md` acting as its index.
   Helpers are redefined in each notebook and state is handed off through files in `data/`, so
   any notebook can be opened alone. Do not "fix" the duplication by extracting a module. It
   also bans pandas, numpy, scipy and matplotlib — grouping is `defaultdict`, statistics are
-  stdlib. Notebooks 01–08 are written; 09–12 are stubs with final titles and data contracts.
+  stdlib. All 12 notebooks are written.
 - **`labs/`** — raw source material, deliberately unnumbered because order doesn't matter.
 - **`docs/`** — prose only. Nothing in here executes.
 - **`archive/`** — superseded material. **Never delete from it**; `archive/README.md` is a

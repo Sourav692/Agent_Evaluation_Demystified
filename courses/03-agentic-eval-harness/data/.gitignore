@@ -8,6 +8,9 @@ human_labels.jsonl
 sample_trajectory.json
 trajectories.json
 judge_comparison.json
+calibration.json
+label_queue.json
+candidate_runs.json
 kb_articles.json
 !golden_set.json
 !fixtures/

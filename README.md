@@ -41,7 +41,7 @@ courses/     Finished, sequential. Start here.
   02-databricks-mlflow-evals/     MLflow 3 GenAI, offline → online (11 notebooks + 10 modules)
   03-agentic-eval-harness/        The harness and the release gate: RAGAS + DeepEval over a
                                   LangGraph multi-agent system, stratified reporting, CI
-                                  (12 notebooks — 01-08 complete, 09-12 stubs)
+                                  (12 notebooks, complete)
 
 labs/        Raw source material. Runnable, but not a curriculum — reach for these
              when a course points at one, or when you want the unabridged version.

@@ -16,8 +16,7 @@ thresholds, the strata they are applied within, and the thing that refuses a dep
 01 module 2.4 and course 02 are both MLflow — read 01 first if you want the metric intuition
 before the tooling.
 
-**Course 03 is partially built.** Notebooks 01–08 are complete; 09–12 are stubs whose
-titles, objectives, concepts and data contracts are final. It also breaks one convention on
+**Course 03 is complete.** All 12 notebooks are implemented. It also breaks one convention on
 purpose: where course 02 shares mutable `.py` modules between notebooks, course 03 forbids
 shared modules entirely and hands off through files in `data/`. Its README explains why.
 

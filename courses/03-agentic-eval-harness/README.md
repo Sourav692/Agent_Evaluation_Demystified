@@ -13,8 +13,7 @@ can refuse a deploy, and knowing when your numbers are too noisy to support one.
 
 | Notebooks | State |
 |---|---|
-| 01–08 | Complete |
-| 09–12 | Stubs — title, objectives, concept, section skeleton and data contract are final; implementation lands in the next pass |
+| 01–12 | Complete |
 
 ---
 
@@ -67,10 +66,10 @@ Sequential. Each notebook consumes files the earlier ones wrote.
 | 06 | [Agent, handoff and end-to-end](06_agent_handoff_and_end_to_end.ipynb) | Levels 2 and 3, trajectory matching, the SQLite final-state check, blame attribution | `agent_report.json` |
 | 07 | [Safety and policy checks](07_safety_and_policy_checks.ipynb) | Assertions that block, never averaged | `safety_report.json` |
 | 08 | [Building custom judges](08_building_custom_judges.ipynb) | `GEval`, `DAGMetric`, rubrics, and the two bias tests | `judge_comparison.json` |
-| 09 | [Human feedback and calibration](09_human_feedback_and_calibration.ipynb) | Three kinds of human feedback, Cohen's kappa, the rubber-stamp signal | `human_labels.jsonl` |
+| 09 | [Human feedback and calibration](09_human_feedback_and_calibration.ipynb) | Three kinds of human feedback, Cohen's kappa, the rubber-stamp signal | `human_labels.jsonl`, `calibration.json` |
 | 10 | [Stratified reporting and statistics](10_stratified_reporting_and_statistics.ipynb) | Sample size, McNemar, bootstrap — stdlib only | `baseline_report.json` |
-| 11 | [The release gate and CI](11_the_release_gate_and_ci.ipynb) | Four checks, four scenarios, a workflow that fails a PR | `gate_result.json` |
-| 12 | [Online evaluation and the loop](12_online_evaluation_and_the_loop.ipynb) | Reference-free metrics, alerts, canary, closing the loop | `online_report.json` |
+| 11 | [The release gate and CI](11_the_release_gate_and_ci.ipynb) | Four checks, four scenarios, a workflow that fails a PR | `candidate_runs.json`, `gate_result.json` |
+| 12 | [Online evaluation and the loop](12_online_evaluation_and_the_loop.ipynb) | Reference-free metrics, alerts, canary, closing the loop | `online_report.json`, `label_queue.json` |
 
 **If you only have an hour:** 01 → 03 → 04 → 11.
 
