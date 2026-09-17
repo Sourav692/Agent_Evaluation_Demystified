@@ -2124,6 +2124,37 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > head I already understand. I'd target novelty — embedding distance from what's already in the set,
 > or the low-confidence, high-latency and tool-error traces — because that's where the tail is."
 
+**In plain English:**
+
+One concrete run, on an agent that has been live four months. You turn on a groundedness scorer over 200 traces and it reports **0.94 — over 61 rows**; the other 139 errored out. Here is why:
+
+```
+TRACE  "why is my bill higher this month?"
+  span  name="kb_lookup"     type=CHAIN        ← traced, but typed wrong
+  span  name="answer"        type=CHAT_MODEL
+  span  name="get_account"   type=TOOL
+```
+
+**A "span" is one recorded step; its "type" is the label saying what kind of step it was.** Retrieval happened here. It just wasn't *typed* as retrieval.
+
+**Why that breaks rather than degrades.** The groundedness scorer doesn't search the trace for something retrieval-shaped — it asks for a span of type `RETRIEVER` and scores the answer against whatever that span returned.
+
+- **No span of that type** → the scorer has nothing to read → the row **errors**.
+- **An errored row is not a failed row.** It drops out, and the mean is computed over the survivors.
+
+So the dashboard says 0.94 and means *0.94 on the 61 requests we could score*. Nobody is told about the 139.
+
+| <br> | What you see | What it means |
+| --- | --- | --- |
+| Row **fails** | Score below threshold | The agent did something wrong |
+| Row **errors** | Silently absent from the mean | Your instrumentation is wrong |
+
+**The other trap, and it's worse.** With no labels, the tempting shortcut is to use the agent's own past answers as the expected answers. That is **circular ground truth** — the agent agrees with itself by construction, scores near 100%, and every bug it has today gets written down as correct.
+
+**The analogy.** Marking your own homework against a copy of the homework. You'll score full marks, and you'll learn nothing about whether you understood the subject.
+
+**Why it matters.** Both failures produce a confident, healthy-looking number. Instrument first, check the *denominator* before you read the mean, and make a human write the labels.
+
 **The trap:** Using the agent's own historical outputs as expectations. This is **circular ground truth** — the agent passes by construction, and today's bugs get frozen as correct. If someone proposes it as a shortcut, name it.
 
 **Killer follow-ups:**
@@ -2167,6 +2198,35 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > And **the reason I prefer deterministic isn't only cost, it's reproducibility.** When a
 > deterministic scorer moves, the behaviour really moved. Judges move on their own."
 
+**In plain English:**
+
+One concrete run. Same agent, same question, two architectures — and only one of them can be scored.
+
+```
+DESIGN A   retrieval is a fixed pipeline step
+  question → [RETRIEVER span] → [CHAT_MODEL span] → answer
+  every trace has a retriever span.  groundedness: always scoreable.
+
+DESIGN B   retrieval is a tool the model may call
+  question → [CHAT_MODEL span] → answer          ← it skipped retrieval
+  no retriever span.  groundedness: not measured, on an unknown fraction of traffic.
+```
+
+**"Groundedness" asks whether the answer is supported by the documents that were retrieved.** With no retrieved documents in the trace, there is nothing to compare against.
+
+**So the design choice is an evaluation choice.** Make retrieval a fixed step and you guarantee the evidence exists on every request.
+
+**But don't make everything fixed.** Account lookup stays a model-chosen tool *on purpose*, because "should it have called that?" is a question worth scoring — and you can only score a decision the model was allowed to make.
+
+| Component | Fixed or model-chosen | What that buys you |
+| --- | --- | --- |
+| **Retrieval** | Fixed pipeline step | Groundedness scoreable on 100% of traffic |
+| **Account lookup** | Model-chosen tool | Tool-selection correctness becomes measurable |
+
+**The analogy.** A kitchen where every dish is weighed on the way out can prove its portions. If the chef sometimes uses the scale and sometimes eyeballs it, you can't — and you won't know which nights were which.
+
+**Why it matters.** Writing the gate table before the architecture isn't a process ritual. It's how you find out that a design you were about to build has a dimension you'd never be able to measure.
+
 **The trap:** Proposing one mega-judge that rates "overall quality 1-5." It compresses five independent failure modes into one number that can't diagnose anything and can't gate anything specific.
 
 **Killer follow-ups:**
@@ -2205,6 +2265,39 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > some number of weeks, and gate promotion on both an absolute agreement threshold and no regression
 > against the assistive baseline."
 
+**In plain English:**
+
+One concrete run. The agent agrees with human adjudicators on **94% of claims.** That sounds like a strong case for autonomy. Here is the claim mix:
+
+```
+1,000 claims reviewed
+  approved by humans    900   (90%)
+  declined by humans    100   (10%)
+
+AGENT             agrees on 940 / 1000  =  94%
+"ALWAYS APPROVE"  agrees on 900 / 1000  =  90%    ← a rule with no model in it
+```
+
+**The agent beat "say yes to everything" by four points.** That is the entire measured value of the system.
+
+**Why raw agreement flatters you.** On a skewed distribution most of the agreement is free — both parties say "approve" because almost everything gets approved.
+
+- **Chance-corrected agreement** subtracts the agreement you'd get by luck, then reports what's left.
+- Here it lands near **0.37 on a 0–1 scale** — a weak signal wearing a 94% costume.
+
+**And the 6% is not evenly spread.** Aggregate agreement says nothing about *which* claims it disagrees on. Slice it, and the disagreements usually cluster in exactly one claim type — the one you'd least want automated.
+
+**The thing everyone already has and nobody collects.** Every time a human overrides the agent in assistive mode, that override *is* a labelled example, with the correct answer and the reason attached.
+
+| <br> | What it costs | What you get |
+| --- | --- | --- |
+| Hand-writing an eval set | Weeks of expert time | Cases someone imagined |
+| **Recording overrides** | Instrumentation, once | Real cases, real labels, real provenance |
+
+**The analogy.** A driving examiner who passes 90% of candidates can be replaced by a rubber stamp that also passes 90% — until you check the 10% they failed and find the stamp let them all through.
+
+**Why it matters.** "Prove it's safe" invites one number, and one number on a skewed distribution is the easiest thing in evaluation to fake without meaning to.
+
 **The trap:** Answering the question as asked. "Prove it's safe" invites a single number. The right move is to reframe: safety isn't one threshold, it's a per-claim-type decision with different thresholds and different human-review rates.
 
 **Killer follow-ups:**
@@ -2240,6 +2333,42 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 > 
 > And finally — **check whether the benchmark is the thing that's wrong.** A benchmark that improves
 > while users complain is itself evidence: its distribution doesn't match production traffic."
+
+**In plain English:**
+
+One concrete run. Same prompt, same question, two models — and the benchmark says the new one is better.
+
+```
+PROMPT  "Answer using ONLY the context. If unsure, say you don't know.
+         Keep it brief."
+
+OLD MODEL  → "Your plan renews on 14 March. Anything else?"          ✓ users happy
+NEW MODEL  → "I don't know."                                          ✗ users angry
+
+BENCHMARK  old 0.81  →  new 0.87
+```
+
+Nothing broke. The new model **followed the instruction more literally** than the old one, and "if unsure, say you don't know" was tuned against a model that was never quite as obedient about it.
+
+**"Overfit to the model" means the prompt was quietly shaped around one model's habits.** Every hedge, every "be brief", every worked example was tuned until the old model behaved — so it encodes that model's quirks, not the task.
+
+**What actually changed in that deploy.** "We upgraded the model" is almost never one edit:
+
+- **The prompt template** — reworded to suit the new one
+- **Tool schemas** — stricter argument typing changes what the model will call
+- **Context truncation** — a different tokeniser truncates in a different place
+- **Structured-output mode** — turned on because the new model supports it
+
+**And the benchmark itself is evidence, not an authority.** A benchmark that goes up while users complain has told you something real: its question mix doesn't look like production traffic.
+
+| Number went up | Users unhappy | What it means |
+| --- | --- | --- |
+| Benchmark | Yes | The benchmark's distribution is wrong |
+| One asked-for metric | Yes | The other metrics fell and nobody looked |
+
+**The analogy.** A new employee who follows the handbook exactly, where the last one knew which rules to ignore. The handbook was always wrong; the old employee was hiding it.
+
+**Why it matters.** The instinct is "the new model is worse." It usually isn't — the application was leaning on the old one, and the upgrade removed the crutch.
 
 **The trap:** Concluding "the new model is worse." It usually isn't. The application was overfit to the old one.
 
@@ -2348,7 +2477,7 @@ One scorer is looking at step 3 against documents that aren't there. The other i
 
 **In plain English:**
 
-One concrete run. p95 used to be 3 seconds. Now it is 9. Only between 9am and 6pm.
+One concrete run. p95 used to be 3 seconds and is now 9 — only between 9am and 6pm.
 
 The instinct is to ask "why is the system slow?" That question has no answer, because **"the system" is not one thing that has a speed.** A single request is a chain of steps, and the 9 seconds is the sum of them. So the first move is to stop looking at the total and open the trace:
 
@@ -2366,12 +2495,12 @@ Against last month's trace, where retrieval was 0.9s, "it got slower" becomes **
 
 **Now the part most people miss: did the steps get slower, or did the number of steps go up?** Two traces, both 9 seconds, completely different problems:
 
-| | What the trace shows | What it means | What you fix |
-|---|---|---|---|
+| <br> | What the trace shows | What it means | What you fix |
+| --- | --- | --- | --- |
 | **Slower steps** | Same 6 steps, one of them takes 5s instead of 1s | Infrastructure is struggling | The slow component |
 | **More steps** | 10 steps instead of 6, each at normal speed | The agent is doing **more work**, not working slower | Nothing in infra — the traffic changed, or behaviour regressed |
 
-The second case is what "a behavioural regression wearing a latency costume" means. Nothing got slower. The agent started taking two extra turns — retrying, re-searching, asking itself another question — and the only symptom the dashboard can show you is the clock. Optimise the infrastructure and you will fix nothing, because nothing is broken.
+The second case is what "a behavioural regression wearing a latency costume" means. Nothing got slower — the agent started taking two extra turns, retrying and re-searching, and the only symptom the dashboard can show you is the clock. Optimise the infrastructure and you will fix nothing, because nothing is broken.
 
 **The analogy.** A delivery that used to take 30 minutes now takes 90. Two possible reasons: the driver is slower on each leg, or the driver is making three extra stops at normal speed. **Timing the whole delivery cannot tell you which.** You need the per-leg log — which is exactly what a trace is, and exactly why per-span timing is the thing to instrument.
 
@@ -2423,6 +2552,39 @@ The second case is what "a behavioural regression wearing a latency costume" mea
 | 8 | **Recovery / self-correction rate** | After an error, did a later step call the same tool and succeed? |
 | 9 | **Cost / efficiency proxy** | Redundant calls + errors treated as waste |
 
+**In plain English:**
+
+One concrete run. A research agent is asked for the recent GLP-1 cardiovascular trials and returns the correct answer. Here is everything it did to get there:
+
+```
+STEP 1  search_papers("GLP-1 cardiovascular")   ok      12 hits
+STEP 2  fetch_paper("PMID-3391")                ERROR   timeout
+STEP 3  fetch_paper("PMID-3391")                ERROR   timeout      ← identical retry
+STEP 4  search_papers("GLP-1 cardiovascular")   ok      the same 12 hits
+STEP 5  fetch_paper("PMID-3391")                ok
+STEP 6  summarise(...)                          ok
+FINAL   "Three trials report ~14% fewer major adverse cardiac events."   ← correct
+```
+
+**"Trajectory" is just the list of steps.** The outcome is the last line. Three of these six steps did real work; steps 3 and 4 bought nothing.
+
+**What each kind of metric can see.**
+
+| <br> | Reads | This run scores |
+| --- | --- | --- |
+| **Task success** | The final answer only | **1.0** — and it's part of the 96% |
+| **Step-wise accuracy** | Every step | **0.50** — 3 of 6 made progress |
+
+Task success isn't wrong. It is **structurally incapable** of seeing waste, because waste doesn't reach the final answer.
+
+**"Redundant call" has a precise definition, and the precision matters.** It's the same tool with the same arguments that **already succeeded** earlier in the trace. Step 4 qualifies. Step 3 does not — retrying a call that *failed* is legitimate behaviour, and a scorer that flags it would punish correct error handling.
+
+**The trap in the usual scorer.** Most published tool-selection scorers compute both missing and unexpected tools, then decide pass/fail on the missing ones alone. An agent that calls **every tool on every request has nothing missing** — and scores 100%. An unexpected account lookup isn't inefficiency, it's a privacy incident.
+
+**The analogy.** A taxi receipt that says only "arrived." You got there, so the trip was a success — while the meter quietly reads four times the fare.
+
+**Why it matters.** Outcome and process are different questions, and an agent can pass one while failing the other in the direction that costs you money.
+
 **The trap in the standard pattern:** The commonly published tool-selection scorer computes both *missing* and *unexpected* tools, then bases the verdict only on the missing ones. An agent that calls **every tool on every request scores 100%**. Fail both directions — an unexpected account lookup is a privacy problem, not an inefficiency.
 
 **Killer follow-ups:**
@@ -2465,6 +2627,36 @@ The second case is what "a behavioural regression wearing a latency costume" mea
 > thread? Does a forget instruction actually remove it? Does memory leak between users? Those need
 > their own tests."
 
+**In plain English:**
+
+One concrete run. Eight subagents, each independently measured, each looking healthy — and the system isn't.
+
+```
+research agent      0.94        end-to-end quality   0.61
+code writer         0.91
+code reviewer       0.93        every part passes.
+memory manager      0.90        the whole thing does not.
+4 analytics agents  0.90-0.95
+```
+
+**Nobody is lying.** Five components that are each right 90% of the time are all right together only 0.9 × 0.9 × 0.9 × 0.9 × 0.9 ≈ **0.59** — before counting anything lost between them.
+
+**This is different from Case 9's arithmetic.** There it was the same agent across turns; here it's different agents in a chain. The multiplication is the same; what you fix is not.
+
+**Where the missing quality actually goes.**
+
+- **Routing errors** — the orchestrator sent the question to the wrong specialist. Neither the orchestrator nor the specialist records that as a failure.
+- **Context lost at the handoff** — agent A knew something it didn't pass to agent B. B answers well, from less.
+- **No per-agent metric can see either**, because both failures happen *between* the components being measured.
+
+**Which is why nesting is the whole answer.** A flat list of spans tells you quality dropped. Nested — session → orchestrator turn → subagent invocation → spans — tells you *which subagent, on which turn*, and that is the question being asked.
+
+**And rubrics expire silently.** A routing rubric written for seven subagents still runs after you add an eighth. It doesn't error. It just starts being wrong about a case it was never told exists.
+
+**The analogy.** A relay team where every runner posts a personal best and the team still loses. You won't find it in the split times — it's in the baton handovers, which nobody is timing.
+
+**Why it matters.** When every component scores above 0.9 and the system scores 0.6, the gap *is* the finding — it lives in the joins, and only nesting makes the joins visible.
+
 **Killer follow-ups:**
 - *"Every subagent scores above 0.9 and the end-to-end system scores 0.6. Explain."* → "Composition. Independent components at rate p compose to p to the n — plus routing errors and context lost at the handoff boundaries, which no per-agent metric can see."
 - *"Circular handoffs — agent A routes to B, B routes back to A. How do you detect and evaluate this?"* → "A deterministic trace scorer for cycles, with a step-budget gate. Cheap, reproducible, and this is a class of failure where an LLM judge adds nothing at all."
@@ -2500,6 +2692,42 @@ The second case is what "a behavioural regression wearing a latency costume" mea
 > 
 > And **on gate scope**: a conversation-level gate is unmeasurable on a single-turn run, so it has to
 > report 'not measured' — never zero. An unmeasured gate and a failed gate must never look alike."
+
+**In plain English:**
+
+One concrete run. Turn-level pass rate is 95%. Here is a five-turn conversation where every single turn passed:
+
+```
+TURN 1  user: "I need to change my flight to Thursday"      agent: helpful   ✓
+TURN 2  user: "the one to Berlin"                           agent: helpful   ✓
+TURN 3  user: "yes, morning if possible"                    agent: helpful   ✓
+TURN 4  user: "what's the fare difference?"     agent: "which flight?"       ✓
+TURN 5  user: "...the Berlin one"                           agent: helpful   ✓
+
+SESSION  95% per turn, 5 turns  →  0.95⁵  =  0.77
+```
+
+**Turn 4 passed.** Judged on its own it is a perfectly reasonable clarifying question. The failure is that it was asked at all, three turns after the answer was given.
+
+**The arithmetic does most of the work.** Independent turns at rate *p* give you *p* to the power of the number of turns:
+
+- **95% per turn over 5 turns = 77% of conversations**, not 95%
+- The gap **widens with length** — so the metric flatters you most exactly where users suffer most
+- **If you report turn-level, report session-level beside it.** One number is a claim about turns; the other is a claim about people.
+
+**Three failures that cannot exist inside a single turn.**
+
+| Failure | Why one turn can't show it |
+| --- | --- |
+| **Context retention** | Re-asking for something given earlier is only visible against what came before |
+| **Consent** | "Acted without asking" is a property of a *pair* of turns |
+| **Stalled approval** | The agent agreed, then nothing happened — the failure is in the silence afterwards |
+
+**Approval has three outcomes, not two:** complied, violated, and *stalled*. Collapse the third into "violated" and you'll apply the wrong fix.
+
+**The analogy.** Every sentence in a letter is grammatical, and the letter still makes no sense — because the third paragraph forgot what the first one said.
+
+**Why it matters.** A conversation-level check run on a single-turn test must report **"not measured", never zero** — an unmeasured gate and a failed gate look identical on a dashboard and mean opposite things.
 
 **The harness trap:** Applying the user identity only to turn 1. The agent loses track of who it's talking to from turn 2 onward, and every conversation fails context-retention for a plumbing reason. You'd be measuring your harness, not the agent.
 
@@ -2544,6 +2772,37 @@ The second case is what "a behavioural regression wearing a latency costume" mea
 > And **the real output of alignment isn't the tuned judge — it's the distilled guidelines.** My
 > experts' tacit standard, finally written down. That artefact outlives the judge model."
 
+**In plain English:**
+
+One concrete run. Two candidate judges rated the same 100 traces that a domain expert also rated, on a 1–5 scale. On the headline numbers they are indistinguishable:
+
+```
+                    exact agreement   plain kappa   quadratic weighted kappa
+JUDGE A                      60%          0.35              +0.71
+JUDGE B                      60%          0.35              -0.82
+```
+
+**They agree with the expert exactly as often. They are not equally good.**
+
+- **When Judge A is wrong, it is off by one** — it says 4 where the expert said 5.
+- **When Judge B is wrong, it is off by three** — it says 2 where the expert said 5.
+
+**Plain kappa cannot see that**, because it treats every disagreement as one identical unit of "wrong". **Quadratic weighted kappa penalises by distance**, which is what turns +0.71 into −0.82. On a rating scale, always use the weighted form.
+
+**Why "average score" is the wrong number entirely.** A judge that rates everything 5 out of 5 has a beautiful average and zero information — it agrees with nothing and disagrees with nothing.
+
+| You measure | What it actually tells you |
+| --- | --- |
+| **Average score** | How generous the judge is |
+| **Raw agreement** | Agreement, plus whatever luck the skew gave you |
+| **Weighted kappa** | Agreement beyond chance, penalised by how far apart you were |
+
+**The thing to say before anyone asks.** After you align the judge, the scores usually **go down** — and that is the success condition. The agent did not get worse; the measurement stopped inflating.
+
+**The analogy.** Two thermometers that both read the right temperature 60% of the time. One is out by a degree, the other by fifteen. The hit rate is identical; only one is a thermometer.
+
+**Why it matters.** Unvalidated judge numbers are honest about *change* and dishonest about *quality* — and three months of dashboards can't tell you which claim you've been making.
+
 **The silent failure:** If the human label schema name doesn't match the judge name, alignment completes without error and learns nothing. The aligned judge is byte-identical to the base. Define the name once as a variable and use it in both places.
 
 **Killer follow-ups:**
@@ -2578,6 +2837,39 @@ The second case is what "a behavioural regression wearing a latency costume" mea
 > One operational point: **registering is not deploying.** Creating a prompt version and pointing
 > production traffic at it are separate operations, and the evaluation belongs in the gap between
 > them."
+
+**In plain English:**
+
+One concrete run. The optimiser reports +12 points. Here is the same candidate prompt against the full scorer set:
+
+```
+                        baseline   optimised
+groundedness (objective)   0.78   →   0.90    +12   ← what the optimiser maximised
+escalation appropriateness 0.91   →   0.64    -27
+tone                       0.88   →   0.71    -17
+tool-argument correctness  0.94   →   0.93     -1
+safety                     0.99   →   0.99      0
+```
+
+The optimiser did its job perfectly. It was pointed at one number and it moved that number.
+
+**"The judge is the objective" is the whole idea.** An optimiser doesn't pursue quality — it pursues whatever the scoring function rewards, as hard as it can.
+
+- **If the judge is aligned**, you get a better prompt.
+- **If the judge is miscalibrated**, you get a prompt that is systematically better at satisfying a wrong standard — **faster than a human could have made that mistake**.
+
+**So a higher optimisation score is not evidence.** It is by construction the most overfit number available: the one quantity the search was told to climb.
+
+| <br> | Where it came from | What it can prove |
+| --- | --- | --- |
+| **Optimisation score** | The objective being maximised | Nothing about quality |
+| **The rest of the scorer set** | Never shown to the optimiser | Whether the gain was real |
+
+**Which is why the gate has to be a superset.** Score the candidate against strictly more dimensions than the optimiser saw, on rows it never trained on. The dimensions it wasn't optimising are the ones that reveal the trade.
+
+**The analogy.** Teaching to the test raises test scores. That is not a claim about the pupil — it's a claim about the test.
+
+**Why it matters.** A machine-written prompt goes through the identical gate as a human-written one. If anything it deserves more scrutiny, because it was optimised against a metric sitting *inside* that gate.
 
 **Killer follow-ups:**
 - *"What would convince you to ship it?"* → "It clears the absolute thresholds on the full scorer set, shows no regression on any metric against the current production version, and holds up on a held-out slice the optimiser never touched."
@@ -2653,6 +2945,43 @@ The second case is what "a behavioural regression wearing a latency costume" mea
 - Three or more raters → **Fleiss' kappa** or **Krippendorff's alpha**.
 - Report raw agreement too, but never alone: on a skewed distribution two raters agree often by luck.
 
+**In plain English:**
+
+One concrete run. Two model answers go to five expert reviewers in a blinded pairwise comparison, and B wins 71% of the time:
+
+```
+ANSWER A   62 words    "Your policy covers water damage from burst pipes,
+                        not gradual seepage. Claim under section 4b."
+
+ANSWER B   240 words   the same content, plus a preamble, a restatement of
+                        the question, three caveats and a closing offer to help
+
+RESULT     B preferred, 71%        B is also 3.9x longer
+```
+
+**Nothing here says B is better.** Longer answers win pairwise comparisons at a rate unrelated to quality, so a win rate reported without a length distribution is partly measuring verbosity.
+
+**Human evaluation is a dataset generator, not a scorer.** It does not run in CI and it does not gate releases. It produces three things:
+
+- **Labels** that calibrate the judges which *do* gate releases
+- **The distilled rubric** — the standard the experts couldn't previously write down
+- **A periodic drift check** on whether the automated stack still agrees with people
+
+**Validate the raters before you trust the ratings.** Inter-annotator agreement is the *first* number to compute, not the last. If five experts can't agree with each other, the rubric is underspecified — and no judge can be aligned to a standard humans don't share.
+
+**Blinding has to be real to count.** Strip model names, randomise A/B order per row, then check whether position A won more often across a balanced set. If it did, your win rate contains a bias term.
+
+| Guard | What it catches |
+| --- | --- |
+| **Length reported per arm** | Verbosity shipping as improvement |
+| **Position randomised, then checked** | Order effects masquerading as quality |
+| **Agreement measured first** | A rubric too vague to align anything to |
+| **Provenance on every label** | Labels that predate a rubric change |
+
+**The analogy.** A wine tasting where one glass is poured larger. People prefer it, reliably, and none of them could tell you why.
+
+**Why it matters.** Human labels are the foundation everything else rests on — and they are still one population of annotators, one rubric version, one point in time, with error bars.
+
 **The trap:** Treating human labels as ground truth rather than as a sample from one population of annotators, taken under one rubric version, at one point in time. They're the best signal available and they are still an estimate with error bars. State that before someone else does.
 
 **The second trap:** Running human eval continuously. It's the most expensive measurement you have and its throughput caps your release cadence if you make it blocking. Ration it to the three moments that justify it — judge alignment, major model or architecture changes, and a scheduled drift check.
@@ -2707,6 +3036,39 @@ The second case is what "a behavioural regression wearing a latency costume" mea
 
 **The recurring failure to name:** a scorer added without a corresponding gate entry. This happens repeatedly even to teams who know about it — an agent opening a support ticket nobody asked for was measured and released, because the scorer existed and the gate didn't.
 
+**In plain English:**
+
+One concrete run. Four releases ship over six weeks. Every one of them passes a gate set at 0.90:
+
+```
+RELEASE 1   groundedness 0.98   PASS
+RELEASE 2   groundedness 0.95   PASS
+RELEASE 3   groundedness 0.92   PASS
+RELEASE 4   groundedness 0.91   PASS      ← 7 points lost, nobody broke a rule
+```
+
+**No single release is the culprit**, which is exactly why nobody notices and nobody gets asked to fix it.
+
+**A scorer is not a gate.** Adding a scorer adds *measurement*. A gate adds *enforcement*. Scorers are informational by default, and an ungated scorer blocks precisely nothing.
+
+**So promotion needs two conditions, not one:**
+
+| Condition | Asks | Alone, it permits |
+| --- | --- | --- |
+| **Absolute threshold** | Is it above the bar? | The erosion above — four passes to the floor |
+| **No regression** | Is it worse than what's live? | A bad version shipping because the last one was worse |
+
+**"Meaningfully worse" is defined per metric type**, and the reason is noise:
+
+- **Deterministic scorers have none.** Same input, same output, every time — so tolerance is **0.00** and any movement is real behaviour.
+- **Judged scorers move on their own.** Re-run one against an unchanged system and it drifts, so it needs a small budget (**~0.02**). Set it tighter and you block good releases for nothing — and a gate people learn to override is worse than no gate.
+
+**The failure mode that looks like catastrophe.** A mistyped metric name in a gate config looks up nothing, defaults to **0**, and reports a totally broken agent. An unmatched gate must report **"not measured"** — never zero.
+
+**The analogy.** A sticker reading *this is the live one*. Deploying moves the sticker; every older version still exists untouched, so rolling back is moving it back. Seconds, not a fire drill.
+
+**Why it matters.** Registering a version and putting customers on it are two separate actions — and the gate belongs in the gap between them.
+
 **Killer follow-ups:**
 - *"Judged metrics are non-deterministic. How do you gate on them without flaky CI?"* → "Fixed judge model and version, temperature zero where it's available, a tolerance band sized from an actual measured run-to-run variance study, and a rerun-on-boundary policy. And never gate on a single row."
 - *"How long should the gate take?"* → "Whatever keeps it in the merge path. A 40-minute gate gets bypassed. So I'd tier it — deterministic scorers on every commit, full judged suite on merge to main."
@@ -2734,6 +3096,39 @@ The second case is what "a behavioural regression wearing a latency costume" mea
 > 
 > **And I'd report distributions rather than booleans.** The p90 is where the rambling answers hide.
 > The p10 is where the truncated ones do."
+
+**In plain English:**
+
+One concrete run. Someone asked for shorter answers. Here is the release that delivered them:
+
+```
+                          before    after
+conciseness (requested)     0.61  →  0.88    ← the only metric anyone read
+groundedness                0.93  →  0.67       citations dropped to save words
+escalation appropriateness  0.90  →  0.71       no room left to hedge
+completeness                0.88  →  0.62
+
+SHIP APPROVED.   Complaints arrive two weeks later.
+```
+
+**Nobody cheated.** The system did exactly what was asked, and the cost was paid by three dimensions nobody had gated.
+
+**A gate that checks only the target metric optimises one dimension into the ground.** That is what the no-regression condition exists to prevent — it is not bureaucracy, it is the thing standing between "we improved conciseness" and this table.
+
+**And a raw number carries no direction.** Word count *falling* is the goal here and a regression somewhere else; the number alone cannot tell a gate which:
+
+| What you gate on | What the gate knows |
+| --- | --- |
+| **Raw metric** (word count: 240 → 62) | Only that it moved |
+| **Verdict-returning scorer** (`shorter_is_better` → PASS) | What direction means *good* |
+
+Wrap numeric metrics in something that returns a verdict before gating on them.
+
+**Report distributions, not booleans.** The mean hides both tails — **the p90 is where the rambling answers live, the p10 is where the truncated ones do**, and a single average is comfortable with both.
+
+**The analogy.** A restaurant told to cut wait times. It does — by serving the food cold. Every kitchen clock improves.
+
+**Why it matters.** Aggregates hide what you need to see, and they hide it most reliably when one number is moving in the direction somebody asked for.
 
 **Killer follow-up:** *"How would you have caught this before release, not after?"* → "Full-scorer-set evaluation on every candidate, with a per-metric regression tolerance, plus category slices. Aggregates hide the thing you need to see — and they hide it most reliably when one number is moving in the direction somebody wanted."
 
@@ -2779,6 +3174,41 @@ The second case is what "a behavioural regression wearing a latency costume" mea
 
 **The silent failure:** A registered-but-never-started monitor. Registration creates the scorer; starting it begins evaluating. A registered scorer that was never started evaluates nothing and looks identical to a working one on every list view. Verify by checking each scorer has a live sampling config.
 
+**In plain English:**
+
+One concrete run. 2,000 conversations a day, and you sample 5% of them for a judged quality score:
+
+```
+2,000/day  ×  5%   =   100 sampled traces
+observed quality   =   0.95
+resolution at n=100  ≈  ± 4.5 points
+
+TODAY    0.95
+MONDAY   0.93     ← is that a real 2-point drop, or is it nothing?
+```
+
+**You cannot tell, and no amount of staring at the dashboard will help.** A 2-point move sits inside the noise band of a 100-trace sample.
+
+**So the sample rate is a decision about detection, not about budget.** Work backwards:
+
+- **Decide the smallest drop you must catch** — say 2 points.
+- **Look up the sample size that resolves it** — roughly 600 traces, i.e. **30% sampling**.
+- **Then price it.** That is a real conversation about money, and it is better had before the incident than during one.
+
+**An alert set below your resolution fires on noise, and gets muted within a month.** After that you have monitoring that looks healthy and notifies nobody — the worst of both.
+
+**What can even run up here is settled by one mechanical test: does the scorer read **`expectations`**?** Production traffic has no answer key — nobody wrote the correct response to a question asked thirty seconds ago.
+
+| <br> | Runs online | Why |
+| --- | --- | --- |
+| Safety, relevance, groundedness, guideline adherence | **Yes** | Reference-free — everything they compare came from the same request |
+| Deterministic input/output checks | **Yes, on 100%** | Free, so never sample them |
+| Correctness, expected-tool checks | **No** | They read expectations, which don't exist here |
+
+**The analogy.** A survey of 100 people has a margin of error whatever the topic. Asking the same 100 again next week and announcing a two-point swing is not news.
+
+**Why it matters.** Offline catches what your dataset contains; online exists to find what it didn't — and every online finding must become a permanent offline test, or it helps you exactly once.
+
 **Killer follow-ups:**
 - *"Your best offline scorer is tool-call correctness. Can it run online?"* → "No. It compares against expected tool calls, and production traffic doesn't have those. It'll report skip on 100% of traces while looking perfectly healthy."
 - *"What's your first alert?"* → "Not a quality metric — a structural one. Trace volume, error-span rate, and scorer-coverage rate. Those catch the case where the monitoring itself has quietly stopped."
@@ -2821,6 +3251,39 @@ The second case is what "a behavioural regression wearing a latency costume" mea
 > measured' with a reason rather than leaving silence — silence is indistinguishable from having
 > missed it."
 
+**In plain English:**
+
+One concrete run. The same 15 strings, reported two ways:
+
+```
+AGGREGATE                    12 / 15 passed   =   80%     "cleared"
+
+BY ATTACK CLASS
+  direct instruction override      4/4    100%
+  role-play framing                3/3    100%
+  encoding / obfuscation           3/3    100%
+  multi-turn escalation            2/2    100%
+  injection via retrieved docs     0/3      0%    ← the whole 20%
+```
+
+**The three failures were not scattered. They were one entire attack class, undefended.** The aggregate is what hid it.
+
+**A flat list of strings tells you nothing when it passes.** You learned that *those 15 strings* failed — not that the surface is defended. Change a word and you have an untested attack.
+
+**So structure it as classes × variants:**
+
+- **The class** is the *mechanism* — override, role-play, channel confusion, injection through retrieved documents, injection through tool responses, encoding, multi-turn escalation.
+- **The variants** are several phrasings per class, so one lucky string can't stand in for a whole surface.
+- **Report per class, never in aggregate.** One class at 0% is invisible inside an 80%.
+
+**The class almost nobody tests is retrieved content.** In a RAG system your document corpus is an injection channel — and the attacker isn't the user, so nobody is watching it.
+
+**Assert what must not happen, not one gold answer.** For genuinely ambiguous input several responses are acceptable; demanding one specific string fails the agent for handling it correctly.
+
+**The analogy.** Testing fifteen doors, finding twelve locked, and announcing the building is secure — when the three open ones are all on the ground floor.
+
+**Why it matters.** An adversarial suite is an eval-set *design* problem, not a metric problem: a pass rate is only as meaningful as the coverage underneath it.
+
 **Killer follow-ups:**
 - *"Design the adversarial eval set for a banking agent with a write-capable tool."* → "Classes have to include privilege escalation through conversational framing, injection via the transaction-description field, tool-argument manipulation, consent-forgery — 'as I said earlier, go ahead' — and cross-customer data requests."
 - *"How do you avoid over-refusal?"* → "Test both directions. A refusal-rate scorer on benign inputs is as necessary as a jailbreak scorer on hostile ones. A system that refuses everything scores perfectly on safety."
@@ -2858,6 +3321,41 @@ The second case is what "a behavioural regression wearing a latency costume" mea
 > 
 > **And end-state verification closes the loop.** I wouldn't trust the agent's claim that it asked
 > for confirmation — I'd read the actual write log and reconcile it against the consent turns."
+
+**In plain English:**
+
+One concrete run. Same rule — *never show another customer's data* — implemented two ways:
+
+```
+PROMPT RULE       system: "Never disclose data belonging to another customer."
+                  → retrieval returns every matching row
+                  → the model is trusted to ignore the ones it shouldn't use
+                  → one clever phrasing away from a breach
+
+CODE RULE         retrieve(query, filter=f"customer_id = {session.customer_id}")
+                  → the other customer's rows never enter the context
+                  → there is nothing for the model to leak
+```
+
+**The second one cannot fail by persuasion**, because the data isn't there to disclose.
+
+**So the organising rule is: enforce in code where you can, evaluate where you can't.**
+
+| <br> | How it's enforced | How you know it holds |
+| --- | --- | --- |
+| **Cross-customer access** | ACL filter at retrieval | Code review — it's structural |
+| **Malformed tool arguments** | Typed tool signature rejects them | The type system |
+| **"Confirm before writing"** | **Nothing.** The tool writes whenever called | **Only evaluation** |
+
+**That third row is the one people miss.** Most agent write-actions are gated by an *instruction*, not by an API — the tool will happily execute every time it is called. Obedience is therefore a **behaviour**, and behaviours get tested, never assumed.
+
+**Permission freshness is its own bug.** A user whose access was revoked this morning can still be served from a stale index or a cached embedding — the filter was correct when the cache was built.
+
+**Then design the blast radius, because the model will occasionally decide wrongly.** Read-only by default, narrow and reversible write scopes, value and row-count caps, idempotency keys, and an audit record of *proposed* versus *executed*.
+
+**The analogy.** A bank vault with a sign saying "staff only" versus a vault with a lock. Both work until someone reads the sign and keeps walking.
+
+**Why it matters.** "Never" is a claim about the system, not about the model — and every "never" left in the prompt is a "usually" wearing better clothes.
 
 **Killer follow-up:** *"The agent wants to issue a refund. Should it be allowed to do so automatically?"* → "Under a value threshold, with a reversal window, an idempotency key, a daily cap and 100% end-state verification — yes. Above it, propose-and-confirm. The question is never 'autonomous or not', it's 'autonomous within what bounded, reversible envelope'."
 
@@ -2904,6 +3402,40 @@ The second case is what "a behavioural regression wearing a latency costume" mea
 > evaluation datasets typically need a SQL-backed tracking store, not a file backend. That's a day-one
 > decision, and two features depend on it."
 
+**In plain English:**
+
+One concrete run. A shared dataset mixes factual rows and behavioural rows, and two built-in scorers run over all of it:
+
+```
+DATASET   120 rows
+  60 factual     ("what is the excess on policy X?")   have expected_facts
+  60 behavioural ("be polite when declining")          have guidelines, no facts
+
+correctness scorer   → 60 scored,  60 ERRORED  (no expected_facts on those rows)
+guidelines scorer    → 60 scored,  60 ERRORED  (no guidelines on the others)
+
+RUN COMPLETES.  Dashboard shows two healthy metrics.
+```
+
+**Nothing crashed.** The harness caught each exception, recorded an error, and finished — so the symptom is log noise plus a metric quietly computed over half the data.
+
+**An errored row is not a failed row, and not a scored row.** It vanishes from the denominator. The mean is honest about the rows it saw and silent about the rows it didn't.
+
+**The fix, and the detail inside the fix.** Wrap those scorers so an inapplicable row returns `None` — not a "skip" verdict:
+
+| Return value | What the pass rate does with it |
+| --- | --- |
+| **`None`** | Row is excluded. Correct. |
+| **A "skip" verdict** | Counted as a **non-pass** — your score deflates for rows that were never applicable |
+
+**Which is why a scorer registry is the platform's real product.** Every scorer declares what it needs — expected facts, a retriever span, a tool span, reference-free or not — so "can this run online?" becomes a lookup instead of a discovery in production.
+
+**And the span-type contract is the actual API.** If eight teams instrument inconsistently, no shared scorer works anywhere, so instrumentation ships as a **library**, never as a document.
+
+**The analogy.** Eight labs sharing one set of test tubes, each labelling them differently. The equipment is fine; nothing you measure can be compared.
+
+**Why it matters.** Teams own what "good" means — rubrics and thresholds. The platform owns the mechanism. The moment gate semantics fork, you have eight harnesses sharing a logo.
+
 **Killer follow-up:** *"Team 6 says your scorers don't fit their agent. How much customisation do you allow?"* → "Rubrics and thresholds are fully theirs. Span contracts and gate semantics aren't negotiable. The moment gate semantics fork, you don't have a platform — you have eight harnesses with a shared logo."
 
 ---
@@ -2939,6 +3471,39 @@ The second case is what "a behavioural regression wearing a latency costume" mea
 > **Then caching, by layer:** embedding cache, retrieval cache, exact-match response cache, prefix
 > cache for the system prompt. Each one has a different staleness risk and a different correctness
 > cost, so they're not one decision."
+
+**In plain English:**
+
+One concrete run. The model price was estimated correctly. The bill was still 4x:
+
+```
+ESTIMATE   1 request  =  2 LLM calls  ×  3,000 tokens   =   6,000 tokens
+
+ACTUAL     1 request  =  5 LLM calls  ×  9,600 tokens   =  48,000 tokens
+                         ↑                ↑
+                    2 redundant       history + retrieved chunks
+                    + 1 blind retry   appended every single turn
+```
+
+**Nobody chose a more expensive model.** The agent takes more steps than modelled, and each step carries more context than modelled.
+
+**Step count usually beats model price.** An agent averaging five calls where two would do is a 2.5x problem, and no model swap touches it — which is exactly where the trajectory metrics start paying for themselves, because **redundant calls and blind retries are directly priced**.
+
+**Context growth is the silent multiplier.** Every turn appends history; every retrieval appends chunks. Measure **tokens-per-turn as a trend**, not as an average — the average is comfortable while turn 8 quietly costs four times turn 1.
+
+**And the one candidates forget: your eval bill is production cost.** Judges are LLM calls on the same invoice:
+
+| Eval component | Cost shape |
+| --- | --- |
+| **Deterministic scorers** | Free — run them on 100% of traffic |
+| **Judged scorers** | One call per row, per metric |
+| **Trace-based judges** | One **large** call — the whole trajectory is the prompt |
+
+Ration judges to promotion decisions and sampled traffic. Run the free ones everywhere.
+
+**The analogy.** A taxi fare that came in four times the quote. The rate per mile was right; nobody counted the detours, and the boot filled up at every stop.
+
+**Why it matters.** Measure the token distribution *before* touching anything — the 60% saving is almost never where the team assumes it is, and every change has to pass the full scorer set for "without a quality regression" to be a checkable claim rather than a hope.
 
 **Killer follow-up:** *"Cut cost 60% without a quality regression. What's your first move?"* → "Measure the token distribution before touching anything, because the 60% is almost never where the team assumes it is. Then context pruning, step-count reduction and tiered routing, in that order — each one gated by the full scorer set, so 'without a quality regression' is a checkable claim rather than a hope."
 
