@@ -10,14 +10,21 @@ Almost every file here calls a live OpenAI/judge model. **Do not execute noteboo
 scripts, or Streamlit apps unless explicitly asked.** Edit and reason about them statically.
 
 The `test_*.py` files are **not a pytest suite** — they are DeepEval batch scripts that use
-pytest only as a runner, and they make paid API calls. There is no repo-wide test suite and
-no CI. Never run bare `pytest` at the root; it would sweep all of them up and spend credits.
+pytest only as a runner, and they make paid API calls. There is no repo-wide test suite.
+Never run bare `pytest` at the root; it would sweep all of them up and spend credits.
 
 | File | What it actually is |
 |---|---|
 | `labs/multiturn-and-tool-eval/test_*.py` | DeepEval metric drills (`deepeval test run <file>`) |
 | `labs/llm-as-judge/DeepEval_GEval/test_firstdeepeval.py` | G-Eval smoke test |
 | `labs/agent-evaluation/crewai-travel-planner/evaluate_endtoend_test.py` | Needs a running FastAPI server first |
+| `courses/03-agentic-eval-harness/tests/test_release_gate.py` | LLM-driven release-gate drill (`deepeval test run <file>`). Skips itself unless `data/candidate_runs.json` exists |
+
+**There is now one CI workflow**, `.github/workflows/release-gate.yml`, scoped by a `paths:`
+filter to `courses/03-agentic-eval-harness/**`. It is inert for the rest of the repo. Its
+`gate` job is free and standard-library-only; its `evaluate` job is the paid one and runs on
+`workflow_dispatch` only, skipping itself when no `OPENAI_API_KEY` secret is set. Do not move
+the paid job onto the push/PR path — the split is the subject of that course's notebook 11.
 
 ## The langgraph pin is load-bearing
 
@@ -34,6 +41,11 @@ Set by the restructure; each folder has a `README.md` acting as its index.
   from earlier ones. `courses/02-databricks-mlflow-evals/` notebooks additionally share mutable
   modules (`agent.py`, `scorers.py`, `promotion.py`, …) and reuse names defined in Phase 0
   (`AGENT_SPEC`, `EVAL_DIMENSIONS`, `QUALITY_GATES`) — they are order-dependent.
+  `courses/03-agentic-eval-harness/` deliberately inverts that: **no shared modules, ever**.
+  Helpers are redefined in each notebook and state is handed off through files in `data/`, so
+  any notebook can be opened alone. Do not "fix" the duplication by extracting a module. It
+  also bans pandas, numpy, scipy and matplotlib — grouping is `defaultdict`, statistics are
+  stdlib. Notebooks 01–04 are written; 05–12 are stubs with final titles and data contracts.
 - **`labs/`** — raw source material, deliberately unnumbered because order doesn't matter.
 - **`docs/`** — prose only. Nothing in here executes.
 - **`archive/`** — superseded material. **Never delete from it**; `archive/README.md` is a
@@ -53,9 +65,44 @@ commits `2faa463` and `ac8c306` exist solely to repair breakage from skipping th
 
 ## Environments
 
-Root env covers `courses/` and most of `labs/` (`uv sync`). `labs/multiturn-and-tool-eval/` is a
-**separate uv project** with its own lockfile pinning an older `deepeval==3.8.8` — run `uv sync`
-inside that directory and use its own kernel, don't mix it with the root environment.
+**There is no working root environment right now.** The root `.venv` is a **Databricks Connect**
+env — about 66 packages (`databricks-connect`, `databricks-sdk`, `ipykernel`, `pandas`,
+`pyarrow`), built alongside the untracked `databricks.yml`. None of the `pyproject.toml`
+dependencies are installed in it and there is no `uv.lock`. A `ModuleNotFoundError` from a
+`courses/` or `labs/` notebook running on the `python3` kernel is usually this, not a genuinely
+missing package. `pyproject.toml` still describes the *intended* root env for `courses/01`,
+`courses/02` and most of `labs/` — treat it as a spec, not as the installed state.
+
+**Ask before running `uv sync` at the root.** With no lockfile it resolves fresh and **prunes
+`databricks-connect`**, which is not in `pyproject.toml` (the `databricks` extra lists only
+`databricks-langchain` and `databricks-sdk`). That silently undoes the Databricks Connect setup.
+
+`VIRTUAL_ENV` points at the root `.venv`, so a bare `uv pip install` targets it **even when run
+from inside another folder that has its own `.venv`**. Always pass `--python <venv>/bin/python`.
+
+Two folders have their own environment and their own kernel — don't mix either with the root:
+
+| Folder | Environment | Kernel |
+|---|---|---|
+| `labs/multiturn-and-tool-eval/` | separate uv project + lockfile, older `deepeval==3.8.8` — `uv sync` inside it | its own |
+| `courses/03-agentic-eval-harness/` | own `.venv` + `requirements.txt` — `uv pip install --python .venv/bin/python -r requirements.txt` | `agentic-eval-harness` |
+
+Course 03's pins are **exact** (`deepeval==4.2.3`, `ragas==0.4.3`, `chromadb`,
+`sentence-transformers`), and its notebooks 04–06 are written against those exact releases:
+RAGAS 0.4 moved metrics to `ragas.metrics.collections` with an async `ascore()`, and DeepEval
+4.x replaced `LLMTestCaseParams` with `SingleTurnParams` in `GEval`. Verify metric imports
+against the installed version before editing that course's metric code — remembered API shapes are wrong
+here more often than not.
+
+Those pins are a system, not a list, and three of them only conflict at install time: `chromadb`
+<=1.5.2 caps `posthog<6.0.0` while DeepEval 4.x needs `posthog>=7.0.0`; `ragas==0.4.3` pulls
+`instructor`, which caps `openai<3.0.0`; and `ragas==0.4.3` hard-imports
+`langchain_community.chat_models.vertexai`, which the **whole `langchain-community` 0.4.x line**
+dropped — verified against `0.4.1`, where `import ragas` raises `ModuleNotFoundError` on that
+submodule — so it is held at `0.3.31`, the last release that ships it. That pin does not drag the
+rest of the stack backwards: `0.3.31` asks for `langchain-core<2.0,>=0.3.78`, which `1.6.2`
+satisfies, and `langgraph` stays at `1.2.11`. The reasons are commented in that
+`requirements.txt` — re-check all three before moving any one of them.
 
 `courses/02` phases 0–5 and 9–10 run locally against `sqlite:///mlflow.db`. That must be a DB
 backend, not a `file://` store — the MLflow Prompt Registry requires it. Phases 6–8 need a real

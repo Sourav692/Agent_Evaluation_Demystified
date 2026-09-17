@@ -69,7 +69,11 @@ its section 6.1. Jump to the section rather than scrolling. `lab 0N-…` means
 |---|---|
 | Offline vs online, and what can never go online | Field guide **§4.1**; question bank **Q18** |
 | Sampling rates and alerting | Field guide **§4.2**; Databricks ref **Part 4** |
-| Release gating — thresholds *and* no-regression | Question bank **Part 6**, **Case 13** |
+| Release gating — thresholds *and* no-regression | Question bank **Part 6**, **Case 13**; course 03 notebook **11** (four checks, four scenarios) |
+| A gate as a decision layer rather than another metric | Course 03 notebook **11**; `courses/03-agentic-eval-harness/ci/apply_gate.py` |
+| Stratified reporting — gating on the worst segment, not the mean | Course 03 notebooks **04** and **10** |
+| Evaluating the human approval step itself (rubber-stamping) | Course 03 notebook **09** |
+| Final-state checks against a database ("exactly once") | Course 03 notebook **06** |
 | Silent failures that look like success | Databricks ref **Part 3**; question bank **Appendix A** |
 | Judge alignment, agreement measures, quadratic weighted kappa | Databricks ref **Part 4**; question bank **Q15**, **Case 10** |
 | Wilson intervals, sample size, "is this drop real?" | Databricks ref **Part 4**; question bank **Q21** |
@@ -207,6 +211,37 @@ Phases 0–5 and 9–10 run locally on `sqlite:///mlflow.db`. Phases 6–8 need 
 Supporting modules (`agent.py`, `scorers.py`, `promotion.py`, `monitoring.py`, `conversation.py`,
 `eval_dataset.py`, `alignment.py`, `edge_cases.py`, `traffic.py`, `trace_view.py`) are shared and
 mutable across phases — the notebooks import from them rather than redefining.
+
+### `courses/03-agentic-eval-harness/` — 12 notebooks, sequential
+
+The subject is the harness and the release gate; the agent ("Lumen Cloud", a LangGraph
+supervisor over four specialists) exists only to be measured. **Notebooks 01–04 are complete;
+05–12 are stubs** with final titles, objectives, concepts and data contracts. Notebooks hand
+off through files in `data/` and never import from each other — the inverse of course 02.
+
+Replay caches make 03–12 free and deterministic: `FIXTURE_MODE` replays generations,
+`SCORE_MODE` replays judge verdicts. Only `tests/test_release_gate.py` and `"record"` mode
+cost money.
+
+| Notebook | Covers | Produces |
+|---|---|---|
+| `01_knowledge_base_and_rag_agent` | 40 multilingual articles, chunking, Chroma, hybrid retrieval, cite-or-refuse | `data/chroma/` |
+| `02_tools_agents_and_supervisor_graph` | SQLite ground truth, approval-gated writes, LangGraph, the trajectory dict, record-and-replay | `data/lumen.db`, `data/fixtures/` |
+| `03_the_golden_set` | Case anatomy (six expectations, not one), strata, the 20% refusal quota, the datasheet | `data/golden_set.json` |
+| `04_rag_evaluation_with_ragas` | RAGAS 0.4 collections API, citation accuracy as a regex vs. a rubric, per-language reporting | `data/rag_report.json` |
+| `05_tool_call_evaluation` *(stub)* | Level 1: `ToolCorrectnessMetric`, `ArgumentCorrectnessMetric`, `ok`/`empty`/`unavailable` | `data/tool_report.json` |
+| `06_agent_handoff_and_end_to_end` *(stub)* | Levels 2–3: routing confusion matrix, handoff integrity, trajectory matching, SQLite final-state check, blame attribution | `data/agent_report.json` |
+| `07_safety_and_policy_checks` *(stub)* | Assertions that block absolutely; why a flaky safety test is a safety problem | `data/safety_report.json` |
+| `08_building_custom_judges` *(stub)* | `GEval` vs. `DAGMetric` vs. rubrics; position bias and same-model bias | `data/judge_comparison.json` |
+| `09_human_feedback_and_calibration` *(stub)* | Three kinds of human feedback, Cohen's kappa by hand, the rubber-stamp signal | `data/human_labels.jsonl` |
+| `10_stratified_reporting_and_statistics` *(stub)* | Sample size, McNemar, bootstrap — stdlib only, no pandas | `data/baseline_report.json` |
+| `11_the_release_gate_and_ci` *(stub)* | Four gate checks, four scenarios, `tests/test_release_gate.py`, the two-job workflow | `data/gate_result.json` |
+| `12_online_evaluation_and_the_loop` *(stub)* | Reference-free metrics, five alerts, incident drills, canary, closing the loop | `data/online_report.json` |
+
+Non-notebook files: `ci/apply_gate.py` (the free, stdlib-only decision layer),
+`tests/test_release_gate.py` (**paid**, LLM-driven), and
+`.github/workflows/release-gate.yml` (two jobs — the expensive one is deliberately not on the
+merge path).
 
 ---
 

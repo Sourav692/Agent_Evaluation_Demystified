@@ -1,0 +1,49 @@
+# Course 03 — Agentic Evaluation Harness
+# Exact pins. RAGAS and DeepEval rename things between minor releases, so the
+# metric code in notebooks 04-06 is written against these versions specifically.
+#
+#   python -m venv .venv && source .venv/bin/activate
+#   pip install -r requirements.txt
+#
+# Or from the repository root, with the optional extra:
+#   uv pip install -e '.[agentic-eval]'
+
+# --- evaluation frameworks: the subject of this course ----------------------
+deepeval==4.2.3
+ragas==0.4.3
+
+# --- the system under test --------------------------------------------------
+# 1.6.2, not 1.6.1: langchain-openai==1.6.2 requires langchain-core>=1.6.2.
+# langgraph==1.2.11 accepts >=1.4.7,<2, so this satisfies both.
+langchain-core==1.6.2
+langchain-openai==1.6.2
+# LOAD-BEARING. ragas 0.4.3 has an unconditional top-level
+#   `from langchain_community.chat_models.vertexai import ChatVertexAI`
+# and declares langchain-community with no upper bound, so an unpinned resolve
+# import-errors on `import ragas`.
+# The whole 0.4.x line dropped that submodule — verified against 0.4.1, where
+# `import ragas` raises ModuleNotFoundError on exactly that path and no vertexai
+# module exists under chat_models/. 0.3.31 is the last release that ships it,
+# and its own constraint (langchain-core<2.0,>=0.3.78) is satisfied by the
+# langchain 1.x stack above, so nothing else has to move to accommodate it.
+langchain-community==0.3.31
+# Pinned, not floated. Resolving ragas or mlflow can pull langgraph back to
+# 1.0.x, which drops langgraph.runtime.ExecutionInfo and breaks the graph in
+# notebook 02. If a resolver downgrades it, re-pin it.
+langgraph==1.2.11
+# 2.54.0, not 3.x: ragas 0.4.3 depends on instructor, which caps openai<3.0.0.
+# 2.54.0 is the newest release under that cap.
+openai==2.54.0
+
+# --- retrieval --------------------------------------------------------------
+chromadb==1.5.9
+sentence-transformers==6.0.1
+
+# --- notebook environment ---------------------------------------------------
+ipywidgets==8.1.9          # notebook 09's labelling panel
+ipykernel
+python-dotenv==1.2.3
+typing-extensions==4.16.0  # TypedDict for the LangGraph state schema
+
+# --- optional: notebook 09's self-hosted Langfuse section -------------------
+# langfuse==4.15.4

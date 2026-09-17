@@ -1,0 +1,86 @@
+# Course 03 — the release gate, as CI.
+#
+# Two jobs, and the split IS the lesson (see notebook 11):
+#
+#   evaluate  expensive, LLM-driven, on demand only. Runs the DeepEval suite,
+#             produces data/gate_result.json, uploads it as an artifact.
+#             Skips itself when no OPENAI_API_KEY secret is configured, so a
+#             fork of this repository never spends anyone's money.
+#
+#   gate      free, deterministic, on every push and PR that touches the course.
+#             Reads gate_result.json, applies the thresholds, exits non-zero.
+#             This is the job that can refuse a release.
+#
+# Metrics measure. The gate decides. Nobody pays a judge model on the merge path.
+
+name: release-gate (course 03)
+
+on:
+  push:
+    paths:
+      - 'courses/03-agentic-eval-harness/**'
+      - '.github/workflows/release-gate.yml'
+  pull_request:
+    paths:
+      - 'courses/03-agentic-eval-harness/**'
+      - '.github/workflows/release-gate.yml'
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: courses/03-agentic-eval-harness
+
+jobs:
+  # ==========================================================================
+  # EVALUATE — paid, deliberate, never on the merge path
+  # ==========================================================================
+  evaluate:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install
+        run: pip install -r requirements.txt
+
+      - name: Score the candidate build
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "::notice::No OPENAI_API_KEY secret configured — skipping the paid"
+            echo "::notice::scoring job. The gate job below still runs, against whatever"
+            echo "::notice::gate_result.json is committed."
+            exit 0
+          fi
+          deepeval test run tests/test_release_gate.py
+
+      - name: Upload gate result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate-result
+          path: courses/03-agentic-eval-harness/data/gate_result.json
+          if-no-files-found: ignore
+
+  # ==========================================================================
+  # GATE — free, deterministic, and the thing that can say no
+  # ==========================================================================
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # No install step, on purpose. apply_gate.py is standard library only,
+      # so the decision cannot break because a dependency resolved differently.
+      - name: Apply the release gate
+        run: python ci/apply_gate.py

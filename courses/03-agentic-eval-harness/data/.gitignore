@@ -1,0 +1,11 @@
+# Run artifacts regenerate from the notebooks. Only the golden set and the
+# recorded fixtures are worth committing.
+chroma/
+lumen.db
+*_report.json
+gate_result.json
+human_labels.jsonl
+sample_trajectory.json
+kb_articles.json
+!golden_set.json
+!fixtures/
