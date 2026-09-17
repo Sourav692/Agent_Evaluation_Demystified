@@ -6,6 +6,8 @@ lumen.db
 gate_result.json
 human_labels.jsonl
 sample_trajectory.json
+trajectories.json
+judge_comparison.json
 kb_articles.json
 !golden_set.json
 !fixtures/

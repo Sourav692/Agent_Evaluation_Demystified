@@ -21,11 +21,10 @@ langchain-openai==1.6.2
 #   `from langchain_community.chat_models.vertexai import ChatVertexAI`
 # and declares langchain-community with no upper bound, so an unpinned resolve
 # import-errors on `import ragas`.
-# The whole 0.4.x line dropped that submodule — verified against 0.4.1, where
-# `import ragas` raises ModuleNotFoundError on exactly that path and no vertexai
-# module exists under chat_models/. 0.3.31 is the last release that ships it,
-# and its own constraint (langchain-core<2.0,>=0.3.78) is satisfied by the
-# langchain 1.x stack above, so nothing else has to move to accommodate it.
+# 0.4.2 deleted that submodule. 0.4.1 still ships a working copy of it and
+# `import ragas` succeeds there, so 0.4.1 is a valid pin too — 0.3.31 is the
+# conservative choice, not the only one. What must NOT happen is an unpinned
+# resolve, which takes 0.4.2+ and breaks `import ragas` outright.
 langchain-community==0.3.31
 # Pinned, not floated. Resolving ragas or mlflow can pull langgraph back to
 # 1.0.x, which drops langgraph.runtime.ExecutionInfo and breaks the graph in

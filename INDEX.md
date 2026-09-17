@@ -215,8 +215,8 @@ mutable across phases — the notebooks import from them rather than redefining.
 ### `courses/03-agentic-eval-harness/` — 12 notebooks, sequential
 
 The subject is the harness and the release gate; the agent ("Lumen Cloud", a LangGraph
-supervisor over four specialists) exists only to be measured. **Notebooks 01–04 are complete;
-05–12 are stubs** with final titles, objectives, concepts and data contracts. Notebooks hand
+supervisor over four specialists) exists only to be measured. **Notebooks 01–08 are complete;
+09–12 are stubs** with final titles, objectives, concepts and data contracts. Notebooks hand
 off through files in `data/` and never import from each other — the inverse of course 02.
 
 Replay caches make 03–12 free and deterministic: `FIXTURE_MODE` replays generations,

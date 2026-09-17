@@ -45,7 +45,7 @@ Set by the restructure; each folder has a `README.md` acting as its index.
   Helpers are redefined in each notebook and state is handed off through files in `data/`, so
   any notebook can be opened alone. Do not "fix" the duplication by extracting a module. It
   also bans pandas, numpy, scipy and matplotlib — grouping is `defaultdict`, statistics are
-  stdlib. Notebooks 01–04 are written; 05–12 are stubs with final titles and data contracts.
+  stdlib. Notebooks 01–08 are written; 09–12 are stubs with final titles and data contracts.
 - **`labs/`** — raw source material, deliberately unnumbered because order doesn't matter.
 - **`docs/`** — prose only. Nothing in here executes.
 - **`archive/`** — superseded material. **Never delete from it**; `archive/README.md` is a
@@ -97,11 +97,12 @@ here more often than not.
 Those pins are a system, not a list, and three of them only conflict at install time: `chromadb`
 <=1.5.2 caps `posthog<6.0.0` while DeepEval 4.x needs `posthog>=7.0.0`; `ragas==0.4.3` pulls
 `instructor`, which caps `openai<3.0.0`; and `ragas==0.4.3` hard-imports
-`langchain_community.chat_models.vertexai`, which the **whole `langchain-community` 0.4.x line**
-dropped — verified against `0.4.1`, where `import ragas` raises `ModuleNotFoundError` on that
-submodule — so it is held at `0.3.31`, the last release that ships it. That pin does not drag the
-rest of the stack backwards: `0.3.31` asks for `langchain-core<2.0,>=0.3.78`, which `1.6.2`
-satisfies, and `langgraph` stays at `1.2.11`. The reasons are commented in that
+`langchain_community.chat_models.vertexai`, which **`langchain-community` 0.4.2 deleted** — so
+it is held at `0.3.31`. Note that `0.4.1` still ships a working copy of that module and `import
+ragas` succeeds there, so `0.4.1` is an equally valid pin; `0.3.31` is the conservative choice,
+not the only one. What must not happen is an unpinned resolve, which takes 0.4.2+ and breaks
+`import ragas` outright. Either pin keeps the rest of the stack current: `0.3.31` asks for
+`langchain-core<2.0,>=0.3.78`, which `1.6.2` satisfies, and `langgraph` stays at `1.2.11`. The reasons are commented in that
 `requirements.txt` — re-check all three before moving any one of them.
 
 `courses/02` phases 0–5 and 9–10 run locally against `sqlite:///mlflow.db`. That must be a DB

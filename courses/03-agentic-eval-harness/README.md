@@ -13,8 +13,8 @@ can refuse a deploy, and knowing when your numbers are too noisy to support one.
 
 | Notebooks | State |
 |---|---|
-| 01–04 | Complete |
-| 05–12 | Stubs — title, objectives, concept, section skeleton and data contract are final; implementation lands in the next pass |
+| 01–08 | Complete |
+| 09–12 | Stubs — title, objectives, concept, section skeleton and data contract are final; implementation lands in the next pass |
 
 ---
 
@@ -63,7 +63,7 @@ Sequential. Each notebook consumes files the earlier ones wrote.
 | 02 | [Tools, agents and the supervisor graph](02_tools_agents_and_supervisor_graph.ipynb) | SQLite ground truth, approval-gated writes, the trajectory dict, record-and-replay | `lumen.db`, `fixtures/`, `sample_trajectory.json` |
 | 03 | [The golden set](03_the_golden_set.ipynb) | Case anatomy, strata, the refusal quota, the datasheet | `golden_set.json` |
 | 04 | [RAG evaluation with RAGAS](04_rag_evaluation_with_ragas.ipynb) | The four RAG metrics, citation accuracy, stratified reporting | `rag_report.json` |
-| 05 | [Tool-call evaluation](05_tool_call_evaluation.ipynb) | Level 1: tool choice, arguments, result handling | `tool_report.json` |
+| 05 | [Tool-call evaluation](05_tool_call_evaluation.ipynb) | Level 1: tool choice, arguments, result handling | `tool_report.json`, `trajectories.json` |
 | 06 | [Agent, handoff and end-to-end](06_agent_handoff_and_end_to_end.ipynb) | Levels 2 and 3, trajectory matching, the SQLite final-state check, blame attribution | `agent_report.json` |
 | 07 | [Safety and policy checks](07_safety_and_policy_checks.ipynb) | Assertions that block, never averaged | `safety_report.json` |
 | 08 | [Building custom judges](08_building_custom_judges.ipynb) | `GEval`, `DAGMetric`, rubrics, and the two bias tests | `judge_comparison.json` |
