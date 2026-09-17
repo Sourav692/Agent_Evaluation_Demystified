@@ -79,15 +79,14 @@ apps = [
     "streamlit-option-menu>=0.4",
 ]
 
-# courses/03-agentic-eval-harness — the multilingual Chroma index, the local
-# embedding model, and notebook 09's labelling panel. Everything else that
+# courses/03-agentic-eval-harness — the multilingual Chroma index and
+# notebook 09's labelling panel. Embeddings come from OpenAI. Everything else that
 # course needs (deepeval, ragas, langgraph, langchain-openai) is already core.
 # That course also ships its own requirements.txt with EXACT pins, because
 # notebooks 04-06 are written against specific RAGAS/DeepEval releases that
 # renamed metric imports. Prefer that file if a metric import fails here.
 agentic-eval = [
     "chromadb>=1.5",
-    "sentence-transformers>=6.0",
     "ipywidgets>=8.1",
     "typing-extensions>=4.16",
 ]

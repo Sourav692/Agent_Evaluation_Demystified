@@ -16,7 +16,7 @@ ragas==0.4.3
 # 1.6.2, not 1.6.1: langchain-openai==1.6.2 requires langchain-core>=1.6.2.
 # langgraph==1.2.11 accepts >=1.4.7,<2, so this satisfies both.
 langchain-core==1.6.2
-langchain-openai==1.6.2
+langchain-openai==1.6.2      # ChatOpenAI and OpenAIEmbeddings
 # LOAD-BEARING. ragas 0.4.3 has an unconditional top-level
 #   `from langchain_community.chat_models.vertexai import ChatVertexAI`
 # and declares langchain-community with no upper bound, so an unpinned resolve
@@ -36,7 +36,6 @@ openai==2.54.0
 
 # --- retrieval --------------------------------------------------------------
 chromadb==1.5.9
-sentence-transformers==6.0.1
 
 # --- notebook environment ---------------------------------------------------
 ipywidgets==8.1.9          # notebook 09's labelling panel

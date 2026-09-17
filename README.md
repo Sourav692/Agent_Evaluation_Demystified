@@ -85,7 +85,7 @@ cp .env.example .env         # then fill in OPENAI_API_KEY
 | `crewai` | `uv pip install -e '.[crewai]'` | `labs/agent-evaluation/crewai-travel-planner/` (also needs `SERPER_API_KEY`) |
 | `databricks` | `uv pip install -e '.[databricks]'` | `courses/02` phases 6–8 against a real workspace — phases 0–5 and 9–10 run locally on SQLite |
 | `apps` | `uv pip install -e '.[apps]'` | the Streamlit demos in `labs/rag-evaluation/` |
-| `agentic-eval` | `uv pip install -e '.[agentic-eval]'` | `courses/03-agentic-eval-harness/` — Chroma, sentence-transformers, ipywidgets |
+| `agentic-eval` | `uv pip install -e '.[agentic-eval]'` | `courses/03-agentic-eval-harness/` — Chroma, ipywidgets |
 
 `labs/multiturn-and-tool-eval/` has its own `uv` project and lockfile — run `uv sync`
 inside that directory rather than using the root environment.
