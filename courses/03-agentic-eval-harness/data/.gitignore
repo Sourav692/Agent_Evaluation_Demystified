@@ -1,5 +1,5 @@
-# Run artifacts regenerate from the notebooks. Only the golden set and the
-# recorded fixtures are worth committing.
+# Run artifacts regenerate from the notebooks. Only the golden set is worth
+# committing.
 chroma/
 lumen.db
 *_report.json
@@ -12,5 +12,5 @@ calibration.json
 label_queue.json
 candidate_runs.json
 kb_articles.json
+score_cache/
 !golden_set.json
-!fixtures/

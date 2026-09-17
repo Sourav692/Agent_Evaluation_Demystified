@@ -59,7 +59,7 @@ Sequential. Each notebook consumes files the earlier ones wrote.
 | # | Notebook | Teaches | Produces in `data/` |
 |---|---|---|---|
 | 01 | [Knowledge base and the RAG agent](01_knowledge_base_and_rag_agent.ipynb) | Multilingual chunking, hybrid retrieval, cite-or-refuse | `chroma/`, `kb_articles.json` |
-| 02 | [Tools, agents and the supervisor graph](02_tools_agents_and_supervisor_graph.ipynb) | SQLite ground truth, approval-gated writes, the trajectory dict, record-and-replay | `lumen.db`, `fixtures/`, `sample_trajectory.json` |
+| 02 | [Tools, agents and the supervisor graph](02_tools_agents_and_supervisor_graph.ipynb) | SQLite ground truth, approval-gated writes, the trajectory dict | `lumen.db`, `sample_trajectory.json` |
 | 03 | [The golden set](03_the_golden_set.ipynb) | Case anatomy, strata, the refusal quota, the datasheet | `golden_set.json` |
 | 04 | [RAG evaluation with RAGAS](04_rag_evaluation_with_ragas.ipynb) | The four RAG metrics, citation accuracy, stratified reporting | `rag_report.json` |
 | 05 | [Tool-call evaluation](05_tool_call_evaluation.ipynb) | Level 1: tool choice, arguments, result handling | `tool_report.json`, `trajectories.json` |
@@ -98,19 +98,23 @@ resolver downgrades it, re-pin it.
 
 ---
 
-## Cost, and how this course avoids it
+## Cost
 
-**Notebooks 03–12 run with no API key and cost nothing**, because every LLM call goes through
-one record-and-replay function and every judge verdict is cached by its inputs:
+The agent's own generations are **live API calls** — notebooks 01, 02, 04 and 06 call
+`gpt-4o-mini` each time you run them. Keep `temperature=0`, which is set for you.
+
+**Judge verdicts are cached**, keyed by everything that went into them:
 
 | Mode | Where | Cost |
 |---|---|---|
-| `FIXTURE_MODE = "replay"` | notebook 02 onward, generations | free, deterministic |
-| `SCORE_MODE = "replay"` | notebook 04 onward, judge verdicts | free, deterministic |
-| `"record"` | either, set deliberately | **live API calls** |
+| `SCORE_MODE = "replay"` (default) | notebooks 04–08 | free, reads `data/score_cache/` |
+| `SCORE_MODE = "record"` | set deliberately | **live judge calls** |
 
 Caching judge verdicts is not a teaching shortcut. If a score can move while nothing moved,
-the gate is measuring the weather.
+the gate is measuring the weather — and notebooks 10 and 11 compare scores between runs.
+
+Notebooks 03, 05, 07 and 09–12 make no generation calls at all; they read the files earlier
+notebooks wrote.
 
 The one file that always costs money is `tests/test_release_gate.py` — an LLM-driven DeepEval
 batch script, the same shape as the other `test_*.py` files in this repository. Run it
@@ -191,7 +195,7 @@ notebooks.
   grouping is `collections.defaultdict`; statistics are stdlib `statistics` and `random`. If
   you cannot write the bootstrap in ten lines, you do not know what it is claiming.
 - **Simple, educational Python.** Dicts, lists, plain functions, `for` loops.
-- **Deterministic by default**, via the two replay caches above.
+- **Judge verdicts cached**, so a score cannot move while nothing moved.
 
 ---
 
