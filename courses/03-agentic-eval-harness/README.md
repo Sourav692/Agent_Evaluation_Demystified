@@ -105,10 +105,11 @@ The agent's own generations are **live API calls** — notebooks 01, 02, 04 and 
 
 **Judge verdicts are cached**, keyed by everything that went into them:
 
-| Mode | Where | Cost |
+| `SCORE_MODE` | Behaviour | Use it |
 |---|---|---|
-| `SCORE_MODE = "replay"` (default) | notebooks 04–08 | free, reads `data/score_cache/` |
-| `SCORE_MODE = "record"` | set deliberately | **live judge calls** |
+| `"auto"` (default) | Replay if cached, judge and cache on a miss | Normal work — first run pays, later runs are free |
+| `"strict"` | Raise on a miss, never spend | CI, where a missing verdict should fail the build |
+| `"record"` | Re-judge everything, ignoring the cache | After changing a rubric or a judge model |
 
 Caching judge verdicts is not a teaching shortcut. If a score can move while nothing moved,
 the gate is measuring the weather — and notebooks 10 and 11 compare scores between runs.
