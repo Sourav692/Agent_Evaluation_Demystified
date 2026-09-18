@@ -19,3 +19,8 @@ Prose. Nothing here executes.
 - [`databricks-mlflow-evals.md`](concepts/databricks-mlflow-evals.md) — the companion to
   course 02, in four parts: the agent under test, concepts by theme, 32 gotchas as
   symptom → cause → fix, and the numbers and decision rules in one sitting.
+- [`online_vs_offline_evaluation.md`](concepts/online_vs_offline_evaluation.md) — the two
+  regimes side by side: what offline catches that online cannot and the reverse, what flows
+  between them, and the sampling-resolution argument — why a 5% sample cannot see a
+  two-point regression, and when the answer is to move the comparison offline rather than
+  sample harder. §5.1 is the same argument in plain English.

@@ -23,7 +23,7 @@ Five entry points, depending on what you want:
 | **Learn it in order, start to finish** | [`courses/01-rag-agent-tool-evaluation/`](courses/01-rag-agent-tool-evaluation/) | 15 notebooks, 6 modules: deterministic retrieval metrics → LLM-judged → generator → tool use → trajectory → CrewAI capstone |
 | **Learn the production/MLOps side** | [`courses/02-databricks-mlflow-evals/`](courses/02-databricks-mlflow-evals/) | 11 notebooks: one agent built in Phase 1, then offline eval, custom judges, datasets from traces, regression gating, online monitoring, judge alignment |
 | **Build the thing that says "don't ship"** | [`courses/03-agentic-eval-harness/`](courses/03-agentic-eval-harness/) | 12 notebooks: one multi-agent system, a stratified golden set, then RAG → tool → agent → safety → judges → human labels → statistics → **a release gate wired to CI** → online eval |
-| **Read, not run** | [`docs/`](docs/) | Two theory companions, six interactive HTML labs, one question bank — nothing to execute |
+| **Read, not run** | [`docs/`](docs/) | Three theory companions, six interactive HTML labs, one question bank — nothing to execute |
 | **Prep for an eval-heavy interview** | [`docs/interview-prep/`](docs/interview-prep/) | A staged study plan and a 54-item self-quiz drill, both standalone HTML — open the file, no setup |
 
 **If you only have an hour:** course 01, modules 0 → 1.2 → 2.2 → 3.
@@ -54,7 +54,7 @@ labs/        Raw source material. Runnable, but not a curriculum — reach for t
   llm-as-judge/                   G-Eval smoke test
 
 docs/        Prose only. Nothing executes. See INDEX.md for a section-level lookup.
-  concepts/                       One theory companion per course
+  concepts/                       One theory companion per course, plus online vs. offline
   interactive-labs/               6 standalone HTML labs
   interview-prep/                 One question bank (35 questions + 25 metric questions
                                   + 19 cases), plus a study plan and a self-quiz drill

@@ -203,6 +203,60 @@ evaluation:
 > points needs roughly 30% sampling, and if the delta can't be resolved even at 100%,
 > it belongs in offline evaluation where coverage is total and the comparison is paired.*
 
+### 5.1 In Plain English
+
+**The setup.** Your agent handles 2,000 conversations a day. Asking an LLM judge to grade
+every one costs real money, so you grade 100 of them — 5% — and assume the other 1,900 look
+about the same.
+
+**What you are really doing is guessing the day from a handful.** And the guess wobbles:
+
+```
+Day 1:  you grade 100 conversations → 95 pass → you report 95%
+Day 2:  you grade a different 100    → 92 pass → you report 92%
+
+Nothing changed. Same agent, same code, same prompt.
+Only WHICH 100 you happened to grade changed.
+```
+
+That 3-point swing is luck, not a regression. **"±4.5 points" is just the size of that
+luck**: with 100 graded conversations, your reported number can sit about 4.5 points either
+side of the truth without anything being wrong.
+
+**So whether you can see a problem depends on how big the problem is:**
+
+| The drop you are hunting | The wobble from grading 100 | Can you see it? |
+|---|---|---|
+| 10 points (95% → 85%) | ±4.5 | Yes — far bigger than the wobble |
+| 5 points (95% → 90%) | ±4.5 | Probably |
+| **2 points (95% → 93%)** | ±4.5 | **No — smaller than the wobble** |
+
+**And an alert set at 2 points is worse than no alert.** Two ordinary days can differ by
+several points from luck alone, so the alert fires on days when nothing broke — and a team
+that gets paged for nothing learns to close the page without looking.
+
+**Fix one: grade more conversations.** The wobble shrinks as the number you grade grows.
+
+| Graded per day | Wobble | Smallest drop you can trust |
+|---|---|---|
+| 100 (5%) | ±4.5 points | ~9 points |
+| 600 (30%) | ±1.8 points | ~2 points |
+| 2,000 (100%) | ±1.0 point | ~1 point |
+
+**Fix two, for when even grading all 2,000 is not enough.** Production traffic is *different
+questions every day* — Monday's conversations are genuinely harder or easier than Tuesday's,
+and that difference never averages away. Offline evaluation removes it by asking the **same
+fixed set of questions** of the old build and the new one, so the only thing left between the
+two numbers is the build.
+
+**The analogy.** Tasting a pot of soup. One spoonful tells you instantly if it is far too
+salty; it can never tell you whether today's pot is 2% saltier than yesterday's — especially
+when it is a different pot of soup every day.
+
+**The decision this leaves you with.** Name the smallest regression you refuse to miss first,
+then buy the sample rate that can see it — and if no sample rate can, that comparison belongs
+offline, not on a dashboard.
+
 ```mermaid
 flowchart TD
     FULL["2,000 traces/day"]

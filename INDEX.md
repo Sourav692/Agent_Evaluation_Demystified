@@ -9,7 +9,7 @@ Everything here is prose or notebooks. Nothing on this page executes.
 
 ## 1. Find it by topic
 
-**The four short names used in every table below:**
+**The five short names used in every table below:**
 
 | Short name | Is this file | What it is |
 |---|---|---|
@@ -17,6 +17,7 @@ Everything here is prose or notebooks. Nothing on this page executes.
 | **Question bank** | [`docs/interview-prep/QUESTION_BANK.md`](docs/interview-prep/QUESTION_BANK.md) | 35 questions + 25 metric questions + 19 cases + appendices |
 | **Databricks ref** | [`docs/concepts/databricks-mlflow-evals.md`](docs/concepts/databricks-mlflow-evals.md) | Course 02 theory. Framework-specific: MLflow scorers, gotchas, the numbers |
 | **Drill page** | [`docs/interview-prep/evaluation-round-drill.html`](docs/interview-prep/evaluation-round-drill.html) | The self-quiz. Open in a browser |
+| **Online/offline** | [`docs/concepts/online_vs_offline_evaluation.md`](docs/concepts/online_vs_offline_evaluation.md) | The two regimes, what flows between them, and the sampling-resolution argument |
 
 `§` is a section number inside that file — **§1.1** is the field guide's section 1.1, **§6.1**
 its section 6.1. Jump to the section rather than scrolling. `lab 0N-…` means
@@ -67,8 +68,8 @@ its section 6.1. Jump to the section rather than scrolling. `lab 0N-…` means
 
 | Looking for | Go to |
 |---|---|
-| Offline vs online, and what can never go online | Field guide **§4.1**; question bank **Q18** |
-| Sampling rates and alerting | Field guide **§4.2**; Databricks ref **Part 4** |
+| Offline vs online, and what can never go online | Field guide **§4.1**; question bank **Q18**; online/offline **§1**, **§6** |
+| Sampling rates and alerting | Field guide **§4.2**; Databricks ref **Part 4**; online/offline **§5** (**§5.1** in plain English) |
 | Release gating — thresholds *and* no-regression | Question bank **Part 6**, **Case 13**; course 03 notebook **11** (four checks, four scenarios) |
 | A gate as a decision layer rather than another metric | Course 03 notebook **11**; `courses/03-agentic-eval-harness/ci/apply_gate.py` |
 | Stratified reporting — gating on the worst segment, not the mean | Course 03 notebooks **04** and **10** |
@@ -76,7 +77,7 @@ its section 6.1. Jump to the section rather than scrolling. `lab 0N-…` means
 | Final-state checks against a database ("exactly once") | Course 03 notebook **06** |
 | Silent failures that look like success | Databricks ref **Part 3**; question bank **Appendix A** |
 | Judge alignment, agreement measures, quadratic weighted kappa | Databricks ref **Part 4**; question bank **Q15**, **Case 10** |
-| Wilson intervals, sample size, "is this drop real?" | Databricks ref **Part 4**; question bank **Q21** |
+| Wilson intervals, sample size, "is this drop real?" | Databricks ref **Part 4**; question bank **Q21**; online/offline **§5.1** |
 | Cost control | Question bank **Part 9**, **Case 19** |
 
 ### Interview preparation
@@ -122,6 +123,19 @@ The theory companion to course 02. Framework-specific, where the field guide is 
 | **Part 3** | 32 gotchas as symptom → cause → fix, led by the silent failures |
 | **Part 4** | The numbers, thresholds, decision rules, scorer prerequisites, agreement measures, phase map |
 
+### `docs/concepts/online_vs_offline_evaluation.md` — Online vs. offline (2,600 words)
+
+Where the other two companions describe checks, this one describes the two *regimes* those
+checks run in, strictly within course 02's 10-phase MLflow track.
+
+| | Covers |
+|---|---|
+| **§1–§2** | The two regimes at a glance (data, coverage, reference answers, what each can act on) · where each phase of the track sits |
+| **§3–§4** | Offline: datasets, scorers, the quality gate · Online: traces in Unity Catalog, sampled scorers, per-span SQL for attributing a regression to a component |
+| **§5** | **The sampling-resolution problem** — why a 5% sample cannot see a two-point regression, what sample rate each regression size needs, and when to stop sampling and move the comparison offline. **§5.1** is the same argument in plain English |
+| **§6–§7** | Side-by-side comparison and what flows between the regimes · where human alignment fits |
+| **§8–§10** | Phase-by-phase contributions · key takeaways · the flywheel |
+
 ### `docs/interview-prep/QUESTION_BANK.md` — Question bank (25,300 words)
 
 Everything for the evaluation thread of a system-design round, in one file.
@@ -162,7 +176,7 @@ version of each is field guide **Part 6**; the interview questions are question 
 | File | What it indexes |
 |---|---|
 | `docs/README.md` | The three docs subfolders |
-| `docs/concepts/README.md` | The two theory companions |
+| `docs/concepts/README.md` | The three theory companions |
 | `docs/interactive-labs/README.md` | The six labs, the surface map, lab → notebook mapping, the four tools |
 | `docs/interview-prep/README.md` | Study plan, drill, question bank, and the shape of a good answer |
 
@@ -215,27 +229,30 @@ mutable across phases — the notebooks import from them rather than redefining.
 ### `courses/03-agentic-eval-harness/` — 12 notebooks, sequential
 
 The subject is the harness and the release gate; the agent ("Lumen Cloud", a LangGraph
-supervisor over four specialists) exists only to be measured. **All 12 notebooks are complete.** with final titles, objectives, concepts and data contracts. Notebooks hand
-off through files in `data/` and never import from each other — the inverse of course 02.
+supervisor over four specialists) exists only to be measured. **All 12 notebooks are
+complete and run clean end to end.** They hand off through files in `data/` and never import
+from each other — the inverse of course 02.
 
-Replay caches make 03–12 free and deterministic: `FIXTURE_MODE` replays generations,
-`SCORE_MODE` replays judge verdicts. Only `tests/test_release_gate.py` and `"record"` mode
-cost money.
+**What costs money:** notebooks 01, 02, 04, 05 and 06 generate live (`gpt-4o-mini`, including
+one reply per case in 05), and judged metrics run on `gpt-4.1-mini`. `SCORE_MODE` replays
+cached judge verdicts from `data/score_cache/`, so a second run re-judges nothing — `"strict"`
+refuses to spend at all and `"record"` re-judges everything. `tests/test_release_gate.py` is
+paid on every run.
 
 | Notebook | Covers | Produces |
 |---|---|---|
 | `01_knowledge_base_and_rag_agent` | 40 multilingual articles, chunking, Chroma, hybrid retrieval, cite-or-refuse | `data/chroma/` |
-| `02_tools_agents_and_supervisor_graph` | SQLite ground truth, approval-gated writes, LangGraph, the trajectory dict, record-and-replay | `data/lumen.db`, `data/fixtures/` |
+| `02_tools_agents_and_supervisor_graph` | SQLite ground truth, approval-gated writes, LangGraph, the trajectory dict | `data/lumen.db`, `data/sample_trajectory.json` |
 | `03_the_golden_set` | Case anatomy (six expectations, not one), strata, the 20% refusal quota, the datasheet | `data/golden_set.json` |
 | `04_rag_evaluation_with_ragas` | RAGAS 0.4 collections API, citation accuracy as a regex vs. a rubric, per-language reporting | `data/rag_report.json` |
-| `05_tool_call_evaluation` *(stub)* | Level 1: `ToolCorrectnessMetric`, `ArgumentCorrectnessMetric`, `ok`/`empty`/`unavailable` | `data/tool_report.json` |
-| `06_agent_handoff_and_end_to_end` *(stub)* | Levels 2–3: routing confusion matrix, handoff integrity, trajectory matching, SQLite final-state check, blame attribution | `data/agent_report.json` |
-| `07_safety_and_policy_checks` *(stub)* | Assertions that block absolutely; why a flaky safety test is a safety problem | `data/safety_report.json` |
-| `08_building_custom_judges` *(stub)* | `GEval` vs. `DAGMetric` vs. rubrics; position bias and same-model bias | `data/judge_comparison.json` |
-| `09_human_feedback_and_calibration` *(stub)* | Three kinds of human feedback, Cohen's kappa by hand, the rubber-stamp signal | `data/human_labels.jsonl` |
-| `10_stratified_reporting_and_statistics` *(stub)* | Sample size, McNemar, bootstrap — stdlib only, no pandas | `data/baseline_report.json` |
-| `11_the_release_gate_and_ci` *(stub)* | Four gate checks, four scenarios, `tests/test_release_gate.py`, the two-job workflow | `data/gate_result.json` |
-| `12_online_evaluation_and_the_loop` *(stub)* | Reference-free metrics, five alerts, incident drills, canary, closing the loop | `data/online_report.json` |
+| `05_tool_call_evaluation` | Level 1: `ToolCorrectnessMetric`, `ArgumentCorrectnessMetric`, `ok`/`empty`/`unavailable` | `data/tool_report.json` |
+| `06_agent_handoff_and_end_to_end` | Levels 2–3: routing confusion matrix, handoff integrity, trajectory matching, SQLite final-state check, blame attribution | `data/agent_report.json` |
+| `07_safety_and_policy_checks` | Assertions that block absolutely; why a flaky safety test is a safety problem | `data/safety_report.json` |
+| `08_building_custom_judges` | `GEval` vs. `DAGMetric` vs. rubrics; position bias and same-model bias | `data/judge_comparison.json` |
+| `09_human_feedback_and_calibration` | Three kinds of human feedback, Cohen's kappa by hand, the rubber-stamp signal | `data/human_labels.jsonl` |
+| `10_stratified_reporting_and_statistics` | Sample size, McNemar, bootstrap — stdlib only, no pandas | `data/baseline_report.json` |
+| `11_the_release_gate_and_ci` | Four gate checks, four scenarios, `tests/test_release_gate.py`, the two-job workflow | `data/gate_result.json` |
+| `12_online_evaluation_and_the_loop` | Reference-free metrics, five alerts, incident drills, canary, closing the loop | `data/online_report.json` |
 
 Non-notebook files: `ci/apply_gate.py` (the free, stdlib-only decision layer),
 `tests/test_release_gate.py` (**paid**, LLM-driven), and
