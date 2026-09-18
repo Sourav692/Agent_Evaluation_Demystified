@@ -21,25 +21,42 @@ can refuse a deploy, and knowing when your numbers are too noisy to support one.
 
 A fictional cloud-hosting support assistant. Deliberately small, deliberately breakable.
 
-```
-                    Customer message
-                          |
-                   +------v------+
-                   |  Supervisor |  classifies intent, routes
-                   +------+------+
-     +---------------+----+----------+----------------+
- +---v------+ +------v----+ +--------v--+ +-----------v--+
- |Knowledge | |  Billing  | |  Account  | |  Escalation  |
- |agent(RAG)| |   agent   | |   agent   | |    agent     |
- +---+------+ +------+----+ +--------+--+ +-----------+--+
-     |               |               |                |
- help-center    get_invoice     get_account     create_ticket
- docs (Chroma,  issue_refund*   change_plan*
- 3 languages)                   reset_password
-                * writes pause for human approval
-                          |
-               SQLite = the final state
-   (accounts, invoices, refunds, tickets, approvals)
+```mermaid
+flowchart TB
+  MSG["Customer message"]
+  SUP["Supervisor<br/>classifies intent, routes"]
+
+  MSG --> SUP
+
+  SUP --> KNOW["Knowledge agent<br/>RAG"]
+  SUP --> BILL["Billing agent"]
+  SUP --> ACCT["Account agent"]
+  SUP --> ESC["Escalation agent"]
+
+  KNOW --> DOCS["help-center docs<br/>Chroma, 3 languages"]
+
+  BILL --> INV["get_invoice"]
+  BILL --> REF["issue_refund *"]
+
+  ACCT --> GET["get_account"]
+  ACCT --> PLAN["change_plan *"]
+  ACCT --> PWD["reset_password"]
+
+  ESC --> TKT["create_ticket"]
+
+  DOCS --> DB
+  INV --> DB
+  REF --> DB
+  GET --> DB
+  PLAN --> DB
+  PWD --> DB
+  TKT --> DB
+
+  DB["SQLite = the final state<br/>accounts, invoices, refunds, tickets, approvals"]
+
+  NOTE["* writes pause for human approval"]
+  REF -.-> NOTE
+  PLAN -.-> NOTE
 ```
 
 The canonical run, which every notebook returns to:
@@ -62,7 +79,7 @@ Sequential. Each notebook consumes files the earlier ones wrote.
 | 02 | [Tools, agents and the supervisor graph](02_tools_agents_and_supervisor_graph.ipynb) | SQLite ground truth, approval-gated writes, the trajectory dict | `lumen.db`, `sample_trajectory.json` |
 | 03 | [The golden set](03_the_golden_set.ipynb) | Case anatomy, strata, the refusal quota, the datasheet | `golden_set.json` |
 | 04 | [RAG evaluation with RAGAS](04_rag_evaluation_with_ragas.ipynb) | The four RAG metrics, citation accuracy, stratified reporting | `rag_report.json` |
-| 05 | [Tool-call evaluation](05_tool_call_evaluation.ipynb) | Level 1: tool choice, arguments, result handling | `tool_report.json`, `trajectories.json` |
+| 05 | [Tool-call evaluation](05_tool_call_evaluation.ipynb) | Level 1: tool choice, arguments, result handling — and the runs everything after this scores: the reply, the tokens, the rows each case left in SQLite | `tool_report.json`, `trajectories.json` |
 | 06 | [Agent, handoff and end-to-end](06_agent_handoff_and_end_to_end.ipynb) | Levels 2 and 3, trajectory matching, the SQLite final-state check, blame attribution | `agent_report.json` |
 | 07 | [Safety and policy checks](07_safety_and_policy_checks.ipynb) | Assertions that block, never averaged | `safety_report.json` |
 | 08 | [Building custom judges](08_building_custom_judges.ipynb) | `GEval`, `DAGMetric`, rubrics, and the two bias tests | `judge_comparison.json` |
@@ -100,10 +117,60 @@ resolver downgrades it, re-pin it.
 
 ## Cost
 
-The agent's own generations are **live API calls** — notebooks 01, 02, 04 and 06 call
-`gpt-4o-mini` each time you run them. Keep `temperature=0`, which is set for you.
+The agent's own generations are **live API calls** — notebooks 01, 02, 04, 05 and 06 call
+`gpt-4o-mini` each time you run them, including one reply per case in notebook 05. Keep
+`temperature=0`, which is set for you.
 
-**Judge verdicts are cached**, keyed by everything that went into them:
+### The judges run on a different model from the agent
+
+Judging one golden case three times, with `gpt-4o-mini` as the judge:
+
+```
+call 1   ok, score 0.50   in    3.3s
+call 2   ok, score 0.50   in   93.0s     <- same input, same code
+call 3   RetryError       in  248.0s     <- the notebook stops here
+```
+
+Nothing crashed and nothing was rate-limited; a raw API call at that moment took 1.0s. Two
+different things were going wrong, and they need separate fixes:
+
+- **The judge model rambled.** `gpt-4o-mini` sometimes falls into a repetition loop when it
+  has to answer in a strict JSON shape, and keeps generating until it hits its output limit.
+  That does not arrive as an error — it arrives as a 90-second wait.
+- **DeepEval's async path hung.** `async_mode` is on by default, so every `measure()` runs
+  its own event loop — **the thing that wakes a paused network call back up**. When that
+  went wrong the request sat there with nobody waking it, and the library's own timeout
+  never fired either.
+
+Three changes, one per problem:
+
+| Change | Fixes | Measured here |
+|---|---|---|
+| `JUDGE_MODEL = "gpt-4.1-mini"` | the rambling | 6 of 6 calls at ~2.5s, no runaways |
+| `async_mode=False` on every metric | the hang | 12 of 12 cases at ~2.8s, against 3 stalls in 12 on the async path |
+| `judge_bounded()` around every call | whatever is left | a stuck call is killed at 60s, retried 3 times, then fails loudly |
+
+`gpt-4o-mini` still writes the support replies — that is the thing being measured, and it
+stays cheap on purpose. The judge is the measuring *instrument*, so it is picked for
+steadiness instead: the same trade as buying a ruler that does not bend.
+
+**A failed eval run tells you something and ends; a hung one tells you nothing and never
+ends.** That is why the ceiling matters more in CI than it does in a notebook.
+
+### Judge verdicts are cached
+
+One verdict, as it sits in `data/score_cache/`:
+
+```json
+{ "metric": "argument_correctness",
+  "payload": {"input": "I forgot my password.",
+              "tools": [{"name": "reset_password", "args": {"customer_id": "CUS-103"}}]},
+  "score": 0.0 }
+```
+
+The filename is a hash of that whole object, so the key moves when the input moves and not
+otherwise. Change the reply and you get a genuine re-judge; change nothing and you replay a
+verdict you already paid for.
 
 | `SCORE_MODE` | Behaviour | Use it |
 |---|---|---|
@@ -111,11 +178,18 @@ The agent's own generations are **live API calls** — notebooks 01, 02, 04 and 
 | `"strict"` | Raise on a miss, never spend | CI, where a missing verdict should fail the build |
 | `"record"` | Re-judge everything, ignoring the cache | After changing a rubric or a judge model |
 
-Caching judge verdicts is not a teaching shortcut. If a score can move while nothing moved,
-the gate is measuring the weather — and notebooks 10 and 11 compare scores between runs.
+**The cache is not there to save money — it is there to make two runs comparable.** Notebook
+10 writes the baseline, notebook 11 compares the next build against it, and a judge asked the
+same question twice does not always answer identically.
 
-Notebooks 03, 05, 07 and 09–12 make no generation calls at all; they read the files earlier
-notebooks wrote.
+**The analogy.** Weighing yourself on a scale that reads slightly differently each time: you
+can still lose weight, but you can never prove it from the readings.
+
+A gate reacts to *differences*, so anything that can change on its own becomes a false alarm
+— and a release blocked by a false alarm is how teams learn to ignore the gate.
+
+Notebooks 03 and 09–12 make no model calls at all; they read the files earlier notebooks
+wrote. Notebook 07's one judged policy is cached like every other verdict.
 
 The one file that always costs money is `tests/test_release_gate.py` — an LLM-driven DeepEval
 batch script, the same shape as the other `test_*.py` files in this repository. Run it

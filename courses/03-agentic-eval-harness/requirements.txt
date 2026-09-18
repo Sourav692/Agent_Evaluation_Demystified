@@ -39,7 +39,11 @@ chromadb==1.5.9
 
 # --- notebook environment ---------------------------------------------------
 ipywidgets==8.1.9          # notebook 09's labelling panel
-ipykernel
+# 6.x, not 7.x. ipykernel 7 rewrote the kernel on anyio, and executing these
+# notebooks against it (jupyter nbconvert --execute / nbclient) deadlocks part
+# way through a run: the kernel goes idle, the client keeps waiting, neither
+# times out. Interactive use looks fine, which is what makes it worth pinning.
+ipykernel==6.30.1
 python-dotenv==1.2.3
 typing-extensions==4.16.0  # TypedDict for the LangGraph state schema
 

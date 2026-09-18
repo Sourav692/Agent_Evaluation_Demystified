@@ -87,7 +87,9 @@ Two folders have their own environment and their own kernel — don't mix either
 | `labs/multiturn-and-tool-eval/` | separate uv project + lockfile, older `deepeval==3.8.8` — `uv sync` inside it | its own |
 | `courses/03-agentic-eval-harness/` | own `.venv` + `requirements.txt` — `uv pip install --python .venv/bin/python -r requirements.txt` | `agentic-eval-harness` |
 
-Course 03's pins are **exact** (`deepeval==4.2.3`, `ragas==0.4.3`, `chromadb`), and its notebooks 04–06 are written against those exact releases:
+Course 03's pins are **exact** (`deepeval==4.2.3`, `ragas==0.4.3`, `chromadb`, and
+`ipykernel==6.30.1` — 7.x deadlocks nbclient part way through an `--execute` run), and its
+notebooks 04–06 are written against those exact releases:
 RAGAS 0.4 moved metrics to `ragas.metrics.collections` with an async `ascore()`, and DeepEval
 4.x replaced `LLMTestCaseParams` with `SingleTurnParams` in `GEval`. Verify metric imports
 against the installed version before editing that course's metric code — remembered API shapes are wrong
