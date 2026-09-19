@@ -128,11 +128,11 @@ in the `OPENAI_EDGE_CASE_COVERAGE` dict. Every verdict there was re-verified 202
 
 ## The gap list
 
-Five rows have been tracked as gaps. One is built; four remain open.
+Five rows have been tracked as gaps. One is closed; four remain open.
 
 | Gap | Outcome |
 | --- | --- |
-| Circular agent handoffs | **Built** 2026-09-20 — `courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb` §2.1 *(uncommitted; the three new cells carry no outputs because the notebook has not been re-executed)* |
+| Circular agent handoffs | **Closed** 2026-09-20 — `courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb` §2.1, with outputs |
 | Verbosity-bias probe | **Open** — one section in `courses/03-agentic-eval-harness/08_building_custom_judges.ipynb`, cloning the position-bias probe beside it |
 | Blinded / randomized preference testing | **Open** — follows almost free from multi-rater consensus in `courses/03-agentic-eval-harness/09_human_feedback_and_calibration.ipynb` |
 | ROUGE / BLEU / BERTScore | **Open** — one section in `courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb` §1 |
