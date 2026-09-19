@@ -84,13 +84,12 @@ its section 6.1. Jump to the section rather than scrolling. `lab 0N-…` means
 
 | Looking for | Go to |
 |---|---|
-| A reading path with time estimates | `evaluation-study-plan.html` |
+| A reading path with time estimates | `docs/study-guide/evaluation-study-plan.html` |
 | Self-quiz with hidden answers and per-item scoring | `evaluation-round-drill.html` |
 | 35 situational questions | Question bank **Parts 1–9** |
 | 25 metric-level questions | Question bank **Part 10** |
 | 19 long-form cases | Question bank **Tiers A–H** |
 | The Decomposition Spine (8 steps) | Question bank **§0.2** |
-| Same 19 cases in Bengali | `QUESTION_BANK_cases_bn.md` |
 
 ---
 
@@ -154,7 +153,7 @@ Open in a browser. No build step, no server, no API key.
 
 | File | What it does |
 |---|---|
-| `docs/interview-prep/evaluation-study-plan.html` | Seven stages ordered by what the round tests, with time estimates, a 2–3 day fast path, a skip list and a readiness check. Tick items off as you go |
+| `docs/study-guide/evaluation-study-plan.html` | Seven stages ordered by what the round tests, with time estimates, a 2–3 day fast path, a skip list and a readiness check. Tick items off as you go |
 | `docs/interview-prep/evaluation-round-drill.html` | The same 35 questions and 19 cases with every answer hidden. Rate recall per item, filter to what's weak. Progress saves locally |
 | `docs/interactive-labs/00-evaluation-index.html` | The surface map: pipeline, what breaks where, reference-based vs referenceless comparison |
 

@@ -24,7 +24,7 @@ Five entry points, depending on what you want:
 | **Learn the production/MLOps side** | [`courses/02-databricks-mlflow-evals/`](courses/02-databricks-mlflow-evals/) | 11 notebooks: one agent built in Phase 1, then offline eval, custom judges, datasets from traces, regression gating, online monitoring, judge alignment |
 | **Build the thing that says "don't ship"** | [`courses/03-agentic-eval-harness/`](courses/03-agentic-eval-harness/) | 12 notebooks: one multi-agent system, a stratified golden set, then RAG → tool → agent → safety → judges → human labels → statistics → **a release gate wired to CI** → online eval |
 | **Read, not run** | [`docs/`](docs/) | Three theory companions, six interactive HTML labs, one question bank — nothing to execute |
-| **Prep for an eval-heavy interview** | [`docs/interview-prep/`](docs/interview-prep/) | A staged study plan and a 54-item self-quiz drill, both standalone HTML — open the file, no setup |
+| **Prep for an eval-heavy interview** | [`docs/interview-prep/`](docs/interview-prep/) | A 54-item self-quiz drill, plus a staged study plan in [`docs/study-guide/`](docs/study-guide/) — standalone HTML, open the file, no setup |
 
 **If you only have an hour:** course 01, modules 0 → 1.2 → 2.2 → 3.
 
@@ -57,7 +57,8 @@ docs/        Prose only. Nothing executes. See INDEX.md for a section-level look
   concepts/                       One theory companion per course, plus online vs. offline
   interactive-labs/               6 standalone HTML labs
   interview-prep/                 One question bank (35 questions + 25 metric questions
-                                  + 19 cases), plus a study plan and a self-quiz drill
+                                  + 19 cases), plus a self-quiz drill as standalone HTML
+  study-guide/                    The staged study plan through that question bank,
                                   as standalone HTML
 
 shared/      Small LLM/embedding provider helpers (OpenAI, Groq, Databricks)

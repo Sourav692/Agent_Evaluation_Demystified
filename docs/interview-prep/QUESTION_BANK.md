@@ -13,14 +13,14 @@ Agents), Microsoft (Copilot Applied Science / Cloud Solution Architect – AI).
 **These are practice cases, not leaked questions.** Every scenario is a situation an applied
 AI engineer or FDE actually walks into on a customer engagement.
 
-**Sources.** Grounded in [CODE0](../../courses/02-databricks-mlflow-evals/)
+**Sources.** Grounded in [`courses/02-databricks-mlflow-evals/`](../../courses/02-databricks-mlflow-evals/)
 (strategy → tracing → offline → judges → datasets → gating → online → alignment → optimisation
-→ multi-turn → adversarial) and [CODE0](../../labs/) (RAG, tool, trajectory, task-completion
+→ multi-turn → adversarial) and [`labs/`](../../labs/) (RAG, tool, trajectory, task-completion
 and conversational evaluation).
 
 **Two interactive companions, built from this file:**
-[CODE0](evaluation-study-plan.html) orders it into a reading path;
-[CODE0](evaluation-round-drill.html) hides every answer for self-quizzing.
+[`evaluation-study-plan.html`](../study-guide/evaluation-study-plan.html) orders it into a reading path;
+[`evaluation-round-drill.html`](evaluation-round-drill.html) hides every answer for self-quizzing.
 This Markdown is the canonical text — edit here, not there.
 
 ---
@@ -1851,7 +1851,7 @@ decay that nothing else catches."
 
 # Part 10 — Metric-level questions from the labs
 
-Narrower than Parts 1–9: these start from a *number* rather than a situation, and are the ones asked when an interviewer has your metrics dashboard on screen. Grouped by evaluation surface. Each is answered in a minute or two — the fuller treatment of the metric itself is in [CODE0](../concepts/rag-agent-tool-evaluation.md) Part 6.
+Narrower than Parts 1–9: these start from a *number* rather than a situation, and are the ones asked when an interviewer has your metrics dashboard on screen. Grouped by evaluation surface. Each is answered in a minute or two — the fuller treatment of the metric itself is in [`rag-agent-tool-evaluation.md`](../concepts/rag-agent-tool-evaluation.md) Part 6.
 
 ## 10.1 Deterministic retrieval metrics: four numbers that are supposed to disagree
 

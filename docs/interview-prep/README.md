@@ -7,7 +7,7 @@ system — judgement under a constraint, not coding exercises or metric derivati
 
 | File | What it is |
 |---|---|
-| [`evaluation-study-plan.html`](evaluation-study-plan.html) | **The reading path.** Seven stages ordered by what the round actually tests, with time estimates, a 2–3 day fast path, an explicit skip list, and a readiness check. Open it in a browser; tick items off as you go. |
+| [`../study-guide/evaluation-study-plan.html`](../study-guide/evaluation-study-plan.html) | **The reading path.** Seven stages ordered by what the round actually tests, with time estimates, a 2–3 day fast path, an explicit skip list, and a readiness check. Open it in a browser; tick items off as you go. |
 | [`evaluation-round-drill.html`](evaluation-round-drill.html) | **The self-quiz.** The same 35 questions and 19 cases with every answer hidden until you reveal it. Rate your recall per item, then filter to what's still weak. Progress saves locally. |
 
 Both are standalone — no build step, no server. Open the file.
@@ -20,10 +20,6 @@ Both are standalone — no build step, no server. Open the file.
   why it reads badly*, and the follow-up to expect. Tiers A–H are 19 case studies answered out
   loud in 30–45 minutes. Appendices A–E carry the silent-failure catalogue, the misreadings
   that sound like insight, company-specific flavour, a rapid-fire drill set and the closing notes.
-- [`QUESTION_BANK_cases_bn.md`](QUESTION_BANK_cases_bn.md) — the **19 case studies** in Bengali
-  (Tiers A–H only — it does not cover Parts 1–9 or the appendices). Technical keywords, metric
-  names and API names stay in English, because that is how you will say them in the round; the
-  reasoning around them is translated.
 
 The two HTML files above are built from `QUESTION_BANK.md`; the Markdown is the canonical text.
 Edit there, not in the HTML.
