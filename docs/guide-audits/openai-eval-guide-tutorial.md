@@ -34,8 +34,8 @@ under questioning. **If you can tick a box without opening an editor, the box is
 **21 TODOs.** Check your progress with:
 
 ```bash
-grep -c '^- \[ \]' docs/openai-eval-guide-tutorial.md   # left to do
-grep -c '^- \[x\]' docs/openai-eval-guide-tutorial.md   # done
+grep -c '^- \[ \]' docs/guide-audits/openai-eval-guide-tutorial.md   # left to do
+grep -c '^- \[x\]' docs/guide-audits/openai-eval-guide-tutorial.md   # done
 ```
 
 A warning about cost, because this repo is not free to run: notebooks in

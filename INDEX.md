@@ -135,7 +135,34 @@ checks run in, strictly within course 02's 10-phase MLflow track.
 | **§6–§7** | Side-by-side comparison and what flows between the regimes · where human alignment fits |
 | **§8–§10** | Phase-by-phase contributions · key takeaways · the flywheel |
 
-### `docs/openai-eval-guide-tutorial.md` — Evaluation tutorial + tracker (3,400 words)
+### `docs/interview-prep/QUESTION_BANK.md` — Question bank (25,300 words)
+
+Everything for the evaluation thread of a system-design round, in one file.
+
+| | Covers |
+|---|---|
+| **Part 0** | What the round measures (five scoring axes) · the Decomposition Spine · the evaluation taxonomy |
+| **Parts 1–9** | 35 questions. Each: the issue underneath, what they're checking, a strong answer, a weak answer *with why it reads badly*, and the follow-up to expect |
+| **Part 10** | 25 metric-level questions, grouped by evaluation surface — the ones asked with your dashboard on screen |
+| **Tiers A–H** | 19 cases, 30–45 minutes each: strategy from zero · diagnosing production · trajectory and multi-agent · judges and calibration · gating and CI · monitoring · adversarial · platform |
+| **Appendices A–E** | Silent-failure catalogue · misreadings that sound like insight · company-specific flavour · rapid-fire drill · closing notes |
+
+### `docs/guide-audits/openai-eval-guide-coverage-gaps.md` — OpenAI guide repo coverage (3,500 words)
+
+Maps every topic in OpenAI's *Evaluation best practices* guide to where this repo teaches it,
+and names what is missing. Verdicts are taken **per course**, because a repo-wide average
+hides whichever course is weaker.
+
+| | Covers |
+|---|---|
+| **Header** | Tally by badge — 47 ✅ · 2 🟡 · 5 ⏭️ · 1 ❌ across 55 rows — and the headline finding |
+| **§1–§7** | The guide's own sections as mapping tables: what are evals · design the process · where evals go by architecture · types of evaluator · the 11 edge cases · improvement · platform surface |
+| **The gap list** | Five tracked gaps, four **closed** 2026-09-20 — circular handoffs, verbosity bias, blinded preference testing, ROUGE/BLEU/BERTScore. Only the OpenAI Evals API remains open |
+| **When a gap is worth closing** | The rule separating the four descopes from the four gaps, and why scoping per course is what made two of them visible |
+| **Corrections** | Three claims in course 02's own cross-reference that had drifted — one stale, one overstated, one resolved elsewhere — all corrected 2026-09-20 |
+| **Terminology · Related · What moves the needle** | Four renamings the guide uses · the two companion documents · the cheapest two actions |
+
+### `docs/guide-audits/openai-eval-guide-tutorial.md` — Evaluation tutorial + tracker (3,400 words)
 
 The lesson to the audit's record. OpenAI's guide walked through in plain language — 3–4 lines
 per concept, the notebook that teaches it, and a TODO that asks you to produce something
@@ -151,7 +178,7 @@ rather than read something. The file is its own progress tracker.
 | **§5–§6** | Edge cases by kind, the polite tool failure · the improvement loop and why judge alignment comes before prompt optimisation |
 | **§7** | An eight-step path through the repo, and the four-step version for one evening |
 
-### `docs/genai-eval-playbook-coverage-map.md` — GenAI FDE playbook map (2,100 words)
+### `docs/guide-audits/genai-eval-playbook-coverage-map.md` — GenAI FDE playbook map (2,100 words)
 
 The same exercise as the audit above, against *LLM Evaluation for GenAI Forward Deployed
 Engineers* — a customer-facing playbook rather than a measurement guide, so the gaps fall

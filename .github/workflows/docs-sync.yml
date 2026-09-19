@@ -1,0 +1,36 @@
+# docs/interview-prep — keep the drill in step with the question bank.
+#
+# QUESTION_BANK.md is canonical. evaluation-round-drill.html carries the same
+# 35 questions and 19 cases as a quiz, and the two are two thirds
+# phrase-identical. Nothing generates one from the other, so the rule "edit the
+# Markdown, not the HTML" was enforced by convention alone -- and four commits
+# have already changed one side without the other.
+#
+# Free, stdlib only, no API key, no network. It cannot spend money.
+
+name: docs-sync (interview prep)
+
+on:
+  push:
+    paths:
+      - 'docs/interview-prep/**'
+      - '.github/scripts/check_drill_sync.py'
+      - '.github/workflows/docs-sync.yml'
+  pull_request:
+    paths:
+      - 'docs/interview-prep/**'
+      - '.github/scripts/check_drill_sync.py'
+      - '.github/workflows/docs-sync.yml'
+
+jobs:
+  drill-sync:
+    name: drill matches the question bank
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the drill's recorded bank hash
+        run: python3 .github/scripts/check_drill_sync.py
+
+      - name: Check every relative link still resolves
+        run: python3 .claude/skills/link-check/scripts/check_links.py docs

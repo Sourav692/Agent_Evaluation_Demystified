@@ -1,6 +1,6 @@
 # OpenAI's Evaluation Guide, in Plain English
 
-> **Archived 2026-09-20.** Folded into [`docs/openai-eval-guide-tutorial.md`](../docs/openai-eval-guide-tutorial.md),
+> **Archived 2026-09-20.** Folded into [`docs/openai-eval-guide-tutorial.md`](../docs/guide-audits/openai-eval-guide-tutorial.md),
 > which carries its running example, its regression and cost tables, its analogy and its
 > five mistakes. Kept per `archive/README.md`; the links below were repointed for the new
 > location and are otherwise untouched.
@@ -273,4 +273,4 @@ production -> sample the odd ones -> a human labels them -> add to the test set
 | §7 production | [`courses/03-agentic-eval-harness/12_online_evaluation_and_the_loop.ipynb`](../courses/03-agentic-eval-harness/12_online_evaluation_and_the_loop.ipynb) · [`online_vs_offline_evaluation.md`](../docs/concepts/online_vs_offline_evaluation.md) |
 
 **What this repo does not cover from the guide:** see
-[`../openai-eval-guide-coverage-gaps.md`](../docs/openai-eval-guide-coverage-gaps.md).
+[`../openai-eval-guide-coverage-gaps.md`](../docs/guide-audits/openai-eval-guide-coverage-gaps.md).
