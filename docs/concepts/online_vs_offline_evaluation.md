@@ -9,15 +9,16 @@
 
 ## 1. The Two Regimes at a Glance
 
-| Dimension | Offline Evaluation | Online Evaluation |
-|---|---|---|
-| **When it runs** | Before a release, on a curated eval dataset | Continuously in production, on live traffic |
-| **Phase(s)** | Phases 0–5, 8 | Phase 6 |
-| **Data** | Hand-written + mined eval records | Sampled production traces |
-| **Coverage** | Total — every record is scored | Statistical — limited by sample size |
-| **Comparison** | Paired (same inputs across model versions) | Unpaired (different traffic each day) |
-| **Purpose** | Gate a ship/no-ship decision | Detect regressions the gate missed |
-| **Output** | Pass/fail against pre-set thresholds | Pass-rate estimate with a confidence interval |
+
+| Dimension        | Offline Evaluation                          | Online Evaluation                             |
+| ---------------- | ------------------------------------------- | --------------------------------------------- |
+| **When it runs** | Before a release, on a curated eval dataset | Continuously in production, on live traffic   |
+| **Phase(s)**     | Phases 0–5, 8                              | Phase 6                                       |
+| **Data**         | Hand-written + mined eval records           | Sampled production traces                     |
+| **Coverage**     | Total — every record is scored             | Statistical — limited by sample size         |
+| **Comparison**   | Paired (same inputs across model versions)  | Unpaired (different traffic each day)         |
+| **Purpose**      | Gate a ship/no-ship decision                | Detect regressions the gate missed            |
+| **Output**       | Pass/fail against pre-set thresholds        | Pass-rate estimate with a confidence interval |
 
 ---
 
@@ -109,13 +110,13 @@ flowchart LR
         TH["Phase 0 Thresholds"]
         DEC{"Ship or Block?"}
         SHIP["Deploy<br/>(Phase 5 versioning)"]
-        BLOCK["Block &amp; iterate"]
+        BLOCK["Block & iterate"]
     end
 
     SC --> TH --> DEC
     DEC -->|"All thresholds met"| SHIP
     DEC -->|"Any threshold failed"| BLOCK
-    BLOCK -.->|"Fix &amp; re-evaluate"| SCORE
+    BLOCK -.->|"Fix & re-evaluate"| SCORE
 
     style GATE fill:#e8f4f8,stroke:#2196F3
     style SHIP fill:#c8e6c9,stroke:#4CAF50
@@ -225,11 +226,12 @@ side of the truth without anything being wrong.
 
 **So whether you can see a problem depends on how big the problem is:**
 
-| The drop you are hunting | The wobble from grading 100 | Can you see it? |
-|---|---|---|
-| 10 points (95% → 85%) | ±4.5 | Yes — far bigger than the wobble |
-| 5 points (95% → 90%) | ±4.5 | Probably |
-| **2 points (95% → 93%)** | ±4.5 | **No — smaller than the wobble** |
+
+| The drop you are hunting  | The wobble from grading 100 | Can you see it?                   |
+| ------------------------- | --------------------------- | --------------------------------- |
+| 10 points (95% → 85%)    | ±4.5                       | Yes — far bigger than the wobble |
+| 5 points (95% → 90%)     | ±4.5                       | Probably                          |
+| **2 points (95% → 93%)** | ±4.5                       | **No — smaller than the wobble** |
 
 **And an alert set at 2 points is worse than no alert.** Two ordinary days can differ by
 several points from luck alone, so the alert fires on days when nothing broke — and a team
@@ -237,11 +239,12 @@ that gets paged for nothing learns to close the page without looking.
 
 **Fix one: grade more conversations.** The wobble shrinks as the number you grade grows.
 
-| Graded per day | Wobble | Smallest drop you can trust |
-|---|---|---|
-| 100 (5%) | ±4.5 points | ~9 points |
-| 600 (30%) | ±1.8 points | ~2 points |
-| 2,000 (100%) | ±1.0 point | ~1 point |
+
+| Graded per day | Wobble       | Smallest drop you can trust |
+| -------------- | ------------ | --------------------------- |
+| 100 (5%)       | ±4.5 points | ~9 points                   |
+| 600 (30%)      | ±1.8 points | ~2 points                   |
+| 2,000 (100%)   | ±1.0 point  | ~1 point                    |
 
 **Fix two, for when even grading all 2,000 is not enough.** Production traffic is *different
 questions every day* — Monday's conversations are genuinely harder or easier than Tuesday's,
@@ -284,12 +287,13 @@ flowchart TD
 
 **The rule:**
 
-| Sample Rate | Traces/Day | CI Width | Detectable Regression |
-|---|---|---|---|
-| 5% | 100 | ±4.5 points | ~9-point shifts or larger |
-| 30% | 600 | ±1.8 points | ~2-point shifts |
-| 100% | 2,000 | ±1.0 points | Smaller shifts — but if still
-| | | | unresolvable, use offline |
+
+| Sample Rate | Traces/Day | CI Width     | Detectable Regression          |
+| ----------- | ---------- | ------------ | ------------------------------ |
+| 5%          | 100        | ±4.5 points | ~9-point shifts or larger      |
+| 30%         | 600        | ±1.8 points | ~2-point shifts                |
+| 100%        | 2,000      | ±1.0 points | Smaller shifts — but if still |
+|             |            |              | unresolvable, use offline      |
 
 If a regression is too small to detect even at 100% sampling online, the right answer is
 **not more sampling** — it is to move the comparison to offline evaluation, where every
@@ -351,7 +355,7 @@ flowchart LR
     HUMAN["Expert Ratings<br/>(Phase 7 labeling sessions)"]
     JUDGE["Automated Judge<br/>(LLM-as-judge scorers)"]
     AGREE{"Agreement<br/>measured?"}
-    HIGH["High agreement<br/>→ trust the judge<br/>in both offline &amp; online"]
+    HIGH["High agreement<br/>→ trust the judge<br/>in both offline & online"]
     LOW["Low agreement<br/>→ recalibrate judge<br/>before optimising (Phase 8)"]
 
     HUMAN --> AGREE
@@ -373,19 +377,20 @@ broken metric — which is worse than no optimisation at all.
 
 ## 8. What Each Phase Contributes to the Online/Offline Distinction
 
-| Phase | Role | Offline or Online? |
-|---|---|---|
-| **0** Strategy | Set thresholds before any score exists | Offline (foundational) |
-| **1** Tracing | Agent must be traceable to be evaluable | Both (traces enable both) |
-| **2** Offline Eval | Gates turn metrics into ship/no-ship | Offline |
-| **3** Custom Scorers | Deterministic first, judges only where needed | Both (scorers used in both) |
-| **4** Mined Data | Hand-written sets are structurally blind | Offline (data from online traces) |
-| **5** Versioning | Registering ≠ deploying; rollback surface | Offline (enables online rollback) |
-| **6** Online Eval | Sample by regression size you must detect | Online |
-| **7** Alignment | Measure agreement with humans, not average | Both (calibrates scorers for both) |
-| **8** Optimisation | Judge is the objective; align it first | Offline (improves the prompt) |
-| **9** Multi-Turn | Some failures only exist between turns | Both |
-| **10** Edge Cases | Design by attack surface; know gaps | Both |
+
+| Phase                | Role                                          | Offline or Online?                 |
+| -------------------- | --------------------------------------------- | ---------------------------------- |
+| **0** Strategy       | Set thresholds before any score exists        | Offline (foundational)             |
+| **1** Tracing        | Agent must be traceable to be evaluable       | Both (traces enable both)          |
+| **2** Offline Eval   | Gates turn metrics into ship/no-ship          | Offline                            |
+| **3** Custom Scorers | Deterministic first, judges only where needed | Both (scorers used in both)        |
+| **4** Mined Data     | Hand-written sets are structurally blind      | Offline (data from online traces)  |
+| **5** Versioning     | Registering ≠ deploying; rollback surface    | Offline (enables online rollback)  |
+| **6** Online Eval    | Sample by regression size you must detect     | Online                             |
+| **7** Alignment      | Measure agreement with humans, not average    | Both (calibrates scorers for both) |
+| **8** Optimisation   | Judge is the objective; align it first        | Offline (improves the prompt)      |
+| **9** Multi-Turn     | Some failures only exist between turns        | Both                               |
+| **10** Edge Cases    | Design by attack surface; know gaps           | Both                               |
 
 ---
 
@@ -416,7 +421,7 @@ broken metric — which is worse than no optimisation at all.
 flowchart LR
     A["Phase 0<br/>Set thresholds"]
     B["Phases 2–4<br/>Offline eval<br/>+ mined data"]
-    C["Phase 5<br/>Version &amp; deploy"]
+    C["Phase 5<br/>Version & deploy"]
     D["Phase 6<br/>Online monitoring<br/>+ per-span SQL"]
     E["Phase 7<br/>Human alignment"]
     F["Phase 8<br/>Prompt optimisation"]

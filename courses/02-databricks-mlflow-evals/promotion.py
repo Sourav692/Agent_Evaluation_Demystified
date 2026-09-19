@@ -36,7 +36,7 @@ regressions through.
 # CONFIGURATION
 # ============================================================================
 
-PROMPT_NAME = "telcoassist_system_prompt"
+PROMPT_NAME = "main.eval.telcoassist_system_prompt"
 
 # Metrics produced by deterministic scorers in `courses/02-databricks-mlflow-evals/scorers.py` -- same inputs, same verdict,
 # every time. Any drop in these is a real behavioural change, never measurement noise.

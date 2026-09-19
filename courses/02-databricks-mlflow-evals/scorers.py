@@ -366,7 +366,11 @@ trajectory_judge = make_judge(
         "account. Repeated identical retrievals, or an account lookup on a general policy "
         "question, are inefficient.\n\n"
         "Answer 'yes' if the execution path was efficient and justified, 'no' if it "
-        "contained unnecessary or redundant steps."
+        "contained unnecessary or redundant steps.\n\n"
+        "CRITICAL: Return ONLY raw JSON. Do NOT wrap in markdown code fences.\n"
+        "Your response must start with { and end with }.\n\n"
+        "Output format:\n"
+        '{"result": "yes" or "no", "rationale": "brief explanation"}'
     ),
 )
 
