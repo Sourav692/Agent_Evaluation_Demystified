@@ -135,6 +135,20 @@ checks run in, strictly within course 02's 10-phase MLflow track.
 | **§6–§7** | Side-by-side comparison and what flows between the regimes · where human alignment fits |
 | **§8–§10** | Phase-by-phase contributions · key takeaways · the flywheel |
 
+### `docs/concepts/openai-evaluation-guide-plain-english.md` — OpenAI's guide, plain English (1,700 words)
+
+The entry point if the other companions read as too dense. OpenAI's evaluation-best-practices
+guide restated in plain language, with small examples instead of theory — one support bot runs
+through every section.
+
+| | Covers |
+|---|---|
+| **§1–§2** | Why "it looks fine" is not a test · the five steps, each with the smallest worked version: thresholds first, where cases come from, picking a checkable metric, comparing two versions on the same inputs |
+| **§3** | Where checks go for each shape — single turn, workflow, one agent, many agents — and why wrong tool and wrong argument are different bugs |
+| **§4–§5** | Code vs. model judge vs. human, with cost and what to run each on · the two judge biases, position and verbosity, each shown as a two-line example |
+| **§6–§7** | Edge cases collected by *kind* rather than by string · which checks survive in production without a reference answer, and how the loop closes |
+| **§8–§9** | Five mistakes in one line each · a map from every section to the notebook that implements it |
+
 ### `docs/interview-prep/QUESTION_BANK.md` — Question bank (25,300 words)
 
 Everything for the evaluation thread of a system-design round, in one file.

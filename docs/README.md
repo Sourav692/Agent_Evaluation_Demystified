@@ -30,3 +30,8 @@ verdicts and the terminology divergences.
   between them, and the sampling-resolution argument — why a 5% sample cannot see a
   two-point regression, and when the answer is to move the comparison offline rather than
   sample harder. §5.1 is the same argument in plain English.
+- [`openai-evaluation-guide-plain-english.md`](concepts/openai-evaluation-guide-plain-english.md)
+  — OpenAI's evaluation-best-practices guide in plain language, with one example running all
+  the way through: a phone-company support bot. The five steps, where checks go for each
+  agent shape, code vs. judge vs. human, the two judge biases, edge cases by kind, and what
+  still works in production. Every section links to the notebook that implements it.
