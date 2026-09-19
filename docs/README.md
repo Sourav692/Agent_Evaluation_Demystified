@@ -18,8 +18,12 @@ evaluation guide:
   course 02's own map that have drifted, and the terminology the guide names differently.
 - [`genai-eval-playbook-coverage-map.md`](genai-eval-playbook-coverage-map.md) — against *LLM
   Evaluation for GenAI Forward Deployed Engineers*, a customer-facing playbook. All 20 sections
-  mapped, then fourteen gaps grouped into commercial apparatus, retrieval operations and
+  mapped, then thirteen open gaps grouped into commercial apparatus, retrieval operations and
   measurement details.
+- [`openai-eval-guide-tutorial.md`](openai-eval-guide-tutorial.md) — the teaching companion to
+  the first audit. The same guide in plain language, 3–4 lines per concept, each with the
+  notebook that teaches it and a TODO that asks you to produce something. 21 TODOs; the file
+  is its own progress tracker.
 
 ## concepts/
 
