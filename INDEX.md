@@ -147,6 +147,23 @@ Everything for the evaluation thread of a system-design round, in one file.
 | **Tiers A–H** | 19 cases, 30–45 minutes each: strategy from zero · diagnosing production · trajectory and multi-agent · judges and calibration · gating and CI · monitoring · adversarial · platform |
 | **Appendices A–E** | Silent-failure catalogue · misreadings that sound like insight · company-specific flavour · rapid-fire drill · closing notes |
 
+### `docs/openai-eval-guide-coverage-gaps.md` — Coverage gaps vs. OpenAI's guide
+
+An audit of this repo against OpenAI's *Evaluation best practices* guide. Records only what is
+missing, partial, stale or renamed — the positive mapping lives in
+`courses/02-databricks-mlflow-evals/10_capstone_edge_cases_and_crossref.ipynb`.
+
+| | Covers |
+|---|---|
+| **§1** | Scope and method — which 107 files the verdicts are based on, and the four verdict types |
+| **§2** | The cross-reference that already exists, and why it is scoped to course 02 only |
+| **§3** | The eight gaps at a glance — ID, verdict, severity, and the notebook that would host each fix |
+| **§4** | The same eight in detail (G1–G8): guide item · evidence · where the fix belongs · why it matters |
+| **§5** | All 11 verdicts in `edge_cases.py` re-checked — one went stale when course 03 was written |
+| **§6** | Four terms the guide names differently, and two things this repo covers that the guide omits |
+| **§7–§8** | What is out of scope by design, and a suggested order of work |
+| **§9** | Judge-model currency, per course |
+
 ### The three interactive HTML pages
 
 Open in a browser. No build step, no server, no API key.

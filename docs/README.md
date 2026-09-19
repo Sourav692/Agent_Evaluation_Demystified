@@ -9,6 +9,11 @@ Prose. Nothing here executes.
 | [`interview-prep/`](interview-prep/) | Evaluation questions for agentic system-design rounds and 19 decomposition case studies — plus a [self-quiz drill](interview-prep/evaluation-round-drill.html), standalone HTML. |
 | [`study-guide/`](study-guide/) | The staged [study plan](study-guide/evaluation-study-plan.html) through the interview-prep question bank — seven stages with time estimates, a 2–3 day fast path, a skip list and a readiness check. Standalone HTML. |
 
+One standalone file sits outside those folders:
+[`openai-eval-guide-coverage-gaps.md`](openai-eval-guide-coverage-gaps.md) — an audit of the
+repo against OpenAI's *Evaluation best practices* guide, recording only the gaps, the stale
+verdicts and the terminology divergences.
+
 ## concepts/
 
 - [`rag-agent-tool-evaluation.md`](concepts/rag-agent-tool-evaluation.md) — the field
