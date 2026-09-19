@@ -11,8 +11,9 @@ Prose. Nothing here executes.
 
 One standalone file sits outside those folders:
 [`openai-eval-guide-coverage-gaps.md`](openai-eval-guide-coverage-gaps.md) — an audit of the
-repo against OpenAI's *Evaluation best practices* guide, recording only the gaps, the stale
-verdicts and the terminology divergences.
+repo against OpenAI's *Evaluation best practices* guide, scoped separately for course 02 and
+course 03. A coverage matrix, then the gaps each course actually has, the three claims in
+course 02's own map that have drifted, and what is out of scope by design.
 
 ## concepts/
 

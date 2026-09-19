@@ -161,22 +161,22 @@ Everything for the evaluation thread of a system-design round, in one file.
 | **Tiers A–H** | 19 cases, 30–45 minutes each: strategy from zero · diagnosing production · trajectory and multi-agent · judges and calibration · gating and CI · monitoring · adversarial · platform |
 | **Appendices A–E** | Silent-failure catalogue · misreadings that sound like insight · company-specific flavour · rapid-fire drill · closing notes |
 
-### `docs/openai-eval-guide-coverage-gaps.md` — Coverage gaps vs. OpenAI's guide
+### `docs/openai-eval-guide-coverage-gaps.md` — Coverage gaps vs. OpenAI's guide (2,300 words)
 
-An audit of this repo against OpenAI's *Evaluation best practices* guide. Records only what is
-missing, partial, stale or renamed — the positive mapping lives in
-`courses/02-databricks-mlflow-evals/10_capstone_edge_cases_and_crossref.ipynb`.
+An audit of this repo against OpenAI's *Evaluation best practices* guide, **scoped per
+course** — the two courses build different systems, so an item that is `n/a` for one is a live
+hole in the other. Records only what is missing, partial or stale.
 
 | | Covers |
 |---|---|
-| **§1** | Scope and method — which 107 files the verdicts are based on, and the four verdict types |
-| **§2** | The cross-reference that already exists, and why it is scoped to course 02 only |
-| **§3** | The eight gaps at a glance — ID, verdict, severity, and the notebook that would host each fix |
-| **§4** | The same eight in detail (G1–G8): guide item · evidence · where the fix belongs · why it matters |
-| **§5** | All 11 verdicts in `edge_cases.py` re-checked — one went stale when course 03 was written |
-| **§6** | Four terms the guide names differently, and two things this repo covers that the guide omits |
-| **§7–§8** | What is out of scope by design, and a suggested order of work |
-| **§9** | Judge-model currency, per course |
+| **§1–§2** | Scope and method (23 files for course 02, 18 for course 03) · why one repo-wide verdict hides both halves of the handoff finding |
+| **§3** | **The coverage matrix** — 26 guide items scored ✅/🟡/❌/— for course 02 and course 03 side by side |
+| **§4** | Course 02's four gaps (C2-1…C2-4): no judge-bias probe of any kind · single-rater human eval · cost and latency gate nothing · conversations past 2–3 turns |
+| **§5** | Course 03's five gaps (C3-1…C3-5): **circular handoffs, the highest-value item here** · verbosity bias · multi-rater left as an exercise · latency ungated · no multi-turn |
+| **§6** | Four repo-level gaps (R-1…R-4) belonging to the taxonomy or to `labs/`: OpenAI Evals API · ROUGE/BLEU/BERTScore · benchmarks · the unstated discrimination principle |
+| **§7** | Three claims in `OPENAI_EDGE_CASE_COVERAGE` and course 02 notebook 10 that have drifted — one stale, one overstated, one resolved elsewhere |
+| **§8–§9** | Four terms the guide names differently, two this repo covers that the guide omits · what is out of scope by design |
+| **§10–§11** | A suggested order of work across both courses · judge-model currency, per course |
 
 ### The three interactive HTML pages
 

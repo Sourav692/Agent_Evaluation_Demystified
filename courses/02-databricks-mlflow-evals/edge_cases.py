@@ -264,12 +264,12 @@ def edge_case_labels() -> list:
 
 
 # ============================================================================
-# COVERAGE AGAINST THE OPENAI GUIDE'S EDGE-CASE LIST
+# WHAT WE COVER FROM THE OPENAI GUIDE'S EDGE-CASE LIST
 # ============================================================================
-# Honest accounting, including what this agent's design makes inapplicable. Saying "N/A,
-# because there is only one agent" is a better answer than silence -- it shows the item was
-# considered rather than missed, which is the same distinction Phase 0 drew about
-# documented versus silent gaps.
+# A plain list of what we test, what we only partly test, and what does not apply
+# to this agent. Write "n/a" for those last ones -- for example "only one agent,
+# so no handoffs" -- instead of leaving the row out. A gap you name is better
+# than a gap you hide. That is the same rule Phase 0 used.
 
 OPENAI_EDGE_CASE_COVERAGE = {
     "Non-English / multilingual content": (
