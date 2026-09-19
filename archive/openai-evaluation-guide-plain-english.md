@@ -1,5 +1,10 @@
 # OpenAI's Evaluation Guide, in Plain English
 
+> **Archived 2026-09-20.** Folded into [`docs/openai-eval-guide-tutorial.md`](../docs/openai-eval-guide-tutorial.md),
+> which carries its running example, its regression and cost tables, its analogy and its
+> five mistakes. Kept per `archive/README.md`; the links below were repointed for the new
+> location and are otherwise untouched.
+
 > A plain-language walk through OpenAI's
 > [Evaluation best practices](https://developers.openai.com/api/docs/guides/evaluation-best-practices?api-mode=responses).
 > Same ideas, small examples, no theory for its own sake. One example runs all the way
@@ -257,15 +262,15 @@ production -> sample the odd ones -> a human labels them -> add to the test set
 
 | This section | Go to |
 |---|---|
-| §2 the five steps | [`courses/02-databricks-mlflow-evals/00_eval_strategy_worksheet.ipynb`](../../courses/02-databricks-mlflow-evals/00_eval_strategy_worksheet.ipynb) |
-| §2 step 2, building the case set | [`courses/03-agentic-eval-harness/03_the_golden_set.ipynb`](../../courses/03-agentic-eval-harness/03_the_golden_set.ipynb) |
-| §3 tool choice and arguments | [`courses/03-agentic-eval-harness/05_tool_call_evaluation.ipynb`](../../courses/03-agentic-eval-harness/05_tool_call_evaluation.ipynb) |
-| §3 routing between agents | [`courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb`](../../courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb) |
-| §4 the three kinds of checker | [`courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb`](../../courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb) |
-| §5 judge bias | [`courses/03-agentic-eval-harness/08_building_custom_judges.ipynb`](../../courses/03-agentic-eval-harness/08_building_custom_judges.ipynb) |
-| §5 checking the judge against humans | [`courses/03-agentic-eval-harness/09_human_feedback_and_calibration.ipynb`](../../courses/03-agentic-eval-harness/09_human_feedback_and_calibration.ipynb) |
-| §6 edge cases | [`courses/02-databricks-mlflow-evals/10_capstone_edge_cases_and_crossref.ipynb`](../../courses/02-databricks-mlflow-evals/10_capstone_edge_cases_and_crossref.ipynb) |
-| §7 production | [`courses/03-agentic-eval-harness/12_online_evaluation_and_the_loop.ipynb`](../../courses/03-agentic-eval-harness/12_online_evaluation_and_the_loop.ipynb) · [`online_vs_offline_evaluation.md`](online_vs_offline_evaluation.md) |
+| §2 the five steps | [`courses/02-databricks-mlflow-evals/00_eval_strategy_worksheet.ipynb`](../courses/02-databricks-mlflow-evals/00_eval_strategy_worksheet.ipynb) |
+| §2 step 2, building the case set | [`courses/03-agentic-eval-harness/03_the_golden_set.ipynb`](../courses/03-agentic-eval-harness/03_the_golden_set.ipynb) |
+| §3 tool choice and arguments | [`courses/03-agentic-eval-harness/05_tool_call_evaluation.ipynb`](../courses/03-agentic-eval-harness/05_tool_call_evaluation.ipynb) |
+| §3 routing between agents | [`courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb`](../courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb) |
+| §4 the three kinds of checker | [`courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb`](../courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb) |
+| §5 judge bias | [`courses/03-agentic-eval-harness/08_building_custom_judges.ipynb`](../courses/03-agentic-eval-harness/08_building_custom_judges.ipynb) |
+| §5 checking the judge against humans | [`courses/03-agentic-eval-harness/09_human_feedback_and_calibration.ipynb`](../courses/03-agentic-eval-harness/09_human_feedback_and_calibration.ipynb) |
+| §6 edge cases | [`courses/02-databricks-mlflow-evals/10_capstone_edge_cases_and_crossref.ipynb`](../courses/02-databricks-mlflow-evals/10_capstone_edge_cases_and_crossref.ipynb) |
+| §7 production | [`courses/03-agentic-eval-harness/12_online_evaluation_and_the_loop.ipynb`](../courses/03-agentic-eval-harness/12_online_evaluation_and_the_loop.ipynb) · [`online_vs_offline_evaluation.md`](../docs/concepts/online_vs_offline_evaluation.md) |
 
 **What this repo does not cover from the guide:** see
-[`../openai-eval-guide-coverage-gaps.md`](../openai-eval-guide-coverage-gaps.md).
+[`../openai-eval-guide-coverage-gaps.md`](../docs/openai-eval-guide-coverage-gaps.md).

@@ -226,9 +226,10 @@ with the notebook that teaches each one and **21 TODOs** that each ask you to pr
 something. **This document is the record; that one is the lesson.** Keep them in step: if a
 row here changes status, the matching section there changes too.
 
-[`concepts/openai-evaluation-guide-plain-english.md`](concepts/openai-evaluation-guide-plain-english.md)
-is the third of the set — the same ideas as continuous prose with one worked example running
-through every section. **The audit records, the tutorial drills, the explainer explains.**
+There were briefly three documents on this guide. The third, a prose explainer, was folded
+into the tutorial on 2026-09-20 and archived: it cited **no notebook the tutorial did not
+already cite**, which made it a second rendering rather than a second audience.
+**Two documents, two jobs — this one records, that one teaches.**
 
 ## What actually moves the needle
 

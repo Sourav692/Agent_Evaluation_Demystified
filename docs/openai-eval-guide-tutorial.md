@@ -10,12 +10,14 @@ failure modes — open the notebook listed under it.
 **All notebook paths are relative to the repository root**, not to this file, so you can
 paste them straight into `jupyter lab` or an editor.
 
-> **Companion documents.** [`openai-eval-guide-coverage-gaps.md`](openai-eval-guide-coverage-gaps.md),
+> **Companion document.** [`openai-eval-guide-coverage-gaps.md`](openai-eval-guide-coverage-gaps.md),
 > beside this file, is the audit — which topics this repo covers, which were deliberately
-> skipped, and why. **That one is the record; this one is the lesson.**
-> [`concepts/openai-evaluation-guide-plain-english.md`](concepts/openai-evaluation-guide-plain-english.md)
-> explains the same ideas as continuous prose with one worked example running through it —
-> read that if a concept here is too compressed. **That one explains; this one makes you do it.**
+> skipped, and why. **That one is the record; this one is the lesson.** There is no third
+> document: an earlier prose explainer was folded into this one on 2026-09-20, because it
+> explained the same concepts against the same notebooks and cited none of its own.
+
+A note on the running example: **a support bot for a phone company** appears throughout, so
+each concept lands on something you have already met rather than a fresh abstraction.
 
 ---
 
@@ -59,9 +61,27 @@ it is.
 
 ## 1. What an eval actually is
 
+One example runs through this whole tutorial: **a support bot for a phone company.** Here is
+the run that explains why evaluation exists at all.
+
+```
+USER   "What's my balance on account ACC-99231?"
+BOT    "Your Premium plan has a balance of $45.20."
+```
+
+That account does not exist. The lookup returned `{"found": false}` and the bot invented the
+rest — fluently, confidently, and about the customer's own money. Nothing crashed, nothing
+logged an error, and every test you had still passes.
+
 A test asserts that the output equals something. You cannot do that here, because the same
 input gives different words every time. An **eval** asserts a *property* instead — is this
 grounded? did it refuse? did it call the right tool? — and returns pass or fail.
+
+| | Normal software test | Eval |
+|---|---|---|
+| Same input twice | Same output, always | Different wording each time |
+| What you assert | An exact value | A property: is it grounded? did it refuse? |
+| Result | Pass / fail | Pass / fail, **or** a score you set a threshold on |
 
 That change of shape is the whole subject. Everything else is deciding which properties
 matter and how much it costs to check them.
@@ -162,6 +182,18 @@ the code-first decision procedure, and where a judge is genuinely required.
 One number alone tells you nothing. Run the old build and the new build over the *same*
 cases and diff them — and read the whole table, because the normal shape of a regression is
 one number up and one quietly down.
+
+For the support bot, a version bump reads like this:
+
+```
+              v1      v2
+groundedness  0.91    0.94   ▲ better
+refusal       0.88    0.71   ▼ WORSE
+resolution    0.76    0.79   ▲ better
+```
+
+v2 looks like a clear improvement until line 2. It got chattier, so it guesses where v1 would
+have said *"I don't know"* — and the guess is the `ACC-99231` failure from §1, shipped.
 
 **In this repo:** `courses/02-databricks-mlflow-evals/05_prompt_versioning_and_regression.ipynb`
 is built as exactly this trap: v2 improves the metric being watched and breaks three that
@@ -269,6 +301,13 @@ flowchart TD
     JUDGE -.must be checked against.-> HUMAN
 ```
 
+| | Code | Model judge | Human |
+|---|---|---|---|
+| Cost per check | £0 | ~£0.001 | ~£1 |
+| Same answer twice? | Always | Usually | Often not |
+| Can judge "is this polite?" | No | Yes | Yes |
+| Run it on | 100% of traffic | 1–2% | 50 cases, once |
+
 ### 4.1 If code can decide it, never pay a model
 
 Code is free and gives the same answer every time — so when the number moves, **the system
@@ -299,6 +338,9 @@ three on the same cases, and the table showing where they disagree.
 **Position bias:** it prefers whichever answer it saw first. **Verbosity bias:** it prefers
 the longer one. **Same-model bias:** it rates its own family's output highly. All three are
 testable, and all three are embarrassing to discover after shipping.
+
+**The analogy.** Two wine judges. One always prefers whichever glass is handed over first;
+the other always prefers the fuller glass. Neither is tasting.
 
 **In this repo:** `courses/03-agentic-eval-harness/08_building_custom_judges.ipynb` Parts 5,
 5.1 and 6. Part 5 swaps the order and counts verdict flips; §5.1 audits the length
@@ -414,6 +456,17 @@ first, then let the optimiser run, then gate its output like any other change.
 
 - [ ] **TODO** — free. Say in one sentence why running GEPA *before* judge alignment is the
   wrong order. That sentence is the whole argument for phase 7 existing.
+
+---
+
+## 6.3 Five mistakes, in one line each
+
+- **Measuring what is easy instead of what matters.** A score for word overlap is not a score
+  for correctness — §1.1 has the numbers.
+- **Testing on questions you made up.** Your test set passes because you wrote it.
+- **"We tried it, it seemed fine."** That is a demo, not an eval.
+- **Ignoring the humans.** If your judge disagrees with your support team, the judge is wrong.
+- **Running it once.** Before the release and never again means you find out from customers.
 
 ---
 

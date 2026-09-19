@@ -135,47 +135,6 @@ checks run in, strictly within course 02's 10-phase MLflow track.
 | **§6–§7** | Side-by-side comparison and what flows between the regimes · where human alignment fits |
 | **§8–§10** | Phase-by-phase contributions · key takeaways · the flywheel |
 
-### `docs/concepts/openai-evaluation-guide-plain-english.md` — OpenAI's guide, plain English (1,700 words)
-
-The entry point if the other companions read as too dense. OpenAI's evaluation-best-practices
-guide restated in plain language, with small examples instead of theory — one support bot runs
-through every section.
-
-| | Covers |
-|---|---|
-| **§1–§2** | Why "it looks fine" is not a test · the five steps, each with the smallest worked version: thresholds first, where cases come from, picking a checkable metric, comparing two versions on the same inputs |
-| **§3** | Where checks go for each shape — single turn, workflow, one agent, many agents — and why wrong tool and wrong argument are different bugs |
-| **§4–§5** | Code vs. model judge vs. human, with cost and what to run each on · the two judge biases, position and verbosity, each shown as a two-line example |
-| **§6–§7** | Edge cases collected by *kind* rather than by string · which checks survive in production without a reference answer, and how the loop closes |
-| **§8–§9** | Five mistakes in one line each · a map from every section to the notebook that implements it |
-
-### `docs/interview-prep/QUESTION_BANK.md` — Question bank (25,300 words)
-
-Everything for the evaluation thread of a system-design round, in one file.
-
-| | Covers |
-|---|---|
-| **Part 0** | What the round measures (five scoring axes) · the Decomposition Spine · the evaluation taxonomy |
-| **Parts 1–9** | 35 questions. Each: the issue underneath, what they're checking, a strong answer, a weak answer *with why it reads badly*, and the follow-up to expect |
-| **Part 10** | 25 metric-level questions, grouped by evaluation surface — the ones asked with your dashboard on screen |
-| **Tiers A–H** | 19 cases, 30–45 minutes each: strategy from zero · diagnosing production · trajectory and multi-agent · judges and calibration · gating and CI · monitoring · adversarial · platform |
-| **Appendices A–E** | Silent-failure catalogue · misreadings that sound like insight · company-specific flavour · rapid-fire drill · closing notes |
-
-### `docs/openai-eval-guide-coverage-gaps.md` — OpenAI guide repo coverage (3,500 words)
-
-Maps every topic in OpenAI's *Evaluation best practices* guide to where this repo teaches it,
-and names what is missing. Verdicts are taken **per course**, because a repo-wide average
-hides whichever course is weaker.
-
-| | Covers |
-|---|---|
-| **Header** | Tally by badge — 47 ✅ · 2 🟡 · 5 ⏭️ · 1 ❌ across 55 rows — and the headline finding |
-| **§1–§7** | The guide's own sections as mapping tables: what are evals · design the process · where evals go by architecture · types of evaluator · the 11 edge cases · improvement · platform surface |
-| **The gap list** | Five tracked gaps, four **closed** 2026-09-20 — circular handoffs, verbosity bias, blinded preference testing, ROUGE/BLEU/BERTScore. Only the OpenAI Evals API remains open |
-| **When a gap is worth closing** | The rule separating the four descopes from the four gaps, and why scoping per course is what made two of them visible |
-| **Corrections** | Three claims in course 02's own cross-reference that had drifted — one stale, one overstated, one resolved elsewhere — all corrected 2026-09-20 |
-| **Terminology · Related · What moves the needle** | Four renamings the guide uses · the two companion documents · the cheapest two actions |
-
 ### `docs/openai-eval-guide-tutorial.md` — Evaluation tutorial + tracker (3,400 words)
 
 The lesson to the audit's record. OpenAI's guide walked through in plain language — 3–4 lines
