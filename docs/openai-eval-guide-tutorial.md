@@ -170,8 +170,9 @@ Prefer questions with a yes or no.
 The related rule is that models are better at **choosing** than at **producing**. Ask a judge
 to pick between two answers, or to classify one, rather than to write a score out of ten.
 
-**In this repo:** `courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb` §4 —
-the code-first decision procedure, and where a judge is genuinely required.
+**In this repo:** `courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb` — §4
+is the code-first decision procedure and where a judge is genuinely required; **§4f** is the
+rule above stated properly, with the three shapes as a table and why each alternative drifts.
 
 - [ ] **TODO** — free. Take three metrics you would have picked for your own system and
   rewrite each as a yes/no question. Any you cannot rewrite is a metric you will argue about
@@ -413,8 +414,10 @@ formatting conflict.
 eleven-item list in code with a verdict and a justification per row.
 
 - [ ] **TODO** — free. Open `OPENAI_EDGE_CASE_COVERAGE` in
-  `courses/02-databricks-mlflow-evals/edge_cases.py` and find the one entry marked `n/a` that
-  is **no longer true** of this repo. The answer is in the audit document if you get stuck.
+  `courses/02-databricks-mlflow-evals/edge_cases.py`. Two entries read `n/a`. For each, decide
+  whether the failure is unreachable **in this repo** or only **in course 02** — they look
+  identical in the dict and mean opposite things. One of them was a live, untested hole in
+  course 03 until 2026-09-20, and the row never said so.
 
 ### 5.2 The polite failure is the dangerous one
 
@@ -459,7 +462,7 @@ first, then let the optimiser run, then gate its output like any other change.
 
 ---
 
-## 6.3 Five mistakes, in one line each
+### 6.3 Five mistakes, in one line each
 
 - **Measuring what is easy instead of what matters.** A score for word overlap is not a score
   for correctness — §1.1 has the numbers.
@@ -501,6 +504,11 @@ per row in [`openai-eval-guide-coverage-gaps.md`](openai-eval-guide-coverage-gap
 - **Multimodal evaluation** — every system here is text-only. Audio and image inputs need a
   different agent, not a different technique.
 - **Reinforcement fine-tuning** — the improvement lever here is the prompt.
+- **"Start with the most capable judge, then optimise down"** — followed, then overridden on
+  evidence. Every judge here is pinned small, and course 03's `gpt-4.1-mini` is deliberate:
+  `gpt-4o-mini` fell into repetition loops, with the measurements at
+  `courses/03-agentic-eval-harness/README.md` line 149. Re-opening it would mean re-running
+  three courses' judges to confirm a result already measured.
 
 And one genuine gap remains open: **OpenAI's own Evals API and Graders tool**. The repo
 teaches the same ideas in DeepEval, RAGAS, MLflow and Phoenix; the vendor's own surface is the
