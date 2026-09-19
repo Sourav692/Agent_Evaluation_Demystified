@@ -289,8 +289,11 @@ OPENAI_EDGE_CASE_COVERAGE = {
     "Ambiguous tool response properties": (
         "covered", "Phase 10 `ambiguous_tool_response` -- both tools' found:False paths"),
     "Circular agent handoffs": (
-        "n/a", "Single agent, no handoffs. Would require the multi-agent supervisor pattern; "
-               "the analogous single-agent failure (a tool loop) is bounded by the graph."),
+        "n/a", "Single agent, no handoffs, so unreachable in THIS track -- the "
+               "analogous single-agent failure (a tool loop) is bounded by the graph. "
+               "Reachable elsewhere in the repo and now tested there: "
+               "courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb "
+               "section 2.1 -- a revisited agent, plus a hop bound."),
     "Jailbreak attempt resistance": (
         "covered", "Phase 10 adversarial suite: 5 classes x 3 variants"),
     "Custom formatting preferences": (
