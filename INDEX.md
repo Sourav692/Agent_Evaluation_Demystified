@@ -161,22 +161,34 @@ Everything for the evaluation thread of a system-design round, in one file.
 | **Tiers A–H** | 19 cases, 30–45 minutes each: strategy from zero · diagnosing production · trajectory and multi-agent · judges and calibration · gating and CI · monitoring · adversarial · platform |
 | **Appendices A–E** | Silent-failure catalogue · misreadings that sound like insight · company-specific flavour · rapid-fire drill · closing notes |
 
-### `docs/openai-eval-guide-coverage-gaps.md` — Coverage gaps vs. OpenAI's guide (2,300 words)
+### `docs/openai-eval-guide-coverage-gaps.md` — OpenAI guide repo coverage (3,200 words)
 
-An audit of this repo against OpenAI's *Evaluation best practices* guide, **scoped per
-course** — the two courses build different systems, so an item that is `n/a` for one is a live
-hole in the other. Records only what is missing, partial or stale.
+Maps every topic in OpenAI's *Evaluation best practices* guide to where this repo teaches it,
+and names what is missing. Verdicts are taken **per course**, because a repo-wide average
+hides whichever course is weaker.
 
 | | Covers |
 |---|---|
-| **§1–§2** | Scope and method (23 files for course 02, 18 for course 03) · why one repo-wide verdict hides both halves of the handoff finding |
-| **§3** | **The coverage matrix** — 26 guide items scored ✅/🟡/❌/— for course 02 and course 03 side by side |
-| **§4** | Course 02's four gaps (C2-1…C2-4): no judge-bias probe of any kind · single-rater human eval · cost and latency gate nothing · conversations past 2–3 turns |
-| **§5** | Course 03's five gaps (C3-1…C3-5): **circular handoffs, the highest-value item here** · verbosity bias · multi-rater left as an exercise · latency ungated · no multi-turn |
-| **§6** | Four repo-level gaps (R-1…R-4) belonging to the taxonomy or to `labs/`: OpenAI Evals API · ROUGE/BLEU/BERTScore · benchmarks · the unstated discrimination principle |
-| **§7** | Three claims in `OPENAI_EDGE_CASE_COVERAGE` and course 02 notebook 10 that have drifted — one stale, one overstated, one resolved elsewhere |
-| **§8–§9** | Four terms the guide names differently, two this repo covers that the guide omits · what is out of scope by design |
-| **§10–§11** | A suggested order of work across both courses · judge-model currency, per course |
+| **Header** | Tally by badge — 42 ✅ · 5 🟡 · 4 ⏭️ · 4 ❌ across 55 rows — and the headline finding |
+| **§1–§7** | The guide's own sections as mapping tables: what are evals · design the process · where evals go by architecture · types of evaluator · the 11 edge cases · improvement · platform surface |
+| **The gap list** | Five tracked gaps — circular handoffs (**built** 2026-09-20), verbosity bias, blinded preference testing, ROUGE/BLEU/BERTScore, the OpenAI Evals API |
+| **When a gap is worth closing** | The rule separating the four descopes from the four gaps, and why scoping per course is what made two of them visible |
+| **Corrections** | Three claims in course 02's own cross-reference that no longer hold — one stale, one overstated, one resolved elsewhere |
+| **Terminology · Related · What moves the needle** | Four renamings the guide uses · the two companion documents · the cheapest two actions |
+
+### `docs/genai-eval-playbook-coverage-map.md` — GenAI FDE playbook map (2,100 words)
+
+The same exercise as the audit above, against *LLM Evaluation for GenAI Forward Deployed
+Engineers* — a customer-facing playbook rather than a measurement guide, so the gaps fall
+somewhere else entirely.
+
+| | Covers |
+|---|---|
+| **§1–§2** | Scope per course and doc folder · why this playbook's gaps differ: it asks how you prove quality to a paying customer and earn sign-off |
+| **§3** | **All 20 playbook sections mapped**, each ✅/🟡/❌ with the notebook that covers it |
+| **§4** | Fourteen gaps (P-1…P-14) in three clusters — **commercial apparatus** (acceptance criteria and sign-off, stakeholder dashboards, executive reporting, the staged canary ladder, real-traffic A/B), **retrieval operations** (freshness, duplicates, ACL pass rate, rewrite impact, reranker, retriever versioning), and measurement details |
+| **§5** | Seven things this repo has that the playbook does not — detection limits, McNemar and bootstrap, judge-bias probes, a gate wired to CI, final-state verification, loop detection, `p**n` arithmetic |
+| **§6–§7** | A suggested order of work · how this audit relates to the OpenAI one — they overlap in exactly one item |
 
 ### The three interactive HTML pages
 
