@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "python3 -m venv /tmp/sitebuild && /tmp/sitebuild/bin/pip install --quiet -r site/requirements.txt && /tmp/sitebuild/bin/python site/build.py",
+  "outputDirectory": "site/dist",
+  "installCommand": "echo 'no package manager: the site is built by site/build.py'",
+  "framework": null,
+  "cleanUrls": false
+}

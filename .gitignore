@@ -74,3 +74,6 @@ __builtins__.pyi
 
 # Generated site (build artifact -- rebuild with: python3 site/build.py)
 site/dist/
+
+# Vercel CLI link + build cache
+.vercel/

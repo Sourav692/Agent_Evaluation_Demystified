@@ -11,7 +11,7 @@ two jobs. (Four files: the tutorial also ships as a page — see below.)
 
 **The markdown tutorial is canonical.** `openai-eval-guide-tutorial.html` is the same
 seven chapters as a browser page — the Mermaid blocks drawn as inline SVG, the 21 TODOs as
-tick boxes with a progress meter saved in the browser. Edit the `.md` and re-render; the page
+tick-box exercises with a progress gauge saved in the browser. Edit the `.md` and re-render; the page
 is not a second source. It carries no content the markdown does not.
 
 **The audits record; the tutorial teaches.** A fourth document explaining the same concepts

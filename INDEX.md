@@ -179,7 +179,7 @@ rather than read something. The file is its own progress tracker.
 | **§7** | An eight-step path through the repo, and the four-step version for one evening |
 
 Also rendered as [`openai-eval-guide-tutorial.html`](docs/guide-audits/openai-eval-guide-tutorial.html)
-— same content, tick boxes instead of `- [ ]`, and the three Mermaid blocks drawn as inline SVG.
+— same content, tick-box exercises instead of `- [ ]`, and the three Mermaid blocks drawn as inline SVG.
 The markdown is canonical: it is the copy that gets committed as a tracker.
 
 ### `docs/guide-audits/genai-eval-playbook-coverage-map.md` — GenAI FDE playbook map (2,100 words)
@@ -202,7 +202,7 @@ Open in a browser. No build step, no server, no API key.
 
 | File | What it does |
 |---|---|
-| `docs/guide-audits/openai-eval-guide-tutorial.html` | The tutorial above as a page — the same seven chapters, its three flow diagrams drawn as SVG, and the 21 TODOs as tick boxes with a progress meter. The `.md` is still the tracker you commit; this one saves to the browser |
+| `docs/guide-audits/openai-eval-guide-tutorial.html` | The tutorial above as a page — the same seven chapters, its three flow diagrams drawn as SVG, and the 21 TODOs as tick-box exercises with a progress gauge. The `.md` is still the tracker you commit; this one saves to the browser |
 | `docs/study-guide/evaluation-study-plan.html` | Seven stages ordered by what the round tests, with time estimates, a 2–3 day fast path, a skip list and a readiness check. Tick items off as you go |
 | `docs/interview-prep/fde-playbook-end-to-end-evaluation.html` | **The FDE playbook's sections 1–14 on one page.** The evaluation pipeline as a spine, then each stage: golden datasets with sizes by deployment stage, human labels on a 1–5 scale, nine scorers with their blind spots, the correctness/faithfulness/groundedness/helpfulness split, retrieval failures including the four that only appear after deployment, eight answer-quality dimensions, seven safety attacks by severity, regression testing, A/B, the canary ladder with rollback triggers, acceptance criteria with sign-off owners, four dashboard views |
 | `docs/interview-prep/stratified-reporting-explained.html` | **Stratified reporting in plain English.** One table where the overall score rises 87.5% → 90% while Hindi collapses 88% → 50%, why the average buries it, how to choose your groups, the small-group trap, and what to say in an interview |

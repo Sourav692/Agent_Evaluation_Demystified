@@ -4,22 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RAG, Agent &amp; Tool Evaluation — Index</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Spline+Sans+Mono:ital,wght@0,300;0,400;0,500;0,600&display=swap">
+
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
 <style>
 :root{
-  --ink:#0d1017; --panel:#151a26; --panel-2:#1b2130; --line:#283043;
-  --text:#e7eaf3; --muted:#8b93ab;
-  --mono:'IBM Plex Mono', ui-monospace, monospace;
-  --disp:'Space Grotesk', system-ui, sans-serif;
-  --accent:#8ba4ff; --det:#3fd6ce; --judge:#a487f5; --gen:#ef5b93; --tool:#c2e04a; --traj:#f0a03c;
+  --ink:#0D1618; --panel:#142124; --panel-2:#18272A; --line:#26383B;
+  --text:#DDE5E3; --muted:#9FB1B1;
+  --mono:'Spline Sans Mono', ui-monospace, monospace;
+  --disp:'Newsreader', Georgia, 'Times New Roman', serif;
+  --accent:#bcccce; --det:#68ad8b; --judge:#b4c6c8; --gen:#c58f85; --tool:#aab575; --traj:#c6a666;
 }
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(900px 500px at 10% -10%, #1a2440 0%, transparent 60%), var(--ink);
+body{margin:0;background:radial-gradient(900px 500px at 10% -10%, #122023 0%, transparent 60%), var(--ink);
   color:var(--text);font-family:var(--disp);line-height:1.5}
 .wrap{max-width:1000px;margin:0 auto;padding:28px 18px 60px}
-.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--muted);display:flex;gap:10px;align-items:center;margin-bottom:12px}
 .eyebrow::after{content:"";flex:1;height:1px;background:var(--line)}
 h1{font-size:clamp(22px,4.5vw,32px);margin:0 0 8px;font-weight:700;letter-spacing:-.01em}
 .sub{color:var(--muted);font-size:14px;max-width:70ch;margin:0 0 22px}
@@ -27,32 +28,32 @@ h2{font-size:15px;margin:0 0 12px;font-weight:600;letter-spacing:-.01em}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:18px}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
 .chip{font-family:var(--mono);font-size:11.5px;padding:7px 12px;border-radius:99px;cursor:pointer;background:var(--panel-2);border:1px solid var(--line);color:var(--muted)}
-.chip:hover{color:var(--text);border-color:#3c4762}
-.chip[aria-pressed="true"]{background:#1b2547;border-color:var(--accent);color:#c5d2ff}
+.chip:hover{color:var(--text);border-color:#42585c}
+.chip[aria-pressed="true"]{background:#293739;border-color:var(--accent);color:#dde5e7}
 .chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .headline{font-size:15px;font-weight:600;margin:16px 0 4px}
 .symptom{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:0 0 14px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .box{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:12px}
-.box .kicker{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px}
+.box .kicker{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--muted);display:block;margin-bottom:8px}
 .box ul{margin:0;padding-left:16px}
 .box li{font-size:12.5px;margin-bottom:5px}
-.box code{font-family:var(--mono);font-size:11.5px;color:#c5d2ff}
-.note{margin-top:14px;background:linear-gradient(90deg,#1b2547,#151a26 70%);border:1px solid #33406b;border-left:3px solid var(--accent);border-radius:8px;padding:12px 14px;font-size:13px;color:#cfd4e6}
+.box code{font-family:var(--mono);font-size:11.5px;color:#dde5e7}
+.note{margin-top:14px;background:linear-gradient(90deg,#293739,#142124 70%);border:1px solid #42585c;border-left:3px solid var(--accent);border-radius:8px;padding:12px 14px;font-size:13px;color:#d5dfe0}
 .note b{color:#fff}
 .card{display:block;text-decoration:none;color:inherit;background:var(--panel-2);border:1px solid var(--line);
   border-left:3px solid var(--dead);border-radius:10px;padding:13px 15px;margin-bottom:10px;transition:transform .2s,background .2s}
-.card:hover{transform:translateX(3px);background:#1f2637}
+.card:hover{transform:translateX(3px);background:#243032}
 .card.d{border-left-color:var(--det)} .card.j{border-left-color:var(--judge)}
 .card.g{border-left-color:var(--gen)} .card.t{border-left-color:var(--tool)} .card.a{border-left-color:var(--traj)}
-.card .num{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.card .num{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--muted)}
 .card h3{margin:3px 0 5px;font-size:15px;font-weight:600}
 .card p{margin:0 0 8px;font-size:12.5px;color:var(--muted)}
 .card .drag{font-family:var(--mono);font-size:11px;color:var(--accent)}
 .card .files{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:6px}
 table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-thead th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
-tbody td{padding:9px 12px;font-size:12.5px;border-bottom:1px solid #1e2434;vertical-align:top}
+thead th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+tbody td{padding:9px 12px;font-size:12.5px;border-bottom:1px solid #222e30;vertical-align:top}
 tbody tr:last-child td{border-bottom:none}
 code{font-family:var(--mono);font-size:11.5px}
 .foot{color:var(--muted);font-size:12px;font-family:var(--mono);margin-top:28px;text-align:center}
@@ -71,47 +72,47 @@ code{font-family:var(--mono);font-size:11.5px}
     <svg viewBox="0 0 720 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="RAG agent pipeline with five evaluation surfaces">
       <defs>
         <marker id="ar" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
-          <path d="M0,0 L7,3.5 L0,7 z" fill="#4a5573"/>
+          <path d="M0,0 L7,3.5 L0,7 z" fill="#4f6a6e"/>
         </marker>
       </defs>
-      <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#e7eaf3">
-        <rect x="4" y="18" width="92" height="32" rx="8" fill="#1b2130" stroke="#283043"/>
+      <g font-family="Spline Sans Mono, monospace" font-size="11" fill="#DDE5E3">
+        <rect x="4" y="18" width="92" height="32" rx="8" fill="#18272A" stroke="#26383B"/>
         <text x="50" y="38" text-anchor="middle">question</text>
-        <rect x="122" y="18" width="122" height="32" rx="8" fill="#12352f" stroke="#3fd6ce"/>
-        <text x="183" y="38" text-anchor="middle" fill="#7fe6e0">retriever</text>
-        <rect x="270" y="18" width="122" height="32" rx="8" fill="#2f1522" stroke="#ef5b93"/>
-        <text x="331" y="38" text-anchor="middle" fill="#ffb3cf">generator</text>
-        <rect x="418" y="18" width="122" height="32" rx="8" fill="#33260f" stroke="#f0a03c"/>
-        <text x="479" y="38" text-anchor="middle" fill="#ffc987">agent loop</text>
-        <rect x="566" y="18" width="122" height="32" rx="8" fill="#2a3313" stroke="#c2e04a"/>
-        <text x="627" y="38" text-anchor="middle" fill="#dcefa0">tools</text>
+        <rect x="122" y="18" width="122" height="32" rx="8" fill="#192e24" stroke="#68ad8b"/>
+        <text x="183" y="38" text-anchor="middle" fill="#9cc9b2">retriever</text>
+        <rect x="270" y="18" width="122" height="32" rx="8" fill="#2e1a16" stroke="#c58f85"/>
+        <text x="331" y="38" text-anchor="middle" fill="#e7d0cb">generator</text>
+        <rect x="418" y="18" width="122" height="32" rx="8" fill="#302612" stroke="#c6a666"/>
+        <text x="479" y="38" text-anchor="middle" fill="#dfcca7">agent loop</text>
+        <rect x="566" y="18" width="122" height="32" rx="8" fill="#2a2e18" stroke="#aab575"/>
+        <text x="627" y="38" text-anchor="middle" fill="#d3d8b7">tools</text>
 
-        <line x1="98" y1="34" x2="116" y2="34" stroke="#4a5573" marker-end="url(#ar)"/>
-        <line x1="246" y1="34" x2="264" y2="34" stroke="#4a5573" marker-end="url(#ar)"/>
-        <line x1="394" y1="34" x2="412" y2="34" stroke="#4a5573" marker-end="url(#ar)"/>
-        <line x1="542" y1="34" x2="560" y2="34" stroke="#4a5573" marker-end="url(#ar)"/>
-        <path d="M627 50 L627 66 L479 66 L479 54" fill="none" stroke="#f0a03c" stroke-dasharray="3 3" marker-end="url(#ar)"/>
-        <text x="553" y="80" text-anchor="middle" font-size="9" fill="#8b93ab">tool results loop back</text>
+        <line x1="98" y1="34" x2="116" y2="34" stroke="#4f6a6e" marker-end="url(#ar)"/>
+        <line x1="246" y1="34" x2="264" y2="34" stroke="#4f6a6e" marker-end="url(#ar)"/>
+        <line x1="394" y1="34" x2="412" y2="34" stroke="#4f6a6e" marker-end="url(#ar)"/>
+        <line x1="542" y1="34" x2="560" y2="34" stroke="#4f6a6e" marker-end="url(#ar)"/>
+        <path d="M627 50 L627 66 L479 66 L479 54" fill="none" stroke="#c6a666" stroke-dasharray="3 3" marker-end="url(#ar)"/>
+        <text x="553" y="80" text-anchor="middle" font-size="9" fill="#9FB1B1">tool results loop back</text>
 
-        <path d="M122 100 L122 92 L244 92 L244 100" fill="none" stroke="#3fd6ce" stroke-width="1.2"/>
-        <text x="183" y="115" text-anchor="middle" font-size="10" fill="#3fd6ce">LAB 01 · P@K R@K MRR nDCG</text>
-        <text x="183" y="128" text-anchor="middle" font-size="9" fill="#8b93ab">free · needs labelled chunk ids</text>
-        <text x="183" y="146" text-anchor="middle" font-size="10" fill="#a487f5">LAB 02 · Contextual P/R/Relevancy</text>
-        <text x="183" y="159" text-anchor="middle" font-size="9" fill="#8b93ab">judged · no chunk labels needed</text>
+        <path d="M122 100 L122 92 L244 92 L244 100" fill="none" stroke="#68ad8b" stroke-width="1.2"/>
+        <text x="183" y="115" text-anchor="middle" font-size="10" fill="#68ad8b">LAB 01 · P@K R@K MRR nDCG</text>
+        <text x="183" y="128" text-anchor="middle" font-size="9" fill="#9FB1B1">free · needs labelled chunk ids</text>
+        <text x="183" y="146" text-anchor="middle" font-size="10" fill="#b4c6c8">LAB 02 · Contextual P/R/Relevancy</text>
+        <text x="183" y="159" text-anchor="middle" font-size="9" fill="#9FB1B1">judged · no chunk labels needed</text>
 
-        <path d="M270 100 L270 92 L392 92 L392 100" fill="none" stroke="#ef5b93" stroke-width="1.2"/>
-        <text x="331" y="115" text-anchor="middle" font-size="10" fill="#ef5b93">LAB 03 · Faithfulness</text>
-        <text x="331" y="128" text-anchor="middle" font-size="9" fill="#8b93ab">+ Relevancy · Correctness</text>
+        <path d="M270 100 L270 92 L392 92 L392 100" fill="none" stroke="#c58f85" stroke-width="1.2"/>
+        <text x="331" y="115" text-anchor="middle" font-size="10" fill="#c58f85">LAB 03 · Faithfulness</text>
+        <text x="331" y="128" text-anchor="middle" font-size="9" fill="#9FB1B1">+ Relevancy · Correctness</text>
 
-        <path d="M418 100 L418 92 L540 92 L540 100" fill="none" stroke="#f0a03c" stroke-width="1.2"/>
-        <text x="479" y="115" text-anchor="middle" font-size="10" fill="#f0a03c">LAB 05 · trajectory</text>
-        <text x="479" y="128" text-anchor="middle" font-size="9" fill="#8b93ab">9 trace-level metrics</text>
+        <path d="M418 100 L418 92 L540 92 L540 100" fill="none" stroke="#c6a666" stroke-width="1.2"/>
+        <text x="479" y="115" text-anchor="middle" font-size="10" fill="#c6a666">LAB 05 · trajectory</text>
+        <text x="479" y="128" text-anchor="middle" font-size="9" fill="#9FB1B1">9 trace-level metrics</text>
 
-        <path d="M566 100 L566 92 L688 92 L688 100" fill="none" stroke="#c2e04a" stroke-width="1.2"/>
-        <text x="627" y="115" text-anchor="middle" font-size="10" fill="#c2e04a">LAB 04 · tool use</text>
-        <text x="627" y="128" text-anchor="middle" font-size="9" fill="#8b93ab">selection · arguments</text>
+        <path d="M566 100 L566 92 L688 92 L688 100" fill="none" stroke="#aab575" stroke-width="1.2"/>
+        <text x="627" y="115" text-anchor="middle" font-size="10" fill="#aab575">LAB 04 · tool use</text>
+        <text x="627" y="128" text-anchor="middle" font-size="9" fill="#9FB1B1">selection · arguments</text>
 
-        <text x="360" y="190" text-anchor="middle" font-size="9.5" fill="#5f6b86">each surface caps the ones downstream — verify left to right, then look underneath the agent</text>
+        <text x="360" y="190" text-anchor="middle" font-size="9.5" fill="#608085">each surface caps the ones downstream — verify left to right, then look underneath the agent</text>
       </g>
     </svg>
   </div>

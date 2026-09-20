@@ -545,9 +545,9 @@ flowchart LR
     RET --> R5["#5 chunk_9<br/>grade 0 · noise"]
     GT["chunk_5<br/>grade 3 · relevant"] -.->|"never retrieved"| RET
 
-    style GT fill:#2a1620,stroke:#5c2b40
-    style R2 fill:#14261c,stroke:#24523a
-    style R4 fill:#14261c,stroke:#24523a
+    style GT fill:#EDDCD8,stroke:#8C2F22
+    style R2 fill:#D9E3DB,stroke:#2F6B4F
+    style R4 fill:#D9E3DB,stroke:#2F6B4F
 ```
 
 `chunk_5` is the whole lesson. It is labelled relevant, graded 3, and the retriever never returned it — so it is invisible to precision and MRR, and it is the single reason recall and nDCG are capped.
@@ -665,9 +665,9 @@ flowchart TD
     Q3 -->|no| CP["Contextual Precision fails<br/>→ reranker, hybrid search"]
     Q3 -->|yes| OK["Retrieval is sound<br/>→ go look at generation (Part 3)"]
 
-    style CR fill:#14261c,stroke:#24523a
-    style CP fill:#12352f,stroke:#2c5a56
-    style REL fill:#241d12,stroke:#6b4c18
+    style CR fill:#D9E3DB,stroke:#2F6B4F
+    style CP fill:#D9E3DB,stroke:#2F6B4F
+    style REL fill:#EDE3CE,stroke:#9A6A12
 ```
 
 The order matters. Coverage before ranking: there is no point tuning a reranker over a context that never contained the answer.
@@ -812,8 +812,8 @@ flowchart TD
     Q3 -->|"referenceless metrics<br/>cannot ask this"| BLIND["BLIND SPOT<br/>faithful and wrong"]
     Q3 -->|"needs expected_output<br/>or trusted context"| AC["Answer Correctness<br/>Hallucination"]
 
-    style BLIND fill:#2a1620,stroke:#5c2b40
-    style AC fill:#2a2140,stroke:#a487f5
+    style BLIND fill:#EDDCD8,stroke:#8C2F22
+    style AC fill:#DADCD6,stroke:#3C4E51
 ```
 
 The blind spot is structural, not a tuning problem. Faithfulness is defined relative to the retrieved context, so it cannot evaluate that context.
@@ -928,8 +928,8 @@ flowchart TD
     B -->|false| S3["output compared<br/>order and extras still invisible"]
     B -->|true| S4["exact list equality<br/>everything fails, metric goes binary"]
 
-    style S1 fill:#2a1620,stroke:#5c2b40
-    style S4 fill:#242c12,stroke:#4b5a1f
+    style S1 fill:#EDDCD8,stroke:#8C2F22
+    style S4 fill:#EDE3CE,stroke:#9A6A12
 ```
 
 Same metric class, same trace, four different verdicts. The strictness is not a property of the metric — it is a contract you write in the constructor.
@@ -1093,8 +1093,8 @@ flowchart TD
     STEP --> S8["8 Recovery / self-correction"]
     STEP --> S9["9 Cost / efficiency proxy"]
 
-    style OUT fill:#12352f,stroke:#2c5a56
-    style STEP fill:#2c2415,stroke:#584523
+    style OUT fill:#D9E3DB,stroke:#2F6B4F
+    style STEP fill:#EDE3CE,stroke:#9A6A12
 ```
 
 The left branch answers *"did it work?"*. The right branch answers *"at what price, and would it work again?"*. Shipping only the left branch is how an agent's cost triples without a single alert firing.

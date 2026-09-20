@@ -108,9 +108,9 @@ flowchart TD
     G["7 · Design the rollout<br/>assistive → gated-write → autonomous<br/>by risk tier, not by calendar"] --> H
     H["8 · Design the feedback loop<br/>online monitoring discovers,<br/>offline gates prevent recurrence"] --> B
 
-    style B fill:#1e3a5f,stroke:#4285f4,color:#e8eaed
-    style F fill:#4a3a1a,stroke:#f9ab00,color:#e8eaed
-    style H fill:#1a3a2a,stroke:#137333,color:#e8eaed
+    style B fill:#DADCD6,stroke:#3C4E51,color:#0E2226
+    style F fill:#EDE3CE,stroke:#9A6A12,color:#0E2226
+    style H fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
 ```
 
 **Two properties to say out loud when you draw this:**
@@ -151,7 +151,7 @@ flowchart LR
     end
 
     L1 --> L2 --> L3 --> L4 --> L5
-    style O2 fill:#1a3a2a,stroke:#137333,color:#e8eaed
+    style O2 fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
 ```
 
 **Mechanics ≠ process ≠ outcome.** Right tool with right arguments does not guarantee a sound sequence, and a sound sequence does not guarantee the user's goal was met. Evaluate all three, not just the cheapest to check.

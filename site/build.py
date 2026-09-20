@@ -187,8 +187,91 @@ def rewrite_link(href, src_path):
 
 LINK = re.compile(r'(<a [^>]*href=")([^"]+)(")')
 
+# ```mermaid fences render as a plain code block by default. Mermaid reads
+# element.textContent, and the browser decodes the entities the Markdown
+# renderer escaped (&lt;br/&gt; -> <br/>), so the escaped body can be handed
+# over untouched -- only the wrapper changes.
+MERMAID = re.compile(r'<pre><code class="language-mermaid">(.*?)</code></pre>', re.S)
 
-def shell(title, body, nav, blurb="", is_index=False):
+# The diagrams in docs/ hard-code light fills (style X fill:#e8f4f8 and similar).
+# Mermaid's dark theme draws label text light, which puts light text on those
+# light fills and makes subgraph titles unreadable. So the light theme is pinned
+# and the figure sits on its own light panel -- the authored colours then work
+# in both site themes, and the diagram reads as a figure rather than a hole.
+MERMAID_SCRIPT = """
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "default",
+    themeVariables: { fontFamily: '"IBM Plex Sans", system-ui, sans-serif', fontSize: "14px" },
+    flowchart: { htmlLabels: true, curve: "basis", useMaxWidth: true },
+  });
+</script>"""
+
+
+def mermaidise(html):
+    """Turn mermaid code blocks into diagram containers. Returns (html, count)."""
+    count = len(MERMAID.findall(html))
+    if count:
+        html = MERMAID.sub(lambda m: '<pre class="mermaid">%s</pre>' % m.group(1), html)
+    return html, count
+
+
+# A back-link bar for the copied pages, which arrive with their own complete
+# stylesheet and no site chrome. Three of them (the drill, the study plan, the
+# tutorial) already have a sticky header of their own, and the labs do not
+# define --surface/--rule at all -- so this is deliberately NOT sticky and uses
+# no CSS variables. Everything is literal, scoped to .aed-sitebar, and carries
+# its own light/dark rules, so it cannot collide with or depend on the page.
+SITEBAR = """<style>
+.aed-sitebar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  padding:10px 20px;border-bottom:1px solid #D3D8DE;background:#FFFFFF;
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:14px;line-height:1.4}
+.aed-sitebar a{color:#24485F;text-decoration:none;white-space:nowrap}
+.aed-sitebar a:hover{text-decoration:underline}
+.aed-sitebar .aed-brand{font-family:"Zilla Slab",Georgia,serif;font-weight:600;color:#1B232C}
+.aed-sitebar .aed-links{display:flex;gap:14px;flex-wrap:wrap;color:#5C6773}
+@media (prefers-color-scheme:dark){
+  .aed-sitebar{background:#19212A;border-bottom-color:#2C3742}
+  .aed-sitebar a{color:#A9CCE3}
+  .aed-sitebar .aed-brand{color:#E4E9ED}
+  .aed-sitebar .aed-links{color:#9AA7B4}
+}
+@media print{.aed-sitebar{display:none}}
+</style>
+<div class="aed-sitebar">
+  <a class="aed-brand" href="index.html">&larr; Agent Evaluation Demystified</a>
+  <span class="aed-links">%s</span>
+</div>"""
+
+
+def sitebar():
+    links = "".join('<a href="index.html#%s">%s</a>'
+                    % (s.lower().replace(" ", "-"), s) for s in SECTION_ORDER)
+    return SITEBAR % links
+
+
+BODY_OPEN = re.compile(r"(<body[^>]*>)", re.I)
+
+
+def badge_for(html_path):
+    """A copied page is only 'interactive' if it actually does something.
+
+    Two of these pages are hand-written but static, so the bucket a file sits
+    in does not tell you how it behaves -- the file does.
+    """
+    text = io.open(html_path, encoding="utf-8").read()
+    handlers = sum(text.count(t) for t in
+                   ("addEventListener", "onclick", "oninput", "onchange", "localStorage"))
+    if handlers:
+        return "interactive"
+    prose = re.sub(r"<(script|style).*?</\1>", " ", text, flags=re.S)
+    return "{:,} words".format(len(re.sub(r"<[^>]+>", " ", prose).split()))
+
+
+def shell(title, body, nav, blurb="", is_index=False, diagrams=0):
     home = "" if is_index else '<a class="home" href="index.html">&larr; All documents</a>'
     return """<!doctype html>
 <html lang="en">
@@ -199,7 +282,7 @@ def shell(title, body, nav, blurb="", is_index=False):
 <meta name="description" content="%s">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Zilla+Slab:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Spline+Sans+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
@@ -214,10 +297,10 @@ def shell(title, body, nav, blurb="", is_index=False):
 <footer class="foot">
   <p>Generated from the Markdown in <code>docs/</code> by <code>site/build.py</code>.
   The Markdown is canonical &mdash; edit there and rebuild.</p>
-</footer>
+</footer>%s
 </body>
 </html>
-""" % (title, blurb, nav, home, body)
+""" % (title, blurb, nav, home, body, MERMAID_SCRIPT if diagrams else "")
 
 
 def top_nav(active_section):
@@ -248,10 +331,11 @@ def build():
             html = LINK.sub(
                 lambda m: m.group(1) + rewrite_link(m.group(2), "docs/" + src) + m.group(3),
                 html)
+            html, diagrams = mermaidise(html)
             page = shell(re.sub("<[^>]+>", "", title), '<article class="doc">%s</article>' % html,
-                         top_nav(section), re.sub("<[^>]+>", "", blurb))
+                         top_nav(section), re.sub("<[^>]+>", "", blurb), diagrams=diagrams)
             io.open(os.path.join(DIST, slug + ".html"), "w", encoding="utf-8").write(page)
-            rendered.append((src, slug + ".html", len(text.split())))
+            rendered.append((src, slug + ".html", len(text.split()), diagrams))
 
         for src, title, blurb in COPY.get(section, []):
             # Copied pages carry links written for their old home under docs/ --
@@ -261,6 +345,9 @@ def build():
             text = LINK.sub(
                 lambda m: m.group(1) + rewrite_link(m.group(2), "docs/" + src) + m.group(3),
                 text)
+            text, n = BODY_OPEN.subn(lambda m: m.group(1) + "\n" + sitebar(), text, count=1)
+            if not n:
+                raise SystemExit("no <body> to attach the nav bar to: %s" % src)
             io.open(os.path.join(DIST, copied_name(src)), "w", encoding="utf-8").write(text)
             copied.append((src, copied_name(src)))
 
@@ -273,8 +360,10 @@ def build():
             items.append('<li><a href="%s.html">%s</a><span class="meta">%s words</span>'
                          '<p>%s</p></li>' % (slug, title, "{:,}".format(words), blurb))
         for src, title, blurb in COPY.get(section, []):
-            items.append('<li><a href="%s">%s</a><span class="meta">interactive</span>'
-                         '<p>%s</p></li>' % (copied_name(src), title, blurb))
+            items.append('<li><a href="%s">%s</a><span class="meta">%s</span>'
+                         '<p>%s</p></li>'
+                         % (copied_name(src), title,
+                            badge_for(os.path.join(DIST, copied_name(src))), blurb))
         if items:
             cards.append('<section id="%s"><h2>%s</h2><ul class="cards">%s</ul></section>'
                          % (section.lower().replace(" ", "-"), section, "".join(items)))
@@ -301,8 +390,9 @@ interactive labs. The notebooks live in
 
     # ---- report
     print("rendered from Markdown:")
-    for src, out, w in rendered:
-        print("   %-48s -> %-26s %6s words" % (src, out, "{:,}".format(w)))
+    for src, out, w, d in rendered:
+        print("   %-48s -> %-26s %6s words  %s"
+              % (src, out, "{:,}".format(w), ("%d diagrams" % d) if d else ""))
     print("\ncopied as-is (interactive, not producible from Markdown):")
     for src, out in copied:
         print("   %-48s -> %s" % (src, out))

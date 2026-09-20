@@ -1,113 +1,185 @@
 /* Shared shell for the generated site.
-   Same palette, fonts and light/dark handling as the standalone pages in docs/. */
+   Same palette, fonts and light/dark handling as the standalone pages in docs/.
+
+   Six values carry the whole system. Ink and paper for the argument, three
+   verdicts, one rule. `unmeas` is the accent and is spent deliberately: it
+   marks the thing to notice — the active nav item, a callout, the state a
+   check has not reached. It is never decoration.
+
+   The token NAMES are unchanged from the earlier palette, because the
+   generated markup and pre.mermaid below resolve against them. Only the
+   values and the typography moved. */
 
 :root{
-  --ink:#141A21; --paper:#ECEEF0; --surface:#FFFFFF; --surface-2:#F5F6F8; --text:#1B232C;
-  --muted:#5C6773; --rule:#D3D8DE;
-  --accent:#2F5D7C; --accent-soft:#E4EDF3; --accent-text:#24485F;
-  --pass:#3F6F52; --pass-soft:#E3EDE6;
-  --fail:#9A3B2E; --fail-soft:#F4E4E1;
-  --unmeas:#8A7455; --unmeas-soft:#F0EADF;
-  --shadow:0 1px 2px rgba(20,26,33,.06), 0 4px 14px rgba(20,26,33,.05);
-  --maxw:860px;
+  --ink:#0E2226; --paper:#E4E6E1; --surface:#EDEEEA; --surface-2:#DADCD6; --text:#0E2226;
+  --muted:#3C4E51; --rule:#C5C8C2;
+  --accent:#9A6A12; --accent-soft:#EDE3CE; --accent-text:#7A5410;
+  --pass:#2F6B4F; --pass-soft:#D9E3DB;
+  --fail:#8C2F22; --fail-soft:#EDDCD8;
+  --unmeas:#9A6A12; --unmeas-soft:#EDE3CE;
+  --shadow:none;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --mono:"Spline Sans Mono",ui-monospace,Menlo,monospace;
+  --maxw:1080px; --measure:34em;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --ink:#0C1116; --paper:#10161C; --surface:#19212A; --surface-2:#141C24; --text:#E4E9ED;
-    --muted:#9AA7B4; --rule:#2C3742;
-    --accent:#7FB3D5; --accent-soft:#1E2E3A; --accent-text:#A9CCE3;
-    --pass:#7FB894; --pass-soft:#1C2A21;
-    --fail:#D98A7B; --fail-soft:#2E1E1B;
-    --unmeas:#C4A87C; --unmeas-soft:#2A2318;
-    --shadow:0 1px 2px rgba(0,0,0,.30), 0 4px 14px rgba(0,0,0,.24);
+    --ink:#081113; --paper:#0D1618; --surface:#142124; --surface-2:#132023; --text:#DDE5E3;
+    --muted:#9FB1B1; --rule:#26383B;
+    --accent:#D3A54C; --accent-soft:#2C2314; --accent-text:#D3A54C;
+    --pass:#7FB294; --pass-soft:#163024;
+    --fail:#D48F80; --fail-soft:#311915;
+    --unmeas:#D3A54C; --unmeas-soft:#2C2314;
+    --shadow:none;
   }
 }
 :root[data-theme="dark"]{
-  --ink:#0C1116; --paper:#10161C; --surface:#19212A; --surface-2:#141C24; --text:#E4E9ED;
-  --muted:#9AA7B4; --rule:#2C3742;
-  --accent:#7FB3D5; --accent-soft:#1E2E3A; --accent-text:#A9CCE3;
-  --pass:#7FB894; --pass-soft:#1C2A21;
-  --fail:#D98A7B; --fail-soft:#2E1E1B;
-  --unmeas:#C4A87C; --unmeas-soft:#2A2318;
-  --shadow:0 1px 2px rgba(0,0,0,.30), 0 4px 14px rgba(0,0,0,.24);
+  --ink:#081113; --paper:#0D1618; --surface:#142124; --surface-2:#132023; --text:#DDE5E3;
+  --muted:#9FB1B1; --rule:#26383B;
+  --accent:#D3A54C; --accent-soft:#2C2314; --accent-text:#D3A54C;
+  --pass:#7FB294; --pass-soft:#163024;
+  --fail:#D48F80; --fail-soft:#311915;
+  --unmeas:#D3A54C; --unmeas-soft:#2C2314;
+  --shadow:none;
 }
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0; background:var(--paper); color:var(--text);
-  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  font-size:16.5px; line-height:1.62}
+  font-family:var(--serif); font-size:17.5px; line-height:1.72;
+  font-synthesis:none; -webkit-font-smoothing:antialiased}
 
 /* ---- top bar ---- */
-.bar{position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:22px;
-  flex-wrap:wrap; padding:11px 20px; background:var(--surface);
+.bar{position:sticky; top:0; z-index:20; display:flex; align-items:baseline; gap:24px;
+  flex-wrap:wrap; padding:13px clamp(16px,3vw,28px); background:var(--paper);
   border-bottom:1px solid var(--rule)}
-.brand{font-family:"Zilla Slab",Georgia,serif; font-weight:600; font-size:1.02rem;
+.brand{font-family:var(--serif); font-weight:600; font-size:18px; letter-spacing:-.012em;
   color:var(--text); text-decoration:none; white-space:nowrap}
-.brand span{color:var(--muted); font-weight:500}
-.bar nav{display:flex; gap:16px; flex-wrap:wrap; font-size:.88rem}
-.bar nav a{color:var(--muted); text-decoration:none; padding-bottom:2px;
-  border-bottom:2px solid transparent}
+.brand span{color:var(--muted); font-weight:400}
+.bar nav{display:flex; gap:20px; flex-wrap:wrap; font-family:var(--mono); font-size:12.5px}
+.bar nav a{color:var(--muted); text-decoration:none; padding-bottom:3px;
+  border-bottom:1.5px solid transparent}
 .bar nav a:hover{color:var(--text)}
-.bar nav a.on{color:var(--accent-text); border-bottom-color:var(--accent)}
+.bar nav a.on{color:var(--text); border-bottom-color:var(--accent)}
 
-.wrap{max-width:var(--maxw); margin:0 auto; padding:40px 16px 88px}
-.home{display:inline-block; margin-bottom:22px; font-size:.88rem; color:var(--muted);
-  text-decoration:none}
-.home:hover{color:var(--accent-text)}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:44px clamp(16px,3vw,28px) 92px}
+.home{display:inline-block; margin-bottom:26px; font-family:var(--mono); font-size:12.5px;
+  color:var(--muted); text-decoration:none}
+.home:hover{color:var(--text)}
 
-/* ---- typography ---- */
-h1,h2,h3,h4{font-family:"Zilla Slab",Georgia,serif; line-height:1.2;
-  text-wrap:balance; margin:0}
-h1{font-size:2rem; letter-spacing:-.01em; margin-bottom:6px}
-h2{font-size:1.34rem; margin:42px 0 12px; padding-top:20px; border-top:1px solid var(--rule)}
-h3{font-size:1.06rem; margin:24px 0 7px}
-h4{font-size:.97rem; margin:18px 0 6px; color:var(--muted)}
-p{margin:0 0 13px}
-.lede{font-size:1.06rem; color:var(--muted); margin:8px 0 30px}
-a{color:var(--accent-text)}
-code{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace; font-size:.88em;
-  background:var(--surface-2); padding:1px 5px; border-radius:4px}
-pre{background:var(--surface); border:1px solid var(--rule); border-radius:9px;
-  padding:14px 16px; overflow-x:auto; font-size:.84rem; line-height:1.6;
-  box-shadow:var(--shadow)}
-pre code{background:none; padding:0; font-size:1em}
-blockquote{margin:16px 0; padding:13px 17px; background:var(--accent-soft);
-  border-left:3px solid var(--accent); border-radius:0 8px 8px 0; color:var(--accent-text)}
+/* ---- typography ----
+   One serif for prose and display, one mono for every number, path and label.
+   Prose is held to a 34em measure; tables, figures and code run wider. */
+h1,h2,h3,h4{font-family:var(--serif); line-height:1.16; text-wrap:balance; margin:0;
+  letter-spacing:-.016em}
+h1{font-size:clamp(34px,5vw,46px); font-weight:500; margin-bottom:8px; letter-spacing:-.025em}
+h2{font-size:clamp(26px,3.4vw,32px); font-weight:500; margin:52px 0 16px; padding-top:22px;
+  border-top:1px solid var(--rule)}
+h3{font-size:22px; font-weight:600; margin:32px 0 9px}
+h4{font-size:19px; font-weight:600; margin:22px 0 7px; color:var(--muted)}
+p{margin:0 0 15px}
+.lede{font-size:20.5px; font-weight:300; color:var(--muted); margin:10px 0 34px;
+  max-width:36em; line-height:1.62}
+a{color:var(--accent-text); text-decoration:underline; text-underline-offset:3px;
+  text-decoration-thickness:1px; text-decoration-color:var(--rule)}
+a:hover{text-decoration-color:currentColor}
+strong,b{font-weight:600}
+code{font-family:var(--mono); font-size:.845em; letter-spacing:-.01em;
+  background:var(--surface-2); padding:.1em .38em; border-radius:2px;
+  overflow-wrap:break-word}
+pre{background:var(--ink); color:#DCE3E0; border:0; border-radius:3px;
+  padding:18px 20px; overflow-x:auto; font-family:var(--mono); font-size:13px;
+  line-height:1.78; margin:24px 0; max-width:44em}
+pre code{background:none; padding:0; font-size:1em; color:inherit}
+blockquote{margin:24px 0; padding:2px 0 2px 19px; background:none;
+  border-left:2px solid var(--accent); border-radius:0; color:var(--text);
+  max-width:36em; font-size:16.5px; line-height:1.66}
 blockquote p:last-child{margin-bottom:0}
-hr{border:none; border-top:1px solid var(--rule); margin:34px 0}
-ul,ol{margin:0 0 13px; padding-left:22px}
-li{margin:5px 0}
-table{width:100%; border-collapse:collapse; margin:16px 0; font-size:.9rem;
-  display:block; overflow-x:auto}
-th,td{text-align:left; padding:8px 11px; border-bottom:1px solid var(--rule);
-  vertical-align:top}
-th{font-weight:600; color:var(--muted); font-size:.78rem; text-transform:uppercase;
-  letter-spacing:.04em; white-space:nowrap}
-tbody tr:last-child td{border-bottom:none}
+hr{border:none; border-top:1px solid var(--rule); margin:40px 0}
+ul,ol{margin:0 0 15px; padding-left:21px}
+li{margin:8px 0}
+li::marker{color:var(--muted)}
+
+/* Prose keeps a readable measure; specimens are allowed the full column. */
+.doc > p, .doc > ul, .doc > ol, .doc > blockquote{max-width:var(--measure)}
+.doc > ul, .doc > ol{padding-left:21px}
 .doc img{max-width:100%}
 
-/* ---- index cards ---- */
-.cards{list-style:none; padding:0; margin:14px 0 0; display:grid; gap:12px;
-  grid-template-columns:repeat(auto-fill,minmax(258px,1fr))}
-.cards li{background:var(--surface); border:1px solid var(--rule); border-radius:10px;
-  padding:15px 17px; box-shadow:var(--shadow)}
-.cards a{font-family:"Zilla Slab",Georgia,serif; font-weight:600; font-size:1.02rem;
+table{width:100%; border-collapse:collapse; margin:26px 0; font-size:16px;
+  display:block; overflow-x:auto; border-top:1.5px solid var(--text);
+  border-bottom:1px solid var(--rule)}
+th,td{text-align:left; padding:12px 20px 12px 0; border-bottom:1px solid var(--rule);
+  vertical-align:top}
+th{font-family:var(--mono); font-weight:500; color:var(--muted); font-size:11.5px;
+  letter-spacing:.01em; white-space:nowrap; padding-top:11px; padding-bottom:11px}
+tbody tr:last-child td{border-bottom:none}
+
+/* ---- index cards ----
+   Ruled entries rather than boxes: the rule carries the grouping, so the
+   eye reads a catalogue instead of eighteen identical tiles. */
+.cards{list-style:none; padding:0; margin:18px 0 0; max-width:none; display:grid; gap:0 36px;
+  grid-template-columns:repeat(auto-fill,minmax(292px,1fr))}
+.cards li{background:none; border:0; border-top:1px solid var(--rule); border-radius:0;
+  padding:16px 0 20px}
+.cards a{font-family:var(--serif); font-weight:600; font-size:20px; letter-spacing:-.014em;
   text-decoration:none; color:var(--text)}
-.cards a:hover{color:var(--accent-text)}
-.cards .meta{display:block; font-size:.72rem; text-transform:uppercase;
-  letter-spacing:.05em; color:var(--muted); margin-top:3px}
-.cards p{margin:8px 0 0; font-size:.88rem; color:var(--muted); line-height:1.5}
+.cards a:hover{color:var(--accent-text); text-decoration:underline;
+  text-underline-offset:3px; text-decoration-color:var(--rule)}
+.cards .meta{display:block; font-family:var(--mono); font-size:11px; letter-spacing:.01em;
+  color:var(--muted); margin-top:5px}
+.cards p{margin:9px 0 0; font-size:15.5px; color:var(--muted); line-height:1.56;
+  max-width:36ch}
 
-.skips{font-size:.85rem}
-.skips code{font-size:.85em}
+.skips{font-size:15.5px}
+.skips code{font-size:.8em}
 
-.foot{max-width:var(--maxw); margin:0 auto; padding:20px 16px 48px;
-  border-top:1px solid var(--rule); color:var(--muted); font-size:.85rem}
-.foot p{margin:0}
+.foot{max-width:var(--maxw); margin:0 auto; padding:24px clamp(16px,3vw,28px) 56px;
+  border-top:1px solid var(--rule); color:var(--muted); font-size:15.5px;
+  font-style:italic; line-height:1.6}
+.foot p{margin:0; max-width:40em}
+.foot code{font-style:normal}
 
+:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
+@media (prefers-reduced-motion:reduce){ *{transition:none!important; animation:none!important}
+  html{scroll-behavior:auto} }
 @media (max-width:640px){
-  .wrap{padding:28px 16px 64px}
-  h1{font-size:1.65rem}
-  .bar{gap:12px; padding:10px 16px}
+  .wrap{padding:30px 16px 68px}
+  .bar{gap:10px 16px; padding:11px 16px}
+  .cards{gap:0}
 }
+@media print{
+  .bar{position:static}
+  pre{background:none; color:#000; border:1px solid #000}
+}
+
+/* ---- mermaid diagrams ----
+   The container is a <pre> so mermaid can read the source from textContent
+   before it swaps in the SVG. Strip the code-block chrome it would inherit. */
+pre.mermaid{
+  /* A light panel in both themes: the diagrams hard-code light fills, so the
+     surrounding surface has to be light too or the authored colours invert.
+     The source text stays visible if the CDN is unreachable -- a diagram that
+     degrades to its own definition beats one that degrades to nothing. */
+  background:#FBFCFD; border:1px solid var(--rule); border-radius:10px;
+  box-shadow:var(--shadow);
+  padding:18px 14px; margin:24px 0; text-align:center; overflow-x:auto;
+  color:#1B232C; font-size:.78rem; line-height:1.5;
+}
+pre.mermaid svg{max-width:100%; height:auto; display:inline-block}
+pre.mermaid[data-processed="true"]{font-size:inherit}
+
+/* Appended after the block above rather than editing it.
+
+   FINDING, not fixed here: the taxonomy graph in the question bank has a
+   natural size of 3862 x 226 (a 17:1 `flowchart LR`). mermaid's
+   useMaxWidth:true fits it to the column, so it renders 740 x 43 and cannot be
+   read. CSS cannot undo this -- an <svg> with width:auto and a viewBox fills
+   its container by spec, so neither max-width:none nor !important helps.
+
+   Two real fixes, both outside this file:
+     1. useMaxWidth:false in MERMAID_SCRIPT -- the diagram then renders at its
+        natural width and the container scrolls (overflow-x:auto is set above).
+     2. re-author that one graph as `flowchart TB`, or split it into subgraphs,
+        so it is not 17 times wider than it is tall.
+   Left alone because MERMAID_SCRIPT is mid-edit. */
+pre.mermaid{text-align:left}
