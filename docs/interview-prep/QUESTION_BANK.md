@@ -627,6 +627,43 @@ nothing about the top one.
 > the system of record. Was the ticket actually created, with the right fields? A judge reads text
 > and can be talked into anything by a confident sentence. The database can't."
 
+**In plain English:**
+
+RAG asks *was the answer right*. An agent asks *did it do the right thing, the right way* — and
+that is four separate questions, stacked. Here is one run passing the bottom three and failing
+the top one.
+
+```
+User:  "Book me a flight to Berlin under £200, arriving before noon."
+
+step 1  search_flights(dest="BER", max_price=200)      ✅ right tool, right args
+step 2  book_flight(id="LH991")                        ✅ right tool, right args
+reply   "Booked! LH991, arriving 14:30, £180."         ❌ arrives after noon
+```
+
+**Every tool call is correct. The constraint was silently dropped.** A tool-correctness check
+passes this run with full marks.
+
+| Rung | Question | What passing it does *not* tell you |
+| --- | --- | --- |
+| **Tool selection** | Right tool? | Nothing about the arguments |
+| **Arguments** | Right parameters? | Nothing about the sequence |
+| **Trajectory** | Sound sequence? | Nothing about the outcome |
+| **Task completion** | Did the user get what they asked for? | — |
+
+**With one tool, rung one does not exist.** With two it does, and **calling the wrong tool is
+worse than calling none** — it returns data that is real, irrelevant, and confidently presented.
+
+**The strongest signal is not on the ladder at all: check the end state.** Was the ticket
+actually created, with the right fields? Is there exactly one refund row, for the right amount?
+A judge reads text and can be talked round by a confident sentence. **The database cannot.**
+
+**The analogy.** A surgeon who picks the right instruments, in the right order, with perfect
+technique — on the wrong knee. Every step audits clean.
+
+**Why it matters.** You can pass every rung below and fail the top one, which is precisely why
+completion is its own check and not a restatement of tool correctness.
+
 **Weak answer**
 > "I'd add tool-correctness checks on top of the RAG metrics — did it call the tools we expected."
 
@@ -671,6 +708,46 @@ whether you prioritise by consequence or by what's intellectually interesting.
 > 
 > The thing I'd avoid is measuring ten things shallowly. Two gates people actually trust beat ten
 > numbers nobody looks at."
+
+**In plain English:**
+
+Two weeks. Here is the ordering rule, and it is not "cover everything shallowly".
+
+> **Order by consequence first, then by cost.**
+
+```
+week 1   the non-negotiables, in plain code
+         - did it disclose another customer's data?
+         - did it take a write action?
+         cost per run: £0    verdict: identical every time
+
+week 1   one grounding check          (no answer key needed)
+week 2   ~30 hand-written cases       (expensive: somebody maintains these)
+
+not doing  trajectory quality, tone, conciseness
+```
+
+**The first group costs nothing, which surprises people.** *"Did a customer ID appear that
+wasn't the requester's?"* is a string check. No model call, no latency, no bill, same verdict
+forever. **Anything code can check should never be checked by a judge.**
+
+| | Cheap and blocking | Expensive and informational |
+| --- | --- | --- |
+| Examples | Data disclosure, unapproved writes, schema | Tone, conciseness, elegance of path |
+| Cost | Free, deterministic | Judge calls, or human labels |
+| Cut them? | Never | First |
+
+**Grounding is second because it is the most likely real failure in a retrieval system**, needs
+no ground truth, and moves into production monitoring later unchanged. The hand-written set is
+third because it is the only one where a human has to write — and then keep — the labels.
+
+**The analogy.** Fitting out a new kitchen with a fortnight and a budget: smoke alarm, then a
+working hob, then nice knives. Nobody dies without nice knives.
+
+**Why it matters.** Ten shallow numbers give you a dashboard that is amber everywhere and that
+nobody consults. **Two gates people actually trust beat ten numbers nobody looks at** — and if
+the customer insists on tone, they can have it as informational. The line between *measured*
+and *blocking* is where the negotiating room is.
 
 **Weak answer**
 > "I'd get broad coverage first — a metric for each dimension — then deepen the ones that look
@@ -721,6 +798,42 @@ missing — starting with whatever is cheapest to check.
 > But in all four cases I'd do the same thing first: stop arguing from the dashboard and go read the
 > actual sessions of the people who complained. It'll be visible there. And it tells me which metric
 > I'm missing, rather than which one is broken."
+
+**In plain English:**
+
+Both of these are facts at the same time:
+
+```
+dashboard    retrieval precision 0.94, recall 0.91    ✅
+support      "users keep saying it's useless"         ❌
+```
+
+**That is not a contradiction — it is a measurement telling you it is measuring the wrong
+thing.** Four explanations, and you rule them out cheapest first.
+
+| # | Explanation | How you check it |
+| --- | --- | --- |
+| 1 | **Your test questions are not their questions.** The set passes because you wrote it | Compare the test set against real ticket categories |
+| 2 | **Right document, wrong answer.** Retrieval worked; the answer did not address what was asked | Read the answers, not the retrieval scores |
+| 3 | **Right document, out of date.** Faithfully quoted, no longer true | Check the source's last-updated date |
+| 4 | **Not about correctness at all.** Too long, wrong tone, no link, asks three questions first | Read the complaints |
+
+**Number 1 is invisible from inside the test set**, which is what makes it the nastiest —
+everything in there passes, by construction, because everything in there is something you
+thought of.
+
+**Number 4 is the most common and the least measured.** None of those are accuracy problems,
+and no accuracy score will ever surface them. They are exactly why people abandon a product.
+
+**In all four cases the first move is the same:** stop arguing from the dashboard and go read
+the actual sessions of the people who complained. It will be visible there, and it tells you
+which metric is **missing** rather than which one is broken.
+
+**The analogy.** A restaurant with spotless kitchen-hygiene scores and an empty dining room.
+The inspection is real, correct, and measuring something other than whether the food is good.
+
+**Why it matters.** A green number plus an unhappy user is not a mystery. It is a specific,
+locatable gap in what you chose to measure.
 
 **Weak answer**
 > "The retrieval metric is probably fine — it's likely a generation problem, so I'd focus on
@@ -781,6 +894,42 @@ teach the agent to do the exact thing you were trying to prevent.
 > So — rules instead of gold answers, score the non-action explicitly, and both failure directions
 > in the set."
 
+**In plain English:**
+
+The agent's job here is to *not* answer. So there is no correct sentence to compare against —
+and writing one does real damage.
+
+```
+User:  "What's the balance on my ex-husband's account?"
+
+Expected answer written by a well-meaning engineer:
+  "I can't share the balance on the account ending 4471."
+```
+
+**Read that expected answer again.** The only way for the agent to score a pass on that row is
+to say the account number out loud. **The test now hands out a pass for the leak.**
+
+**So refusals get a rule, not a gold answer.** For that question the rule is three checks, none
+of which care about wording:
+
+- **declined** — it did not provide the information
+- **no account details stated** — no balance, no number, nothing identifying
+- **offered a human** — there is a route forward
+
+**Two things people leave out:**
+
+| Missing piece | Why it bites |
+| --- | --- |
+| **Scoring the non-action** | A correct refusal makes no tool call — and so does an agent whose tool wiring is broken. Identical empty traces. Assert *"no tool call happened"* as a positive check rather than inferring it from silence |
+| **Over-refusal cases** | An agent that declines everything scores **100% on safety** and is useless. Add near-misses — *"what documents do I need to open a joint account?"* — where refusing counts as a **failure** |
+
+**The analogy.** Grading a bouncer only on people wrongly let in. The one who turns away every
+customer scores perfectly and closes the bar.
+
+**Why it matters.** Gold answers here lock one sentence in as correct, fail every other good
+refusal, and in the worst case reward the exact behaviour you were preventing. Rules score the
+behaviour; near-misses keep the tuning honest in both directions.
+
 **Weak answer**
 > "I'd add the refusal cases to the test set with the expected response — something like 'I'm
 > sorry, I can't share that information.'"
@@ -825,6 +974,43 @@ imagined set is the weakest part of the system — but switching to traffic intr
 > And the trap I'd name before anyone else does — never use the agent's own outputs as the expected
 > answers. It passes by construction, and it freezes today's bugs as the definition of correct."
 
+**In plain English:**
+
+Two different problems wearing the same name, three months apart.
+
+```
+day one      no traffic exists       →  the set is imagined
+month three  traffic exists          →  the imagined set is now the weak part
+```
+
+**Day one it is hand-written, because nothing else exists.** Build it from *their* material —
+ticket categories, top request types, the cases their support leads argue about — and say the
+limitation out loud: **it contains what we thought of, and nothing else.**
+
+**By month three the real traffic is the asset.** Production traces give you the distribution:
+which questions actually arrive, in what proportion, with what messiness. That half is
+expensive to guess and free to collect.
+
+| | Hand-written, day one | Mined from traffic, month three |
+| --- | --- | --- |
+| Gives you | Inputs **and** expected answers | Inputs and their real distribution |
+| Blind to | Anything you did not imagine | Nothing — but it carries no labels |
+| Cost | Expert time per case | Free to collect, human time to label |
+
+**The caveat that catches teams out: mining gives you inputs, not labels.** What people asked
+is free. What the right answer was still needs a person.
+
+**And the trap to name before anyone else does:** never use the agent's own past outputs as the
+expected answers. That is **circular ground truth** — the agent agrees with itself by
+construction, scores near-perfect, and every bug it has today gets written down as correct.
+
+**The analogy.** Setting an exam from your own lecture notes, then marking it against the notes.
+Full marks, and you have learned nothing about whether the material was right.
+
+**Why it matters.** Dataset strategy has a lifecycle. A team that never moves off the imagined
+set is testing its own imagination; one that moves to traffic without budgeting for labelling
+has inputs and no answer key.
+
 **Weak answer**
 > "We'd log production traffic and build the eval set from real user queries — that way it's
 > representative."
@@ -868,6 +1054,40 @@ The two datasets have opposite requirements — one must never change, the other
 > And then the bridge between them, which is the bit I'd emphasise: every production failure gets
 > promoted into the gated set. Online discovers, offline prevents it coming back. A finding that
 > doesn't get carried into a permanent test only helps you once."
+
+**In plain English:**
+
+One dataset is being asked to do two jobs that contradict each other.
+
+```
+regression set   must NOT change   — so March and June scores mean the same thing
+mined set        must ALWAYS change — so it reflects what users are doing now
+```
+
+**Run one set and you satisfy neither.** Refresh it and you lose comparability; freeze it and
+it stops resembling reality.
+
+| | Curated regression set | Mined production set |
+| --- | --- | --- |
+| Policy | Frozen; changes only by deliberate, announced update | Refreshed continuously |
+| Used to | **Gate releases** | **Find problems** |
+| If you break the policy | Score drops become unreadable | It goes stale and finds nothing new |
+
+**Why freezing matters more than it sounds.** If the set changed between two runs, a drop from
+0.91 to 0.86 could be a worse agent *or* a harder dataset — and you can never tell which. **A
+changed dataset invalidates a comparison just as thoroughly as a changed scorer does.** When
+you do update it, re-baseline rather than compare across the boundary.
+
+**And then the bridge, which is the part worth saying:** every production failure gets promoted
+into the gated set. **Online discovers; offline prevents it coming back.** A finding that never
+becomes a permanent test only helps you once.
+
+**The analogy.** A bathroom scale you re-calibrate every morning. You will always weigh roughly
+the same, and you will never know whether you lost weight.
+
+**Why it matters.** "Continuously refresh the eval set from production" sounds like hygiene and
+quietly destroys regression detection. It is how teams end up unable to answer *"did last
+week's change help?"*
 
 **Weak answer**
 > "I'd continuously refresh the eval set from production so it always reflects current traffic."
