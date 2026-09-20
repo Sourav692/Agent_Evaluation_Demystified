@@ -193,6 +193,45 @@ of "good". Until both exist, any metric you propose is a guess dressed as rigour
 > off. That document is what I'd want out of session one. Architecture comes after, because those
 > criteria constrain the design more than the other way round."
 
+**In plain English:**
+
+One concrete complaint, with nothing attached to it: *"the support agent isn't good enough."*
+Now watch what happens when three people at that customer look at the **same** transcript.
+
+```
+Customer: "Can I get a refund on last month's invoice?"
+Agent:    "Refunds are generally available. Let me check your account…
+           [3 min]  Your balance is £45.20 and I've issued the refund."
+```
+
+| Who | What they call the failure | The metric that follows |
+| --- | --- | --- |
+| Support lead | "It promised a refund before checking eligibility" | Correctness, policy adherence |
+| Compliance | "It stated an account balance in a refund thread" | Data-scope, safety |
+| Product | "Three minutes" | Latency |
+
+**All three are right, and they imply different systems.** Pick a metric before you know which
+one they mean and you will measure whichever is easiest — then report 0.88 and still not know
+whether that is good.
+
+**So the three things to get first, before any metric:**
+
+- **A failing example.** Not a description of one. A real trace plus what it should have said.
+  One trace usually tells you whether this is retrieval, reasoning, tone, or a rule the agent
+  was never given.
+- **A name.** "Good" is somebody's standard, and never the same person's. Without an owner the
+  evaluation drifts toward whatever is cheap to compute.
+- **The consequence.** Getting opening hours wrong and leaking a balance are not the same class
+  of problem, and the consequence is what sets the bar.
+
+**The analogy.** A patient says "I don't feel well". No competent doctor reaches for a
+prescription — they ask where it hurts, since the same sentence covers a headache and a heart
+attack.
+
+**Why it matters.** A metric chosen before the complaint is understood is rigour-shaped
+guessing. It will produce a number, the number will look serious, and it will not be about the
+thing the customer is unhappy with.
+
 **Weak answer**
 > "I'd set up a standard eval suite — correctness, relevance, groundedness, safety — get a
 > baseline, and see where it's low."
@@ -238,6 +277,41 @@ so asking them to specify it produces either silence or platitudes.
 > What I end up with is a written standard I can trace back to real judgements. That's also what
 > makes an automated judge believable later — it's applying their rubric, not one I invented and
 > they never saw."
+
+**In plain English:**
+
+Ask a domain expert *"what does good look like?"* and here is the transcript, every time:
+
+```
+You:     "What makes a good answer here?"
+Expert:  "It should be accurate. Helpful. On-brand."
+```
+
+**None of those is scorable.** Not because the expert is unhelpful — because the standard is
+tacit. They can apply it in two seconds and cannot write it down, the same way you can
+recognise a friend's face but not describe it well enough for someone else to draw.
+
+**So stop asking, and make them sort instead.** Put **30–50 real outputs** in front of **two**
+experts — some obviously fine, some genuinely ambiguous, some you expect to fail. Each rates
+them independently, and each writes **one line on why**.
+
+| What you ask for | What you get |
+| --- | --- |
+| A definition of "good" | Adjectives nobody can apply consistently |
+| A sorted pile plus reasons | The rubric, in their words, traceable to real judgements |
+
+**The scores are not the point — the reasons are.** Collected up, those one-liners *are* the
+rubric, and it is one you could not have written yourself because you do not have the domain.
+
+**The disagreements are the most valuable output.** Where two experts split on the same output,
+you have found either an ambiguous policy or two parts of the business that genuinely want
+different things. That is a product decision. Averaging it away buries it, and no amount of
+evaluation engineering resolves it later.
+
+**Why it matters.** This is also what makes an automated judge believable months later. A judge
+built on a rubric the experts recognise is applying *their* standard; one built on a rubric you
+invented is applying yours, and the first time it disagrees with them they will stop trusting
+the number.
 
 **Weak answer**
 > "I'd work with stakeholders to define success criteria and turn those into metrics."
@@ -287,6 +361,44 @@ the architecture, and some of them cannot be retrofitted at all.
 > that came straight out of an eval requirement — which is the whole point. Instrumentation isn't a
 > chore you do before evaluating; it's the thing evaluation runs on."
 
+**In plain English:**
+
+The question sounds like a sequencing preference. It is not — some checks **cannot be added
+later at all**, and that is the whole answer.
+
+```
+You want to check:  "did the agent take a write action without consent?"
+The agent emits:    the final reply text
+                    ← nowhere in that output is there a record of what it DID
+```
+
+You cannot score a signal the system never produces. Adding it afterwards is not a scorer
+change, it is a rebuild.
+
+**Three things to pin down before any code:**
+
+- **What must never happen.** The irreversible ones: another customer's data, an unrequested
+  write action, advice outside the remit. These become all-or-nothing gates, and they change
+  the architecture — an approval step has to exist before you can check it fired.
+- **What good looks like on a normal day.** Correct, grounded, relevant, not rambling. Real
+  numbers, mostly informational.
+- **What you cannot measure yet**, written down explicitly.
+
+| Decided before building | Cost to add later |
+| --- | --- |
+| The agent records each tool call and its arguments | Re-instrument, re-run history, lose the past |
+| A consent step exists as a distinct event | Architectural change |
+| Answers carry which document they came from | Retrofit into every prompt and response path |
+
+**Write the gaps down as gaps.** "We have no multi-turn cases" is not the same as covering
+multi-turn, and in six months a silent gap reads exactly like coverage.
+
+**The analogy.** Wiring a house. You decide where the sockets go before the plaster goes on —
+not because the order is tidier, but because afterwards the answer is "channel out the wall".
+
+**Why it matters.** Evaluation is a design input, not a phase that follows the build. The
+criteria constrain the architecture more than the architecture constrains the criteria.
+
 **Weak answer**
 > "Once we have a working prototype, we'll collect outputs, build a test set, and start measuring
 > quality so we can iterate."
@@ -333,6 +445,43 @@ mixed dataset averages the safety-critical slice into invisibility.
 > like coverage.
 > 
 > The line I'd give them is: the headline tells you whether to look, the slices tell you where."
+
+**In plain English:**
+
+The request is reasonable. Taken literally it destroys the thing they are asking about. Here
+are two systems:
+
+```
+System A   slightly mediocre at everything                    overall 0.86
+System B   excellent everywhere, except it leaks account
+           balances when a user pushes adversarially          overall 0.86
+```
+
+**Identical headline. One of them is a breach waiting to be written up.** That is what
+averaging does: the safety-critical slice is a small share of the rows, so it is diluted into
+invisibility by everything the system does well.
+
+**What to put on the dashboard instead — three layers:**
+
+- **The headline is a verdict, not an average.** Pass or fail against the blocking gates. That
+  is what they are actually asking — *can we ship?* — and a verdict cannot be rescued by being
+  good at something else.
+- **Underneath, the slices.** By question type, by whether a tool was involved, by attack
+  class, by turn number. Everything actionable lives here.
+- **Separately, a "not measured" column.**
+
+| | Shows as | Consequence if you confuse them |
+| --- | --- | --- |
+| **Failed** | Red | Correct: someone investigates |
+| **Not measured** | Amber, never a zero | Report it as 0 and a healthy system looks broken; hide it and a blind spot looks like coverage |
+
+**The analogy.** A car with a single "vehicle health" dial averaging fuel level and brake
+condition. It will read comfortably mid-range while you have no brakes.
+
+**Why it matters.** The line worth saying out loud: *the headline tells you whether to look,
+the slices tell you where.* You are not trying to make an executive read everything — you are
+making sure the one number they do read is incapable of showing green while something critical
+is red.
 
 **Weak answer**
 > "I'd give them an overall quality score — a weighted average across our metrics."
@@ -391,6 +540,44 @@ has a completely different fix. Treating the system as one blob means fixing the
 | Retrieval | Did we fetch the right material at all? | The answer's supporting facts aren't in the retrieved context |
 | Generation, ungrounded | Given correct context, did the model invent? | The claim isn't supported by anything retrieved |
 | Generation, grounded but wrong | Was the source itself wrong or stale? | The answer faithfully reflects a document that shouldn't be trusted |
+
+**In plain English:**
+
+One wrong answer, three completely different bugs underneath it — and from the outside they
+are indistinguishable, because the answer is wrong in all three.
+
+```
+Q: "How long do I have to return an item?"
+A: "You have 60 days to return any item."          ← wrong. It is 30.
+```
+
+Three ways that sentence gets produced:
+
+| What actually happened | What you would see in the trace |
+| --- | --- |
+| **The right document was never fetched** | The returns policy is not in the retrieved context at all |
+| **It was fetched and the model invented anyway** | The context says 30 days; the answer says 60 |
+| **It was fetched, quoted faithfully, and the document is out of date** | The context genuinely says 60. The page was last updated in 2019 |
+
+**The third is the one people miss, and no grounding check will ever catch it.** The answer is
+perfectly supported by its source. The source is wrong. That is not a model problem — it is a
+freshness policy on the knowledge base.
+
+**So you need three separate checks, not one:**
+
+- **On the context** — did the needed facts arrive at all? *(no answer key required)*
+- **On the answer against that context** — did it invent? *(no answer key required)*
+- **On the answer against a known-correct answer** — is it actually true? *(needs ground truth,
+  so it is expensive and does not scale)*
+
+The first two are cheap precisely because they only compare the run against itself.
+
+**The analogy.** A bad dish arrives. Was it the ingredients that came in, the cooking, or the
+recipe everyone followed correctly? Same complaint, three kitchens to look in.
+
+**Why it matters.** One end-to-end accuracy number tells you *that* it broke and never *where*.
+Teams measuring only that spend weeks tuning prompts against a retrieval bug — and what
+improvement they get is usually the model learning to paper over bad context.
 
 **Weak answer**
 > "I'd look at the end-to-end accuracy metric and iterate on the prompt until it improves."
