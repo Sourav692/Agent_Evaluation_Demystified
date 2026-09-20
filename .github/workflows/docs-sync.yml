@@ -1,36 +1,51 @@
-# docs/interview-prep — keep the drill in step with the question bank.
+# docs/ — keep the generated-by-hand things in step with their sources.
 #
-# QUESTION_BANK.md is canonical. evaluation-round-drill.html carries the same
-# 35 questions and 19 cases as a quiz, and the two are two thirds
-# phrase-identical. Nothing generates one from the other, so the rule "edit the
-# Markdown, not the HTML" was enforced by convention alone -- and four commits
-# have already changed one side without the other.
+# Three checks, all free, stdlib only, no API key and no network. None of them
+# can spend money, and none touch the course-03 release gate.
 #
-# Free, stdlib only, no API key, no network. It cannot spend money.
+#   drill-sync      QUESTION_BANK.md is canonical; evaluation-round-drill.html
+#                   carries the same 35 questions and 19 cases as a quiz. They
+#                   are two thirds phrase-identical, nothing generates one from
+#                   the other, and four commits have already changed one side
+#                   without the other.
+#
+#   index-coverage  INDEX.md is the repo's lookup table. An edit on 2026-09-20
+#                   removed three of its sections while intending to remove
+#                   one, and the question bank lost its entry in a pushed
+#                   commit. Nothing noticed.
+#
+#   link-check      every relative link under docs/ still resolves.
 
-name: docs-sync (interview prep)
+name: docs-sync
 
 on:
   push:
     paths:
-      - 'docs/interview-prep/**'
+      - 'docs/**'
+      - 'INDEX.md'
       - '.github/scripts/check_drill_sync.py'
+      - '.github/scripts/check_index_coverage.py'
       - '.github/workflows/docs-sync.yml'
   pull_request:
     paths:
-      - 'docs/interview-prep/**'
+      - 'docs/**'
+      - 'INDEX.md'
       - '.github/scripts/check_drill_sync.py'
+      - '.github/scripts/check_index_coverage.py'
       - '.github/workflows/docs-sync.yml'
 
 jobs:
-  drill-sync:
-    name: drill matches the question bank
+  docs-consistency:
+    name: docs stay consistent with their indexes
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check the drill's recorded bank hash
+      - name: Drill matches the question bank
         run: python3 .github/scripts/check_drill_sync.py
 
-      - name: Check every relative link still resolves
+      - name: INDEX.md covers everything in docs/
+        run: python3 .github/scripts/check_index_coverage.py
+
+      - name: Every relative link resolves
         run: python3 .claude/skills/link-check/scripts/check_links.py docs

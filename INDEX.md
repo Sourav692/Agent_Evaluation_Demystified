@@ -219,10 +219,12 @@ version of each is field guide **Part 6**; the interview questions are question 
 
 | File | What it indexes |
 |---|---|
-| `docs/README.md` | The three docs subfolders |
+| `docs/README.md` | The five docs subfolders |
 | `docs/concepts/README.md` | The three theory companions |
+| `docs/guide-audits/README.md` | The two external-guide audits and the tutorial, why there are two and not one, and the recount habit |
 | `docs/interactive-labs/README.md` | The six labs, the surface map, lab → notebook mapping, the four tools |
-| `docs/interview-prep/README.md` | Study plan, drill, question bank, and the shape of a good answer |
+| `docs/interview-prep/README.md` | The drill, the question bank, and the shape of a good answer |
+| `docs/study-guide/README.md` | The staged study plan — seven stages, time estimates, the fast path |
 
 ---
 
