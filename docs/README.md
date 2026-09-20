@@ -8,9 +8,7 @@ Prose. Nothing here executes.
 | [`interactive-labs/`](interactive-labs/) | Six standalone HTML labs you can open in a browser and manipulate. Built from course 01's notebooks; the written companions are Part 6 of the field guide. Start at [`README.md`](interactive-labs/README.md). |
 | [`interview-prep/`](interview-prep/) | Evaluation questions for agentic system-design rounds and 19 decomposition case studies — plus a [self-quiz drill](interview-prep/evaluation-round-drill.html), standalone HTML. |
 | [`guide-audits/`](guide-audits/) | This repo measured against external evaluation guides — two audits and the teaching companion to one of them. Start at [`README.md`](guide-audits/README.md). |
-| [`study-guide/`](study-guide/) | The staged [study pl The same guide in plain language, 3–4 lines per concept, each with the
-  notebook that teaches it and a TODO that asks you to produce something. 21 TODOs; the file
-  is its own progress tracker.
+| [`study-guide/`](study-guide/) | Two paths. The [roadmap](study-guide/evaluation-roadmap.md) — the whole repo ordered basic → expert, ten levels with exit checks, then what an OpenAI round pushes on and the Databricks track as its own ladder. The staged [study plan](study-guide/evaluation-study-plan.html) through the interview-prep question bank — seven stages with time estimates, a 2–3 day fast path, a skip list and a readiness check, standalone HTML. |
 
 ## concepts/
 

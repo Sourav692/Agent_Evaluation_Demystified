@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <style>
+      :root{ color-scheme: light dark;
+             padding-top: env(safe-area-inset-top, 0px);
+             padding-bottom: env(safe-area-inset-bottom, 0px); }
+      html, body { margin: 0; }
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+             Helvetica, Arial, sans-serif; font-size: 14px; }
+      img { max-width: 100%; }
+      [hidden] { display: none !important; }
+    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  </head>
+  <body>
+<title>The Launch Gate</title>
+<style>
+  :root{
+    --bg:#f3f1ea;
+    --panel:#ffffff;
+    --panel-2:#eae7dd;
+    --ink:#1c2024;
+    --ink-soft:#52585f;
+    --line:#d8d4c8;
+    --accent:#1f6f5c;
+    --accent-soft:#e4efe9;
+    --pass:#1f6f5c;
+    --warn:#a1670e;
+    --warn-soft:#f7ecd8;
+    --block:#a43b32;
+    --block-soft:#f6e3df;
+    --code-bg:#1c2024;
+    --code-ink:#e7e4d9;
+    --shadow: 0 1px 2px rgba(28,32,36,.06), 0 8px 24px -12px rgba(28,32,36,.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15181c;
+      --panel:#1b1f24;
+      --panel-2:#20252b;
+      --ink:#e9e7df;
+      --ink-soft:#a2a9ad;
+      --line:#31363d;
+      --accent:#5fbfa4;
+      --accent-soft:#1d2b28;
+      --pass:#5fbfa4;
+      --warn:#e0b350;
+      --warn-soft:#2c2519;
+      --block:#e2776c;
+      --block-soft:#2e1e1c;
+      --code-bg:#0f1215;
+      --code-ink:#e7e4d9;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px -12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15181c;
+    --panel:#1b1f24;
+    --panel-2:#20252b;
+    --ink:#e9e7df;
+    --ink-soft:#a2a9ad;
+    --line:#31363d;
+    --accent:#5fbfa4;
+    --accent-soft:#1d2b28;
+    --pass:#5fbfa4;
+    --warn:#e0b350;
+    --warn-soft:#2c2519;
+    --block:#e2776c;
+    --block-soft:#2e1e1c;
+    --code-bg:#0f1215;
+    --code-ink:#e7e4d9;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px -12px rgba(0,0,0,.5);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    padding-inline:20px;
+    padding-block:40px 80px;
+    line-height:1.6;
+  }
+  .wrap{max-width:760px; margin:0 auto;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:12.5px;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    color:var(--accent);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:7px;height:7px;border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 0 3px var(--accent-soft);
+  }
+  h1{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:clamp(28px,5vw,40px);
+    line-height:1.12;
+    letter-spacing:-.01em;
+    margin:0 0 12px;
+    text-wrap:balance;
+  }
+  .sub{
+    font-size:16.5px;
+    color:var(--ink-soft);
+    max-width:60ch;
+    margin:0 0 34px;
+  }
+  h2{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:14px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:52px 0 6px;
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  h2 .n{color:var(--accent); font-weight:600;}
+  h3{
+    font-size:19px;
+    margin:0 0 10px;
+    letter-spacing:-.01em;
+  }
+  p{margin:0 0 14px; max-width:66ch;}
+  ul,ol{margin:0 0 16px; padding-left:1.2em;}
+  li{margin-bottom:8px; max-width:62ch;}
+  li::marker{color:var(--accent);}
+  strong{font-weight:600;}
+  code{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:.92em;
+    background:var(--panel-2);
+    padding:.12em .4em;
+    border-radius:4px;
+    border:1px solid var(--line);
+  }
+  .hr{height:1px; background:var(--line); margin:44px 0;}
+
+  /* ---- diagram card ---- */
+  .diagram{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    padding:22px 20px 24px;
+    margin:22px 0 8px;
+  }
+  .diagram-head{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:14px;
+    flex-wrap:wrap;
+    margin-bottom:16px;
+  }
+  .diagram-head h4{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:13px; letter-spacing:.04em; text-transform:uppercase;
+    margin:0 0 4px; color:var(--ink-soft);
+  }
+  .diagram-head p{margin:0; font-size:13.5px; color:var(--ink-soft); max-width:46ch;}
+
+  .scenario-toggle{
+    display:inline-flex;
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:3px;
+    background:var(--panel-2);
+    flex-shrink:0;
+  }
+  .scenario-toggle button{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:11.5px;
+    letter-spacing:.03em;
+    border:none;
+    background:transparent;
+    color:var(--ink-soft);
+    padding:6px 12px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+  }
+  .scenario-toggle button.active{
+    background:var(--panel);
+    color:var(--ink);
+    box-shadow:0 1px 3px rgba(0,0,0,.12);
+  }
+
+  .pipeline{
+    display:flex;
+    align-items:stretch;
+    gap:6px;
+    overflow-x:auto;
+    padding-bottom:6px;
+    margin-bottom:14px;
+  }
+  .stage{
+    flex:0 0 auto;
+    width:150px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .stage-label{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:10.5px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    text-align:center;
+  }
+  .node{
+    border:1.5px solid var(--line);
+    background:var(--panel-2);
+    border-radius:10px;
+    padding:10px 10px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color .15s ease, transform .1s ease, background .15s ease;
+    position:relative;
+  }
+  .node:hover{transform:translateY(-1px);}
+  .node .name{font-weight:600; font-size:12.5px; margin-bottom:3px;}
+  .node .val{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:15px;
+    font-weight:600;
+  }
+  .node.pass{border-color:var(--pass); background:var(--accent-soft);}
+  .node.pass .val{color:var(--pass);}
+  .node.fail{border-color:var(--block); background:var(--block-soft);}
+  .node.fail .val{color:var(--block);}
+  .node .status{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:9.5px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    margin-top:4px;
+    opacity:.85;
+  }
+  .arrow{
+    align-self:center;
+    color:var(--ink-soft);
+    font-size:16px;
+    flex:0 0 auto;
+    margin-top:26px;
+  }
+
+  .result-bar{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    border-radius:10px;
+    padding:14px 16px;
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:13.5px;
+    border:1.5px solid var(--line);
+    transition:all .15s ease;
+  }
+  .result-bar.pass{background:var(--accent-soft); border-color:var(--pass); color:var(--pass);}
+  .result-bar.fail{background:var(--block-soft); border-color:var(--block); color:var(--block);}
+  .result-bar .dot{width:9px;height:9px;border-radius:50%; background:currentColor; flex:0 0 auto;}
+  .result-bar .msg{flex:1;}
+  .result-bar .msg b{display:block; font-size:14.5px; margin-bottom:2px;}
+  .result-bar .msg span{color:var(--ink-soft); font-family:'IBM Plex Sans', sans-serif; font-size:13px;}
+
+  .detail-hint{
+    font-size:12px;
+    color:var(--ink-soft);
+    text-align:center;
+    margin-top:10px;
+  }
+
+  /* ---- check detail panel (click to expand) ---- */
+  .check-detail{
+    margin-top:14px;
+    padding:14px 16px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    font-size:13.5px;
+    display:none;
+  }
+  .check-detail.show{display:block;}
+  .check-detail .t{font-weight:600; margin-bottom:4px;}
+  .check-detail .d{color:var(--ink-soft); margin:0;}
+
+  /* ---- checks list ---- */
+  .checks{display:flex; flex-direction:column; gap:10px; margin:20px 0 28px;}
+  .check-row{
+    display:flex; gap:12px;
+    border:1px solid var(--line);
+    background:var(--panel);
+    border-radius:10px;
+    padding:13px 14px;
+    box-shadow:var(--shadow);
+  }
+  .check-row .idx{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:12px; font-weight:600; color:var(--accent);
+    flex:0 0 22px;
+  }
+  .check-row .body b{display:block; font-size:14px; margin-bottom:3px;}
+  .check-row .body p{margin:0; font-size:13.5px; color:var(--ink-soft); max-width:56ch;}
+  .tag{
+    display:inline-block;
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:10px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    padding:2px 7px;
+    border-radius:5px;
+    margin-left:8px;
+    vertical-align:middle;
+    position:relative;
+    top:-1px;
+  }
+  .tag.absolute{background:var(--block-soft); color:var(--block);}
+  .tag.threshold{background:var(--accent-soft); color:var(--accent);}
+
+  /* ---- comparison columns ---- */
+  .compare{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin:20px 0 18px;
+  }
+  .compare-col{
+    border:1.5px solid var(--line);
+    background:var(--panel);
+    border-radius:12px;
+    padding:16px 16px 14px;
+    box-shadow:var(--shadow);
+  }
+  .compare-col.accent-col{border-color:var(--accent);}
+  .compare-head{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-weight:600;
+    font-size:14px;
+    margin-bottom:12px;
+    padding-bottom:10px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+  }
+  .compare-sub{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:400;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    text-transform:none;
+    letter-spacing:0;
+  }
+  .gate-head{color:var(--accent);}
+  .compare-col ul{margin:0; padding-left:1.1em;}
+  .compare-col li{font-size:13px; margin-bottom:9px; max-width:none;}
+  .compare-col li::marker{color:var(--ink-soft);}
+  .compare-col.accent-col li::marker{color:var(--accent);}
+
+  @media (max-width:600px){
+    .compare{grid-template-columns:1fr;}
+  }
+
+  /* ---- worked example ---- */
+  .example{
+    border-left:3px solid var(--warn);
+    background:var(--warn-soft);
+    border-radius:0 10px 10px 0;
+    padding:16px 18px;
+    margin:18px 0;
+  }
+  .example h3{font-size:15.5px; margin-bottom:8px; color:var(--ink);}
+  .example p, .example li{color:var(--ink);}
+  .stat-row{
+    display:flex; gap:18px; flex-wrap:wrap;
+    margin:12px 0 10px;
+  }
+  .stat{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+  }
+  .stat .k{font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); display:block;}
+  .stat .v{font-size:17px; font-weight:600;}
+  .stat .v.bad{color:var(--block);}
+  .stat .v.ok{color:var(--pass);}
+
+  pre{
+    background:var(--code-bg);
+    color:var(--code-ink);
+    border-radius:10px;
+    padding:16px 18px;
+    overflow-x:auto;
+    font-size:12.5px;
+    line-height:1.55;
+    margin:14px 0 20px;
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    box-shadow:var(--shadow);
+  }
+  .comment{color:#7e8790;}
+  .kw{color:#e0b350;}
+  .str{color:#5fbfa4;}
+
+  footer{
+    margin-top:56px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+    font-size:12.5px;
+    color:var(--ink-soft);
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  @media (max-width:480px){
+    .stage{width:120px;}
+    .node .val{font-size:13px;}
+  }
+</style>
+
+
+
+<div class="wrap">
+
+  <div class="eyebrow">Evaluation · Agentic AI Systems</div>
+  <h1>The Launch Gate</h1>
+  <p class="sub">The automated checkpoint that decides whether a build is allowed onto production traffic — and the single most consequential decision most agent teams under-engineer.</p>
+
+  <h2><span class="n">01</span> What it is</h2>
+  <p>A <strong>launch gate</strong> (also called a <strong>release gate</strong>) is a binary, automated <strong>go / no-go check</strong> that a candidate build must pass before it is promoted from a pull request or staging environment into production. It sits at the end of the evaluation harness: the harness produces a report on a fixed, versioned test suite, and the gate turns that report into one decision — <code>allowed: true</code> or <code>allowed: false</code> — with a machine-readable list of reasons for a block.</p>
+  <p>It is deliberately narrow. A gate does not try to catch everything an agent could ever do wrong; that is the job of production monitoring, canaries, and rollback triggers running after launch. The gate's job is to catch what an <strong>offline suite can detect before any real user is exposed</strong>: known policy violations, quality regressions against a baseline, silent harm to a specific user segment, and cost blowups.</p>
+
+  <ul>
+    <li><strong>Offline, not live</strong> — it runs against a frozen golden set with frozen tool fixtures, so the same build always produces the same verdict. Determinism is what makes the gate trustworthy enough to block a release automatically.</li>
+    <li><strong>Paired, not absolute</strong> — most checks compare the candidate build against a stored baseline report, not against a fixed target in isolation, so drift is measured relative to what is already in production.</li>
+    <li><strong>Composite, not single-metric</strong> — a real gate runs several independent checks and blocks if <em>any one</em> fails. A single "accuracy went up" signal is exactly what lets dangerous regressions through, which is the whole reason the gate exists in the first place.</li>
+  </ul>
+
+  <h2><span class="n">02</span> Why agentic systems need one specifically</h2>
+  <p>In a single-turn LLM feature, a quality regression is usually visible in the aggregate metric. In an agentic system, three properties make aggregate metrics actively misleading:</p>
+  <ul>
+    <li><strong>Trajectories, not answers.</strong> An agent's output is a sequence of tool calls and decisions, not one response — so "quality" has to include whether it called the right tools, in the right order, and refused when it should have, not just whether the final text looks right.</li>
+    <li><strong>Irreversible side effects.</strong> An agent with write access (filing a ticket, sending a payment, editing a record) can do real damage on a single bad trajectory. A policy violation here isn't a UX complaint — it's an incident.</li>
+    <li><strong>Segment-hiding aggregates.</strong> A change can raise the overall success rate while quietly collapsing one tenant, one intent class, or one language — exactly the case worked through below.</li>
+  </ul>
+
+  <div class="diagram">
+    <div class="diagram-head">
+      <div>
+        <h4>Interactive — the gate in action</h4>
+        <p>One build, four independent checks. Toggle the scenario and click a check to see why it passed or blocked.</p>
+      </div>
+      <div class="scenario-toggle" role="tablist">
+        <button class="active" data-scenario="clean">Clean release</button>
+        <button data-scenario="collapse">Segment collapse</button>
+        <button data-scenario="safety">Safety violation</button>
+      </div>
+    </div>
+
+    <div class="pipeline" id="pipeline"></div>
+    <div class="result-bar" id="resultBar"></div>
+    <div class="check-detail" id="checkDetail"></div>
+    <div class="detail-hint">Click any check above for the reasoning behind its verdict.</div>
+  </div>
+
+  <div class="hr"></div>
+
+  <h2><span class="n">03</span> A gate is not another metric</h2>
+  <p>This is the part that's easy to miss: a launch gate isn't a fifth number added to a dashboard next to accuracy and latency. It's a <strong>decision layer</strong> sitting on top of whatever metrics you already compute. Your existing evals answer <em>"how good is this build?"</em> The gate answers a completely different question: <em>"does this specific number, right now, mean the build is safe to expose to real users?"</em> — and it answers that question the same way every time, without a person eyeballing a dashboard and using judgment.</p>
+
+  <div class="compare">
+    <div class="compare-col">
+      <div class="compare-head metrics-head">Evaluation metrics <span class="compare-sub">what most teams build first</span></div>
+      <ul>
+        <li><strong>Measurement.</strong> A number: 84% accuracy, $0.21/run, 3.2s p95 latency.</li>
+        <li><strong>Reported as an aggregate</strong> across the whole test set — one summary figure.</li>
+        <li><strong>Descriptive.</strong> It tells you where you are. It doesn't tell you what to do about it.</li>
+        <li><strong>A human reads it</strong> and decides, subjectively, whether "84%, down from 85% yesterday" is fine to ship.</li>
+        <li><strong>Runs whenever someone remembers to</strong> — often ad hoc, in a notebook, before a demo.</li>
+        <li><strong>Snapshot in isolation</strong> — no built-in comparison to what's already live.</li>
+      </ul>
+    </div>
+    <div class="compare-col accent-col">
+      <div class="compare-head gate-head">Launch gate <span class="compare-sub">the policy built on top of those metrics</span></div>
+      <ul>
+        <li><strong>Decision.</strong> Consumes those same numbers and outputs one bit: <code>allowed</code> or blocked.</li>
+        <li><strong>Broken into strata</strong> — checks the worst segment, not just the mean, so one metric can hide a collapsed tenant.</li>
+        <li><strong>Prescriptive.</strong> A failing check has a hard consequence: the build does not get promoted. No judgment call required.</li>
+        <li><strong>Automated and unattended</strong> — wired into CI/CD so it fires on every pull request, with no one needing to remember or interpret it.</li>
+        <li><strong>Runs on every candidate build</strong>, against frozen, versioned fixtures, so the same build always gets the same verdict.</li>
+        <li><strong>Paired against a baseline</strong> — the question is always "regressed vs. what's live," not "is this number good in a vacuum."</li>
+      </ul>
+    </div>
+  </div>
+
+  <p>Put differently: your eval suite gives you <strong>signal</strong>. The gate gives that signal <strong>teeth</strong>. Most teams stop at the first half — they compute accuracy, cost, latency, maybe a groundedness score — and then a human glances at a dashboard before hitting deploy. That works until the day the aggregate looks fine and something underneath it isn't, which is precisely the segment-collapse case above: the metric existed, was correctly computed, and still let a 15-point regression through — because nothing was <em>enforcing</em> a rule on top of it.</p>
+
+  <p>Concretely, three things turn your metrics into a gate:</p>
+  <ul>
+    <li><strong>Thresholds with consequences, not just numbers.</strong> "Success rate: 84%" is a metric. "Block if success rate &lt; 85%, or if any tenant drops &gt; 3pt" is a gate — the same underlying computation, plus a rule that actually stops the merge.</li>
+    <li><strong>Stratification.</strong> Compute every metric per-segment (per tenant, per intent class, per language), not only in aggregate, and gate on the <em>worst</em> stratum, not the mean.</li>
+    <li><strong>Wiring, not reporting.</strong> The gate's output has to be read by something that can refuse to deploy — a CI check, a merge-block, a promotion pipeline — not just written to a dashboard someone might check.</li>
+  </ul>
+
+  <div class="hr"></div>
+
+  <h2><span class="n">04</span> The four checks</h2>
+  <p>A launch gate built for an agentic system typically runs these four, in this order of severity:</p>
+
+  <div class="checks">
+    <div class="check-row">
+      <div class="idx">01</div>
+      <div class="body">
+        <b>Safety / trajectory assertions <span class="tag absolute">blocks absolutely</span></b>
+        <p>Hard rules encoded as "must not call X," "must confirm before Y," "must not skip approval." These never expire and are never traded off against a quality gain — a failure here blocks the release regardless of what every other check says.</p>
+      </div>
+    </div>
+    <div class="check-row">
+      <div class="idx">02</div>
+      <div class="body">
+        <b>Aggregate success floor <span class="tag threshold">threshold</span></b>
+        <p>Overall pass rate on the golden set must clear a minimum (e.g. ≥ 85%) and not regress against the baseline beyond a set tolerance. This is the metric everyone thinks of first — and the one that is least sufficient on its own.</p>
+      </div>
+    </div>
+    <div class="check-row">
+      <div class="idx">03</div>
+      <div class="body">
+        <b>Per-stratum floor <span class="tag threshold">threshold</span></b>
+        <p>No individual segment — a tenant, an intent class, a language — may drop by more than a set margin (e.g. 3 points), independent of what the aggregate does. This is what stops an aggregate improvement from shipping a segment collapse.</p>
+      </div>
+    </div>
+    <div class="check-row">
+      <div class="idx">04</div>
+      <div class="body">
+        <b>Cost ceiling <span class="tag threshold">threshold</span></b>
+        <p>Cost per successful run must stay under a set limit. A quality gain that triples spend is not blocked outright in most designs, but it is made a visible, explicit trade-off rather than something that ships silently.</p>
+      </div>
+    </div>
+  </div>
+
+  <p>The suite these checks run against only works if it is <strong>stratified</strong>: built with a minimum case count per segment (so a small tenant isn't statistically invisible), and deliberately includes refusal, escalation, and adversarial cases — not just answerable questions — so an "improvement" that just answers more confidently doesn't look like progress.</p>
+
+  <h2><span class="n">05</span> Worked example — the segment collapse a gate is built to catch</h2>
+  <div class="example">
+    <h3>A document Q&amp;A agent serving eleven enterprise tenants</h3>
+    <p>A retrieval change shifted weighting from lexical matching toward dense retrieval. Tested against the full golden set, it looked like a clean win.</p>
+    <div class="stat-row">
+      <div class="stat"><span class="k">Aggregate before</span><span class="v">79%</span></div>
+      <div class="stat"><span class="k">Aggregate after</span><span class="v ok">81%</span></div>
+      <div class="stat"><span class="k">Affected tenant, before</span><span class="v">82%</span></div>
+      <div class="stat"><span class="k">Affected tenant, after</span><span class="v bad">67%</span></div>
+    </div>
+    <p>The tenant's corpus leaned on heavy internal abbreviations — exactly what dense retrieval handles worse than exact lexical matching — but that tenant was only ~4% of the golden set, so its 15-point collapse was invisible inside a 2-point aggregate gain. It shipped, and the tenant escalated two weeks later.</p>
+    <p><strong>What would have caught it:</strong> a per-stratum floor of "no tenant may drop more than 3 points regardless of the aggregate." That single check turns an invisible regression into an automatic block, before any customer sees it.</p>
+  </div>
+
+  <h2><span class="n">06</span> What the gate looks like in code</h2>
+  <p>A minimal version is a pure function over a harness report — deterministic, versioned, and cheap enough to run on every pull request:</p>
+  <pre><span class="comment"># The gate answers one question: may this commit be promoted?
+# It runs four independent checks; a failure in any one blocks.</span>
+
+<span class="kw">class</span> ReleaseGate:
+    STRATUM_FLOOR_DROP = <span class="str">0.03</span>   <span class="comment"># no stratum may fall &gt; 3 pts</span>
+    AGGREGATE_FLOOR    = <span class="str">0.85</span>
+    COST_CEILING_USD   = <span class="str">0.25</span>
+
+    <span class="kw">def</span> evaluate(self, build_id):
+        report = self.harness.run(
+            build_id=build_id,
+            fixtures=frozen,             <span class="comment"># deterministic suite</span>
+            paired_with=self.baseline,   <span class="comment"># compare, don't judge in isolation</span>
+        )
+        reasons = []
+
+        <span class="comment"># 1. safety — blocks absolutely</span>
+        <span class="kw">if</span> report.failed_safety_assertions:
+            reasons.append(<span class="str">"safety assertion failure"</span>)
+
+        <span class="comment"># 2. aggregate floor</span>
+        <span class="kw">if</span> report.success_rate &lt; self.AGGREGATE_FLOOR:
+            reasons.append(<span class="str">"aggregate below floor"</span>)
+
+        <span class="comment"># 3. per-stratum floor — catches segment collapse</span>
+        <span class="kw">for</span> stratum, drop <span class="kw">in</span> report.stratum_deltas():
+            <span class="kw">if</span> drop &gt; self.STRATUM_FLOOR_DROP:
+                reasons.append(<span class="str">f"{stratum} dropped {drop}"</span>)
+
+        <span class="comment"># 4. cost ceiling — trade-off made visible, not silent</span>
+        <span class="kw">if</span> report.cost_per_success &gt; self.COST_CEILING_USD:
+            reasons.append(<span class="str">"cost per success over ceiling"</span>)
+
+        <span class="kw">return</span> GateResult(allowed=<span class="kw">not</span> reasons, reasons=reasons)</pre>
+
+  <h2><span class="n">07</span> What a gate is not</h2>
+  <ul>
+    <li><strong>Not a substitute for production monitoring.</strong> A golden set of a few hundred cases has real statistical power limits — it reliably catches large regressions, not small ones. Small regressions are caught by live monitoring and an automatic rollback trigger, not the gate.</li>
+    <li><strong>Not static.</strong> A suite built at launch describes launch traffic. Without a periodic drift check against production distribution, the gate quietly starts protecting a system nobody uses anymore.</li>
+    <li><strong>Not a place for flaky tests.</strong> A safety assertion that fails intermittently gets deleted by an impatient team within a quarter — so fixtures must be frozen and deterministic, making determinism a safety property, not a convenience.</li>
+  </ul>
+
+  <footer>
+    Launch Gate · agentic AI evaluation reference
+  </footer>
+</div>
+
+<script>
+(function(){
+  const scenarios = {
+    clean: {
+      label: "Clean release",
+      checks: [
+        {name:"Safety assertions", val:"0 failures", status:"pass", detail:"No must-not-call or ordering violations across the frozen trajectory suite."},
+        {name:"Aggregate floor", val:"87% ≥ 85%", status:"pass", detail:"Aggregate success rate clears the floor and sits within tolerance of the baseline (85%)."},
+        {name:"Per-stratum floor", val:"max drop 1.2pt", status:"pass", detail:"Every tenant stratum stayed within the 3-point allowed drop; largest movement was -1.2pt."},
+        {name:"Cost ceiling", val:"$0.19/success", status:"pass", detail:"Cost per successful run is under the $0.25 ceiling — no hidden spend trade-off."}
+      ],
+      result:{status:"pass", title:"Build promoted", msg:"All four checks passed. This build is eligible for canary rollout."}
+    },
+    collapse: {
+      label: "Segment collapse",
+      checks: [
+        {name:"Safety assertions", val:"0 failures", status:"pass", detail:"No policy violations — this change never touched tool-calling behavior."},
+        {name:"Aggregate floor", val:"81% ≥ 85%*", status:"pass", detail:"Aggregate rose from 79% → 81%. Looks like a clean win in isolation — this is exactly the trap."},
+        {name:"Per-stratum floor", val:"−15.0pt (tenant)", status:"fail", detail:"One tenant (≈4% of the golden set) dropped from 82% → 67% — a 15-point collapse hidden inside a 2-point aggregate gain. Exceeds the 3-point floor and blocks the release on its own."},
+        {name:"Cost ceiling", val:"$0.21/success", status:"pass", detail:"Cost is unaffected — this is purely a quality regression, not a spend issue."}
+      ],
+      result:{status:"fail", title:"Build blocked", msg:"Per-stratum floor failed: 1 tenant dropped 15pt. The aggregate gain would have shipped this silently without stratified checks."}
+    },
+    safety: {
+      label: "Safety violation",
+      checks: [
+        {name:"Safety assertions", val:"1 failure", status:"fail", detail:"Trajectory assertion violated: agent called the ticket-write tool without the required human-approval step on 3 of 600 cases."},
+        {name:"Aggregate floor", val:"88% ≥ 85%", status:"pass", detail:"Aggregate quality is fine — the regression is entirely in policy compliance, not accuracy."},
+        {name:"Per-stratum floor", val:"max drop 0.8pt", status:"pass", detail:"No segment shows meaningful quality movement."},
+        {name:"Cost ceiling", val:"$0.18/success", status:"pass", detail:"No cost impact."}
+      ],
+      result:{status:"fail", title:"Build blocked", msg:"Safety assertions block absolutely — every other check passing does not matter. This never ships."}
+    }
+  };
+
+  const pipelineEl = document.getElementById('pipeline');
+  const resultBarEl = document.getElementById('resultBar');
+  const detailEl = document.getElementById('checkDetail');
+  const buttons = document.querySelectorAll('.scenario-toggle button');
+
+  let activeCheckIdx = null;
+
+  function render(key){
+    const sc = scenarios[key];
+    pipelineEl.innerHTML = '';
+    activeCheckIdx = null;
+    detailEl.classList.remove('show');
+    detailEl.innerHTML = '';
+
+    sc.checks.forEach((c, i) => {
+      const stage = document.createElement('div');
+      stage.className = 'stage';
+
+      const label = document.createElement('div');
+      label.className = 'stage-label';
+      label.textContent = 'Check ' + (i+1);
+
+      const node = document.createElement('div');
+      node.className = 'node ' + (c.status === 'pass' ? 'pass' : 'fail');
+      node.innerHTML = '<div class="name">'+c.name+'</div><div class="val">'+c.val+'</div><div class="status">'+(c.status==='pass'?'✓ pass':'✕ block')+'</div>';
+      node.addEventListener('click', () => showDetail(key, i));
+
+      stage.appendChild(label);
+      stage.appendChild(node);
+      pipelineEl.appendChild(stage);
+
+      if(i < sc.checks.length - 1){
+        const arrow = document.createElement('div');
+        arrow.className = 'arrow';
+        arrow.textContent = '→';
+        pipelineEl.appendChild(arrow);
+      }
+    });
+
+    resultBarEl.className = 'result-bar ' + sc.result.status;
+    resultBarEl.innerHTML = '<div class="dot"></div><div class="msg"><b>'+sc.result.title+'</b><span>'+sc.result.msg+'</span></div>';
+  }
+
+  function showDetail(key, i){
+    const sc = scenarios[key];
+    const c = sc.checks[i];
+    if(activeCheckIdx === i){
+      detailEl.classList.remove('show');
+      activeCheckIdx = null;
+      return;
+    }
+    activeCheckIdx = i;
+    detailEl.innerHTML = '<div class="t">'+c.name+' — '+(c.status==='pass'?'passed':'blocked')+'</div><p class="d">'+c.detail+'</p>';
+    detailEl.classList.add('show');
+  }
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render(btn.dataset.scenario);
+    });
+  });
+
+  render('clean');
+})();
+</script>
+  </body>
+</html>

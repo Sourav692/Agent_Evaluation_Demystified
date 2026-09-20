@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <style>
+      :root{ color-scheme: light dark;
+             padding-top: env(safe-area-inset-top, 0px);
+             padding-bottom: env(safe-area-inset-bottom, 0px); }
+      html, body { margin: 0; }
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+             Helvetica, Arial, sans-serif; font-size: 14px; }
+      img { max-width: 100%; }
+      [hidden] { display: none !important; }
+    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  </head>
+  <body>
+<title>RAG vs. Support: Eval Walkthrough</title>
+<style>
+  :root{
+    --bg:#f3f1ea; --panel:#ffffff; --panel-2:#eae7dd; --ink:#1c2024; --ink-soft:#52585f;
+    --line:#d8d4c8; --accent:#1f6f5c; --accent-soft:#e4efe9;
+    --pass:#1f6f5c; --warn:#a1670e; --warn-soft:#f7ecd8; --block:#a43b32; --block-soft:#f6e3df;
+    --rag:#2f5fa8; --rag-soft:#e3ebf7;
+    --sup:#8a4fae; --sup-soft:#efe4f5;
+    --code-bg:#1c2024; --code-ink:#e7e4d9;
+    --shadow: 0 1px 2px rgba(28,32,36,.06), 0 8px 24px -12px rgba(28,32,36,.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15181c; --panel:#1b1f24; --panel-2:#20252b; --ink:#e9e7df; --ink-soft:#a2a9ad;
+      --line:#31363d; --accent:#5fbfa4; --accent-soft:#1d2b28;
+      --pass:#5fbfa4; --warn:#e0b350; --warn-soft:#2c2519; --block:#e2776c; --block-soft:#2e1e1c;
+      --rag:#7fa8e0; --rag-soft:#1c2733;
+      --sup:#c79bdc; --sup-soft:#2a2130;
+      --code-bg:#0f1215; --code-ink:#e7e4d9;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px -12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15181c; --panel:#1b1f24; --panel-2:#20252b; --ink:#e9e7df; --ink-soft:#a2a9ad;
+    --line:#31363d; --accent:#5fbfa4; --accent-soft:#1d2b28;
+    --pass:#5fbfa4; --warn:#e0b350; --warn-soft:#2c2519; --block:#e2776c; --block-soft:#2e1e1c;
+    --rag:#7fa8e0; --rag-soft:#1c2733;
+    --sup:#c79bdc; --sup-soft:#2a2130;
+    --code-bg:#0f1215; --code-ink:#e7e4d9;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px -12px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box;}
+  body{background:var(--bg); color:var(--ink); font-family:'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    padding-inline:20px; padding-block:40px 80px; line-height:1.6;}
+  .wrap{max-width:800px; margin:0 auto;}
+  .mono{font-family:'IBM Plex Mono', ui-monospace, monospace;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace; font-size:12.5px; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--accent); display:flex; align-items:center; gap:8px; margin-bottom:14px;}
+  .eyebrow::before{content:""; width:7px;height:7px;border-radius:50%; background:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
+  h1{font-family:'IBM Plex Mono',monospace; font-size:clamp(26px,5vw,36px); line-height:1.15; letter-spacing:-.01em; margin:0 0 12px; text-wrap:balance;}
+  .sub{font-size:16px; color:var(--ink-soft); max-width:64ch; margin:0 0 28px;}
+  p{margin:0 0 14px; max-width:68ch;}
+  ul{margin:0 0 14px; padding-left:1.15em;}
+  li{margin-bottom:6px; max-width:64ch;}
+  li::marker{color:var(--accent);}
+  code{font-family:'IBM Plex Mono',monospace; font-size:.9em; background:var(--panel-2); padding:.1em .38em; border-radius:4px; border:1px solid var(--line);}
+
+  /* system tabs */
+  .systab{
+    display:flex; gap:8px; margin:0 0 30px; border:1px solid var(--line); background:var(--panel-2);
+    border-radius:12px; padding:4px; position:sticky; top:12px; z-index:5; box-shadow:var(--shadow);
+    flex-wrap:wrap;
+  }
+  .systab button{
+    flex:1 1 200px;
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; letter-spacing:.02em;
+    border:none; background:transparent; color:var(--ink-soft); padding:11px 14px; border-radius:9px;
+    cursor:pointer; text-align:left; transition:background .15s, color .15s;
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .systab button b{font-size:13.5px; color:inherit;}
+  .systab button span{font-size:11px; opacity:.75; font-family:'IBM Plex Sans',sans-serif;}
+  .systab button.active{background:var(--panel); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.12);}
+  .systab button.active#tab-rag, .systab button[data-sys="rag"].active{border-left:3px solid var(--rag);}
+  .systab button[data-sys="sup"].active{border-left:3px solid var(--sup);}
+
+  .sys-panel{display:none;}
+  .sys-panel.show{display:block;}
+
+  .frame{
+    display:flex; gap:12px; align-items:flex-start;
+    border:1px solid var(--line); background:var(--panel); border-radius:12px; padding:16px 18px;
+    box-shadow:var(--shadow); margin-bottom:30px;
+  }
+  .frame .tagdot{width:10px;height:10px;border-radius:50%; margin-top:5px; flex:0 0 auto;}
+  .frame p{margin:0; font-size:14px; color:var(--ink-soft);}
+  .frame b{color:var(--ink);}
+
+  h2{font-family:'IBM Plex Mono',monospace; font-size:14px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--ink-soft); margin:40px 0 6px; display:flex; align-items:center; gap:10px;}
+  h2 .n{color:var(--accent); font-weight:600;}
+  h2 .stagelabel{font-size:10px; padding:2px 8px; border-radius:5px; text-transform:uppercase; letter-spacing:.04em;}
+  .stagelabel.offline{background:var(--accent-soft); color:var(--accent);}
+  .stagelabel.online{background:var(--warn-soft); color:var(--warn);}
+  .stagelabel.gate{background:var(--block-soft); color:var(--block);}
+  h2 p{display:none;}
+  .h2-desc{font-size:13.5px; color:var(--ink-soft); margin:0 0 16px; max-width:60ch;}
+
+  /* metric cards */
+  .metric-grid{display:flex; flex-direction:column; gap:10px; margin-bottom:8px;}
+  .metric{
+    border:1px solid var(--line); background:var(--panel); border-radius:10px; padding:13px 15px;
+    box-shadow:var(--shadow); cursor:pointer;
+  }
+  .metric .row{display:flex; justify-content:space-between; align-items:center; gap:10px;}
+  .metric .name{font-weight:600; font-size:14px;}
+  .metric .target{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--accent); white-space:nowrap; flex:0 0 auto;}
+  .metric .why{
+    max-height:0; overflow:hidden; opacity:0; font-size:13px; color:var(--ink-soft); margin-top:0;
+    transition:max-height .2s ease, opacity .2s ease, margin-top .2s ease;
+  }
+  .metric.open .why{max-height:120px; opacity:1; margin-top:8px;}
+  .metric .caret{font-size:11px; color:var(--ink-soft); transition:transform .15s ease;}
+  .metric.open .caret{transform:rotate(180deg);}
+  .metric-hint{font-size:12px; color:var(--ink-soft); margin:2px 0 22px;}
+
+  /* gate section */
+  .gate-card{
+    border:1.5px solid var(--line); background:var(--panel); border-radius:14px; padding:18px 18px 20px;
+    box-shadow:var(--shadow); margin-top:10px;
+  }
+  .gate-toggle{display:inline-flex; border:1px solid var(--line); border-radius:999px; padding:3px; background:var(--panel-2); margin-bottom:16px;}
+  .gate-toggle button{font-family:'IBM Plex Mono',monospace; font-size:11.5px; border:none; background:transparent;
+    color:var(--ink-soft); padding:6px 12px; border-radius:999px; cursor:pointer;}
+  .gate-toggle button.active{background:var(--panel); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.12);}
+
+  .gatechecks{display:flex; flex-direction:column; gap:8px; margin-bottom:14px;}
+  .gc{display:flex; gap:10px; align-items:flex-start; border:1px solid var(--line); border-radius:9px; padding:10px 12px; background:var(--panel-2);}
+  .gc .mark{width:20px; height:20px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; margin-top:1px;}
+  .gc.pass .mark{background:var(--accent-soft); color:var(--pass);}
+  .gc.fail .mark{background:var(--block-soft); color:var(--block);}
+  .gc .txt b{font-size:13px; display:block;}
+  .gc .txt span{font-size:12.5px; color:var(--ink-soft);}
+
+  .result-bar{display:flex; align-items:center; gap:12px; border-radius:10px; padding:13px 15px;
+    font-family:'IBM Plex Mono',monospace; font-size:13px; border:1.5px solid var(--line);}
+  .result-bar.pass{background:var(--accent-soft); border-color:var(--pass); color:var(--pass);}
+  .result-bar.fail{background:var(--block-soft); border-color:var(--block); color:var(--block);}
+  .result-bar .dot{width:9px;height:9px;border-radius:50%; background:currentColor; flex:0 0 auto;}
+  .result-bar b{display:block; font-size:14px;}
+  .result-bar span{color:var(--ink-soft); font-family:'IBM Plex Sans',sans-serif; font-size:12.5px;}
+
+  /* ---- clarifying callout ---- */
+  .callout{
+    border:1.5px solid var(--warn); background:var(--warn-soft); border-radius:14px;
+    padding:20px 20px 18px; margin-bottom:32px; box-shadow:var(--shadow);
+  }
+  .callout-head{display:flex; gap:12px; margin-bottom:16px;}
+  .qmark{
+    flex:0 0 auto; width:26px; height:26px; border-radius:50%; background:var(--warn); color:var(--panel);
+    display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace;
+    font-weight:700; font-size:14px;
+  }
+  .callout-head h3{margin:0 0 4px; font-size:16px; line-height:1.35; color:var(--ink);}
+  .callout-head p{margin:0; font-size:13px; color:var(--ink-soft); max-width:56ch;}
+  .judge-modes{display:flex; flex-direction:column; gap:8px;}
+  .jmode{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px;
+    cursor:pointer;
+  }
+  .jm-top{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .jm-icon{font-size:15px;}
+  .jm-top b{font-size:13.5px;}
+  .jm-badge{
+    margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.03em;
+    text-transform:uppercase; color:var(--ink-soft); background:var(--panel-2); padding:2px 8px; border-radius:5px;
+  }
+  .jm-body{max-height:0; overflow:hidden; opacity:0; transition:max-height .22s ease, opacity .22s ease, margin-top .22s ease;}
+  .jmode.open .jm-body{max-height:400px; opacity:1; margin-top:10px;}
+  .jm-body p{font-size:13px; color:var(--ink-soft); margin:0 0 8px; max-width:none;}
+  .jm-body p:last-child{margin-bottom:0;}
+  .jm-eg{padding:8px 10px; background:var(--panel-2); border-radius:7px; border:1px solid var(--line);}
+  .callout-foot{font-size:13px; color:var(--ink-soft); margin:16px 0 0; max-width:none;}
+
+  /* ---- venn split ---- */
+  .venn{margin-top:18px; padding-top:16px; border-top:1px dashed var(--warn);}
+  .venn-head{font-size:13.5px; font-weight:600; color:var(--ink); margin-bottom:12px;}
+  .venn-head span{display:block; font-weight:400; font-size:12.5px; color:var(--ink-soft); margin-top:2px;}
+  .venn-cols{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;}
+  .venn-col{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 13px;}
+  .venn-col.overlap-col{border-color:var(--accent); background:var(--accent-soft);}
+  .vc-t{display:block; font-size:12.5px; margin-bottom:2px;}
+  .offline-t{color:var(--ink-soft);}
+  .overlap-t{color:var(--accent);}
+  .online-t{color:var(--warn);}
+  .vc-sub{display:block; font-size:11px; color:var(--ink-soft); margin-bottom:8px; line-height:1.35;}
+  .venn-col ul{margin:0; padding-left:1.1em;}
+  .venn-col li{font-size:12px; margin-bottom:6px; max-width:none;}
+  @media (max-width:600px){ .venn-cols{grid-template-columns:1fr;} }
+
+  .hr{height:1px; background:var(--line); margin:44px 0;}
+  footer{margin-top:52px; padding-top:18px; border-top:1px solid var(--line); font-size:12px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+  @media (max-width:480px){ .systab{position:static;} }
+</style>
+
+
+<div class="wrap">
+  <div class="eyebrow">Evaluation · Agentic AI Systems</div>
+  <h1>Offline eval, online eval, release gate — on two real systems</h1>
+  <p class="sub">Same three-layer framework, applied to an Enterprise RAG assistant and a multi-agent customer support system. No architecture deep dive — just what gets measured, when, and what blocks a release.</p>
+
+  <div class="systab" role="tablist">
+    <button class="active" data-sys="rag"><b>🏦 Enterprise RAG System</b><span>Internal knowledge assistant over enterprise documents</span></button>
+    <button data-sys="sup"><b>🎧 Multi-Agent Customer Support</b><span>Router + workflows resolving 60k conversations/day</span></button>
+  </div>
+
+  <div class="callout">
+    <div class="callout-head">
+      <span class="qmark">?</span>
+      <div>
+        <h3>If production has no reference answers, what is the "online judge" actually scoring?</h3>
+        <p>Not the same thing offline scoring does. Production doesn't run a golden-answer comparison — it runs three different techniques, none of which need a labeled correct answer. Click each.</p>
+      </div>
+    </div>
+    <div class="judge-modes">
+      <div class="jmode" data-jm="self">
+        <div class="jm-top"><span class="jm-icon">🔗</span><b>Self-consistency judging</b><span class="jm-badge">most of what "online judge" means</span></div>
+        <div class="jm-body">
+          <p>The judge doesn't compare the answer to a golden reference — it compares the answer to <strong>its own retrieved context</strong>, which production already logs as part of the trajectory. "Is every claim in this answer entailed by the passages this exact run retrieved?" needs zero external ground truth, because the reference — the context — travels with the run itself.</p>
+          <p class="jm-eg"><strong>RAG example:</strong> faithfulness/groundedness, citation accuracy, contradiction-disclosure — all scored against the run's own context.</p>
+          <p class="jm-eg"><strong>Support example:</strong> "did the reply match what the tool actually returned" — scored against the tool's logged output, not a human-written answer key.</p>
+        </div>
+      </div>
+      <div class="jmode" data-jm="rule">
+        <div class="jm-top"><span class="jm-icon">⚖️</span><b>Deterministic trajectory rules</b><span class="jm-badge">no judge model needed</span></div>
+        <div class="jm-body">
+          <p>Safety and policy checks were never comparisons to a reference answer in the first place — offline or online. "Did it call the write-tool without an approval step," "did it cross a tenant boundary" are pass/fail assertions read directly off the logged trajectory. These run online exactly as they run in the gate, at full volume, for free.</p>
+        </div>
+      </div>
+      <div class="jmode" data-jm="calib">
+        <div class="jm-top"><span class="jm-icon">🎯</span><b>Periodic human labels — for calibration, not live scoring</b><span class="jm-badge">closes the loop</span></div>
+        <div class="jm-body">
+          <p>A small sample of production runs <em>is</em> sent to human reviewers, but on a delay, in a batch — not inline per-request. That labeled batch does two jobs: it measures how well the LLM judge agrees with a human on the same cases (a kappa score, watched for drift), and it becomes new golden-set cases, feeding the offline suite so it stops describing last quarter's traffic. The judge scores every live sample instantly and self-referentially; the human sample calibrates whether those scores can still be trusted.</p>
+        </div>
+      </div>
+      <div class="jmode" data-jm="pair">
+        <div class="jm-top"><span class="jm-icon">⚖️</span><b>Paired canary comparison</b><span class="jm-badge">relative, not absolute</span></div>
+        <div class="jm-body">
+          <p>For an actual A/B or canary rollout, the question isn't "is this answer correct" in isolation — it's "does variant B win, lose, or tie against variant A on the same live question." A judge (or a real user signal) picks a winner per pair. That's a relative verdict, which needs no ground truth either — only two things to compare.</p>
+        </div>
+      </div>
+    </div>
+    <p class="callout-foot">In short: production substitutes <strong>the logged context</strong> for a golden answer wherever it can (most of the time), falls back to <strong>rule-based assertions</strong> where no judgment call is needed at all, and only reaches for actual <strong>human-labeled ground truth</strong> in small, delayed samples — used to keep the judge honest and the offline suite fresh, not to score every request.</p>
+
+    <div class="venn">
+      <div class="venn-head">So do offline and online share metrics? <span>Yes — but split three ways, not identical sets.</span></div>
+      <div class="venn-cols">
+        <div class="venn-col">
+          <b class="vc-t offline-t">Offline-only</b>
+          <span class="vc-sub">need a labeled reference — can't run without one</span>
+          <ul>
+            <li>Answer correctness vs. a written reference answer</li>
+            <li>Task resolution accuracy vs. the known-correct action</li>
+            <li>Anything scored by comparing to a human-authored "right answer"</li>
+          </ul>
+        </div>
+        <div class="venn-col overlap-col">
+          <b class="vc-t overlap-t">Runs in both</b>
+          <span class="vc-sub">reference-free or rule-based — same computation either place</span>
+          <ul>
+            <li>Faithfulness / groundedness (context is its own reference)</li>
+            <li>Citation accuracy, contradiction disclosure</li>
+            <li>Safety &amp; trajectory assertions (approval, tenant isolation)</li>
+            <li>Router-confidence disagreement style checks</li>
+          </ul>
+        </div>
+        <div class="venn-col">
+          <b class="vc-t online-t">Online-only</b>
+          <span class="vc-sub">the phenomenon only exists once real traffic exists</span>
+          <ul>
+            <li>Deflection / CSAT, escalation rate, reformulation rate</li>
+            <li>p95 latency, cost-per-success drift, queue depth</li>
+            <li>Tool status mix, cache hit rate, corpus/traffic drift</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= RAG PANEL ================= -->
+  <div class="sys-panel show" id="panel-rag">
+    <div class="frame"><div class="tagdot" style="background:var(--rag)"></div>
+      <p><b>The system, in one line:</b> answers employee/customer questions by retrieving from internal + licensed document corpora and synthesizing a cited response — the thing being evaluated is <em>"is this answer grounded, correct, and safe to hand to a regulated business,"</em> not the retrieval pipeline's internals.</p>
+    </div>
+
+    <h2><span class="n">01</span> Offline evaluation <span class="stagelabel offline">pre-launch, frozen suite</span></h2>
+    <p class="h2-desc">Runs on a versioned golden set of questions with known correct answers and known supporting source documents — deterministic, repeatable, computed before any real user sees the build. Click a metric to see what it's built to catch.</p>
+    <div class="metric-grid" data-group="rag-offline">
+      <div class="metric"><div class="row"><div class="name">Context recall @ k</div><div class="target">≥ 92%<span class="caret">▾</span></div></div>
+        <div class="why">Did the retriever pull the chunk that actually contains the answer, within the top-k results? If this is low, nothing downstream can be right — the model never saw the fact.</div></div>
+      <div class="metric"><div class="row"><div class="name">Context precision / MRR</div><div class="target">MRR ≥ 0.8<span class="caret">▾</span></div></div>
+        <div class="why">Of what's retrieved, how much is relevant, and how high-ranked is the correct passage? Low precision buries the right chunk under noise, which quietly increases hallucination risk even when recall looks fine.</div></div>
+      <div class="metric"><div class="row"><div class="name">Faithfulness / groundedness</div><div class="target">≥ 90%<span class="caret">▾</span></div></div>
+        <div class="row"></div>
+        <div class="why">Is every claim in the answer actually supported by the retrieved context (checked via NLI/judge entailment)? This is the number the research-assistant case study moved from 78%→91% by adding a grading step before synthesis.</div></div>
+      <div class="metric"><div class="row"><div class="name">Answer correctness vs. reference</div><div class="target">paired, vs. baseline<span class="caret">▾</span></div></div>
+        <div class="why">Does the answer match a human-written reference answer for the same question, judged per-case and paired against the previous build — not scored in isolation, so noise from question difficulty cancels out.</div></div>
+      <div class="metric"><div class="row"><div class="name">Citation accuracy</div><div class="target">≥ 97%<span class="caret">▾</span></div></div>
+        <div class="why">Do the cited sources actually contain the claim they're attached to? This is what caught "citation drift after compaction" in the research-assistant case study — summarization silently dropped source identifiers.</div></div>
+      <div class="metric"><div class="row"><div class="name">Refusal correctness (absent stratum)</div><div class="target">≥ 95%<span class="caret">▾</span></div></div>
+        <div class="why">On questions the corpus genuinely can't answer, does the system refuse instead of confabulating? Without this stratum, every "improvement" that just answers more confidently looks like progress.</div></div>
+      <div class="metric"><div class="row"><div class="name">Contradiction handling</div><div class="target">correct disclosure<span class="caret">▾</span></div></div>
+        <div class="why">When two sources disagree, does the system surface the disagreement instead of silently picking one? Silent resolution is a correctness bug even when the picked answer happens to be right.</div></div>
+      <div class="metric"><div class="row"><div class="name">PII / compliance leakage rate</div><div class="target">0 tolerated<span class="caret">▾</span></div></div>
+        <div class="why">Trajectory-level assertion, not a quality score: did any response expose another customer's data, or give advice outside the DPDP/RBI-permitted scope? This is a safety check, scored pass/fail per case, not averaged.</div></div>
+    </div>
+    <p class="metric-hint">↑ click any row to expand</p>
+
+    <h2><span class="n">02</span> Online evaluation <span class="stagelabel online">live traffic, continuous</span></h2>
+    <p class="h2-desc">Runs against real production conversations after launch — this is where small regressions and corpus drift actually get caught, because the sample size the offline suite lacks exists here.</p>
+    <div class="metric-grid" data-group="rag-online">
+      <div class="metric"><div class="row"><div class="name">Sampled online judge score</div><div class="target">1–2% of traffic<span class="caret">▾</span></div></div>
+        <div class="why">A random slice of live runs is continuously re-scored by the same harness used offline. Availability monitoring only answers "did it respond" — this is the only signal that answers "was it right," and those are different questions.</div></div>
+      <div class="metric"><div class="row"><div class="name">Citation-free answer rate</div><div class="target">alert on rise<span class="caret">▾</span></div></div>
+        <div class="why">The tell for a silently-empty index: an index rebuild that returns zero rows still returns HTTP success, so error-rate monitoring stays green while quality collapses. This metric is what actually catches it.</div></div>
+      <div class="metric"><div class="row"><div class="name">User reformulation rate</div><div class="target">trend, per segment<span class="caret">▾</span></div></div>
+        <div class="why">How often a user immediately re-asks the same question differently — a cheap proxy for "the first answer didn't help," available without any explicit feedback button.</div></div>
+      <div class="metric"><div class="row"><div class="name">Escalation-to-human rate</div><div class="target">trend, per department<span class="caret">▾</span></div></div>
+        <div class="why">Rising escalation on a specific document class (retail vs. corporate vs. compliance corpora) localizes a regression to a stratum long before the aggregate metric moves.</div></div>
+      <div class="metric"><div class="row"><div class="name">Cost per successful query</div><div class="target">alert at 3× median<span class="caret">▾</span></div></div>
+        <div class="why">Not total spend, which just tracks traffic. A prompt change that quietly doubles retrieved-context size shows up here first — before finance notices the bill.</div></div>
+      <div class="metric"><div class="row"><div class="name">Redaction / guardrail trigger rate</div><div class="target">trend + spike alert<span class="caret">▾</span></div></div>
+        <div class="why">A sudden spike usually means a new query pattern is probing a boundary the offline suite never sampled — the live signal that a compliance gap exists before an incident does.</div></div>
+    </div>
+    <p class="metric-hint">↑ click any row to expand</p>
+
+    <h2><span class="n">03</span> Release gate <span class="stagelabel gate">CI, blocks promotion</span></h2>
+    <p class="h2-desc">Turns the offline metrics above into one automated decision on every candidate build, stratified by document class / business unit rather than only the aggregate.</p>
+
+    <div class="gate-card">
+      <div class="gate-toggle" role="tablist">
+        <button class="active" data-scn="rag-clean">Clean release</button>
+        <button data-scn="rag-collapse">Corpus segment regresses</button>
+      </div>
+      <div class="gatechecks" id="rag-gatechecks"></div>
+      <div class="result-bar" id="rag-result"></div>
+    </div>
+
+    <ul style="margin-top:18px;">
+      <li><strong>Safety — blocks absolutely:</strong> any PII/tenant-isolation leak, or any answer giving out-of-scope regulated advice, on any case in the suite.</li>
+      <li><strong>Aggregate floor:</strong> faithfulness ≥ 90% and answer correctness not regressed beyond tolerance, tested paired against the baseline build.</li>
+      <li><strong>Per-stratum floor:</strong> no document class / business unit (retail, corporate, compliance, regional) may drop more than 3 points — this is what a retrieval-weighting change can silently break for one corpus while improving the mean.</li>
+      <li><strong>Cost ceiling:</strong> cost per successful query stays under budget — a context-window change that improves faithfulness by resending more of the corpus is a visible trade-off, not a silent one.</li>
+    </ul>
+  </div>
+
+  <!-- ================= SUPPORT PANEL ================= -->
+  <div class="sys-panel" id="panel-sup">
+    <div class="frame"><div class="tagdot" style="background:var(--sup)"></div>
+      <p><b>The system, in one line:</b> routes 60,000 conversations/day across 9 languages to 11 deterministic workflows (≈84% of volume) or a bounded agent loop for the residual tail — what's being evaluated is <em>"did it resolve the right way, safely, within cost and latency budget,"</em> not the router's internals.</p>
+    </div>
+
+    <h2><span class="n">01</span> Offline evaluation <span class="stagelabel offline">pre-launch, frozen suite</span></h2>
+    <p class="h2-desc">A stratified sample of past conversations with known-correct resolutions, replayed against the candidate build with frozen tool fixtures.</p>
+    <div class="metric-grid" data-group="sup-offline">
+      <div class="metric"><div class="row"><div class="name">Task resolution accuracy</div><div class="target">per intent, paired<span class="caret">▾</span></div></div>
+        <div class="why">Did the conversation end in the correct action (refund issued, plan changed, ticket updated) — not just a plausible-sounding reply. Scored against the 11 clustered workflow intents that cover ~84% of volume.</div></div>
+      <div class="metric"><div class="row"><div class="name">Router confidence disagreement</div><div class="target">&lt; 3% at floor 0.82<span class="caret">▾</span></div></div>
+        <div class="why">Shadow-run workflow-routed conversations through the bounded loop offline and measure disagreement. This is exactly how the confidence floor was tuned from 0.7 (11% disagreement) to 0.82 (under 3%) before it ever touched live traffic.</div></div>
+      <div class="metric"><div class="row"><div class="name">Trajectory / approval assertions</div><div class="target">0 tolerated<span class="caret">▾</span></div></div>
+        <div class="why">Deterministic pass/fail checks: refunds and plan changes must never execute without passing through the approval queue, regardless of how confident the model was.</div></div>
+      <div class="metric"><div class="row"><div class="name">Per-language accuracy</div><div class="target">stratified, all 9<span class="caret">▾</span></div></div>
+        <div class="why">The check that caught two languages sitting 15 points below the mean while the aggregate deflection number looked completely healthy — the gap traced to thin knowledge-base coverage, not the model.</div></div>
+      <div class="metric"><div class="row"><div class="name">Escalation correctness</div><div class="target">precision + recall<span class="caret">▾</span></div></div>
+        <div class="why">Two failure directions, both costly: escalating cases the system could safely resolve (wastes reviewer capacity) and resolving cases that needed a human (the dangerous one).</div></div>
+      <div class="metric"><div class="row"><div class="name">Cost &amp; step count per conversation</div><div class="target">≤ $0.06, median 2 steps<span class="caret">▾</span></div></div>
+        <div class="why">A prompt tweak that raises mean step count from 2 to 4 more than doubles the token bill, because full history resends every step — this is measured offline before it ever reaches a live invoice.</div></div>
+    </div>
+    <p class="metric-hint">↑ click any row to expand</p>
+
+    <h2><span class="n">02</span> Online evaluation <span class="stagelabel online">live traffic, continuous</span></h2>
+    <p class="h2-desc">The offline suite cannot see real tool latency, real degraded dependencies, or a holiday-weekend traffic pattern — this is where those show up.</p>
+    <div class="metric-grid" data-group="sup-online">
+      <div class="metric"><div class="row"><div class="name">Deflection rate at satisfaction floor</div><div class="target">≥ 45% live SLA<span class="caret">▾</span></div></div>
+        <div class="why">The actual business metric this system exists to hit — resolved without a human, without satisfaction dropping below the floor. Offline resolution accuracy is a proxy for this; this is the real thing.</div></div>
+      <div class="metric"><div class="row"><div class="name">First response p95 latency</div><div class="target">&lt; 20s<span class="caret">▾</span></div></div>
+        <div class="why">SLA commitment, watched continuously — a doubled p95 with no code change and no traffic increase is a real production drill scenario, not a hypothetical.</div></div>
+      <div class="metric"><div class="row"><div class="name">Cost per conversation</div><div class="target">alert at 3× trailing median<span class="caret">▾</span></div></div>
+        <div class="why">The retry-storm incident: an upstream service returned HTTP 200 with an empty body during an outage, the model kept retrying with reworded arguments, and 70% of conversations hit the step ceiling for 11 hours. This alert is what would catch it fast.</div></div>
+      <div class="metric"><div class="row"><div class="name">Tool status mix (EMPTY vs. UNAVAILABLE)</div><div class="target">shift = investigate<span class="caret">▾</span></div></div>
+        <div class="why">The actual root-cause signal in that same incident — a plain error-rate dashboard stayed green throughout because the failure was silent, not loud.</div></div>
+      <div class="metric"><div class="row"><div class="name">Approval queue depth &amp; decision time</div><div class="target">watch for drift to 0<span class="caret">▾</span></div></div>
+        <div class="why">A decision time near-zero across a large queue is the tell that reviewers stopped reading and started rubber-stamping — an approval gate degrades into theater within weeks if nobody watches this.</div></div>
+      <div class="metric"><div class="row"><div class="name">Per-language deflection drift</div><div class="target">vs. offline stratum<span class="caret">▾</span></div></div>
+        <div class="why">Confirms the corpus fix for the two lagging languages actually held in production, not just on the golden set that prompted it.</div></div>
+    </div>
+    <p class="metric-hint">↑ click any row to expand</p>
+
+    <h2><span class="n">03</span> Release gate <span class="stagelabel gate">CI, blocks promotion</span></h2>
+    <p class="h2-desc">Same four-check shape, tuned to this system's actual SLA and safety surface.</p>
+
+    <div class="gate-card">
+      <div class="gate-toggle" role="tablist">
+        <button class="active" data-scn="sup-clean">Clean release</button>
+        <button data-scn="sup-collapse">Language segment regresses</button>
+      </div>
+      <div class="gatechecks" id="sup-gatechecks"></div>
+      <div class="result-bar" id="sup-result"></div>
+    </div>
+
+    <ul style="margin-top:18px;">
+      <li><strong>Safety — blocks absolutely:</strong> any refund or plan-change action executed without passing the approval queue; any regional data-residency violation.</li>
+      <li><strong>Aggregate floor:</strong> deflection ≥ 45% at the satisfaction floor, tested paired against baseline — with enough cases to actually detect the delta, not noise.</li>
+      <li><strong>Per-stratum floor:</strong> no language may drop more than a set margin regardless of aggregate deflection — the exact check that caught the 15-point gap before it shipped.</li>
+      <li><strong>Cost ceiling:</strong> ≤ $0.06 per conversation, plus the router confidence floor itself is gated on shadow-run disagreement staying under ~3% before any change to it promotes.</li>
+    </ul>
+  </div>
+
+  <div class="hr"></div>
+  <p style="font-size:13.5px; color:var(--ink-soft);">The pattern repeats across both systems on purpose: <strong>offline</strong> catches large, deterministic, safety-critical regressions cheaply and fast; <strong>online</strong> catches small drift and anything the offline dataset never represented, because that's where the traffic — and the statistical power — actually is; the <strong>gate</strong> is what makes the offline layer actually stop a bad build, instead of being a number someone might glance at.</p>
+
+  <footer>Two Systems, One Gate · agentic AI evaluation reference</footer>
+</div>
+
+<script>
+(function(){
+  // metric expand/collapse
+  document.querySelectorAll('.metric').forEach(m=>{
+    m.addEventListener('click', ()=> m.classList.toggle('open'));
+  });
+
+  // judge-mode expand/collapse
+  document.querySelectorAll('.jmode').forEach(m=>{
+    m.addEventListener('click', ()=> m.classList.toggle('open'));
+  });
+
+  // system tabs
+  const sysButtons = document.querySelectorAll('.systab button');
+  sysButtons.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      sysButtons.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.sys-panel').forEach(p=>p.classList.remove('show'));
+      document.getElementById('panel-'+btn.dataset.sys).classList.add('show');
+    });
+  });
+
+  // gate scenarios
+  const scenarios = {
+    'rag-clean': {
+      checks:[
+        {t:"Safety / compliance", d:"0 PII or scope violations across the suite.", ok:true},
+        {t:"Aggregate floor", d:"Faithfulness 93% ≥ 90% floor, correctness within tolerance of baseline.", ok:true},
+        {t:"Per-stratum floor", d:"Largest stratum drop: compliance corpus −1.1pt. Within the 3pt allowance.", ok:true},
+        {t:"Cost ceiling", d:"$0.11/successful query — under budget.", ok:true}
+      ],
+      result:{ok:true, title:"Build promoted", msg:"All four checks passed — eligible for canary rollout."}
+    },
+    'rag-collapse': {
+      checks:[
+        {t:"Safety / compliance", d:"0 violations — this change never touched redaction logic.", ok:true},
+        {t:"Aggregate floor", d:"Faithfulness rose 91% → 93%. Looks like a clean win — this is the trap.", ok:true},
+        {t:"Per-stratum floor", d:"Compliance-corpus faithfulness dropped 90% → 76% (−14pt) after a chunking change — hidden inside the aggregate gain.", ok:false},
+        {t:"Cost ceiling", d:"$0.12/successful query — unaffected.", ok:true}
+      ],
+      result:{ok:false, title:"Build blocked", msg:"Per-stratum floor failed: compliance corpus dropped 14pt. Without stratified gating this ships on the aggregate number alone."}
+    },
+    'sup-clean': {
+      checks:[
+        {t:"Safety / approval", d:"0 refunds or plan changes executed outside the approval queue.", ok:true},
+        {t:"Aggregate floor", d:"Deflection 47% ≥ 45% floor, paired against baseline, satisfaction unchanged.", ok:true},
+        {t:"Per-stratum floor", d:"Largest per-language drop: −1.4pt. Within the allowed margin.", ok:true},
+        {t:"Cost ceiling", d:"$0.055/conversation — under the $0.06 ceiling.", ok:true}
+      ],
+      result:{ok:true, title:"Build promoted", msg:"All four checks passed — eligible for canary rollout."}
+    },
+    'sup-collapse': {
+      checks:[
+        {t:"Safety / approval", d:"0 violations — this change only touched the knowledge-base retriever.", ok:true},
+        {t:"Aggregate floor", d:"Deflection 46% ≥ 45% floor. Aggregate looks healthy.", ok:true},
+        {t:"Per-stratum floor", d:"Two of nine languages sit 15pt below the mean (thin KB coverage) — invisible in the aggregate, exceeds the per-stratum floor.", ok:false},
+        {t:"Cost ceiling", d:"$0.052/conversation — unaffected.", ok:true}
+      ],
+      result:{ok:false, title:"Build blocked", msg:"Per-stratum floor failed: 2 languages dropped 15pt. This is the real incident the stratified check was built to catch."}
+    }
+  };
+
+  function renderGate(prefix, key){
+    const sc = scenarios[key];
+    const checksEl = document.getElementById(prefix+'-gatechecks');
+    const resultEl = document.getElementById(prefix+'-result');
+    checksEl.innerHTML = '';
+    sc.checks.forEach(c=>{
+      const row = document.createElement('div');
+      row.className = 'gc ' + (c.ok ? 'pass' : 'fail');
+      row.innerHTML = '<div class="mark">'+(c.ok?'✓':'✕')+'</div><div class="txt"><b>'+c.t+'</b><span>'+c.d+'</span></div>';
+      checksEl.appendChild(row);
+    });
+    resultEl.className = 'result-bar ' + (sc.result.ok ? 'pass' : 'fail');
+    resultEl.innerHTML = '<div class="dot"></div><div><b>'+sc.result.title+'</b><span>'+sc.result.msg+'</span></div>';
+  }
+
+  ['rag','sup'].forEach(prefix=>{
+    const btns = document.querySelectorAll('.gate-toggle button[data-scn^="'+prefix+'"]');
+    btns.forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        btns.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        renderGate(prefix, btn.dataset.scn);
+      });
+    });
+    renderGate(prefix, prefix+'-clean');
+  });
+})();
+</script>
+  </body>
+</html>

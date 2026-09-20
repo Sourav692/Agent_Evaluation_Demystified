@@ -5,6 +5,13 @@ answers **"I need to know about X — which file, and which section of it?"**
 
 Everything here is prose or notebooks. Nothing on this page executes.
 
+**Everything under `docs/` is also served at https://eval-demystified.vercel.app** — Vercel
+project `eval-demystified`, built from `main` by `site/build.py`, so a push to `main` updates
+the site. The rendered pages keep these section numbers; the URL slugs are the second field of
+each `RENDER` / `COPY` entry in `site/build.py` (the field guide is `field-guide.html`, the
+question bank `question-bank.html`, the roadmap `roadmap.html`, the drill
+`evaluation-round-drill.html`).
+
 ---
 
 ## 1. Find it by topic
@@ -85,6 +92,7 @@ its section 6.1. Jump to the section rather than scrolling. `lab 0N-…` means
 | Looking for | Go to |
 |---|---|
 | A reading path with time estimates | `docs/study-guide/evaluation-study-plan.html` |
+| The complete basic → expert path — ten levels with exit checks, plus OpenAI-round and Databricks sections | `docs/study-guide/evaluation-roadmap.md` |
 | Self-quiz with hidden answers and per-item scoring | `evaluation-round-drill.html` |
 | 35 situational questions | Question bank **Parts 1–9** |
 | 25 metric-level questions | Question bank **Part 10** |
@@ -196,6 +204,20 @@ somewhere else entirely.
 | **§5** | Seven things this repo has that the playbook does not — detection limits, McNemar and bootstrap, judge-bias probes, a gate wired to CI, final-state verification, loop detection, `p**n` arithmetic |
 | **§6–§7** | A suggested order of work · how this audit relates to the OpenAI one — they overlap in exactly one item |
 
+### `docs/study-guide/evaluation-roadmap.md` — Evaluation roadmap (5,357 words)
+
+The complete path through the repository ordered by **skill level**, where the study plan is
+ordered by what the round tests and the tutorial's §7 is the shortest route. Ten levels in four
+bands; every item carries what it teaches, what running it costs, and a *you are done when you
+can…* check.
+
+| | Covers |
+|---|---|
+| **The ladder** | Levels 0–9: orientation · RAG · agents · ground truth · judges · statistics · the gate · online · safety and multi-agent · the harness as a product. ~54 hours end to end |
+| **OpenAI** | The five scoring axes, the Spine, the two follow-ups to expect with where the repo answers them, Agents SDK vocabulary mapped to the checks practised here, the guide audit tally, what must be learned outside the repo (the Evals API), a three-day plan |
+| **Databricks** | Course 02's ten phases as the ladder, the concepts to state grouped basic → expert (span contracts, prerequisites, six aggregations, two-condition promotion, online eligibility, sampling, weighted kappa, GEPA through the same gate), the three-vocabulary naming map, environment realities |
+| **Fast paths** | One hour, one evening, one weekend, two weeks, interview-only — and where the money goes |
+
 ### The four interactive HTML pages
 
 Open in a browser. No build step, no server, no API key.
@@ -208,6 +230,9 @@ Open in a browser. No build step, no server, no API key.
 | `docs/interview-prep/stratified-reporting-explained.html` | **Stratified reporting in plain English.** One table where the overall score rises 87.5% → 90% while Hindi collapses 88% → 50%, why the average buries it, how to choose your groups, the small-group trap, and what to say in an interview |
 | `docs/interview-prep/evaluation-round-drill.html` | The same 35 questions and 19 cases with every answer hidden. Rate recall per item, filter to what's weak. Progress saves locally |
 | `docs/interactive-labs/00-evaluation-index.html` | The surface map: pipeline, what breaks where, reference-based vs referenceless comparison |
+| `docs/concepts/eval-harness-two-usecases.html` | **The harness in practice, on two systems.** An enterprise RAG agent and a tool-calling multi-agent system evaluated side by side, and the mistakes that get caught in interviews |
+| `docs/concepts/launch-gate.html` | **The launch gate on one page** |
+| `docs/concepts/rag-vs-support-eval-walkthrough.html` | **Offline eval, online eval, release gate — walked through on two real systems** |
 
 ### The five interactive labs
 
@@ -231,7 +256,7 @@ version of each is field guide **Part 6**; the interview questions are question 
 | `docs/guide-audits/README.md` | The two external-guide audits and the tutorial (markdown and HTML), why there are two and not one, and the recount habit |
 | `docs/interactive-labs/README.md` | The six labs, the surface map, lab → notebook mapping, the four tools |
 | `docs/interview-prep/README.md` | The drill, the question bank, and the shape of a good answer |
-| `docs/study-guide/README.md` | The staged study plan — seven stages, time estimates, the fast path |
+| `docs/study-guide/README.md` | The staged study plan — seven stages, time estimates, the fast path — and the basic → expert roadmap |
 
 ---
 
@@ -345,3 +370,9 @@ breaks when a section is renumbered or a file is renamed. If you move or rename 
 `docs/` or `courses/`, re-check this file along with the folder READMEs —
 `python3 .claude/skills/link-check/scripts/check_links.py` catches broken links but not a
 section reference that has silently become wrong.
+
+A new file under `docs/` needs three registrations, or something fails: a row or section here
+(`.github/scripts/check_index_coverage.py`), an entry in `site/build.py`'s `RENDER`, `COPY` or
+`SKIP` (the site build's completeness check), and the folder's own `README.md`. The site
+redeploys itself from `main`, so once those are in and pushed, it is live at
+https://eval-demystified.vercel.app within a minute.

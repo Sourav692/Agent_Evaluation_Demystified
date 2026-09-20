@@ -16,10 +16,11 @@ frameworks, so the concept survives the tool going out of fashion.
 
 ## Where to start
 
-Five entry points, depending on what you want:
+Six entry points, depending on what you want:
 
 | I want to… | Go to | Shape |
 |---|---|---|
+| **Follow one path from basic to expert** | [`docs/study-guide/evaluation-roadmap.md`](docs/study-guide/evaluation-roadmap.md) | Ten levels across all three courses, each with an exit check — then what an OpenAI round pushes on, and the Databricks track as its own ladder |
 | **Learn it in order, start to finish** | [`courses/01-rag-agent-tool-evaluation/`](courses/01-rag-agent-tool-evaluation/) | 15 notebooks, 6 modules: deterministic retrieval metrics → LLM-judged → generator → tool use → trajectory → CrewAI capstone |
 | **Learn the production/MLOps side** | [`courses/02-databricks-mlflow-evals/`](courses/02-databricks-mlflow-evals/) | 11 notebooks: one agent built in Phase 1, then offline eval, custom judges, datasets from traces, regression gating, online monitoring, judge alignment |
 | **Build the thing that says "don't ship"** | [`courses/03-agentic-eval-harness/`](courses/03-agentic-eval-harness/) | 12 notebooks: one multi-agent system, a stratified golden set, then RAG → tool → agent → safety → judges → human labels → statistics → **a release gate wired to CI** → online eval |
@@ -27,6 +28,11 @@ Five entry points, depending on what you want:
 | **Prep for an eval-heavy interview** | [`docs/interview-prep/`](docs/interview-prep/) | A 54-item self-quiz drill, plus a staged study plan in [`docs/study-guide/`](docs/study-guide/) — standalone HTML, open the file, no setup |
 
 **If you only have an hour:** course 01, modules 0 → 1.2 → 2.2 → 3.
+
+**Prefer a browser?** Everything under `docs/` is published at
+**[eval-demystified.vercel.app](https://eval-demystified.vercel.app)** — the theory companions,
+the question bank, the roadmap, the drill, the study plan and all six interactive labs, with
+navigation. Same content as the files here; the Markdown in `docs/` is canonical.
 
 **Looking for one specific thing?** [`INDEX.md`](INDEX.md) is the lookup table — every
 document, what each section covers, and a find-it-by-topic index down to the section number.
@@ -101,6 +107,23 @@ course's own file if a metric import fails.
 > and silently breaks every LangGraph notebook here. If a resolver downgrades it, re-pin it.
 
 ---
+
+## The website
+
+[`site/build.py`](site/) renders the Markdown under `docs/` and copies the standalone HTML pages
+into `site/dist/`, which is what **https://eval-demystified.vercel.app** serves.
+
+| | |
+|---|---|
+| Hosting | Vercel project `eval-demystified` (team `sourav-dbx`), Git-connected to this repo, production branch `main` |
+| Deploy | **Push to `main`.** Vercel runs the build command in [`vercel.json`](vercel.json) — a venv, `pip install -r site/requirements.txt`, `python3 site/build.py` — and serves `site/dist/`. No manual publish step |
+| Local preview | `pip install -r site/requirements.txt && python3 site/build.py && python3 -m http.server -d site/dist 8000` |
+| Adding a page | Register it in `RENDER`, `COPY` or `SKIP` in `site/build.py` — the build refuses a file in none of the three. See [`site/README.md`](site/README.md) |
+
+`site/dist/` is a build artifact and is gitignored, like `mlruns/`. The three checks in
+[`.github/workflows/docs-sync.yml`](.github/workflows/docs-sync.yml) run on every push that
+touches `docs/`; they are free and catch the index, link and drill drift that would otherwise
+ship.
 
 ## Conventions
 

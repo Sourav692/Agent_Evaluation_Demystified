@@ -118,6 +118,31 @@ editing notebooks — heading structure, `# ====` section banners, import order,
 **Clear all outputs and reset `execution_count` to null before committing a notebook.** A git
 `pre-commit` hook enforces this, but produce clean notebooks rather than relying on it.
 
+## The website
+
+**`docs/` is published as a static site at https://eval-demystified.vercel.app.** When the
+user says "update the website", "deploy the site", "is it live", or similar, this is the site.
+
+| | |
+|---|---|
+| Vercel project | `eval-demystified` — scope/team `sourav-dbx` ("Sourav's projects"), id `prj_S9BeRUHBUpK5nNoekA1B2izo8nTK` |
+| Production URL | https://eval-demystified.vercel.app (aliases `eval-demystified-sourav-dbx.vercel.app`, `eval-demystified-git-main-sourav-dbx.vercel.app`) |
+| Source | Git-connected to `github.com/Sourav692/Agent_Evaluation_Demystified`, production branch `main`. **A push to `main` is the deploy** — there is no separate publish step and nothing to upload. |
+| Build | `vercel.json`: framework "Other", build command creates a venv, installs `site/requirements.txt` (`markdown==3.7`) and runs `site/build.py`; output directory `site/dist/`. ~10 s builds |
+| CLI | `vercel` 59.x is installed and logged in as `<vercel-user>`. `.vercel/` is gitignored and usually absent, so `vercel ls eval-demystified` / `vercel project inspect eval-demystified` work but `vercel deploy` would first need `vercel link --yes --project eval-demystified --scope sourav-dbx`. Prefer pushing to `main` over CLI deploys, so every live version has a commit |
+
+**To update the website:** edit the Markdown or HTML under `docs/` (the Markdown is canonical —
+never edit `site/dist/`), make sure the file is registered in `RENDER`, `COPY` or `SKIP` in
+`site/build.py` (the build's completeness check fails on a file in none of the three), verify
+locally with `uv run --no-project --with markdown python3 site/build.py` (no python here has
+`markdown` installed; `site/dist/` is gitignored), run the three free docs gates
+(`.github/scripts/check_index_coverage.py`, `.github/scripts/check_drill_sync.py`,
+`.claude/skills/link-check/scripts/check_links.py docs`), then commit and push to `main`.
+Confirm with `vercel ls eval-demystified` (status `● Ready`) or `curl -sI https://eval-demystified.vercel.app`.
+
+Pushing is outward-facing: it publishes. Ask before pushing unless the user asked for the
+site to be updated.
+
 ## Git
 
 Solo repo: commit straight to `main` when asked, no branch or PR ceremony. There is no `gh` CLI

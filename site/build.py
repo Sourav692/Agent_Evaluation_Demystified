@@ -71,6 +71,10 @@ RENDER = {
          "The question bank",
          "35 situational questions, 25 metric questions, 19 long-form cases and "
          "five appendices. The readable reference; the drill is the quiz."),
+        ("study-guide/evaluation-roadmap.md", "roadmap",
+         "The roadmap",
+         "The complete path, basic to expert: ten levels with exit checks, then "
+         "what an OpenAI round pushes on and the Databricks track as its own ladder."),
     ],
 }
 
