@@ -376,9 +376,14 @@ def collapsify(html):
 # explicit list: the first bold inside a block is inline emphasis, not a new
 # section. Verified against all 20 blocks in the bank.
 PLAIN_START = '<p><strong>In plain English:</strong></p>'
+#
+# <h1> belongs in this list as much as <h2>: the last case in a Tier is
+# followed by the next Tier's <h1> and nothing else, so leaving h1 out let the
+# drawer swallow nine section headings -- invisible on the page, and fatal to
+# anything that navigates by heading.
 PLAIN_END = re.compile(
     r'<p><strong>(?:The trap|Weak answer|Killer follow-ups|If they push|'
-    r'What good looks like|Scoring|Follow-ups)\b|<h[2-4][ >]')
+    r'What good looks like|Scoring|Follow-ups)\b|<h[1-4][ >]')
 
 
 def plainify(html):
@@ -406,6 +411,129 @@ def mermaidise(html):
     if count:
         html = MERMAID.sub(lambda m: '<pre class="mermaid">%s</pre>' % m.group(1), html)
     return html, count
+
+
+# ---- in-document section rail -------------------------------------------
+#
+# Long documents here are one flat Markdown file with 25 top-level sections,
+# so the only way to reach Tier F is to scroll past everything before it. The
+# rail is built from the <h1> ids the `toc` extension already assigns -- no
+# new source markup, and it cannot drift from the headings.
+#
+# Only pages with enough sections to be worth navigating get one; below the
+# threshold a rail is just a second, worse table of contents.
+DOCNAV_MIN = 4
+
+H1 = re.compile(r'<h1 id="([^"]+)"[^>]*>(.*?)</h1>', re.S)
+FAMILY = [
+    (re.compile(r"^Part\s+(\d+)\s*[\u2014\u2013-]\s*(.*)$", re.S), "part"),
+    (re.compile(r"^Tier\s+([A-Z])\s*[\u2014\u2013-]\s*(.*)$", re.S), "tier"),
+    (re.compile(r"^Appendix\s+([A-Z])\s*[\u2014\u2013-]\s*(.*)$", re.S), "appendix"),
+]
+
+
+def docnav(html):
+    """Build the sticky section rail from the page's <h1>s. Returns (html, n).
+
+    The first heading is the document title, which is not a section -- it
+    becomes the rail's way back to the top, labelled Orientation to match the
+    drill.
+    """
+    heads = H1.findall(html)
+    if len(heads) < DOCNAV_MIN:
+        return "", 0
+
+    items, prev = [], None
+    for n, (hid, raw) in enumerate(heads):
+        text = re.sub(r"<[^>]+>", "", raw).strip()
+        if n == 0:
+            items.append(("", "\u2014", "Orientation", hid))
+            continue
+        for pat, fam in FAMILY:
+            m = pat.match(text)
+            if m:
+                idx = m.group(1)
+                items.append((fam, idx.zfill(2) if fam == "part" else idx,
+                              m.group(2).strip(), hid))
+                break
+        else:
+            # A section that follows none of the three naming schemes still
+            # belongs in the rail; it just has no index to show.
+            items.append(("other", "\u00b7", text, hid))
+
+    # Tier A..H and Appendix A..E both index by bare letter, so the groups are
+    # captioned rather than merely ruled off -- otherwise the rail reads
+    # A B C D E F G H A B C D E and the second run names nothing.
+    caption = {"part": "Parts", "tier": "Tiers", "appendix": "Appendices",
+               "other": "Sections", "": ""}
+    out = ['<nav class="docnav" aria-label="Sections">']
+    for fam, idx, label, hid in items:
+        if fam != prev:
+            if prev is not None:
+                out.append("</ol>")
+            if caption.get(fam):
+                out.append('<p class="famhead">%s</p>' % caption[fam])
+            out.append("<ol>")
+        prev = fam
+        out.append('<li><a href="#%s"><span class="i">%s</span>'
+                   '<span class="t">%s</span></a></li>' % (hid, idx, label))
+    out.append("</ol></nav>")
+    return "".join(out), len(items)
+
+
+# Which rail item is current is a scroll question, not a structural one, so it
+# is answered in the browser. `scrollIntoView` is deliberately not used for the
+# rail's own scrolling -- the page sets scroll-behavior:smooth, and a smooth
+# animation started here fights the one the anchor click already began.
+DOCNAV_SCRIPT = """
+<script>
+(function () {
+  var rail = document.querySelector(".docnav");
+  if (!rail) return;
+  var links = [].slice.call(rail.querySelectorAll("a"));
+  var heads = links.map(function (a) {
+    return document.getElementById(decodeURIComponent(a.hash.slice(1)));
+  });
+
+  var current = -1;
+  function mark() {
+    var line = 90, at = 0;
+    for (var i = 0; i < heads.length; i++) {
+      if (heads[i] && heads[i].getBoundingClientRect().top <= line) { at = i; }
+    }
+    if (at === current) return;
+    if (current >= 0) { links[current].classList.remove("on"); }
+    links[at].classList.add("on");
+    current = at;
+
+    // Keep the active item visible when the rail is taller than the viewport.
+    var r = links[at].getBoundingClientRect(), box = rail.getBoundingClientRect();
+    if (r.top < box.top + 8) { rail.scrollTop -= box.top + 8 - r.top; }
+    else if (r.bottom > box.bottom - 8) { rail.scrollTop += r.bottom - box.bottom + 8; }
+  }
+
+  var queued = false;
+  function onScroll() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function () { queued = false; mark(); });
+  }
+  addEventListener("scroll", onScroll, { passive: true });
+  addEventListener("resize", onScroll, { passive: true });
+
+  // Scrolling is not the only thing that moves a heading past the line. Web
+  // fonts reflow the whole document, mermaid replaces source text with a tall
+  // SVG, and expanding a question pushes every later section down -- none of
+  // which fire `scroll`. Watching the article's box catches all three, and it
+  // is the difference between a rail that is right and one that is right until
+  // the reader touches something.
+  var doc = document.querySelector("article.doc");
+  if (doc && window.ResizeObserver) { new ResizeObserver(onScroll).observe(doc); }
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(mark); }
+  mark();
+})();
+</script>
+"""
 
 
 # A back-link bar for the copied pages, which arrive with their own complete
@@ -463,7 +591,7 @@ def badge_for(html_path):
     return "{:,} words".format(len(re.sub(r"<[^>]+>", " ", prose).split()))
 
 
-def shell(title, body, nav, blurb="", is_index=False, diagrams=0, qa=0):
+def shell(title, body, nav, blurb="", is_index=False, diagrams=0, qa=0, rail=0):
     home = "" if is_index else '<a class="home" href="index.html">&larr; All documents</a>'
     return """<!doctype html>
 <html lang="en">
@@ -493,7 +621,8 @@ def shell(title, body, nav, blurb="", is_index=False, diagrams=0, qa=0):
 </body>
 </html>
 """ % (title, blurb, nav, home, body,
-       (MERMAID_SCRIPT if diagrams else "") + (QA_SCRIPT if qa else ""))
+       (MERMAID_SCRIPT if diagrams else "") + (QA_SCRIPT if qa else "")
+       + (DOCNAV_SCRIPT if rail else ""))
 
 
 def top_nav(active_section):
@@ -527,11 +656,15 @@ def build():
             html, diagrams = mermaidise(html)
             html, plains = plainify(html)
             html, questions = collapsify(html)
-            page = shell(re.sub("<[^>]+>", "", title), '<article class="doc">%s</article>' % html,
+            rail, sections = docnav(html)
+            article = '<article class="doc">%s</article>' % html
+            body = '<div class="withnav">%s%s</div>' % (rail, article) if rail else article
+            page = shell(re.sub("<[^>]+>", "", title), body,
                          top_nav(section), re.sub("<[^>]+>", "", blurb),
-                         diagrams=diagrams, qa=questions)
+                         diagrams=diagrams, qa=questions, rail=sections)
             io.open(os.path.join(DIST, slug + ".html"), "w", encoding="utf-8").write(page)
-            rendered.append((src, slug + ".html", len(text.split()), diagrams, questions, plains))
+            rendered.append((src, slug + ".html", len(text.split()), diagrams,
+                             questions, plains, sections))
 
         for src, title, blurb in COPY.get(section, []):
             # Copied pages carry links written for their old home under docs/ --
@@ -586,10 +719,11 @@ interactive labs. The notebooks live in
 
     # ---- report
     print("rendered from Markdown:")
-    for src, out, w, d, q, pl in rendered:
+    for src, out, w, d, q, pl, sec in rendered:
         extra = "  ".join(x for x in (("%d diagrams" % d) if d else "",
                                       ("%d collapsible" % q) if q else "",
-                                      ("%d plain-English" % pl) if pl else "") if x)
+                                      ("%d plain-English" % pl) if pl else "",
+                                      ("%d-item rail" % sec) if sec else "") if x)
         print("   %-48s -> %-26s %6s words  %s"
               % (src, out, "{:,}".format(w), extra))
     print("\ncopied as-is (interactive, not producible from Markdown):")

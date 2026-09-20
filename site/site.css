@@ -244,3 +244,47 @@ details.plain[open] > summary{border-bottom:1px solid var(--rule)}
 .plain-body{padding:14px 16px 4px}
 .plain-body > :last-child{margin-bottom:10px}
 @media print{ details.plain{display:block} details.plain > div{display:block!important} }
+
+/* ---- in-document section rail ----
+   A sticky list of the page's top-level sections, built by site/build.py from
+   the <h1> ids. Only long documents get one, so these rules are inert
+   everywhere else.
+
+   The grid holds the article to its own column rather than letting the rail
+   overlay it: the prose measure is already narrow, and a floating rail would
+   either cover text or push it off-centre at every width. */
+.withnav{display:grid; grid-template-columns:216px minmax(0,1fr);
+  gap:clamp(22px,4vw,58px); align-items:start}
+
+.docnav{position:sticky; top:58px; max-height:calc(100vh - 92px); overflow-y:auto;
+  overscroll-behavior:contain; scrollbar-width:thin}
+.docnav ol{list-style:none; margin:0; padding:0}
+.docnav li{margin:0}
+/* Parts, Tiers and Appendices are captioned, not merely ruled apart: the last
+   two both index by bare letter. */
+.docnav .famhead{margin:15px 0 5px; padding-top:11px; border-top:1px solid var(--rule);
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--muted); opacity:.8}
+.docnav ol:first-of-type{margin-top:0}
+.docnav a{display:grid; grid-template-columns:22px 1fr; gap:9px; align-items:baseline;
+  padding:6px 9px; border-radius:3px; text-decoration:none; color:var(--muted);
+  font-size:14.5px; line-height:1.34}
+.docnav a .i{font-family:var(--mono); font-size:11.5px; color:var(--muted);
+  opacity:.72; letter-spacing:-.02em}
+.docnav a:hover{background:var(--surface); color:var(--text)}
+.docnav a.on{background:var(--unmeas-soft); color:var(--accent-text); font-weight:600}
+.docnav a.on .i{color:var(--accent-text); opacity:1}
+
+/* Anchor jumps have to clear the sticky top bar. */
+.doc h1{scroll-margin-top:62px}
+
+@media (max-width:900px){
+  /* Below this a sticky rail would eat the reading column, so it becomes a
+     plain contents list above the document. Index-only chips were the other
+     option and were rejected: "A" and "07" name nothing on their own. */
+  .withnav{grid-template-columns:1fr; gap:0}
+  .docnav{position:static; max-height:none; overflow:visible; margin-bottom:34px;
+    padding-bottom:18px; border-bottom:1px solid var(--rule)}
+  .docnav a{padding:5px 8px}
+}
+@media print{ .docnav{display:none} }
