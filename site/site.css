@@ -170,16 +170,11 @@ pre.mermaid[data-processed="true"]{font-size:inherit}
 
 /* Appended after the block above rather than editing it.
 
-   FINDING, not fixed here: the taxonomy graph in the question bank has a
-   natural size of 3862 x 226 (a 17:1 `flowchart LR`). mermaid's
-   useMaxWidth:true fits it to the column, so it renders 740 x 43 and cannot be
-   read. CSS cannot undo this -- an <svg> with width:auto and a viewBox fills
-   its container by spec, so neither max-width:none nor !important helps.
-
-   Two real fixes, both outside this file:
-     1. useMaxWidth:false in MERMAID_SCRIPT -- the diagram then renders at its
-        natural width and the container scrolls (overflow-x:auto is set above).
-     2. re-author that one graph as `flowchart TB`, or split it into subgraphs,
-        so it is not 17 times wider than it is tall.
-   Left alone because MERMAID_SCRIPT is mid-edit. */
+   The block above sets max-width:100% on the SVG, which would undo
+   useMaxWidth:false and shrink a wide diagram straight back. Let a diagram
+   keep the size mermaid gave it; pre.mermaid already has overflow-x:auto, so
+   the five wide `flowchart LR` pipelines scroll instead of collapsing to a
+   43-124px sliver. Narrower diagrams are unaffected -- they were already
+   rendering below the column width. */
 pre.mermaid{text-align:left}
+pre.mermaid svg{max-width:none}

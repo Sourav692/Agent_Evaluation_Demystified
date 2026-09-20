@@ -204,9 +204,35 @@ MERMAID_SCRIPT = """
   mermaid.initialize({
     startOnLoad: true,
     theme: "default",
-    themeVariables: { fontFamily: '"IBM Plex Sans", system-ui, sans-serif', fontSize: "14px" },
-    flowchart: { htmlLabels: true, curve: "basis", useMaxWidth: true },
+    themeVariables: { fontFamily: '"Newsreader", Georgia, serif', fontSize: "14px" },
+    flowchart: { htmlLabels: true, curve: "basis", useMaxWidth: false },
   });
+
+  // useMaxWidth:false is not enough on its own -- mermaid still pins an inline
+  // max-width on some diagrams, which fitted five wide `flowchart LR` pipelines
+  // to the column and left them 43-124px tall, unreadable. Size each diagram
+  // from its own viewBox instead, so pre.mermaid (overflow-x:auto) scrolls when
+  // one is wider than the column. That is the natural gesture for a
+  // left-to-right pipeline, and it beats a sliver.
+  //
+  // Driven by an observer rather than awaiting mermaid.run(): startOnLoad does
+  // the rendering, and hooking the promise proved unreliable -- it rejected
+  // after having drawn every diagram, which skipped the sizing pass entirely.
+  // childList only, so writing the styles cannot retrigger this.
+  const sizeFromViewBox = () => {
+    for (const svg of document.querySelectorAll("pre.mermaid svg")) {
+      const box = svg.viewBox && svg.viewBox.baseVal;
+      if (box && box.width > 0 && box.height > 0 && !svg.dataset.aedSized) {
+        svg.dataset.aedSized = "1";
+        svg.style.maxWidth = "none";
+        svg.style.width = box.width + "px";
+        svg.style.height = box.height + "px";
+      }
+    }
+  };
+  new MutationObserver(sizeFromViewBox)
+    .observe(document.body, { subtree: true, childList: true });
+  addEventListener("load", () => setTimeout(sizeFromViewBox, 60));
 </script>"""
 
 
@@ -225,19 +251,21 @@ def mermaidise(html):
 # no CSS variables. Everything is literal, scoped to .aed-sitebar, and carries
 # its own light/dark rules, so it cannot collide with or depend on the page.
 SITEBAR = """<style>
-.aed-sitebar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;
-  padding:10px 20px;border-bottom:1px solid #D3D8DE;background:#FFFFFF;
-  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  font-size:14px;line-height:1.4}
-.aed-sitebar a{color:#24485F;text-decoration:none;white-space:nowrap}
-.aed-sitebar a:hover{text-decoration:underline}
-.aed-sitebar .aed-brand{font-family:"Zilla Slab",Georgia,serif;font-weight:600;color:#1B232C}
-.aed-sitebar .aed-links{display:flex;gap:14px;flex-wrap:wrap;color:#5C6773}
+.aed-sitebar{display:flex;align-items:baseline;gap:24px;flex-wrap:wrap;
+  padding:13px 20px;border-bottom:1px solid #C5C8C2;background:#E4E6E1;
+  font-family:"Spline Sans Mono",ui-monospace,Menlo,monospace;
+  font-size:12.5px;line-height:1.4}
+.aed-sitebar a{color:#3C4E51;text-decoration:none;white-space:nowrap}
+.aed-sitebar a:hover{color:#0E2226}
+.aed-sitebar .aed-brand{font-family:"Newsreader",Georgia,serif;font-size:18px;
+  font-weight:600;letter-spacing:-.012em;color:#0E2226}
+.aed-sitebar .aed-links{display:flex;gap:20px;flex-wrap:wrap;color:#3C4E51}
 @media (prefers-color-scheme:dark){
-  .aed-sitebar{background:#19212A;border-bottom-color:#2C3742}
-  .aed-sitebar a{color:#A9CCE3}
-  .aed-sitebar .aed-brand{color:#E4E9ED}
-  .aed-sitebar .aed-links{color:#9AA7B4}
+  .aed-sitebar{background:#0D1618;border-bottom-color:#26383B}
+  .aed-sitebar a{color:#9FB1B1}
+  .aed-sitebar a:hover{color:#DDE5E3}
+  .aed-sitebar .aed-brand{color:#DDE5E3}
+  .aed-sitebar .aed-links{color:#9FB1B1}
 }
 @media print{.aed-sitebar{display:none}}
 </style>

@@ -125,7 +125,7 @@ flowchart TD
 Almost every follow-up in this round is a disguised version of *"which layer are you actually measuring?"* Have this ready.
 
 ```mermaid
-flowchart LR
+flowchart TD
     subgraph L1["Retrieval"]
         R1["reference-based<br/>precision@k, recall@k, MRR, NDCG (deterministic)<br/>contextual precision / recall (LLM-judged)"]
         R2["referenceless<br/>contextual relevancy (LLM-judged)"]
