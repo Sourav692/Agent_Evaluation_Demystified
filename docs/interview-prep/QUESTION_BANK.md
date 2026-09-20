@@ -2775,6 +2775,34 @@ works is not what demonstrates to a reviewer that it was governed.
 > and redact what they don't — the boundary is 'needed for scoring', not 'everything that happened
 > to pass through'. In my experience that's the first question a serious reviewer asks."
 
+**In plain English:**
+
+A reviewer asks one question: **"show me what the system did on 14 March, and who decided that
+was acceptable."** A dashboard of safety scores cannot answer either half.
+
+**Engineering-grade evidence and audit-grade evidence are different things:**
+
+- **The written standard** — what the system must never do, who approved it, and when.
+- **The gate results per release** — which checks blocked, which passed, what decision followed.
+- **The retained execution traces** — so a specific interaction can be reconstructed months later.
+- **The known gaps, written down** — what isn't covered, why, and the compensating control.
+
+**The second one carries more weight than it looks.** Its value is not the scores — it is that
+**the criteria were fixed before the results existed**. That is the whole difference between a
+standard and a rationalisation, and a reviewer knows it on sight.
+
+**And the fourth is the one engineers skip.** *"We don't evaluate X, here's why, here's what we do
+instead"* is far stronger than silence — because **silence is indistinguishable from never having
+considered it.**
+
+**Then volunteer the thing that cuts the other way: the trace store is a security surface.** It
+captures whatever flowed through the system, customer data included. Log what the checks need and
+redact what they don't — the boundary is *"needed for scoring"*, not *"everything that passed
+through"*.
+
+**The analogy.** A restaurant inspection. The chef shows you the food; the inspector wants the
+fridge logs, the signed procedure, and the dated record of the one time it went wrong.
+
 **Weak answer**
 > "I'd show them our evaluation results and the safety metrics — we have high scores on the safety
 > suite and full test coverage."
@@ -2822,6 +2850,35 @@ reads as negligence. The answer is neither.
 > 
 > What I wouldn't do is tell them the launch is safe because a number looked fine. And if they
 > overrule a must-never-happen gap, that's genuinely their call — but it gets written down."
+
+**In plain English:**
+
+Two positions lose you the argument:
+
+```
+"We can't launch, evaluation isn't ready."   -> rejected; it launches without you
+"The scores look fine, ship it."             -> negligent, and the scores don't cover this
+```
+
+**There is a third, and it fits in a week.** Don't insist on a complete harness — insist on the
+minimum that makes the launch **reversible and its failures visible**.
+
+- **The must-never-happen checks**, even crude and deterministic. This is about consequence, not polish.
+- **Full tracing from request one.** Cheap, and non-negotiable.
+- **A rollback somebody actually ran** — an exercise, not a plan on a page.
+- **A narrowed blast radius** — one segment, one category, internal users first.
+
+**Tracing is the one to fight for.** Without it the launch produces **no evidence at all**, and
+every question anyone asks afterwards is permanently unanswerable. **Scoping the exposure buys more
+real safety in a week than any metric you could build in one.**
+
+**Then name the risk out loud.** *"We can't currently tell if it gives wrong advice about X, so
+we're reading traces manually for the first week"* — a legitimate position, as long as it is said
+rather than absorbed. If they overrule a must-never-happen gap, that is genuinely their call, and
+it gets written down.
+
+**The analogy.** You can't finish the fire-safety survey before opening night. You can still fit
+smoke alarms, keep the exit clear, and only fill half the room.
 
 **Weak answer**
 > "I'd push back — launching without evaluation is too risky, and we should delay until the suite
@@ -2874,6 +2931,38 @@ the second cost — maintaining labels — is almost never budgeted at all.
 > Then the second cost, which is bigger and almost never budgeted: maintaining ground truth. Labels
 > go stale as the product changes, and somebody has to own that."
 
+**In plain English:**
+
+Start with the arithmetic, because most people guess low:
+
+```
+5 judged metrics x 300 cases  = 1,500 model calls per run
+                              x every change
+```
+
+**It is a recurring per-change cost, not a one-off.** That single reframe is most of the answer.
+
+**The controls, in order of how much they save:**
+
+| Lever | Why it saves |
+| --- | --- |
+| **Push work down the cost ladder** | If a rule can decide it, a judge should never see it — free *and* reproducible |
+| **Split the suite by purpose** | Cheap fast set per change; expensive full set before a release decision |
+| **Cheaper judge for informational metrics** | Keep the strong model for the blocking gates only |
+| **Sample online, never offline** | Offline coverage should be total; production traffic should not be |
+| **Smoke-test before the full run** | A typo in a rubric is cheaper to find on 3 cases than on 500 |
+
+**The first row is the biggest lever and it costs nothing.** In most suites a third to a half of
+the checks are rule-decidable — moving them out of the judge cuts the bill and makes those checks
+deterministic as a side effect.
+
+**Then the cost nobody budgets: maintaining ground truth.** Labels go stale as the product changes,
+and somebody has to own re-labelling. **This is the line item that quietly kills eval programmes** —
+the API bill is visible and survivable; the labelling debt is neither.
+
+**The analogy.** Everyone budgets for building the gym. Nobody budgets for cleaning it, and that's
+what decides whether it's still open next year.
+
 **Weak answer**
 > "It's mostly API costs for the judge calls — manageable, and it scales with how often we run the
 > suite."
@@ -2918,6 +3007,33 @@ convenient to measure, or a gate that delivery routes around.
 > They move on, the suite keeps running, and it slowly stops being trusted — because nobody can say
 > what a failing check actually means. So I'd write down what each gate protects and why the bar is
 > where it is. That document is what makes the suite survive a handover."
+
+**In plain English:**
+
+**Ownership decides what gets measured.** Put it in the wrong place and you get quality that is
+convenient to measure, or a gate that delivery routes around.
+
+| Who | Owns | Because |
+| --- | --- | --- |
+| **Domain experts** | The standard — what counts as a good answer | It's a business judgement; if engineers define quality you get **measurable** quality, not **good** quality |
+| **Engineers** | The mechanism — instrumentation, harness, gates, pipeline | And the obligation to keep checks meaning what they say as the system changes |
+| **Nobody, separately** | — | See below |
+
+**That last row is the one to push on.** An evaluation team disconnected from shipping becomes an
+**approval queue** — it lacks the context to judge borderline cases, delivery treats it as an
+obstacle, and **the first hard deadline sets the precedent for going around it.** The gate belongs
+in the release path, not in a meeting.
+
+**So: independence in the standard, integration in the mechanism.** Experts outside the build team
+define the bar; the check runs where the code ships. That buys the rigour without the queue.
+
+**One failure mode worth naming: evaluation only its author understands.** They move on, the suite
+keeps running, and it stops being trusted — because nobody can say what a failing check *means*.
+**Write down what each gate protects and why the bar is where it is;** that document is what
+survives the handover.
+
+**The analogy.** The chef decides what the dish should taste like. The kitchen decides how it gets
+cooked every time. A separate tasting department at the end of the corridor just slows service.
 
 **Weak answer**
 > "Ideally a dedicated evaluation team owns it, so there's independence from the people building
@@ -2966,6 +3082,33 @@ green, and have stopped measuring anything real months earlier.
 > 
 > The way I'd sum it up: an evaluation suite is a claim about the system, and claims expire.
 > Re-testing it on a schedule is the difference between a safety net and a decorative one."
+
+**In plain English:**
+
+**Your suite hasn't blocked a release in six months.** That is either a perfect system or a suite
+that stopped measuring anything — and **you cannot tell which from the dashboard**, because both
+look identical.
+
+**Five things to watch, and each has a specific reading:**
+
+- **Does it ever fail?** Settle it directly — push a **known-bad candidate** through the gate.
+- **Do failures get overridden?** A rising override rate means the gates no longer match what the
+  team believes. **This is the earliest warning that a suite is turning decorative.**
+- **Do production incidents show up as eval failures afterwards?** If real failures keep arriving
+  from a direction the suite doesn't cover, the problem is **coverage**, not sensitivity.
+- **Is the judge still agreeing with people?** Models change underneath you; re-checking is
+  calibration, not ceremony.
+- **Has the system outgrown its checks?** New tools, channels or segments can silently invalidate
+  an existing metric — this is Q29's point arriving six months later.
+
+**The trap is reading stability as health.** *"Metrics stay stable"* is exactly what a broken
+scorer, an unstarted monitor, and a gate wired to nothing all look like.
+
+**The analogy.** A smoke alarm that has never gone off. Either nothing has ever burned, or the
+battery died in March — and the only way to know is to press the button.
+
+**An evaluation suite is a claim about the system, and claims expire.** Re-testing it on a schedule
+is the difference between a safety net and a decorative one.
 
 **Weak answer**
 > "As long as the suite runs in CI and the metrics stay stable, it's working — and we'd add new
