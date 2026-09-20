@@ -225,13 +225,29 @@ ul.pts li::marker{color:var(--accent)}
 .card.rated-1{border-left:4px solid var(--fail)}
 .card.rated-2{border-left:4px solid var(--unmeas)}
 .card.rated-3{border-left:4px solid var(--pass)}
-.card-q{padding:16px 18px}
+/* The summary is the whole question row: marker, id, question. Scoped to
+   details.card so it cannot reach the nested details.plain inside an answer. */
+details.card > summary.card-q{padding:15px 18px; cursor:pointer; list-style:none;
+  display:grid; grid-template-columns:18px minmax(0,1fr); gap:11px; align-items:start}
+details.card > summary.card-q::-webkit-details-marker{display:none}
+details.card > summary.card-q::before{content:"+"; font-family:"Spline Sans Mono",ui-monospace,monospace;
+  font-size:14px; color:var(--text-3); line-height:1.5}
+details.card[open] > summary.card-q::before{content:"\2013"}
+details.card > summary.card-q:hover::before{color:var(--accent)}
+details.card > summary.card-q:hover .qt{color:var(--accent-text)}
 .qid{font-family:"Spline Sans Mono",ui-monospace,monospace; font-size:11px; font-weight:600; color:var(--accent);
   letter-spacing:.01em; display:block; margin-bottom:6px}
 .card-q .qt{font-family:"Newsreader",serif; font-size:18px; font-weight:600; line-height:1.35; margin:0}
-.card-q .scen{margin:11px 0 0; font-size:14.5px; color:var(--text-2); font-style:italic;
+.card-qtext{min-width:0}
+.card-body{padding-top:2px}
+.card-body .scen{margin:0 18px 14px 47px; font-size:14.5px; color:var(--text-2); font-style:italic;
   border-left:2px solid var(--rule); padding-left:13px}
-.card-acts{display:flex; flex-wrap:wrap; gap:8px; padding:0 18px 15px; align-items:center}
+.card-acts{display:flex; flex-wrap:wrap; gap:8px; padding:0 18px 15px 47px; align-items:center}
+.tl-gap{flex:1 1 auto}
+@media (max-width:640px){
+  .card-body .scen{margin-left:18px}
+  .card-acts{padding-left:18px}
+}
 .btn{font:inherit; font-size:13px; padding:6px 13px; border-radius:3px; cursor:pointer;
   border:1px solid var(--accent); background:var(--accent); color:#fff; font-weight:500}
 .btn:hover{filter:brightness(1.08)}
@@ -1076,29 +1092,50 @@ function rateRow(id){
   });
   return wrap;
 }
+// Each card is a <details>, closed by default, so 54 questions read as a
+// scannable list instead of a very long scroll.
+//
+// openIds has to survive a re-render: rating a card calls renderQuiz() and
+// renderCases(), which rebuild every card from scratch. Without this, rating
+// one question collapsed every card you had open. revealedIds does the same
+// for the answer, which had that bug already.
+const openIds = new Set(), revealedIds = new Set();
+
 function quizCard(o, kind){
-  const card = el("article","card"+(ratings[o.id]?" rated-"+ratings[o.id]:""));
-  const q = el("div","card-q");
-  q.appendChild(el("span","qid",o.id));
-  q.appendChild(el("p","qt",o.q));
-  if(o.scen) q.appendChild(el("p","scen",o.scen));
+  const card = el("details","card"+(ratings[o.id]?" rated-"+ratings[o.id]:""));
+  card.open = openIds.has(o.id);
+  card.addEventListener("toggle", ()=>{
+    if(card.open){ openIds.add(o.id); } else { openIds.delete(o.id); }
+  });
+
+  const q = document.createElement("summary");
+  q.className = "card-q";
+  // one wrapper, so the marker pseudo-element and the text are the grid's only
+  // two children -- otherwise the question wraps into the 18px marker column
+  const qtext = el("div","card-qtext");
+  qtext.appendChild(el("span","qid",o.id));
+  qtext.appendChild(el("p","qt",o.q));
+  q.appendChild(qtext);
   card.appendChild(q);
+
+  const body = el("div","card-body");
+  if(o.scen) body.appendChild(el("p","scen",o.scen));
 
   const acts = el("div","card-acts");
   const rev = el("button","btn","Reveal the answer"); rev.type="button";
   const hint = el("button","btn ghost", kind==="q" ? "What they’re checking" : "What’s being tested"); hint.type="button";
   acts.appendChild(rev); acts.appendChild(hint); acts.appendChild(rateRow(o.id));
-  card.appendChild(acts);
+  body.appendChild(acts);
 
   const hintBox = el("div","card-a"); hintBox.hidden=true;
   hintBox.innerHTML = "<div class='blk'><h5>"+(kind==="q"?"The issue":"What’s being tested")+"</h5><p style='margin:0;font-size:14.5px'>"+
     (kind==="q"? o.issue : o.testing)+"</p></div>"+
     (kind==="q" ? "<div class='blk'><h5>They’re checking</h5><ul class='pts'>"+o.checking.map(c=>"<li>"+c+"</li>").join("")+"</ul></div>" : "");
-  card.appendChild(hintBox);
+  body.appendChild(hintBox);
   hint.addEventListener("click",()=>{ hintBox.hidden=!hintBox.hidden;
     hint.textContent = hintBox.hidden ? (kind==="q"?"What they’re checking":"What’s being tested") : "Hide"; });
 
-  const ans = el("div","card-a"); ans.hidden=true;
+  const ans = el("div","card-a"); ans.hidden = !revealedIds.has(o.id);
   let html = "<div class='blk'><h5 class='pass'>"+(kind==="q"?"Strong answer — say it like this":"How you’d talk through it")+"</h5><ul class='pts'>"+
     (kind==="q"?o.strong:o.pts).map(s=>"<li>"+s+"</li>").join("")+"</ul></div>";
   if(o.plain) html += "<div class='blk'><h5>The mechanism, slowly</h5>"+
@@ -1112,8 +1149,14 @@ function quizCard(o, kind){
   }
   if(o.signal) html += "<div class='blk'><h5 class='pass'>Strong-answer signal</h5><p class='pusha'>"+o.signal+"</p></div>";
   ans.innerHTML = html;
-  card.appendChild(ans);
-  rev.addEventListener("click",()=>{ ans.hidden=!ans.hidden; rev.textContent = ans.hidden?"Reveal the answer":"Hide the answer"; });
+  body.appendChild(ans);
+  rev.textContent = ans.hidden ? "Reveal the answer" : "Hide the answer";
+  rev.addEventListener("click",()=>{
+    ans.hidden = !ans.hidden;
+    if(ans.hidden){ revealedIds.delete(o.id); } else { revealedIds.add(o.id); }
+    rev.textContent = ans.hidden ? "Reveal the answer" : "Hide the answer";
+  });
+  card.appendChild(body);
   return card;
 }
 function passFilter(id){
@@ -1129,6 +1172,19 @@ function filterBar(onChange){
     const b=el("button","chip",lab); b.type="button";
     b.setAttribute("aria-pressed", filter===v?"true":"false");
     b.addEventListener("click",()=>{ filter=v; onChange(); });
+    bar.appendChild(b);
+  });
+  const spacer = el("span","tl-gap"); bar.appendChild(spacer);
+  [["open","Expand all"],["shut","Collapse all"]].forEach(([mode,lab])=>{
+    const b = el("button","chip",lab); b.type="button";
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("details.card").forEach(c=>{
+        const id = c.querySelector(".qid");
+        if(!id) return;
+        if(mode==="open"){ c.open = true; openIds.add(id.textContent); }
+        else { c.open = false; openIds.delete(id.textContent); }
+      });
+    });
     bar.appendChild(b);
   });
   return bar;
