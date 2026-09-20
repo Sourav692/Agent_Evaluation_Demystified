@@ -1,13 +1,18 @@
 # Guide audits
 
-This repository, measured against evaluation guides written by other people. Three files,
-two jobs.
+This repository, measured against evaluation guides written by other people. Three documents,
+two jobs. (Four files: the tutorial also ships as a page — see below.)
 
 | File | What it is |
 |---|---|
 | [`openai-eval-guide-coverage-gaps.md`](openai-eval-guide-coverage-gaps.md) | **Audit** — OpenAI's *Evaluation best practices*, every topic badged ✅ / 🟡 / ⏭️ / ❌ against the notebook that teaches it, verified **per course**. Currently 47 / 2 / 5 / 1 across 55 rows |
-| [`openai-eval-guide-tutorial.md`](openai-eval-guide-tutorial.md) | **Lesson** — the same guide in plain language, 3–4 lines per concept, one running example, and 21 TODOs that each ask you to produce something. The file is its own progress tracker |
+| [`openai-eval-guide-tutorial.md`](openai-eval-guide-tutorial.md) | **Lesson** — the same guide in plain language, 3–4 lines per concept, one running example, and 21 TODOs that each ask you to produce something. The file is its own progress tracker. Also rendered as [`openai-eval-guide-tutorial.html`](openai-eval-guide-tutorial.html) |
 | [`genai-eval-playbook-coverage-map.md`](genai-eval-playbook-coverage-map.md) | **Audit** — *LLM Evaluation for GenAI Forward Deployed Engineers*, a customer-facing playbook. All 20 sections mapped; thirteen open gaps, clustered in commercial apparatus and retrieval operations |
+
+**The markdown tutorial is canonical.** `openai-eval-guide-tutorial.html` is the same
+seven chapters as a browser page — the Mermaid blocks drawn as inline SVG, the 21 TODOs as
+tick boxes with a progress meter saved in the browser. Edit the `.md` and re-render; the page
+is not a second source. It carries no content the markdown does not.
 
 **The audits record; the tutorial teaches.** A fourth document explaining the same concepts
 was folded into the tutorial and archived on 2026-09-20 — it cited no notebook the tutorial

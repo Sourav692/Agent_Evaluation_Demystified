@@ -178,6 +178,10 @@ rather than read something. The file is its own progress tracker.
 | **§5–§6** | Edge cases by kind, the polite tool failure · the improvement loop and why judge alignment comes before prompt optimisation |
 | **§7** | An eight-step path through the repo, and the four-step version for one evening |
 
+Also rendered as [`openai-eval-guide-tutorial.html`](docs/guide-audits/openai-eval-guide-tutorial.html)
+— same content, tick boxes instead of `- [ ]`, and the three Mermaid blocks drawn as inline SVG.
+The markdown is canonical: it is the copy that gets committed as a tracker.
+
 ### `docs/guide-audits/genai-eval-playbook-coverage-map.md` — GenAI FDE playbook map (2,100 words)
 
 The same exercise as the audit above, against *LLM Evaluation for GenAI Forward Deployed
@@ -192,13 +196,15 @@ somewhere else entirely.
 | **§5** | Seven things this repo has that the playbook does not — detection limits, McNemar and bootstrap, judge-bias probes, a gate wired to CI, final-state verification, loop detection, `p**n` arithmetic |
 | **§6–§7** | A suggested order of work · how this audit relates to the OpenAI one — they overlap in exactly one item |
 
-### The three interactive HTML pages
+### The four interactive HTML pages
 
 Open in a browser. No build step, no server, no API key.
 
 | File | What it does |
 |---|---|
+| `docs/guide-audits/openai-eval-guide-tutorial.html` | The tutorial above as a page — the same seven chapters, its three flow diagrams drawn as SVG, and the 21 TODOs as tick boxes with a progress meter. The `.md` is still the tracker you commit; this one saves to the browser |
 | `docs/study-guide/evaluation-study-plan.html` | Seven stages ordered by what the round tests, with time estimates, a 2–3 day fast path, a skip list and a readiness check. Tick items off as you go |
+| `docs/interview-prep/fde-playbook-end-to-end-evaluation.html` | **The FDE playbook's sections 1–14 on one page.** The evaluation pipeline as a spine, then each stage: golden datasets with sizes by deployment stage, human labels on a 1–5 scale, nine scorers with their blind spots, the correctness/faithfulness/groundedness/helpfulness split, retrieval failures including the four that only appear after deployment, eight answer-quality dimensions, seven safety attacks by severity, regression testing, A/B, the canary ladder with rollback triggers, acceptance criteria with sign-off owners, four dashboard views |
 | `docs/interview-prep/stratified-reporting-explained.html` | **Stratified reporting in plain English.** One table where the overall score rises 87.5% → 90% while Hindi collapses 88% → 50%, why the average buries it, how to choose your groups, the small-group trap, and what to say in an interview |
 | `docs/interview-prep/evaluation-round-drill.html` | The same 35 questions and 19 cases with every answer hidden. Rate recall per item, filter to what's weak. Progress saves locally |
 | `docs/interactive-labs/00-evaluation-index.html` | The surface map: pipeline, what breaks where, reference-based vs referenceless comparison |
@@ -222,7 +228,7 @@ version of each is field guide **Part 6**; the interview questions are question 
 |---|---|
 | `docs/README.md` | The five docs subfolders |
 | `docs/concepts/README.md` | The three theory companions |
-| `docs/guide-audits/README.md` | The two external-guide audits and the tutorial, why there are two and not one, and the recount habit |
+| `docs/guide-audits/README.md` | The two external-guide audits and the tutorial (markdown and HTML), why there are two and not one, and the recount habit |
 | `docs/interactive-labs/README.md` | The six labs, the surface map, lab → notebook mapping, the four tools |
 | `docs/interview-prep/README.md` | The drill, the question bank, and the shape of a good answer |
 | `docs/study-guide/README.md` | The staged study plan — seven stages, time estimates, the fast path |

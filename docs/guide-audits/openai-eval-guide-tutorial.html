@@ -1,0 +1,989 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluating LLM Systems</title>
+<meta name="description" content="A plain-English walkthrough of OpenAI's evaluation best-practices guide, with the notebook in this repository that teaches each idea properly, and 21 TODOs that each ask you to produce something.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{color-scheme:light dark}
+:root{
+  --ink:#141A21; --paper:#ECEEF0; --surface:#FFFFFF; --surface-2:#F5F6F8;
+  --text:#1B232C; --text-2:#4A5866; --text-3:#71818F;
+  --rule:#D3D8DE; --rule-2:#E3E7EB;
+  --accent:#2F5D7C; --accent-soft:#E4EDF3; --accent-text:#24485F;
+  --pass:#3F6F52; --pass-soft:#E3EDE6;
+  --fail:#9A3B2E; --fail-soft:#F4E4E1;
+  --unmeas:#8A7455; --unmeas-soft:#F0EADF;
+  --shadow:0 1px 2px rgba(20,26,33,.06), 0 4px 14px rgba(20,26,33,.05);
+  --maxw:1080px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#0C1116; --paper:#10161C; --surface:#19212A; --surface-2:#1F2933;
+    --text:#E4E9ED; --text-2:#AAB7C2; --text-3:#7D8C99;
+    --rule:#2C3742; --rule-2:#232D37;
+    --accent:#7FB3D5; --accent-soft:#1C2C38; --accent-text:#9CC8E4;
+    --pass:#6FA588; --pass-soft:#17281F;
+    --fail:#D4776A; --fail-soft:#2E1B18;
+    --unmeas:#C4A87A; --unmeas-soft:#2A2318;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#0C1116; --paper:#10161C; --surface:#19212A; --surface-2:#1F2933;
+  --text:#E4E9ED; --text-2:#AAB7C2; --text-3:#7D8C99;
+  --rule:#2C3742; --rule-2:#232D37;
+  --accent:#7FB3D5; --accent-soft:#1C2C38; --accent-text:#9CC8E4;
+  --pass:#6FA588; --pass-soft:#17281F;
+  --fail:#D4776A; --fail-soft:#2E1B18;
+  --unmeas:#C4A87A; --unmeas-soft:#2A2318;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--text);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px; line-height:1.62; -webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:"Zilla Slab",Georgia,serif; text-wrap:balance; margin:0; line-height:1.2}
+code{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace; font-size:.87em;
+  background:var(--surface-2); padding:1px 5px; border-radius:2px; border:1px solid var(--rule-2);
+  word-break:break-word}
+a{color:var(--accent-text)}
+b,strong{font-weight:600}
+
+/* ---------- masthead ---------- */
+.mast{background:var(--ink); border-bottom:3px solid var(--accent)}
+.mast-in{max-width:var(--maxw); margin:0 auto; padding-block:32px 28px; padding-inline:20px}
+.mast .kicker{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em;
+  text-transform:uppercase; color:#8FB6CE; margin-bottom:9px}
+.mast h1{font-size:clamp(30px,5.2vw,46px); font-weight:700; letter-spacing:-.015em; color:#fff}
+.mast p{margin:11px 0 0; color:#A9BAC7; max-width:64ch; font-size:15.5px}
+.mast p a{color:#9CC8E4}
+.mast .links{display:flex; gap:10px; flex-wrap:wrap; margin-top:18px}
+.mast .btn{display:inline-flex; gap:8px; align-items:center;
+  background:var(--accent); color:#fff; text-decoration:none; font-size:14px; font-weight:500;
+  padding:8px 15px; border-radius:3px}
+.mast .btn.ghost{background:none; border:1px solid #3C5D75; color:#A9BAC7}
+.mast .btn:hover{filter:brightness(1.12)}
+
+/* ---------- shell + rail ---------- */
+.shell{max-width:var(--maxw); margin:0 auto; padding-inline:20px; padding-block:0 70px;
+  display:grid; grid-template-columns:206px minmax(0,1fr); gap:40px; align-items:start}
+@media (max-width:880px){ .shell{grid-template-columns:1fr; gap:0} }
+nav.rail{position:sticky; top:16px; padding-top:30px}
+@media (max-width:880px){
+  nav.rail{position:static; padding-top:16px; margin-inline:-20px; padding-inline:20px;
+    overflow-x:auto; border-bottom:1px solid var(--rule)}
+  .rail ol{display:flex; gap:6px; padding-bottom:14px}
+  .rail li{flex:0 0 auto}
+  .rail .railnote,.rail .meter{display:none}
+}
+.rail ol{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:1px}
+.rail ol a{display:flex; gap:9px; align-items:baseline; text-decoration:none; color:var(--text-2);
+  font-size:13.5px; padding:7px 11px; border-radius:3px; white-space:nowrap; line-height:1.35}
+.rail ol a:hover{background:var(--surface-2); color:var(--text)}
+.rail .n{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--text-3)}
+.rail .todos{margin-left:auto; font-family:"IBM Plex Mono",monospace; font-size:10.5px;
+  color:var(--text-3); background:var(--surface-2); border-radius:2px; padding:0 5px}
+.rail .railnote{font-size:11.5px; color:var(--text-3); padding:14px 11px 0; line-height:1.5;
+  border-top:1px solid var(--rule-2); margin-top:12px}
+.meter{margin-top:16px; padding:12px 11px; background:var(--surface); border:1px solid var(--rule);
+  border-radius:3px; box-shadow:var(--shadow)}
+.meter .mlabel{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.11em;
+  text-transform:uppercase; color:var(--text-3)}
+.meter .mcount{font-family:"Zilla Slab",serif; font-size:24px; font-weight:700; margin:2px 0 8px}
+.meter .mcount span{font-size:14px; color:var(--text-3); font-weight:500}
+.mbar{height:5px; border-radius:99px; background:var(--surface-2); border:1px solid var(--rule-2); overflow:hidden}
+.mbar i{display:block; height:100%; background:var(--pass); width:0%; transition:width .35s ease}
+.meter button{margin-top:10px; font:inherit; font-size:11.5px; color:var(--text-3);
+  background:none; border:1px solid var(--rule-2); border-radius:2px; padding:3px 8px; cursor:pointer}
+.meter button:hover{color:var(--text); border-color:var(--rule)}
+
+/* ---------- prose ---------- */
+main{padding-top:30px; min-width:0}
+p{margin:0 0 15px; max-width:70ch}
+.lede{font-size:17.5px; color:var(--text-2); max-width:66ch; margin-bottom:24px}
+.chapter{margin-bottom:56px; scroll-margin-top:20px}
+.chapter-head{display:flex; flex-wrap:wrap; gap:14px; align-items:baseline;
+  border-bottom:2px solid var(--ink); padding-bottom:12px; margin-bottom:20px}
+.chapter-head .cn{font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600;
+  letter-spacing:.11em; color:var(--accent); background:var(--accent-soft);
+  padding:4px 9px; border-radius:2px}
+.chapter-head h2{font-size:clamp(22px,3.3vw,29px); font-weight:700; letter-spacing:-.01em; flex:1 1 auto}
+.chapter-head .count{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--text-3); white-space:nowrap}
+h3.sec{font-size:19px; font-weight:600; margin:30px 0 10px; scroll-margin-top:20px}
+h3.sec .sn{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--accent-text); margin-right:7px}
+
+ul.pts{margin:0 0 15px; padding-left:19px; max-width:70ch} ul.pts li{margin-bottom:8px}
+ul.pts li::marker{color:var(--accent)}
+
+pre{background:var(--ink); color:#D7E2EA; border-radius:3px; padding:14px 16px; overflow-x:auto;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12.5px; line-height:1.65;
+  margin:0 0 18px; max-width:70ch}
+pre b{color:#fff}
+pre .up{color:#8FD2A6} pre .down{color:#E39184} pre .dim{color:#8296A5}
+
+.tbl-wrap{overflow-x:auto; margin:18px 0; border:1px solid var(--rule); border-radius:3px;
+  background:var(--surface); max-width:70ch}
+table{border-collapse:collapse; width:100%; font-size:14.5px; min-width:440px}
+th,td{text-align:left; padding:10px 14px; border-bottom:1px solid var(--rule-2); vertical-align:top}
+thead th{background:var(--surface-2); font-family:"IBM Plex Mono",monospace; font-size:11px;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--text-2); font-weight:600}
+tbody tr:last-child td{border-bottom:0}
+td.num{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+
+.callout{border-left:3px solid var(--accent); background:var(--surface); padding:15px 18px;
+  margin:20px 0; border-radius:0 3px 3px 0; box-shadow:var(--shadow); max-width:70ch}
+.callout p{margin:0; max-width:none} .callout p + p{margin-top:10px}
+.callout.warn{border-left-color:var(--fail)}
+.callout.key{border-left-color:var(--unmeas)}
+.callout .lbl{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--text-3); display:block; margin-bottom:7px}
+
+/* "In this repo" blocks */
+.repo{background:var(--surface); border:1px solid var(--rule); border-left:3px solid var(--pass);
+  border-radius:0 3px 3px 0; padding:13px 16px; margin:18px 0; max-width:70ch; box-shadow:var(--shadow)}
+.repo .lbl{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--pass); display:block; margin-bottom:7px}
+.repo p{margin:0; font-size:14.5px; color:var(--text-2); max-width:none}
+.repo p + p{margin-top:9px}
+.repo code{background:var(--surface-2)}
+
+/* TODO cards */
+.todo{display:flex; gap:13px; align-items:flex-start; background:var(--surface);
+  border:1px solid var(--rule); border-radius:3px; padding:13px 16px; margin:18px 0;
+  box-shadow:var(--shadow); max-width:70ch}
+.todo input{margin-top:5px; width:17px; height:17px; accent-color:var(--pass); flex:0 0 auto; cursor:pointer}
+.todo label{cursor:pointer; display:block; font-size:14.5px}
+.todo .tt{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--text-3); display:flex; gap:8px; align-items:center;
+  margin-bottom:5px; flex-wrap:wrap}
+.todo:has(input:checked){border-left:3px solid var(--pass)}
+.todo:has(input:checked) label{color:var(--text-3)}
+.tag{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.09em;
+  text-transform:uppercase; padding:2px 7px; border-radius:2px; white-space:nowrap; font-weight:500}
+.tag-free{background:var(--pass-soft); color:var(--pass)}
+.tag-cache{background:var(--accent-soft); color:var(--accent-text)}
+.tag-paid{background:var(--fail-soft); color:var(--fail)}
+
+/* diagrams */
+figure.dia{margin:22px 0; background:var(--surface); border:1px solid var(--rule);
+  border-radius:3px; padding:16px 14px 10px; box-shadow:var(--shadow); max-width:70ch}
+figure.dia svg{width:100%; height:auto; display:block}
+figure.dia figcaption{font-size:12.5px; color:var(--text-3); margin-top:10px;
+  font-family:"IBM Plex Mono",monospace; line-height:1.5}
+.dia .bx{fill:var(--surface-2); stroke:var(--rule); stroke-width:1.2; rx:3}
+.dia .bx-a{fill:var(--accent-soft); stroke:var(--accent); stroke-width:1.2; rx:3}
+.dia .bx-g{fill:var(--pass-soft); stroke:var(--pass); stroke-width:1.2; rx:3}
+.dia .bx-w{fill:var(--fail-soft); stroke:var(--fail); stroke-width:1.2; rx:3}
+.dia .bx-d{fill:none; stroke:var(--rule); stroke-width:1.2; stroke-dasharray:4 3; rx:3}
+.dia .ln{stroke:var(--text-3); stroke-width:1.3; fill:none}
+.dia .ln-d{stroke:var(--text-3); stroke-width:1.3; fill:none; stroke-dasharray:4 3}
+.dia text{font-family:"IBM Plex Sans",sans-serif; fill:var(--text); font-size:12.5px}
+.dia text.sm{font-size:11px; fill:var(--text-2)}
+.dia text.lb{font-family:"IBM Plex Mono",monospace; font-size:10.5px; fill:var(--text-3)}
+
+/* the path table + dark panel */
+.panel-dark{background:var(--ink); border-radius:4px; padding:26px 26px 22px; margin:30px 0; color:#E4E9ED; max-width:70ch}
+.panel-dark h3{color:#fff; font-size:20px; font-weight:600; margin-bottom:10px; font-family:"Zilla Slab",serif}
+.panel-dark p{color:#A9BAC7; max-width:64ch; margin-bottom:0}
+.panel-dark b{color:#fff}
+.panel-dark code{background:#1E2A34; border-color:#2C3742; color:#C7D3DC}
+
+footer.foot{border-top:1px solid var(--rule); margin-top:54px; padding-top:22px;
+  font-size:13.5px; color:var(--text-3); max-width:70ch}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:2px}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){ *{transition:none !important} html{scroll-behavior:auto} }
+@media print{
+  .mast{background:none; border-bottom:2px solid #000}
+  .mast h1,.mast .kicker,.mast p{color:#000} .mast .links{display:none}
+  nav.rail{display:none} .shell{display:block}
+  pre,.panel-dark{background:none; border:1px solid #000; color:#000}
+  .panel-dark h3,.panel-dark p,.panel-dark b{color:#000}
+}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="mast-in">
+    <div class="kicker">Guide audits · The lesson</div>
+    <h1>Evaluating LLM Systems</h1>
+    <p>A walkthrough of OpenAI's <a href="https://developers.openai.com/api/docs/guides/evaluation-best-practices?api-mode=responses">Evaluation best practices guide</a>,
+       written in simple language, with the notebook in <b>this repo</b> that teaches each idea
+       properly. Every concept gets three or four lines — enough to understand <i>what it is and
+       why you would use it</i>. When you want the real thing, open the notebook listed under it.</p>
+    <div class="links">
+      <a class="btn" href="openai-eval-guide-coverage-gaps.md">The audit — what is and isn't covered →</a>
+      <a class="btn ghost" href="openai-eval-guide-tutorial.md">Markdown source</a>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" aria-label="Chapters">
+    <ol>
+      <li><a href="#c1"><span class="n">01</span><span>What an eval is</span><span class="todos">2</span></a></li>
+      <li><a href="#c2"><span class="n">02</span><span>The process</span><span class="todos">5</span></a></li>
+      <li><a href="#c3"><span class="n">03</span><span>Where checks go</span><span class="todos">4</span></a></li>
+      <li><a href="#c4"><span class="n">04</span><span>Kinds of checker</span><span class="todos">6</span></a></li>
+      <li><a href="#c5"><span class="n">05</span><span>Edge cases</span><span class="todos">2</span></a></li>
+      <li><a href="#c6"><span class="n">06</span><span>Improving</span><span class="todos">2</span></a></li>
+      <li><a href="#c7"><span class="n">07</span><span>A path through</span><span class="todos">—</span></a></li>
+      <li><a href="#skips"><span class="n">—</span><span>Deliberate skips</span></a></li>
+    </ol>
+    <div class="meter">
+      <div class="mlabel">TODOs done</div>
+      <div class="mcount"><b id="mDone">0</b><span> / 21</span></div>
+      <div class="mbar"><i id="mBar"></i></div>
+      <button type="button" id="mReset">Reset progress</button>
+    </div>
+    <p class="railnote">Ticks are saved in this browser only. The markdown twin of this page is
+      the version you commit — see <a href="#tracker">how to work through it</a>.</p>
+  </nav>
+
+  <main>
+    <p class="lede"><b>All notebook paths are relative to the repository root</b>, not to this
+      file, so you can paste them straight into <code>jupyter lab</code> or an editor.</p>
+
+    <div class="callout key">
+      <span class="lbl">Companion document</span>
+      <p><a href="openai-eval-guide-coverage-gaps.md"><code>openai-eval-guide-coverage-gaps.md</code></a>,
+         beside this file, is the audit — which topics this repo covers, which were deliberately
+         skipped, and why. <b>That one is the record; this one is the lesson.</b> There is no third
+         document: an earlier prose explainer was folded into this one on 2026-09-20, because it
+         explained the same concepts against the same notebooks and cited none of its own.</p>
+      <p>A note on the running example: <b>a support bot for a phone company</b> appears
+         throughout, so each concept lands on something you have already met rather than a fresh
+         abstraction.</p>
+    </div>
+
+    <!-- ============ TRACKER ============ -->
+    <section class="chapter" id="tracker">
+      <div class="chapter-head">
+        <span class="cn">—</span><h2>How to work through it</h2><span class="count">21 TODOs</span>
+      </div>
+      <p>Every concept ends with a TODO. The TODOs are deliberately <b>not</b> "read the
+         notebook". Each asks you to produce something small — a number you measured, a threshold
+         you changed, a check you watched fail — because that is the difference between having read
+         about evaluation and being able to defend one under questioning.
+         <b>If you can tick a box without opening an editor, the box is wrong.</b></p>
+
+      <div class="callout">
+        <span class="lbl">Two trackers, one of them permanent</span>
+        <p>On this page, ticking a box saves to <b>this browser only</b> — handy while you read,
+           gone when you clear site data. The markdown twin is the durable tracker: it <i>is</i> the
+           file you commit, so <code>git log</code> becomes your study history.</p>
+      </div>
+
+<pre><span class="dim"># left to do</span>
+grep -c '^- \[ \]' docs/guide-audits/openai-eval-guide-tutorial.md
+<span class="dim"># done</span>
+grep -c '^- \[x\]' docs/guide-audits/openai-eval-guide-tutorial.md</pre>
+
+      <div class="callout warn">
+        <span class="lbl">A warning about cost</span>
+        <p>This repo is not free to run. Notebooks in <code>courses/03-agentic-eval-harness/</code>
+           replay cached judge verdicts, so re-running them spends nothing. Anything that asks a
+           judge a <b>new</b> question does spend. Each TODO below carries a badge:
+           <span class="tag tag-free">free</span>
+           <span class="tag tag-cache">replays cache</span>
+           <span class="tag tag-paid">costs money</span></p>
+      </div>
+    </section>
+
+    <!-- ============ 1 ============ -->
+    <section class="chapter" id="c1">
+      <div class="chapter-head">
+        <span class="cn">01</span><h2>What an eval actually is</h2><span class="count">2 TODOs</span>
+      </div>
+
+      <p>One example runs through this whole tutorial: <b>a support bot for a phone company.</b>
+         Here is the run that explains why evaluation exists at all.</p>
+
+<pre>USER   "What's my balance on account ACC-99231?"
+BOT    "Your Premium plan has a balance of $45.20."</pre>
+
+      <p>That account does not exist. The lookup returned <code>{"found": false}</code> and the bot
+         invented the rest — fluently, confidently, and about the customer's own money. Nothing
+         crashed, nothing logged an error, and every test you had still passes.</p>
+
+      <p>A test asserts that the output equals something. You cannot do that here, because the same
+         input gives different words every time. An <b>eval</b> asserts a <i>property</i> instead —
+         is this grounded? did it refuse? did it call the right tool? — and returns pass or fail.</p>
+
+      <div class="tbl-wrap"><table>
+        <thead><tr><th></th><th>Normal software test</th><th>Eval</th></tr></thead>
+        <tbody>
+          <tr><td>Same input twice</td><td>Same output, always</td><td>Different wording each time</td></tr>
+          <tr><td>What you assert</td><td>An exact value</td><td>A property: is it grounded? did it refuse?</td></tr>
+          <tr><td>Result</td><td>Pass / fail</td><td>Pass / fail, <b>or</b> a score you set a threshold on</td></tr>
+        </tbody>
+      </table></div>
+
+      <p>That change of shape is the whole subject. Everything else is deciding which properties
+         matter and how much it costs to check them.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb</code> — the
+           taxonomy, and section 4's decision procedure for picking a scorer.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t1"><label for="t1">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Open that notebook and write down, for your own project, the one property that must never
+        be false. That sentence is your first eval, and everything in chapter 4 is about how to
+        check it cheaply.</label></div>
+
+      <h3 class="sec" id="c1-1"><span class="sn">1.1</span>The metrics that measure words instead of truth</h3>
+      <p>Before LLM judges, text was scored by word overlap with a reference: <b>BLEU</b>,
+         <b>ROUGE</b>, <b>BERTScore</b>. You will meet all three in papers and interviews, and they
+         fail in a specific, reproducible way.</p>
+      <p>Against <i>"Refunds are available within 14 days of renewal"</i>, inserting the word
+         <b>not</b> scores <b>ROUGE-L 0.94</b> — while a correct paraphrase scores <b>0.09</b>. The
+         metric ranks the false answer ten times above the true one.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb</code> §1c —
+           both metrics implemented in ~30 lines of standard library so you can break them
+           yourself.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t11"><label for="t11">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Run §1c's cell, then change a <b>number</b> or a <b>date</b> in the reference instead of
+        adding "not". Does ROUGE notice? Write down which kinds of error this family is blind to —
+        that list is the answer to <i>"why don't you use ROUGE?"</i></label></div>
+    </section>
+
+    <!-- ============ 2 ============ -->
+    <section class="chapter" id="c2">
+      <div class="chapter-head">
+        <span class="cn">02</span><h2>Designing the process</h2><span class="count">5 TODOs</span>
+      </div>
+      <p>OpenAI's five steps, in the order you actually do them.</p>
+
+      <figure class="dia">
+        <svg viewBox="0 0 880 234" role="img" aria-label="Five steps: define good, collect cases, pick metrics, run and compare, then a ship gate. Failing the gate returns to picking metrics; passing it leads to measuring in production, whose new failures feed back into collecting cases.">
+          <defs><marker id="ah1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-3)"/></marker></defs>
+                    <rect class="bx-a" x="8" y="48" width="152" height="56"/>
+          <text x="84" y="70" text-anchor="middle" class="sm">1 · Decide what</text>
+          <text x="84" y="86" text-anchor="middle" class="sm">"good" means</text>
+
+          <rect class="bx" x="190" y="48" width="152" height="56"/>
+          <text x="266" y="70" text-anchor="middle" class="sm">2 · Collect real</text>
+          <text x="266" y="86" text-anchor="middle" class="sm">cases</text>
+
+          <rect class="bx" x="372" y="48" width="152" height="56"/>
+          <text x="448" y="70" text-anchor="middle" class="sm">3 · Pick checkable</text>
+          <text x="448" y="86" text-anchor="middle" class="sm">metrics</text>
+
+          <rect class="bx" x="554" y="48" width="140" height="56"/>
+          <text x="624" y="70" text-anchor="middle" class="sm">4 · Run and</text>
+          <text x="624" y="86" text-anchor="middle" class="sm">compare versions</text>
+
+          <polygon points="790,42 852,76 790,110 728,76" fill="var(--unmeas-soft)" stroke="var(--unmeas)" stroke-width="1.2"/>
+          <text x="790" y="80" text-anchor="middle" class="lb">SHIP?</text>
+
+          <rect class="bx-g" x="540" y="168" width="176" height="56"/>
+          <text x="628" y="190" text-anchor="middle" class="sm">5 · Keep measuring</text>
+          <text x="628" y="206" text-anchor="middle" class="sm">in production</text>
+
+          <path class="ln" d="M160 76 H184" marker-end="url(#ah1)"/>
+          <path class="ln" d="M342 76 H366" marker-end="url(#ah1)"/>
+          <path class="ln" d="M524 76 H548" marker-end="url(#ah1)"/>
+          <path class="ln" d="M694 76 H722" marker-end="url(#ah1)"/>
+
+          <path class="ln" d="M790 42 V18 H448 V42" marker-end="url(#ah1)"/>
+          <text x="620" y="13" text-anchor="middle" class="lb">no — change something and re-run</text>
+
+          <path class="ln" d="M790 110 V196 H722" marker-end="url(#ah1)"/>
+          <text x="800" y="150" class="lb">yes</text>
+
+          <path class="ln-d" d="M540 196 H266 V110" marker-end="url(#ah1)"/>
+          <text x="403" y="217" text-anchor="middle" class="lb">new failures become cases</text>
+        </svg>
+        <figcaption>The gate is the only edge that can deploy. The dashed edge is what makes the
+          suite get better at noticing what it failed to notice.</figcaption>
+      </figure>
+
+      <h3 class="sec" id="c2-1"><span class="sn">2.1</span>Say what "good" means before you measure</h3>
+      <p><i>"The bot should be helpful"</i> cannot fail, so it is not a target. <i>"Resolve 75% of
+         billing questions without a human, and never state a balance for an account the lookup did
+         not find"</i> can.</p>
+      <p>Write the numbers <b>first</b>. Pick them after seeing a score and you will pick numbers
+         the score passes.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/02-databricks-mlflow-evals/00_eval_strategy_worksheet.ipynb</code> —
+           thresholds written before a single score existed.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t21"><label for="t21">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Fill in that worksheet's <code>EVAL_DIMENSIONS</code> for a system you know. Then ask a
+        colleague to guess your thresholds. Where they guess differently, your definition of "good"
+        was not written down properly.</label></div>
+
+      <h3 class="sec" id="c2-2"><span class="sn">2.2</span>Collect cases from production, not from your desk</h3>
+      <p>A test set you invented passes because it contains what you thought of. It is blind in
+         exactly the way you are, and no amount of scoring fixes that.</p>
+      <p>Real sources: production logs, expert-written answers, historical tickets, and synthetic
+         variants of all three. Tag every case so you can report by segment later.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/03-agentic-eval-harness/03_the_golden_set.ipynb</code> — 40 cases,
+           stratified by language, intent and question type, with a datasheet and a content hash.</p>
+        <p><code>courses/02-databricks-mlflow-evals/04_eval_datasets_from_traces.ipynb</code> —
+           mining new cases out of production traces, and why hand-written sets are structurally
+           blind.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t22"><label for="t22">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        In notebook 03, delete a whole stratum from the golden set and re-run the stratum-count
+        cell. Note what the overall pass rate does. That is the failure mode of an unstratified set,
+        reproduced in one edit.</label></div>
+
+      <h3 class="sec" id="c2-3"><span class="sn">2.3</span>Metrics you can actually answer</h3>
+      <p><i>"Is this good?"</i> is not checkable. <i>"Is every claim supported by the cited
+         document?"</i> is. Prefer questions with a yes or no.</p>
+      <p>The related rule is that models are better at <b>choosing</b> than at <b>producing</b>. Ask
+         a judge to pick between two answers, or to classify one, rather than to write a score out
+         of ten.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb</code> — §4 is
+           the code-first decision procedure and where a judge is genuinely required; <b>§4f</b> is
+           the rule above stated properly, with the three shapes as a table and why each alternative
+           drifts.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t23"><label for="t23">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Take three metrics you would have picked for your own system and rewrite each as a yes/no
+        question. Any you cannot rewrite is a metric you will argue about later.</label></div>
+
+      <h3 class="sec" id="c2-4"><span class="sn">2.4</span>Compare versions on the same inputs</h3>
+      <p>One number alone tells you nothing. Run the old build and the new build over the
+         <i>same</i> cases and diff them — and read the whole table, because the normal shape of a
+         regression is one number up and one quietly down.</p>
+      <p>For the support bot, a version bump reads like this:</p>
+
+<pre>              v1      v2
+groundedness  0.91    0.94   <span class="up">&#9650; better</span>
+refusal       0.88    0.71   <span class="down">&#9660; WORSE</span>
+resolution    0.76    0.79   <span class="up">&#9650; better</span></pre>
+
+      <p>v2 looks like a clear improvement until line 2. It got chattier, so it guesses where v1
+         would have said <i>"I don't know"</i> — and the guess is the <code>ACC-99231</code> failure
+         from §1, shipped.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/02-databricks-mlflow-evals/05_prompt_versioning_and_regression.ipynb</code>
+           is built as exactly this trap: v2 improves the metric being watched and breaks three that
+           are not.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t24"><label for="t24">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Run that notebook and name the three unwatched metrics <b>before</b> scrolling to the
+        answer. Whichever you missed is the one you would have shipped.</label></div>
+
+      <h3 class="sec" id="c2-5"><span class="sn">2.5</span>Keep measuring after launch</h3>
+      <p>Offline you have a right answer to compare against. In production you never do, so the
+         checks change shape: cheap deterministic rules on 100% of traffic, expensive judges on
+         1–2%.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/03-agentic-eval-harness/12_online_evaluation_and_the_loop.ipynb</code> —
+           which metrics survive without a reference, five alerts, and two incident drills where you
+           find out which alert stays silent.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t25"><label for="t25">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Run the incident drills and write down <b>which alert does not fire</b>. An alert that never
+        fires during a real incident is the most expensive kind of reassurance.</label></div>
+    </section>
+
+    <!-- ============ 3 ============ -->
+    <section class="chapter" id="c3">
+      <div class="chapter-head">
+        <span class="cn">03</span><h2>Where the checks go</h2><span class="count">4 TODOs</span>
+      </div>
+      <p>What can go wrong depends on the shape of your system. Each shape adds exactly one new
+         failure to the one before it.</p>
+
+      <figure class="dia">
+        <svg viewBox="0 0 760 330" role="img" aria-label="Four system shapes stacked: single turn adds is the answer right; workflow adds nothing new; one agent adds wrong tool or wrong arguments; many agents adds wrong specialist or loops between them.">
+          <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-3)"/></marker></defs>
+                    <rect class="bx" x="14" y="12" width="250" height="56"/>
+          <text x="139" y="34" text-anchor="middle" class="sm">Single turn</text>
+          <text x="139" y="51" text-anchor="middle" class="lb">one question, one answer</text>
+
+          <rect class="bx" x="14" y="98" width="250" height="56"/>
+          <text x="139" y="120" text-anchor="middle" class="sm">Workflow</text>
+          <text x="139" y="137" text-anchor="middle" class="lb">fixed steps</text>
+
+          <rect class="bx" x="14" y="184" width="250" height="56"/>
+          <text x="139" y="206" text-anchor="middle" class="sm">One agent</text>
+          <text x="139" y="223" text-anchor="middle" class="lb">the model picks the tool</text>
+
+          <rect class="bx" x="14" y="270" width="250" height="56"/>
+          <text x="139" y="292" text-anchor="middle" class="sm">Many agents</text>
+          <text x="139" y="309" text-anchor="middle" class="lb">a router picks the specialist</text>
+
+          <path class="ln" d="M139 68 V94" marker-end="url(#ah2)"/>
+          <path class="ln" d="M139 154 V180" marker-end="url(#ah2)"/>
+          <path class="ln" d="M139 240 V266" marker-end="url(#ah2)"/>
+
+          <rect class="bx-d" x="360" y="12" width="386" height="56"/>
+          <text x="553" y="45" text-anchor="middle" class="sm">Is the answer right?</text>
+
+          <rect class="bx-d" x="360" y="98" width="386" height="56"/>
+          <text x="553" y="131" text-anchor="middle" class="sm" fill="var(--text-3)">nothing new — the steps are fixed</text>
+
+          <rect class="bx-w" x="360" y="184" width="386" height="56"/>
+          <text x="553" y="217" text-anchor="middle" class="sm">Wrong tool · wrong arguments</text>
+
+          <rect class="bx-w" x="360" y="270" width="386" height="56"/>
+          <text x="553" y="303" text-anchor="middle" class="sm">Wrong specialist · loops between them</text>
+
+          <path class="ln-d" d="M264 40 H356" marker-end="url(#ah2)"/>
+          <path class="ln-d" d="M264 126 H356" marker-end="url(#ah2)"/>
+          <path class="ln-d" d="M264 212 H356" marker-end="url(#ah2)"/>
+          <path class="ln-d" d="M264 298 H356" marker-end="url(#ah2)"/>
+          <text x="310" y="32" text-anchor="middle" class="lb">adds</text>
+          <text x="310" y="118" text-anchor="middle" class="lb">adds</text>
+          <text x="310" y="204" text-anchor="middle" class="lb">adds</text>
+          <text x="310" y="290" text-anchor="middle" class="lb">adds</text>
+        </svg>
+        <figcaption>Each row inherits every failure above it. A multi-agent system still has to get
+          the single-turn answer right.</figcaption>
+      </figure>
+
+      <h3 class="sec" id="c3-1"><span class="sn">3.1</span>Tool choice and tool arguments are different bugs</h3>
+      <p><i>"Asked about a bill, called <code>reset_password</code>"</i> is a routing problem you fix
+         in the prompt. <i>"Called <code>get_balance('99231')</code> instead of
+         <code>get_balance('ACC-99231')</code>"</i> is a parsing problem. Same failed run, two
+         different fixes, so two different checks.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/03-agentic-eval-harness/05_tool_call_evaluation.ipynb</code> — DeepEval's
+           <code>ToolCorrectnessMetric</code> for the choice, <code>ArgumentCorrectnessMetric</code>
+           for the arguments, and the result-handling section nobody writes.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t31"><label for="t31">
+        <span class="tt">TODO <span class="tag tag-free">free</span> <span class="tag tag-cache">replays cache</span></span>
+        Flip the <code>bad_arguments</code> fault switch and confirm the tool-name metric stays at
+        1.0 while argument correctness drops. If one number caught both, you could not tell the two
+        bugs apart.</label></div>
+
+      <h3 class="sec" id="c3-2"><span class="sn">3.2</span>Did the task actually happen?</h3>
+      <p>A fluent reply saying the refund was issued is not a refund. The only check that settles it
+         reads <b>the database</b>, and no framework ships it because only you know what your tables
+         should look like afterwards.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb</code>
+           Part 5 — the final-state check, including the "exactly once" property that catches a
+           double refund.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t32"><label for="t32">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Make the agent refund twice in the trajectory fixture and confirm task completion still
+        passes while the final-state check fails. That gap is why the check exists.</label></div>
+
+      <h3 class="sec" id="c3-3"><span class="sn">3.3</span>Routing, handoffs, and going round in circles</h3>
+      <p>With several agents, two new things break: the router sends work to the wrong specialist,
+         and the specialists pass a job back and forth without finishing it. The second produces
+         <b>no answer at all</b>, expensively, and usually ends in a timeout rather than an
+         error.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb</code> —
+           routing accuracy with a confusion matrix (Part 1), handoff payload integrity (Part 2),
+           and loop detection (§2.1): a revisited agent, plus a hop bound for paths that never
+           repeat.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t33"><label for="t33">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Run §2.1 and note that the clean set flags <b>zero</b> loops — because none of the 25
+        recorded trajectories contains a handoff at all. Then read the synthetic cases underneath.
+        A check that has never gone red is not evidence that it works.</label></div>
+
+      <h3 class="sec" id="c3-4"><span class="sn">3.4</span>Report by segment, never as one number</h3>
+      <p>An average hides the segment that is failing. The gate in this course blocks on the
+         <b>worst stratum</b>, not the mean, and that choice is the reason the whole course
+         exists.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/03-agentic-eval-harness/10_stratified_reporting_and_statistics.ipynb</code>
+           — per-stratum reporting, and the arithmetic for how small a change a suite your size can
+           actually detect.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t34"><label for="t34">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Compute the detection limit for a 40-case suite. Then answer: if your gate's tolerance is
+        tighter than that limit, what is the gate actually blocking on?</label></div>
+    </section>
+
+    <!-- ============ 4 ============ -->
+    <section class="chapter" id="c4">
+      <div class="chapter-head">
+        <span class="cn">04</span><h2>Kinds of checker</h2><span class="count">6 TODOs</span>
+      </div>
+      <p>Three, and the rule for choosing is about reproducibility rather than money.</p>
+
+      <figure class="dia">
+        <svg viewBox="0 0 600 350" role="img" aria-label="Decision tree. If code can decide it, write the assertion. If not, judgement means a model judge with a rubric, and a person means human labels. The model judge must be checked against human labels.">
+          <defs><marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-3)"/></marker></defs>
+                    <rect class="bx" x="350" y="8" width="180" height="42"/>
+          <text x="440" y="34" text-anchor="middle" class="sm">Something to check</text>
+
+          <polygon points="440,66 552,100 440,134 328,100" fill="var(--surface-2)" stroke="var(--rule)" stroke-width="1.2"/>
+          <text x="440" y="105" text-anchor="middle" class="sm">Can code decide it?</text>
+
+          <rect class="bx-g" x="20" y="72" width="212" height="56"/>
+          <text x="126" y="94" text-anchor="middle" class="sm">Write the assertion</text>
+          <text x="126" y="111" text-anchor="middle" class="lb">free · same answer every time</text>
+
+          <polygon points="440,181 566,215 440,249 314,215" fill="var(--surface-2)" stroke="var(--rule)" stroke-width="1.2"/>
+          <text x="440" y="212" text-anchor="middle" class="sm">Judgement needed,</text>
+          <text x="440" y="228" text-anchor="middle" class="sm">or just a person?</text>
+
+          <rect class="bx-a" x="20" y="187" width="212" height="56"/>
+          <text x="126" y="209" text-anchor="middle" class="sm">Model judge + rubric</text>
+          <text x="126" y="226" text-anchor="middle" class="lb">cheap · changes its mind</text>
+
+          <rect class="bx-w" x="334" y="288" width="212" height="56"/>
+          <text x="440" y="310" text-anchor="middle" class="sm">Human labels</text>
+          <text x="440" y="327" text-anchor="middle" class="lb">slow · the calibration source</text>
+
+          <path class="ln" d="M440 50 V62" marker-end="url(#ah3)"/>
+          <path class="ln" d="M328 100 H236" marker-end="url(#ah3)"/>
+          <text x="282" y="92" text-anchor="middle" class="lb">yes</text>
+          <path class="ln" d="M440 134 V177" marker-end="url(#ah3)"/>
+          <text x="450" y="160" class="lb">no</text>
+          <path class="ln" d="M314 215 H236" marker-end="url(#ah3)"/>
+          <text x="275" y="207" text-anchor="middle" class="lb">judgement</text>
+          <path class="ln" d="M440 249 V284" marker-end="url(#ah3)"/>
+          <text x="450" y="271" class="lb">person</text>
+
+          <path class="ln-d" d="M126 243 V316 H330" marker-end="url(#ah3)"/>
+          <text x="228" y="308" text-anchor="middle" class="lb">must be checked against</text>
+        </svg>
+        <figcaption>The dashed edge is the licence. A judge you have never compared against people
+          is an opinion you have automated.</figcaption>
+      </figure>
+
+      <div class="tbl-wrap"><table>
+        <thead><tr><th></th><th>Code</th><th>Model judge</th><th>Human</th></tr></thead>
+        <tbody>
+          <tr><td>Cost per check</td><td class="num">£0</td><td class="num">~£0.001</td><td class="num">~£1</td></tr>
+          <tr><td>Same answer twice?</td><td>Always</td><td>Usually</td><td>Often not</td></tr>
+          <tr><td>Can judge "is this polite?"</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td>Run it on</td><td>100% of traffic</td><td>1–2%</td><td>50 cases, once</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3 class="sec" id="c4-1"><span class="sn">4.1</span>If code can decide it, never pay a model</h3>
+      <p>Code is free and gives the same answer every time — so when the number moves, <b>the system
+         moved</b>. A judge's number moving tells you nothing on its own, because judges change
+         their minds between runs.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/03-agentic-eval-harness/07_safety_and_policy_checks.ipynb</code> — four
+           safety policies written as plain functions, and why there is no average anywhere in that
+           notebook.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t41"><label for="t41">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Add a fifth policy of your own as a function. The hard part is not the code; it is writing
+        the rule precisely enough that it cannot be argued with.</label></div>
+
+      <h3 class="sec" id="c4-2"><span class="sn">4.2</span>Building a judge, three ways</h3>
+      <p><code>GEval</code> takes prose criteria. <code>DAGMetric</code> is an explicit decision
+         tree. A RAGAS rubric fixes the level descriptions. Same job, different trade-offs between
+         expressiveness and being able to answer <i>"why this score?"</i></p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/03-agentic-eval-harness/08_building_custom_judges.ipynb</code> — all three
+           on the same cases, and the table showing where they disagree.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t42"><label for="t42">
+        <span class="tt">TODO <span class="tag tag-free">free</span> <span class="tag tag-cache">replays cache</span></span>
+        Find a case where the three judges disagree and decide which one you would put in the
+        release gate. Then say what you lose by that choice.</label></div>
+
+      <h3 class="sec" id="c4-3"><span class="sn">4.3</span>Your judge is biased in three specific ways</h3>
+      <p><b>Position bias:</b> it prefers whichever answer it saw first. <b>Verbosity bias:</b> it
+         prefers the longer one. <b>Same-model bias:</b> it rates its own family's output highly.
+         All three are testable, and all three are embarrassing to discover after shipping.</p>
+
+      <div class="callout key">
+        <span class="lbl">The analogy</span>
+        <p>Two wine judges. One always prefers whichever glass is handed over first; the other
+           always prefers the fuller glass. Neither is tasting.</p>
+      </div>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/03-agentic-eval-harness/08_building_custom_judges.ipynb</code> Parts 5, 5.1
+           and 6. Part 5 swaps the order and counts verdict flips; §5.1 audits the length
+           distribution behind a win rate; Part 6 pits one model family against another.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t43"><label for="t43">
+        <span class="tt">TODO <span class="tag tag-free">free</span> <span class="tag tag-cache">replays cache</span></span>
+        Run §5.1 and note the two numbers that matter: the strong reply won <b>12 of 12</b>, and
+        winners averaged <b>25.2 words against 18.7</b>. Explain in one sentence why those two facts
+        together mean the position-bias result is not yet enough.</label></div>
+
+      <h3 class="sec" id="c4-4"><span class="sn">4.4</span>The length-controlled probe</h3>
+      <p>The audit above shows quality and length are tangled. Separating them needs a controlled
+         test: pad the <i>worse</i> answer until it is the longer one, then judge again. If the good
+         answer still wins, length was not doing the work.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p>The second cell of §5.1, behind a <code>RUN_LENGTH_PROBE</code> switch.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t44"><label for="t44">
+        <span class="tt">TODO <span class="tag tag-paid">costs money · ~12 judge calls</span></span>
+        Flip the switch and run it. If you would rather not spend, write down what each of the two
+        possible outcomes would tell you — that is the reasoning the cell is testing, and the call
+        only confirms it.</label></div>
+
+      <h3 class="sec" id="c4-5"><span class="sn">4.5</span>Humans: the calibration source, not the throughput</h3>
+      <p>You cannot have a person read every answer. You can have two people read fifty, and use
+         that to find out whether your judge agrees with them — which is the only thing that
+         licenses using the judge on everything else.</p>
+      <p>Agreement alone is not enough. If 90% of replies are good and your judge says "good" every
+         time, agreement is 90% and <b>Cohen's kappa is 0</b>, which is the correct score for a
+         judge that has learned nothing.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/03-agentic-eval-harness/09_human_feedback_and_calibration.ipynb</code> — a
+           labelling panel, kappa derived by hand, and using labels to <i>set</i> a threshold
+           instead of guessing one.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t45"><label for="t45">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Derive kappa by hand for a 2×2 table you make up, then check it against the notebook's
+        function. A kappa you cannot derive is one you cannot defend when somebody asks why 0.61
+        ships and 0.58 does not.</label></div>
+
+      <h3 class="sec" id="c4-6"><span class="sn">4.6</span>Blinded preference testing, and the second rater</h3>
+      <p>Asking <i>"which of these two is better?"</i> needs three rules: <b>hide</b> which arm is
+         the new build, <b>randomise</b> which side it appears on, and use <b>two raters</b>. Drop
+         any one and the result is not measuring what you think.</p>
+      <p>Two humans who disagree with each other is a <i>rubric</i> problem, not a judge problem,
+         and no amount of judge tuning fixes it.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/03-agentic-eval-harness/09_human_feedback_and_calibration.ipynb</code>
+           §2.2 — the panel, human-to-human kappa, and a blinding check that the winner landed on
+           the left about half the time.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t46"><label for="t46">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Run §2.2 and look at the seed sweep at the bottom: the same raters, resampled, give kappa
+        anywhere from 0.15 to 0.60. Write down how many cases you would need for that range to be
+        tolerable, using notebook 10's arithmetic.</label></div>
+    </section>
+
+    <!-- ============ 5 ============ -->
+    <section class="chapter" id="c5">
+      <div class="chapter-head">
+        <span class="cn">05</span><h2>Edge cases</h2><span class="count">2 TODOs</span>
+      </div>
+
+      <h3 class="sec" id="c5-1"><span class="sn">5.1</span>Collect kinds, not examples</h3>
+      <p>Twenty jailbreak strings that are all the same <i>kind</i> of attack will all pass, and the
+         green tick tells you nothing about the kind you missed. Organise by attack surface instead:
+         one example each of multilingual, multi-intent, typo, polite tool failure, instruction
+         override, formatting conflict.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/02-databricks-mlflow-evals/10_capstone_edge_cases_and_crossref.ipynb</code>
+           — five attack classes by three variants, plus <code>edge_cases.py</code>, which tracks
+           the guide's own eleven-item list in code with a verdict and a justification per row.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t51"><label for="t51">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Open <code>OPENAI_EDGE_CASE_COVERAGE</code> in
+        <code>courses/02-databricks-mlflow-evals/edge_cases.py</code>. Two entries read
+        <code>n/a</code>. For each, decide whether the failure is unreachable <b>in this repo</b> or
+        only <b>in course 02</b> — they look identical in the dict and mean opposite things. One of
+        them was a live, untested hole in course 03 until 2026-09-20, and the row never said
+        so.</label></div>
+
+      <h3 class="sec" id="c5-2"><span class="sn">5.2</span>The polite failure is the dangerous one</h3>
+      <p>A tool that returns <code>{"found": false}</code> instead of raising does not crash
+         anything. The model skates past it, and the answer that follows is specific, confident, and
+         wrong about the customer's own account.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p>The <code>ambiguous_tool_response</code> case in the same notebook, covering both read
+           tools' not-found paths.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t52"><label for="t52">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Make one of your own tools fail politely and watch what the agent says next. Then decide
+        whether the fix belongs in the tool, the prompt, or the eval.</label></div>
+    </section>
+
+    <!-- ============ 6 ============ -->
+    <section class="chapter" id="c6">
+      <div class="chapter-head">
+        <span class="cn">06</span><h2>Improving with evals</h2><span class="count">2 TODOs</span>
+      </div>
+
+      <h3 class="sec" id="c6-1"><span class="sn">6.1</span>The loop</h3>
+      <p>Production traces get sampled, the odd ones get labelled by a human, the labelled failures
+         become new golden cases, and the gate gets harder. That circle is the point of the whole
+         exercise — the suite gets better at noticing precisely where it failed to notice.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/03-agentic-eval-harness/12_online_evaluation_and_the_loop.ipynb</code>
+           Part 6 closes the loop back into notebook 09 and then notebook 03.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t61"><label for="t61">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Take one failing production trace from the simulated day, write it up as a golden case in
+        notebook 03's format, and note which stratum it belongs to. If it does not fit a stratum,
+        your strata are incomplete.</label></div>
+
+      <h3 class="sec" id="c6-2"><span class="sn">6.2</span>Optimise the prompt, and gate the optimiser</h3>
+      <p>Automated prompt optimisation works — and it optimises against your judge, so an optimised
+         prompt can pass the same gate a human-written one fails while being worse. Align the judge
+         first, then let the optimiser run, then gate its output like any other change.</p>
+
+      <div class="repo"><span class="lbl">In this repo</span>
+        <p><code>courses/02-databricks-mlflow-evals/08_automated_improvement_gepa.ipynb</code>
+           (GEPA), gated by phase 5 and aligned by phase 7.</p></div>
+
+      <div class="todo"><input type="checkbox" id="t62"><label for="t62">
+        <span class="tt">TODO <span class="tag tag-free">free</span></span>
+        Say in one sentence why running GEPA <i>before</i> judge alignment is the wrong order. That
+        sentence is the whole argument for phase 7 existing.</label></div>
+
+      <h3 class="sec" id="c6-3"><span class="sn">6.3</span>Five mistakes, in one line each</h3>
+      <ul class="pts">
+        <li><b>Measuring what is easy instead of what matters.</b> A score for word overlap is not a
+            score for correctness — <a href="#c1-1">§1.1</a> has the numbers.</li>
+        <li><b>Testing on questions you made up.</b> Your test set passes because you wrote it.</li>
+        <li><b>"We tried it, it seemed fine."</b> That is a demo, not an eval.</li>
+        <li><b>Ignoring the humans.</b> If your judge disagrees with your support team, the judge is
+            wrong.</li>
+        <li><b>Running it once.</b> Before the release and never again means you find out from
+            customers.</li>
+      </ul>
+    </section>
+
+    <!-- ============ 7 ============ -->
+    <section class="chapter" id="c7">
+      <div class="chapter-head">
+        <span class="cn">07</span><h2>A path through this repo</h2><span class="count">8 steps</span>
+      </div>
+      <p>If you are starting from nothing and want the shortest route that still holds up:</p>
+
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Step</th><th>Read / run</th><th>Why this one</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td><code>courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb</code></td><td>The taxonomy and the scorer decision. Nothing else makes sense first</td></tr>
+          <tr><td class="num">2</td><td><code>courses/03-agentic-eval-harness/03_the_golden_set.ipynb</code></td><td>Everything downstream is an opinion about this file</td></tr>
+          <tr><td class="num">3</td><td><code>courses/03-agentic-eval-harness/04_rag_evaluation_with_ragas.ipynb</code></td><td>Groundedness, reported by stratum rather than averaged</td></tr>
+          <tr><td class="num">4</td><td><code>courses/03-agentic-eval-harness/05_tool_call_evaluation.ipynb</code></td><td>Where agent evaluation stops resembling RAG evaluation</td></tr>
+          <tr><td class="num">5</td><td><code>courses/03-agentic-eval-harness/08_building_custom_judges.ipynb</code></td><td>Judges, and the three ways they lie</td></tr>
+          <tr><td class="num">6</td><td><code>courses/03-agentic-eval-harness/09_human_feedback_and_calibration.ipynb</code></td><td>The only thing that licenses trusting a judge</td></tr>
+          <tr><td class="num">7</td><td><code>courses/03-agentic-eval-harness/11_the_release_gate_and_ci.ipynb</code></td><td>Metrics measure; gates decide. This is the decision</td></tr>
+          <tr><td class="num">8</td><td><code>courses/03-agentic-eval-harness/12_online_evaluation_and_the_loop.ipynb</code></td><td>What survives when the answer key is gone</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="panel-dark">
+        <h3>If you have one evening</h3>
+        <p>Steps <b>1, 2, 5 and 7</b>. That is the arc — define good, build the set, judge it,
+           refuse to ship.</p>
+      </div>
+    </section>
+
+    <!-- ============ SKIPS ============ -->
+    <section class="chapter" id="skips">
+      <div class="chapter-head">
+        <span class="cn">—</span><h2>What the guide covers that this repo deliberately skips</h2>
+      </div>
+      <p>Four topics are in OpenAI's guide and deliberately not built here. The reasons are recorded
+         per row in <a href="openai-eval-guide-coverage-gaps.md"><code>openai-eval-guide-coverage-gaps.md</code></a>:</p>
+
+      <ul class="pts">
+        <li><b>Industry benchmarks</b> (MMLU, leaderboards) — this repo is about
+            application-specific evaluation, and the guide itself treats benchmarks as the thing you
+            move past.</li>
+        <li><b>Purchased datasets</b> — a data source with nothing to teach beyond the sentence.</li>
+        <li><b>Multimodal evaluation</b> — every system here is text-only. Audio and image inputs
+            need a different agent, not a different technique.</li>
+        <li><b>Reinforcement fine-tuning</b> — the improvement lever here is the prompt.</li>
+        <li><b>"Start with the most capable judge, then optimise down"</b> — followed, then
+            overridden on evidence. Every judge here is pinned small, and course 03's
+            <code>gpt-4.1-mini</code> is deliberate: <code>gpt-4o-mini</code> fell into repetition
+            loops, with the measurements at
+            <code>courses/03-agentic-eval-harness/README.md</code> line 149. Re-opening it would
+            mean re-running three courses' judges to confirm a result already measured.</li>
+      </ul>
+
+      <div class="callout warn">
+        <span class="lbl">One genuine gap remains open</span>
+        <p><b>OpenAI's own Evals API and Graders tool.</b> The repo teaches the same ideas in
+           DeepEval, RAGAS, MLflow and Phoenix; the vendor's own surface is the one framework not
+           represented, and it belongs in a new lab under <code>labs/</code> rather than a numbered
+           course.</p>
+      </div>
+    </section>
+
+    <footer class="foot">
+      The HTML rendering of
+      <a href="openai-eval-guide-tutorial.md"><code>docs/guide-audits/openai-eval-guide-tutorial.md</code></a>
+      in the Agent Evaluation Demystified repository. The markdown file is the one to commit as your
+      tracker; checkbox progress on this page is stored in this browser only. The audit that records
+      what is and is not covered is
+      <a href="openai-eval-guide-coverage-gaps.md"><code>openai-eval-guide-coverage-gaps.md</code></a>.
+    </footer>
+  </main>
+</div>
+
+<script>
+(function () {
+  var KEY = "evaltutorial.v1", state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { state = {}; }
+
+  var boxes = document.querySelectorAll('.todo input[type="checkbox"]');
+  var done = document.getElementById("mDone");
+  var bar = document.getElementById("mBar");
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  function render() {
+    var n = 0;
+    for (var i = 0; i < boxes.length; i++) { if (boxes[i].checked) { n++; } }
+    done.textContent = n;
+    bar.style.width = boxes.length ? (100 * n / boxes.length) + "%" : "0%";
+  }
+
+  for (var i = 0; i < boxes.length; i++) {
+    (function (b) {
+      b.checked = !!state[b.id];
+      b.addEventListener("change", function () {
+        if (b.checked) { state[b.id] = true; } else { delete state[b.id]; }
+        save(); render();
+      });
+    })(boxes[i]);
+  }
+
+  document.getElementById("mReset").addEventListener("click", function () {
+    state = {}; save();
+    for (var i = 0; i < boxes.length; i++) { boxes[i].checked = false; }
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
