@@ -1211,6 +1211,53 @@ single release ever failing.
 > evaluation in the gap. Then rollback is moving a pointer back, not an emergency revert-and-
 > redeploy, and the rejected candidate stays on the shelf as evidence of what was tried."
 
+**In plain English:**
+
+One concrete run. Your rule is "ship if the score is **0.90 or above**". Four versions go out
+over a few months:
+
+```
+v1  0.98   ship
+v2  0.95   ship
+v3  0.92   ship
+v4  0.91   ship          the bar was 0.90 the whole time
+```
+
+Every release passed. Nothing ever failed. The thing is now clearly worse than it was, and
+**there is no release to point at** — because none of them broke the rule.
+
+**Two rules, and you need both:**
+
+- **Is it good enough?** Every check that can stop a release is above its pass mark.
+- **Is it worse than what people are using right now?** Compare the candidate against the
+  version currently serving traffic.
+
+| You check only | What gets through |
+| --- | --- |
+| **Good enough** | The slow slide above. Four passes, steadily worse, nobody to blame |
+| **Not worse than live** | Something slightly better than a poor version. Improved, still bad |
+
+**"Worse" needs a size, and the size depends on the check.** Some checks are exact — *did the
+answer include a source link?* Yes or no, same answer every run, so **any** drop is real.
+Others ask a model to grade the answer, and a model gives slightly different scores each time
+even when nothing changed. Set the limit below that natural jitter and you will block good
+releases for no reason.
+
+That last point is the one that actually bites: **a rule people learn to override is worse
+than no rule**, because you keep the ceremony and lose the protection.
+
+**Saving a version is not the same as switching to it.** Save it, test it, *then* decide
+whether to point users at it — with the evaluation sitting in the gap between the two. Undoing
+a bad release is then flipping a switch back, not an emergency rebuild, and the rejected
+candidate stays on the shelf as a record of what was tried.
+
+**The analogy.** A school pass mark of 90. A pupil scores 98, 95, 92, 91 across four terms and
+passes every one, so no term triggers a conversation. The report card was never wrong — it
+just never compared this term to last term.
+
+**Why it matters.** A pass mark stops a fall; a comparison stops a slide. A gate with only one
+of them looks like a gate and lets the system decay through it.
+
 **Weak answer**
 > "If it beats the current version on our metrics and clears the quality thresholds, we ship it."
 

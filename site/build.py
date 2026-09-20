@@ -370,6 +370,36 @@ def collapsify(html):
     return html, len(jobs)
 
 
+# The "In plain English" blocks are the long, slow walk-through of an answer --
+# valuable when you want it, noise when you are scanning. Each one runs from its
+# own label to whichever section starts next, so the end marker has to be an
+# explicit list: the first bold inside a block is inline emphasis, not a new
+# section. Verified against all 20 blocks in the bank.
+PLAIN_START = '<p><strong>In plain English:</strong></p>'
+PLAIN_END = re.compile(
+    r'<p><strong>(?:The trap|Weak answer|Killer follow-ups|If they push|'
+    r'What good looks like|Scoring|Follow-ups)\b|<h[2-4][ >]')
+
+
+def plainify(html):
+    """Collapse each 'In plain English' block. Returns (html, count)."""
+    out, at, n = [], 0, 0
+    while True:
+        i = html.find(PLAIN_START, at)
+        if i < 0:
+            out.append(html[at:])
+            break
+        body_start = i + len(PLAIN_START)
+        m = PLAIN_END.search(html, body_start)
+        end = m.start() if m else len(html)
+        out.append(html[at:i])
+        out.append('<details class="plain"><summary>In plain English</summary>'
+                   '<div class="plain-body">%s</div></details>' % html[body_start:end])
+        at = end
+        n += 1
+    return "".join(out), n
+
+
 def mermaidise(html):
     """Turn mermaid code blocks into diagram containers. Returns (html, count)."""
     count = len(MERMAID.findall(html))
@@ -495,12 +525,13 @@ def build():
                 lambda m: m.group(1) + rewrite_link(m.group(2), "docs/" + src) + m.group(3),
                 html)
             html, diagrams = mermaidise(html)
+            html, plains = plainify(html)
             html, questions = collapsify(html)
             page = shell(re.sub("<[^>]+>", "", title), '<article class="doc">%s</article>' % html,
                          top_nav(section), re.sub("<[^>]+>", "", blurb),
                          diagrams=diagrams, qa=questions)
             io.open(os.path.join(DIST, slug + ".html"), "w", encoding="utf-8").write(page)
-            rendered.append((src, slug + ".html", len(text.split()), diagrams, questions))
+            rendered.append((src, slug + ".html", len(text.split()), diagrams, questions, plains))
 
         for src, title, blurb in COPY.get(section, []):
             # Copied pages carry links written for their old home under docs/ --
@@ -555,9 +586,10 @@ interactive labs. The notebooks live in
 
     # ---- report
     print("rendered from Markdown:")
-    for src, out, w, d, q in rendered:
+    for src, out, w, d, q, pl in rendered:
         extra = "  ".join(x for x in (("%d diagrams" % d) if d else "",
-                                      ("%d collapsible" % q) if q else "") if x)
+                                      ("%d collapsible" % q) if q else "",
+                                      ("%d plain-English" % pl) if pl else "") if x)
         print("   %-48s -> %-26s %6s words  %s"
               % (src, out, "{:,}".format(w), extra))
     print("\ncopied as-is (interactive, not producible from Markdown):")

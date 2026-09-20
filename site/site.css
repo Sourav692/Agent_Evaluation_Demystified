@@ -219,3 +219,28 @@ pre.mermaid[data-processed="true"]{font-size:inherit}
    rendering below the column width. */
 pre.mermaid{text-align:left}
 pre.mermaid svg{max-width:none}
+
+/* ---- "In plain English" blocks ----
+   The slow walk-through of an answer: wanted on the way in, noise on the way
+   past. Collapsed by default, and visually quieter than the answer above it so
+   it reads as an aside rather than a second answer. */
+details.plain{
+  margin:16px 0; border:1px solid var(--rule); border-radius:9px;
+  background:var(--surface-2); overflow:hidden;
+}
+details.plain > summary{
+  cursor:pointer; list-style:none; padding:9px 14px;
+  font-size:.82rem; font-weight:600; letter-spacing:.03em; text-transform:uppercase;
+  color:var(--muted); user-select:none;
+}
+details.plain > summary::-webkit-details-marker{display:none}
+details.plain > summary::before{
+  content:"▸"; display:inline-block; width:1em; color:var(--accent);
+  transition:transform .15s ease;
+}
+details.plain[open] > summary::before{transform:rotate(90deg)}
+details.plain > summary:hover{color:var(--text)}
+details.plain[open] > summary{border-bottom:1px solid var(--rule)}
+.plain-body{padding:14px 16px 4px}
+.plain-body > :last-child{margin-bottom:10px}
+@media print{ details.plain{display:block} details.plain > div{display:block!important} }
