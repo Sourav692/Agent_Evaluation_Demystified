@@ -199,6 +199,7 @@ Open in a browser. No build step, no server, no API key.
 | File | What it does |
 |---|---|
 | `docs/study-guide/evaluation-study-plan.html` | Seven stages ordered by what the round tests, with time estimates, a 2–3 day fast path, a skip list and a readiness check. Tick items off as you go |
+| `docs/interview-prep/stratified-reporting-explained.html` | **Stratified reporting in plain English.** One table where the overall score rises 87.5% → 90% while Hindi collapses 88% → 50%, why the average buries it, how to choose your groups, the small-group trap, and what to say in an interview |
 | `docs/interview-prep/evaluation-round-drill.html` | The same 35 questions and 19 cases with every answer hidden. Rate recall per item, filter to what's weak. Progress saves locally |
 | `docs/interactive-labs/00-evaluation-index.html` | The surface map: pipeline, what breaks where, reference-based vs referenceless comparison |
 
