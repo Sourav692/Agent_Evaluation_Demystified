@@ -236,6 +236,140 @@ MERMAID_SCRIPT = """
 </script>"""
 
 
+# The question bank is 35,631 words: 35 questions, 19 cases and 25 metric
+# questions. Read straight through that is an enormous scroll, and finding one
+# question means passing every answer before it. Each question becomes a
+# <details>, closed by default, so the page opens as a browsable list and you
+# expand only what you want.
+#
+# Matched on the heading text, not on a hand-kept list, so a question added to
+# the Markdown is collapsible without touching this file. The heading stays
+# inside the <summary>, which keeps the document outline intact, and its id
+# moves to the <details> so existing anchors still resolve.
+HEADING = re.compile(r"<h([1-6])([^>]*)>(.*?)</h\1>", re.S)
+QA_HEAD = re.compile(r"^(Q\d+|Case\s+\d+)\s*[\u2014\u2013-]\s*(.*)$", re.S)
+HEAD_ID = re.compile(r'id="([^"]+)"')
+
+
+# Closed <details> is invisible to find-in-page in some browsers, and a reader
+# arriving from an anchor should not land on a shut drawer. Both are handled
+# here rather than asking the reader to work around them.
+QA_SCRIPT = """
+<script>
+(function () {
+  var all = document.querySelectorAll("details.qa");
+  if (!all.length) return;
+
+  var bar = document.createElement("div");
+  bar.className = "qa-bar";
+  bar.innerHTML = '<span class="qa-count">' + all.length + ' questions</span>' +
+    '<button type="button" data-qa="open">Expand all</button>' +
+    '<button type="button" data-qa="shut">Collapse all</button>';
+  var doc = document.querySelector("article.doc");
+  var first = all[0];
+  first.parentNode.insertBefore(bar, first);
+
+  bar.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-qa]");
+    if (!b) return;
+    var open = b.dataset.qa === "open";
+    for (var i = 0; i < all.length; i++) { all[i].open = open; }
+  });
+
+  // An anchor should open what it points at, and actually land on it.
+  //
+  // Landing is the hard half. Mermaid swaps 40 lines of source text for a
+  // 1404px and an 1818px SVG, and the webfonts reflow everything, so the
+  // target's document position moves by thousands of pixels after this script
+  // first runs -- aiming once left the reader 3,000px past the question. So
+  // re-aim every frame until the target stops moving, then stop. Bounded at
+  // ~2s, and abandoned the instant the reader scrolls for themselves.
+  // Chrome restores the previous scroll offset for this URL *after* this
+  // script runs, which silently overrode the aim and parked the reader ~3,000px
+  // past the question on every repeat visit. With a hash present the anchor is
+  // the intent, not the old offset.
+  if (location.hash && "scrollRestoration" in history) {
+    history.scrollRestoration = "manual";
+  }
+
+  var userMoved = false;
+  ["wheel", "touchstart", "keydown"].forEach(function (t) {
+    addEventListener(t, function () { userMoved = true; }, { passive: true, once: true });
+  });
+
+  function aim() {
+    var id = decodeURIComponent(location.hash.slice(1));
+    if (!id) { return; }
+    var el = document.getElementById(id);
+    if (!el) { return; }
+    for (var n = el; n; n = n.parentElement) {
+      if (n.tagName === "DETAILS") { n.open = true; }
+    }
+    // behavior:"instant" matters -- the site sets scroll-behavior:smooth, so
+    // plain scrollTo starts an animation that the next frame restarts. The
+    // loop then "converged" on a scroll still in flight and left the reader
+    // ~3,000px short. Converge on where the target actually sits instead.
+    // clear the sticky top bar, or the question row lands behind it
+    var bar = document.querySelector(".bar");
+    var gap = (bar ? bar.offsetHeight : 0) + 14;
+    var still = 0, frames = 0;
+    (function settle() {
+      if (userMoved || frames++ > 150) { return; }
+      var top = el.getBoundingClientRect().top;
+      if (Math.abs(top - gap) > 2) {
+        still = 0;
+        window.scrollTo({ top: Math.max(0, top + window.scrollY - gap), behavior: "instant" });
+      } else {
+        still++;
+      }
+      if (still < 4) { requestAnimationFrame(settle); }
+    })();
+  }
+  addEventListener("hashchange", function () { userMoved = false; aim(); });
+  aim();
+
+  // print the whole thing, never a page of shut drawers
+  addEventListener("beforeprint", function () {
+    for (var i = 0; i < all.length; i++) { all[i].open = true; }
+  });
+})();
+</script>"""
+
+
+def collapsify(html):
+    """Wrap each question and case in <details>. Returns (html, count)."""
+    heads = list(HEADING.finditer(html))
+    jobs = []
+    for i, m in enumerate(heads):
+        level = int(m.group(1))
+        label = QA_HEAD.match(re.sub(r"<[^>]+>", "", m.group(3)).strip())
+        if not label:
+            continue
+        # the section runs to the next heading at this level or shallower
+        end = len(html)
+        for nxt in heads[i + 1:]:
+            if int(nxt.group(1)) <= level:
+                end = nxt.start()
+                break
+        ident = HEAD_ID.search(m.group(2) or "")
+        jobs.append((m.start(), m.end(), end, level, m.group(3),
+                     label.group(1), label.group(2).strip(),
+                     ident.group(1) if ident else ""))
+
+    # splice from the end so earlier offsets stay valid
+    for start, head_end, end, level, inner, num, rest, ident in reversed(jobs):
+        body = html[head_end:end]
+        html = html[:start] + (
+            '<details class="qa"%s>'
+            '<summary><h%d class="qa-h">'
+            '<span class="qa-n">%s</span><span class="qa-q">%s</span>'
+            '</h%d></summary>'
+            '<div class="qa-body">%s</div>'
+            '</details>'
+        ) % (' id="%s"' % ident if ident else "", level, num, rest, level, body) + html[end:]
+    return html, len(jobs)
+
+
 def mermaidise(html):
     """Turn mermaid code blocks into diagram containers. Returns (html, count)."""
     count = len(MERMAID.findall(html))
@@ -299,7 +433,7 @@ def badge_for(html_path):
     return "{:,} words".format(len(re.sub(r"<[^>]+>", " ", prose).split()))
 
 
-def shell(title, body, nav, blurb="", is_index=False, diagrams=0):
+def shell(title, body, nav, blurb="", is_index=False, diagrams=0, qa=0):
     home = "" if is_index else '<a class="home" href="index.html">&larr; All documents</a>'
     return """<!doctype html>
 <html lang="en">
@@ -328,7 +462,8 @@ def shell(title, body, nav, blurb="", is_index=False, diagrams=0):
 </footer>%s
 </body>
 </html>
-""" % (title, blurb, nav, home, body, MERMAID_SCRIPT if diagrams else "")
+""" % (title, blurb, nav, home, body,
+       (MERMAID_SCRIPT if diagrams else "") + (QA_SCRIPT if qa else ""))
 
 
 def top_nav(active_section):
@@ -360,10 +495,12 @@ def build():
                 lambda m: m.group(1) + rewrite_link(m.group(2), "docs/" + src) + m.group(3),
                 html)
             html, diagrams = mermaidise(html)
+            html, questions = collapsify(html)
             page = shell(re.sub("<[^>]+>", "", title), '<article class="doc">%s</article>' % html,
-                         top_nav(section), re.sub("<[^>]+>", "", blurb), diagrams=diagrams)
+                         top_nav(section), re.sub("<[^>]+>", "", blurb),
+                         diagrams=diagrams, qa=questions)
             io.open(os.path.join(DIST, slug + ".html"), "w", encoding="utf-8").write(page)
-            rendered.append((src, slug + ".html", len(text.split()), diagrams))
+            rendered.append((src, slug + ".html", len(text.split()), diagrams, questions))
 
         for src, title, blurb in COPY.get(section, []):
             # Copied pages carry links written for their old home under docs/ --
@@ -418,9 +555,11 @@ interactive labs. The notebooks live in
 
     # ---- report
     print("rendered from Markdown:")
-    for src, out, w, d in rendered:
+    for src, out, w, d, q in rendered:
+        extra = "  ".join(x for x in (("%d diagrams" % d) if d else "",
+                                      ("%d collapsible" % q) if q else "") if x)
         print("   %-48s -> %-26s %6s words  %s"
-              % (src, out, "{:,}".format(w), ("%d diagrams" % d) if d else ""))
+              % (src, out, "{:,}".format(w), extra))
     print("\ncopied as-is (interactive, not producible from Markdown):")
     for src, out in copied:
         print("   %-48s -> %s" % (src, out))

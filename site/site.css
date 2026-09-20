@@ -152,6 +152,47 @@ tbody tr:last-child td{border-bottom:none}
   pre{background:none; color:#000; border:1px solid #000}
 }
 
+/* ---- collapsible questions ----
+   Ruled rows, not boxes: the rule carries the grouping, so a closed bank reads
+   as a browsable list of 79 questions rather than 79 tiles. The heading stays a
+   real h2/h4 inside the summary, so the document outline survives. */
+.qa-bar{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin:38px 0 0}
+.qa-bar .qa-count{font-family:var(--mono); font-size:12px; color:var(--muted); margin-right:auto}
+.qa-bar button{font-family:var(--mono); font-size:12px; color:var(--muted); background:none;
+  border:1px solid var(--rule); border-radius:2px; padding:5px 11px; cursor:pointer}
+.qa-bar button:hover{color:var(--text); border-color:var(--muted)}
+
+/* clears the sticky top bar for native anchor jumps too */
+.qa{border-top:1px solid var(--rule); scroll-margin-top:64px}
+.qa:last-of-type{border-bottom:1px solid var(--rule)}
+.qa > summary{list-style:none; cursor:pointer; padding:15px 0;
+  display:grid; grid-template-columns:20px minmax(0,1fr); gap:12px; align-items:baseline}
+.qa > summary::-webkit-details-marker{display:none}
+.qa > summary::before{content:"+"; font-family:var(--mono); font-size:15px; color:var(--muted)}
+.qa[open] > summary::before{content:"\2013"}
+.qa > summary:hover::before{color:var(--accent)}
+.qa > summary:hover .qa-q{color:var(--accent-text)}
+
+.qa-h{margin:0; padding:0; border:0; font-weight:500; line-height:1.36; letter-spacing:-.01em}
+h2.qa-h{font-size:21px}
+h4.qa-h{font-size:18px; color:var(--text)}
+.qa-n{font-family:var(--mono); font-size:12.5px; color:var(--muted); margin-right:10px;
+  white-space:nowrap}
+.qa[open] .qa-n{color:var(--accent-text)}
+.qa-q{font-family:var(--serif)}
+
+.qa-body{padding:0 0 28px 32px}
+.qa-body > :first-child{margin-top:0}
+.qa-body > p, .qa-body > ul, .qa-body > ol, .qa-body > blockquote{max-width:var(--measure)}
+.qa-body h3, .qa-body h4{margin-top:24px}
+.qa-body h4{border:0}
+@media (max-width:640px){ .qa-body{padding-left:0} }
+@media print{
+  .qa-bar{display:none}
+  .qa > summary::before{content:""}
+  .qa-body{padding-left:0}
+}
+
 /* ---- mermaid diagrams ----
    The container is a <pre> so mermaid can read the source from textContent
    before it swaps in the SVG. Strip the code-block chrome it would inherit. */
