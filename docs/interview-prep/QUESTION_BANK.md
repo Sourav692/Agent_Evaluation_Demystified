@@ -1132,6 +1132,45 @@ to be able to detect, which nobody has stated yet.
 > For a first production system I'd say: enough curated cases to cover every category and every
 > must-never-happen class, then grow it from traffic wherever it turns out to be thin."
 
+**In plain English:**
+
+The question wants a round number. There isn't one — the size is set by **the smallest
+difference you need to be able to see.** Run the arithmetic and the answer stops being a guess:
+
+```
+pass rate around 90%, and you want to detect a drop of…
+
+   2 points   →  ~3,532 cases
+   5 points   →  ~565 cases
+  10 points   →  ~141 cases
+  20 points   →  ~35 cases
+```
+
+**So "a few hundred" is not a rule of thumb, it is an answer to a question nobody asked.** It
+is ten times more than you need to catch catastrophes and a tenth of what you need to catch a
+two-point regression.
+
+**Two things follow.**
+
+- **Composition beats size.** Fifty cases spanning every category and every must-never-happen
+  class are worth more than five hundred variations on the same easy question. You are buying
+  coverage of the decision space, not volume.
+- **The noise floor sets the resolution.** A model-judged metric wobbles between identical
+  runs. Below that wobble you cannot tell a real change from the judge changing its mind. A
+  bigger set narrows the wobble; **it never removes it.**
+
+| If the decision is | Then you need |
+| --- | --- |
+| "Did this prompt change break something badly?" | Dozens, well chosen |
+| "Did this prompt change cost us two points?" | Thousands — or move the comparison offline and pair it |
+
+**The analogy.** A kitchen scale that reads to the nearest 100g. Perfectly good for flour,
+useless for deciding whether you lost 20g — and no amount of weighing yourself more often
+fixes it.
+
+**Why it matters.** Size follows from the decision. Quote a number without one and you cannot
+say whether your suite is wasteful or blind, because nothing connects it to anything.
+
 **Weak answer**
 > "Usually a few hundred examples is a good rule of thumb — enough for the metrics to be stable."
 
@@ -1179,6 +1218,48 @@ Plans that assume unlimited labelling quietly die in month three.
 > And one detail I'd insist on: record who produced each label — expert, contractor or script. When
 > that data later calibrates a judge, provenance is the difference between a defensible standard and
 > one nobody ever examined."
+
+**In plain English:**
+
+The thing that kills evaluation programmes is not tooling or metrics. It is this:
+
+```
+"How much of your domain experts' time do we have?"
+"...about two hours a month."
+```
+
+**Two hours. That is the real budget**, and every plan that assumes otherwise dies quietly in
+month three.
+
+**So design around it. Four rules:**
+
+- **Spend it only where it is irreplaceable.** Experts adjudicate the ambiguous and
+  high-stakes cases. They do **not** confirm that easy cases are easy, and anything code can
+  check never reaches a human at all.
+- **Ask for judgements, not documents.** *"Rate these twenty answers, one line each"* is a
+  forty-minute task somebody will actually do. *"Write us an evaluation rubric"* is a project
+  that never starts.
+- **Make the reasons the artefact.** The ratings calibrate; the written reasons become the
+  standard — and they are what lets you align a judge, so the expert never has to rate the
+  next thousand.
+- **Show them the return.** Bring back the failures their labels caught. Nothing keeps a
+  domain expert engaged like watching their own standard block a bad release.
+
+| Two hours spent on | Buys you |
+| --- | --- |
+| 20 easy cases | Confirmation that easy things are easy |
+| 20 **contested** cases | A calibrated judge that handles the other thousand |
+
+**One detail worth insisting on: record who produced each label** — expert, contractor, or
+script. When that data later calibrates a judge, provenance is the difference between a
+defensible standard and one nobody ever examined.
+
+**The analogy.** A consultant surgeon does not take the blood samples. Not because it is
+beneath them — because that is not where their scarce hours change the outcome.
+
+**Why it matters.** Labelling is continuous, not a one-off: labels go stale as the product
+changes. A plan that front-loads thousands of labels before the rubric is stable spends the
+budget on the wrong cases and has nothing left when it matters.
 
 **Weak answer**
 > "We'd have the domain experts label a few thousand examples up front, then we're set."
@@ -1231,6 +1312,44 @@ common naivety in eval work.
 > open-ended text quality. It's weakest on anything a rule could decide, and on anything it's also
 > being optimised against."
 
+**In plain English:**
+
+Here is a judge that looks excellent and is worthless:
+
+```
+judge scores across 200 answers:   0.91, 0.93, 0.88, 0.92, 0.90, 0.94 …
+average:                           0.91   ← looks great
+agreement with a human expert:     κ = 0.02   ← learned nothing
+```
+
+**It rates everything highly.** That produces a beautiful average and tells you nothing,
+because it would produce the same average on a broken agent.
+
+**A judge is a model with a rubric, so it inherits every weakness of the thing it is
+grading.** It can be talked round by fluent, confident, wrong text. It drifts when you reword
+the prompt. It disagrees with itself between runs. **It is an instrument, and instruments get
+calibrated.**
+
+| What people report | What actually matters |
+| --- | --- |
+| The average score | **Agreement with a human on the same case** |
+| "We use a strong frontier model" | Whether anyone has checked it |
+| "We'll spot-check if there are concerns" | Trusted until someone complains |
+
+**Say this part out loud before it happens: the score will probably drop after calibration.**
+The agent did not get worse. **The measurement stopped flattering it.** That is a far easier
+conversation to have in advance than afterwards, when it looks like a regression you caused.
+
+**Where a judge is the right tool:** open-ended text quality, where no deterministic check
+exists. **Where it is the wrong one:** anything a rule could decide, and anything it is
+simultaneously being optimised against.
+
+**The analogy.** A thermometer that always reads 21°C. Never wrong-looking, never useful, and
+you only find out when the pipes freeze.
+
+**Why it matters.** Every number in the system rests on this instrument. If nobody has
+calibrated it, every downstream decision inherits an unexamined assumption.
+
 **Weak answer**
 > "We use a strong frontier model as the judge, so accuracy is generally high — and we can spot
 > check a sample if there are concerns."
@@ -1281,6 +1400,42 @@ the cause is as likely to be your rubric as the model.
 > One caution I'd volunteer: agreement measured on a skewed set flatters. If 90% of cases are
 > obviously fine, two raters agree most of the time by luck. Judge the judge on the contested ones."
 
+**In plain English:**
+
+20% is not a verdict. **Everything depends on *which* 20%**, and the first question is where
+the disagreements sit:
+
+```
+scattered across the whole range   →  the judge is unreliable, genuinely
+bunched around the threshold       →  borderline cases. Matters far less
+                                      than the number suggests
+```
+
+**Then check the humans before blaming the model.** If your two experts disagree with each
+other 15% of the time, then **20% judge disagreement is close to the human ceiling** — and the
+work is not judge tuning at all. It is getting a policy decision made.
+
+| Cause | How common | The fix |
+| --- | --- | --- |
+| **The rubric is vague** | By far the most | Reword it. The judge is applying a reasonable reading of an ambiguous instruction |
+| **The experts disagree with each other** | Common, rarely checked | Escalate. No judge can be right about a case two humans score differently |
+| **The judge really is weak here** | Least common | A stronger judge — or better, a deterministic check that removes the judgement |
+
+**Note what is *not* on that list: "switch to a bigger model and re-run".** If the rubric is
+ambiguous, a better model applies the ambiguous rubric *more consistently* and still disagrees
+with your expert. You have spent money to be confidently wrong.
+
+**The valuable by-product is not the tuned judge — it is the distilled rubric.** Feeding the
+expert ratings *and their reasons* back in is how your experts' tacit standard finally gets
+written down.
+
+**One caution.** Agreement measured on a skewed set flatters everybody. If 90% of cases are
+obviously fine, two raters agree most of the time by luck. **Judge the judge on the contested
+ones.**
+
+**The analogy.** A junior doctor disagrees with the consultant on a fifth of diagnoses. Before
+retraining the junior, find out whether two consultants agree with each other.
+
 **Weak answer**
 > "80% agreement is fairly low, so I'd switch to a stronger judge model and re-run."
 
@@ -1326,6 +1481,45 @@ are the wrong tool look exactly like situations where they're the right one.
 > 
 > So the rule I'd give is: judges are for questions that genuinely need judgement — quality, tone,
 > whether a paraphrase leaked something. Everything else is code."
+
+**In plain English:**
+
+Judges are the default reach for anything subjective, and **three of the four cases where they
+are wrong look exactly like cases where they are right.**
+
+**One — when code can decide it.**
+
+```
+"Did a customer ID appear that wasn't the requester's?"
+   judge:  ~£0.001, ~2s, different answer on a bad day
+   regex:  £0,      instant, same answer forever
+```
+
+Reproducibility is the real argument, not cost. When a deterministic number moves, **the
+behaviour moved.** When a judged number moves, you cannot tell.
+
+**Two — when the judge is also the optimisation target.** If you tune a prompt against a judge,
+that judge cannot then certify the result. It is **by definition the most overfit number you
+have.** Certification has to come from a strictly larger set of checks.
+
+**Three — when the humans have not agreed yet.** A judge cannot be right about a case two
+experts score differently. That is an unmade policy decision wearing a measurement costume.
+
+**Four — at high volume on every request.** Every judged metric is another model call per case.
+Five metrics across a day's traffic is a serious bill, **often more than it cost to serve the
+traffic in the first place.**
+
+| Use a judge for | Never use one for |
+| --- | --- |
+| Quality, tone, whether a paraphrase leaked something | Anything a rule decides |
+| Open-ended text with no reference answer | The thing you are optimising against |
+
+**The analogy.** Marking your own exam and then citing the grade as proof you understood the
+material. The second case is exactly that, and it is the one people miss.
+
+**Why it matters.** "Judges for anything subjective" is correct-sounding and expensive: it
+sends a model at things a regex settles better, misses the circularity entirely, and has no
+cost model — which is how evaluation bills end up exceeding inference bills.
 
 **Weak answer**
 > "LLM judges are good for most subjective metrics — I'd use them wherever we don't have a
@@ -1375,6 +1569,43 @@ dashboard. Usually neither party is wrong and the metric is answering a differen
 > read the traces. Either the metric scores them badly — in which case the aggregate was hiding a
 > slice — or it scores them well, and I've just found the dimension nobody was measuring. Both of
 > those are progress. Arguing from the dashboard isn't."
+
+**In plain English:**
+
+Two facts in conflict, and the strong temptation is to defend the dashboard.
+
+```
+judge:     0.90
+customer:  "it's terrible"
+```
+
+**Probably neither is wrong, and picking a side before looking is the mistake.** Four usual
+explanations: the metric does not cover what they care about; the aggregate is hiding their
+slice; the judge is generous because nobody calibrated it; or they are right and the dataset
+never contained their questions.
+
+**But notice you do not have to diagnose first — the next move is identical in all four.**
+
+> **Get three specific examples they consider bad. Run them. Read the traces.**
+
+| What happens when you run them | What you have learned |
+| --- | --- |
+| The metric **scores them badly** | The aggregate was hiding a slice. Your instrument works; your reporting doesn't |
+| The metric **scores them well** | You have just found the dimension nobody was measuring |
+
+**Both outcomes are progress.** That is the whole point of leading with examples rather than
+argument — there is no version of this where you run three traces and learn nothing.
+
+**Arguing from the dashboard, by contrast, has no good outcome.** You either win and keep the
+blind spot, or lose and still do not know which of the four it was.
+
+**The analogy.** A thermometer in the hallway reads 21°C while someone in the north-facing
+bedroom is shivering. The thermometer is accurate. It is also in the wrong room, and the way
+to find that out is to walk to the bedroom, not to point at the display.
+
+**Why it matters.** This question is partly about composure. The candidate who defends the
+number has stopped being useful; the one who asks for three examples has turned a complaint
+into a measurement in about ten minutes.
 
 **Weak answer**
 > "I'd explain that the metrics show the system is performing well and ask them for specifics."
