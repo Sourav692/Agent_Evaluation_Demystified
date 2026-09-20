@@ -424,6 +424,10 @@ def mermaidise(html):
 # threshold a rail is just a second, worse table of contents.
 DOCNAV_MIN = 4
 
+# Appendices are reference material read by search, not a leg of the journey
+# through the document, so they are left off the rail by request.
+DOCNAV_SKIP = ("appendix",)
+
 H1 = re.compile(r'<h1 id="([^"]+)"[^>]*>(.*?)</h1>', re.S)
 FAMILY = [
     (re.compile(r"^Part\s+(\d+)\s*[\u2014\u2013-]\s*(.*)$", re.S), "part"),
@@ -461,11 +465,11 @@ def docnav(html):
             # belongs in the rail; it just has no index to show.
             items.append(("other", "\u00b7", text, hid))
 
-    # Tier A..H and Appendix A..E both index by bare letter, so the groups are
-    # captioned rather than merely ruled off -- otherwise the rail reads
-    # A B C D E F G H A B C D E and the second run names nothing.
-    caption = {"part": "Parts", "tier": "Tiers", "appendix": "Appendices",
-               "other": "Sections", "": ""}
+    items = [it for it in items if it[0] not in DOCNAV_SKIP]
+
+    # Families are captioned rather than merely ruled off: Tier A..H indexes by
+    # bare letter, and a lone column of letters names nothing.
+    caption = {"part": "Parts", "tier": "Tiers", "other": "Sections", "": ""}
     out = ['<nav class="docnav" aria-label="Sections">']
     for fam, idx, label, hid in items:
         if fam != prev:
