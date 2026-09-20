@@ -1662,6 +1662,47 @@ scorer suite in a way most people discover the hard way.
 | Groundedness, relevance, safety, policy-adherence rules | Anything comparing against a known-correct answer |
 | Any deterministic check over input and output | Anything comparing against expected tool calls |
 
+**In plain English:**
+
+The difference is not the environment. **It is ground truth** — and production has none. Nobody
+wrote the correct answer to a question asked thirty seconds ago, and nobody ever will.
+
+That one fact splits your scorer suite in half:
+
+| Needs no answer key → **works in production** | Needs an answer key → **offline only** |
+| --- | --- |
+| Groundedness, relevance | Correctness against a reference |
+| Safety and policy rules | Expected tool-call lists |
+| Any deterministic check over input and output | Expected final state |
+
+**The failure mode here is nasty, and quiet.** Point a reference-needing scorer at live
+traffic and it does not error — it scores **nothing**:
+
+```
+CI              correctness  0.91   over 200 cases
+production      correctness  —      over 0 cases     ← no expected answers exist
+dashboard       shows the last known value, or a blank
+```
+
+You get **a metric that stopped having data, not an alarm.**
+
+**The two roles, stated cleanly:**
+
+- **Offline** — total coverage of a narrow, fixed world. A hard pass/fail bar. Catches what
+  your dataset contains.
+- **Online** — partial coverage of the real world. No bar, only a trend. Exists to find **what
+  your dataset didn't contain.**
+
+**And the loop is not optional.** Every production discovery becomes a permanent offline test,
+or it only ever helps you once.
+
+**The analogy.** A driving test versus actually driving. The test is scored against a known
+correct manoeuvre; the road has no examiner and no mark scheme — but it is the only place you
+meet the situations the test never imagined.
+
+**Why it matters.** "Same metrics, different environment" is the error, and it fails silently
+rather than loudly. Half your suite goes dark and the dashboard looks calm.
+
 **Weak answer**
 > "Offline is for pre-release testing and online is for monitoring quality in production — same
 > metrics, different environment."
@@ -1705,6 +1746,44 @@ monitoring that cannot detect anything anyone would act on.
 > threshold is tighter than the sample can resolve, it fires on noise, and within a month everyone
 > has learned to ignore it. So I'd set the alert at something the sample can actually distinguish,
 > and catch the smaller movements offline where coverage is total."
+
+**In plain English:**
+
+Two decisions, and people get the first one wrong by treating everything as one pool.
+
+**Do not sample the free checks at all.**
+
+```
+deterministic rules   £0 per check   →  run on 100% of traffic
+model-judged metrics  ~£0.001 each   →  this is the only thing sampling is about
+```
+
+**Sampling a free check buys a blind spot for no saving.** It is pure loss.
+
+**Then derive the rate from the decision, not the budget.** Start from the smallest regression
+you must detect, work out how many *scored* requests resolve a change that size, divide by
+daily traffic. Now you have a rate you can defend in a room.
+
+| Rate chosen by | What you can say about it |
+| --- | --- |
+| "5% sounds affordable" | Nothing. It may be unable to detect anything you would act on |
+| Working back from a 5-point regression | "This sample resolves 5 points; smaller moves go offline" |
+
+**5% picked for affordability is the worst outcome, because it still looks like monitoring.**
+The dashboard is populated, the graphs move, and the thing you are most afraid of is below the
+resolution.
+
+**The corollary people miss: a sampled rate is an estimate with error bars.** Set the alert
+tighter than the sample can resolve and it fires on noise — and within a month everyone has
+learned to ignore it. Set the alert at something the sample can actually distinguish, and
+catch the smaller movements offline where coverage is total.
+
+**The analogy.** An exit poll. Ask enough people and you can call a landslide; you cannot call
+a race inside the margin no matter how confident the graphic looks.
+
+**Why it matters.** At a few hundred requests a day, judged online monitoring is a weak trend
+signal at best — and saying so is better than dressing it up. The detection work belongs
+offline.
 
 **Weak answer**
 > "I'd sample 5–10% of production traffic — enough for a representative signal without blowing the
@@ -1753,6 +1832,43 @@ move first, and one whole class of failure is invisible by construction.
 > switched on looks exactly like a monitor reporting no problems. So verifying the pipeline is
 > genuinely running goes on the launch checklist. It doesn't get assumed."
 
+**In plain English:**
+
+Quality scores are the **least** sensitive thing on the dashboard. Here is a prompt change that
+made the agent chattier and hedgier:
+
+```
+quality judge          0.90 → 0.89     ← barely moves
+tool-call rate         0.62 → 0.31     ← halved
+mean response length   140w → 310w     ← doubled
+refusal rate           3%   → 11%      ← tripled
+```
+
+**Three of those four moved immediately, and none of them is a quality score.** Behavioural and
+operational signals move first.
+
+**Four things to watch, only one of which is quality:**
+
+- **Quality on sampled traffic** — groundedness, relevance, policy. As a **trend**, not a gate.
+- **Behavioural distributions** — what fraction of requests call a tool, and is it drifting? A
+  silent jump after a prompt change is real signal, and it moves long before quality does.
+- **Operational shape, per step.** Because every step is timed individually, *"it got slower"*
+  becomes *"retrieval latency doubled"* — a diagnosis instead of a complaint. Token usage per
+  step is the same story for cost.
+- **Failures and refusals.** **A rising refusal rate is a quality regression that most quality
+  metrics happily score as a pass** — the refusals themselves are well-written and safe.
+
+**And the one people miss entirely:** a monitor that was configured but never switched on
+**looks exactly like a monitor reporting no problems.** Verifying the pipeline is genuinely
+running belongs on the launch checklist, not in the assumptions.
+
+**The analogy.** A hospital watching only mortality. It is the most important number and the
+slowest to move; the ward that is quietly running out of staff shows up in rotas and waiting
+times weeks earlier.
+
+**Why it matters.** Two separate dashboards — quality over here, latency and errors over there
+— never meet, so nobody sees that the chattier prompt also stopped calling tools.
+
 **Weak answer**
 > "We'd track our quality metrics over time and alert if they drop, plus standard latency and
 > error-rate dashboards."
@@ -1797,6 +1913,42 @@ trains the team to ignore alerts, which costs more than the drop.
 > 
 > Then I'd reproduce it offline, where the comparison is controlled and paired, confirm it, fix it —
 > and leave those traces behind as permanent test cases."
+
+**In plain English:**
+
+**The first question is not "what caused it".** It is:
+
+> **Can this sample even resolve two points?**
+
+```
+daily scored volume   120 requests
+metric                model-judged
+two points            comfortably inside the run-to-run wobble
+```
+
+If so, there is nothing to investigate — and **paging someone about noise is how you teach a
+team to ignore the alert.** That costs more than the drop.
+
+**If it is real, three things could have changed, and they need separating:**
+
+| What changed | How to tell | Check it because |
+| --- | --- | --- |
+| **Us** — prompt, model version, retrieval config, a tool | Deployment timeline | Cheapest to confirm or rule out |
+| **Them** — traffic mix, new segment, a launch, seasonality | Slice by category. **Concentrated almost always means this** | The agent is identical; the questions got harder |
+| **The measurement** — judge upgraded underneath you, scored population changed | Compare the scorer, not the agent | Rare, infuriating to miss: the system never moved at all |
+
+**"Concentrated versus uniform" is the highest-value slice you can do**, and it costs nothing.
+A drop spread evenly across every category points at you; a drop living in one category points
+at the traffic.
+
+**Then reproduce it offline**, where the comparison is controlled and paired, confirm it, fix
+it — and add the case to the permanent set so it cannot come back unnoticed.
+
+**The analogy.** A shop's takings are down 2% this week. Before restructuring the staff rota,
+find out whether it rained.
+
+**Why it matters.** The instinct is to act, and acting on noise is worse than waiting: it
+spends credibility you need for the week the drop is real.
 
 **Weak answer**
 > "I'd investigate the recent changes, roll back the most likely culprit, and see if the metric
@@ -1942,6 +2094,45 @@ the system, and the setup is circular unless something outside the loop certifie
 > automated the pursuit of an unvalidated standard, at speed. Aligning the judge comes before
 > automating anything against it."
 
+**In plain English:**
+
+The number being waved at you **is the thing the optimiser was maximising.**
+
+```
+optimiser's objective:   the correctness judge
+result:                  correctness 0.88 → 0.94   ✅
+```
+
+**That tells you the optimiser worked. It says nothing about whether the prompt is better.**
+It is, by construction, the most overfit number in the system.
+
+**Three things before shipping:**
+
+- **Evaluate it against a strictly larger set of checks than it optimised against.** This is
+  what exposes the overfitting — a prompt tuned for correctness has very likely got longer,
+  more confident, and **quietly worse at declining things it should decline.**
+- **Put it through the same release gate as a human-written prompt.** No exemption because a
+  machine wrote it.
+- **Read the prompt.** Machine-written prompts drift toward instructions that game the judge
+  rather than serve the user. That is obvious on reading and invisible in the score.
+
+| What the optimiser improved | What it may have silently traded away |
+| --- | --- |
+| Correctness | Refusal behaviour, brevity, calibrated uncertainty |
+| The judge's opinion | Everything the judge does not look at |
+
+**But the real answer is the prerequisite.** If the judge driving the optimisation was never
+calibrated against humans, this is not merely unreliable — **it is harmful.** You have
+automated the pursuit of an unvalidated standard, at speed. **Aligning the judge comes before
+automating anything against it.**
+
+**The analogy.** Teaching to a test you also wrote. Scores go up, and they are now evidence
+about the test rather than about the pupil.
+
+**Why it matters.** "Monitor afterwards" does not rescue it: the failure modes introduced here
+— over-confidence, reduced refusal — are precisely the ones production monitoring scores as
+passes.
+
 **Weak answer**
 > "If it scores higher on our eval suite, that's what the suite is for — I'd ship it and monitor."
 
@@ -1989,6 +2180,38 @@ reported", and the gap between that and "nothing wrong" is where incidents live.
 > report any unmatched gate as 'not measured' in its own section — never as a zero, and never
 > silently. And I'd test the alarm. Deliberately ship something that should fail and confirm the
 > gate stops it. An untested gate isn't a control, it's a belief."
+
+**In plain English:**
+
+Start from what green actually means:
+
+> **Green means "nothing reported". That is not the same as "nothing wrong".**
+
+Everything in this class produces **the identical visual result as health**, which is what
+makes it dangerous:
+
+| Failure | What it looks like |
+| --- | --- |
+| **Measured but not gated** | A metric faithfully computed, clearly displayed, blocking nothing — so a regression in it ships |
+| **A check that never ran** | A monitor configured and never started, or a scorer erroring on every row and dropping out. **The absence of a number reads as the absence of a problem** |
+| **A gate pointing at a metric name that does not exist** | Looks up a mistyped name, gets nothing, and renders as a zero or as a pass depending on the plumbing |
+| **A dimension nobody wrote a check for** | The most common of all, and the only fix is someone deliberately asking what is missing |
+
+**Note what these have in common: none of them is a bug in the agent.** Every one is a bug in
+the *measurement*, and the measurement is the thing you are using to decide the agent is fine.
+
+**So test the alarm, not just the system.** Deliberately break something and confirm the
+dashboard goes red. A gate that has never once blocked a release is not proven — it is
+untested.
+
+**And separate "not measured" from "passed" visually**, always. An unmeasured gate and a
+passing gate must never look alike, or coverage gaps read as coverage.
+
+**The analogy.** A smoke alarm with a flat battery. Silent, exactly like a house that is not
+on fire — which is why the test button exists and why you are supposed to press it.
+
+**Why it matters.** The gap between *nothing reported* and *nothing wrong* is precisely where
+incidents live, and it widens every time someone adds a scorer without adding a gate.
 
 **Weak answer**
 > "We'd have good test coverage of the eval pipeline and review the dashboard regularly in
