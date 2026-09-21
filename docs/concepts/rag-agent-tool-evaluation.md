@@ -66,6 +66,65 @@ A *reference* is a correct answer a human wrote down before the system ever ran 
 - **So the test is mechanical:** does it need an answer key? If yes, it can never go online, however good it is. That one question sorts your whole suite before you write a line of code.
 - **Mature setups run both** — reference-based in CI, referenceless on live traffic. Not a choice between them.
 
+**This split cuts across the five layers, not along them.** Two checks that both look at
+retrieval can land on opposite sides: one compares the retrieved passages to the *question*
+(referenceless), while a close neighbour compares the same passages to the *expected answer*
+(reference-based). Same chunks, opposite sides of the line — so *"which layer is this?"* and
+*"does it need a reference?"* are two independent questions, not one.
+
+> **In plain English.** A user asks *"What is Apache Spark used for?"* and the retriever
+> returns three chunks:
+>
+> ```python
+> retrieval_context = [
+>     "Apache Spark is a unified analytics engine for large-scale data processing.",  # relevant
+>     "Spark is widely used for real-time stream processing and analytics.",          # relevant
+>     "Spark was originally developed at UC Berkeley's AMPLab in 2009.",              # trivia
+> ]
+> ```
+>
+> Point two metrics at those exact same three chunks:
+>
+> ```python
+> ContextualRelevancyMetric()   # scores fine with just input + retrieval_context
+> ContextualRecallMetric()      # raises unless you also pass expected_output
+> ```
+>
+> One of them can run on production traffic tomorrow. The other can never run on production
+> traffic at all.
+>
+> **What each one is actually reading:**
+>
+> - **Contextual Relevancy** reads `input` + `retrieval_context` — *"of these three chunks,
+>   how many are on topic for the question asked?"* The AMPLab trivia drags the score down.
+>   No answer key anywhere.
+> - **Contextual Recall** reads `expected_output` + `retrieval_context` — *"does this context
+>   contain everything the ideal answer needed?"* It cannot form the question without the
+>   answer key.
+>
+> | | Contextual Relevancy | Contextual Recall |
+> |---|---|---|
+> | Layer | Retrieval | Retrieval |
+> | Reads the answer key? | No | Yes |
+> | Catches | Noise diluting the context | Missing information |
+> | Runs on live traffic? | Yes | No — production has no `expected_output` |
+>
+> The same split appears one layer up, in generation: **faithfulness** compares the answer to
+> the retrieved chunks (referenceless); **answer correctness** compares that same answer to the
+> answer key (reference-based).
+>
+> **The analogy.** Two inspectors check the same delivery. One asks *"is everything in this box
+> something the customer ordered?"* — they only need the order form in their hand. The other
+> asks *"is everything the customer ordered in this box?"* — they need the warehouse's master
+> list, which nobody handed them at the door.
+>
+> **Why it matters.** The layer tells you *what broke*; the reference question tells you *where
+> you are allowed to run the check*. Answer only the first and you build a suite that works
+> beautifully offline and goes dark the moment it meets real traffic.
+>
+> **The line worth keeping:** *which layer* and *does it need an answer key* are two
+> independent axes — every metric has a coordinate on each.
+
 **Question 2 — deterministic or judged?**
 
 - **Deterministic** = arithmetic or a schema check. Free, instant, reproducible.

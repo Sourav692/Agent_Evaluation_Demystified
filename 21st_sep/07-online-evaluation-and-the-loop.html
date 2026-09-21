@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Evaluation &amp; The Loop — Agent Evaluation Demystified</title>
+<script src="assets/mermaid.min.js" charset="utf-8"></script>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --panel: #ffffff;
+    --ink: #1c2321;
+    --ink-soft: #4a5450;
+    --accent: #2F6B4F;
+    --accent-soft: #D9E3DB;
+    --border: #e2e0da;
+    --code-bg: #f2f1ec;
+    --link: #1d5c86;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+  }
+  .topbar {
+    background: var(--accent);
+    color: #fff;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 6px;
+  }
+  .topbar a:hover { background: rgba(255,255,255,0.15); }
+  .topbar .brand { font-weight: 700; font-size: 15px; }
+  .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 36px 24px 80px;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 { font-size: 2rem; line-height: 1.25; margin: 0 0 8px; color: var(--ink); }
+  h2 {
+    font-size: 1.4rem;
+    margin-top: 2.4em;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-soft);
+    color: var(--accent);
+  }
+  h3 { font-size: 1.15rem; margin-top: 1.8em; color: var(--ink); }
+  h4 { font-size: 1rem; margin-top: 1.4em; }
+  p { margin: 1em 0; }
+  a { color: var(--link); }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.5em 0; }
+  blockquote {
+    margin: 1.5em 0;
+    padding: 12px 18px;
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+  }
+  blockquote p { margin: 0.4em 0; }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: "SF Mono", Consolas, Monaco, monospace;
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 14px 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+  }
+  pre code { background: none; padding: 0; }
+  pre.mermaid, div.mermaid {
+    background: var(--panel);
+    text-align: center;
+    padding: 20px 10px;
+    border: 1px solid var(--border);
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1.5em 0;
+    font-size: 0.94rem;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: var(--accent-soft); color: var(--accent); }
+  tr:nth-child(even) td { background: #f6f5f1; }
+  ul, ol { padding-left: 1.4em; }
+  li { margin: 0.4em 0; }
+  strong { color: var(--ink); }
+  img { max-width: 100%; }
+  .footer-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3em;
+    padding-top: 1.5em;
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .footer-nav a { text-decoration: none; font-weight: 600; }
+  @media (max-width: 600px) {
+    main { padding: 24px 16px 60px; }
+    h1 { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="brand">Agent Evaluation Demystified</span>
+  <div class="nav-links">
+    <a href="index.html">Index</a>
+    <a href="06-the-release-gate-and-ci.html">← The Release Gate &amp; CI</a>
+    <a href="08-safety-adversarial-and-multi-agent-attribution.html">→ Safety, Adversarial &amp; Multi-Agent Attribution</a>
+  </div>
+</div>
+<main>
+<div class="badge">Level 7 &middot; Advanced</div>
+<h1 id="level-7-explainer-online-evaluation-and-the-loop">Level 7 Explainer: Online evaluation and the loop</h1>
+<p><em>A plain-language walkthrough of everything Level 7 covers, pulled together from the two
+course notebooks, the field guide, the online-vs-offline concept doc, the RAG-vs-support
+walkthrough, and the interview question bank — with nothing repeated twice.</em></p>
+<blockquote>
+<p><strong>Who this is for.</strong> You don’t need to have run any of the notebooks named below to follow
+this. Every technical term is defined in plain words the first time it shows up, and this
+file assumes only what Levels 0–6 already covered: the five-layer taxonomy, the
+reference-based/referenceless split, judges and their failure modes, statistics and
+stratified reporting, and the release gate.</p>
+</blockquote>
+<hr />
+<h2 id="why-this-level-exists">Why this level exists</h2>
+<p>Level 6 ended with a gate: a build passes a fixed, curated set of test cases, or it doesn’t
+ship. That gate is powerful, but it has one structural limit, and it’s the same limit every
+offline test has — <strong>it can only ever catch what someone thought to put in the dataset.</strong></p>
+<p>Picture the same support agent from earlier levels, now actually live, answering real
+customers. A question arrives that nobody wrote a golden case for. A knowledge-base rebuild
+silently returns zero documents while still answering “200 OK”. A tool starts retrying itself
+in a loop that never shows up as an error. None of this was in the golden set, because the
+golden set is, by definition, a claim about what you expected — and production is where you
+find out what you didn’t.</p>
+<p>Level 7 is about the second half of a system’s life: once a build ships, how do you keep
+measuring it with <strong>no answer key, ever</strong>, and how do you make sure anything you learn there
+doesn’t just help once, but flows back into the gate so the next build is protected too.</p>
+<p>Production differs from a golden set in three ways that matter, and every technique in this
+level exists because of one of them: <strong>the traffic mix isn’t your suite’s mix</strong> (real traffic
+is mostly easy, repetitive questions; a golden set is deliberately hard, on purpose, so it can
+catch subtle failures); <strong>there are no reference answers, ever</strong>; and <strong>there is a long tail
+your dataset never represented at all</strong> — which is the entire reason online evaluation is
+worth doing. The reframe that follows from this: <strong>stop trying to score correctness, and start
+scoring consistency and shape.</strong> Without a reference you cannot ask “is this right?” — but you
+can ask “is this grounded in what it retrieved?” and “is this better than the build we already
+shipped?”</p>
+<hr />
+<h2 id="the-fact-that-decides-everything-production-has-no-ground-truth">1. The fact that decides everything: production has no ground truth</h2>
+<p>Nobody wrote the correct answer to a question a real customer asked thirty seconds ago, and
+nobody ever will. That single fact is what splits your entire evaluation suite in two, and it
+is worth stating as a mechanical test rather than a vibe:</p>
+<blockquote>
+<p><strong>Does this scorer read <code>expectations</code></strong> — an expected answer, an expected list of tool
+calls, an expected final state? <strong>If yes, it is offline-only, however good it is.</strong></p>
+</blockquote>
+<p>This bites in a specific, easy-to-miss way. <code>tool_call_correctness</code> — one of the most useful
+scorers from Level 2 — reads <code>expectations["expects_tool_call"]</code>. Point it at live traffic and
+it does not error. It returns <code>skip</code> on every single trace, silently, while looking perfectly
+healthy on a dashboard. <strong>You get a metric that quietly stopped having data, not an alarm.</strong>
+That is the failure mode to design against: a scorer going dark reads exactly like a scorer
+reporting good news, unless someone is watching for it specifically.</p>
+<p>Putting the test to work across a whole suite:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Runs online?</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Context recall, context precision</td>
+<td>❌ No</td>
+<td>Needs the set of documents that <em>should</em> have been retrieved</td>
+</tr>
+<tr class="even">
+<td>Answer correctness vs. a reference</td>
+<td>❌ No</td>
+<td>Needs a human-written right answer</td>
+</tr>
+<tr class="odd">
+<td>Tool correctness (<code>expects_tool_call</code>)</td>
+<td>❌ No</td>
+<td>Needs an expected tool-call list</td>
+</tr>
+<tr class="even">
+<td>Faithfulness / groundedness</td>
+<td>✅ Yes</td>
+<td>Compares the answer to its <strong>own</strong> logged context — no reference needed</td>
+</tr>
+<tr class="odd">
+<td>Goal accuracy (without-reference form)</td>
+<td>✅ Yes</td>
+<td>A judge infers the goal from the conversation itself</td>
+</tr>
+<tr class="even">
+<td>Topic adherence</td>
+<td>✅ Yes</td>
+<td>Scope comes from policy, not from a golden answer</td>
+</tr>
+<tr class="odd">
+<td>Trajectory / safety assertions</td>
+<td>✅ Yes, <strong>on 100%</strong></td>
+<td>Deterministic, reads the trace directly, costs nothing</td>
+</tr>
+<tr class="even">
+<td>Paired canary comparison</td>
+<td>✅ Yes</td>
+<td>Compares one build to another, not to an ideal — needs no reference either</td>
+</tr>
+</tbody>
+</table>
+<p>Notice the shape of it: <strong>everything that needs an answer key dies at deployment</strong>, however
+well it worked in CI. A three-way split makes the same point from a different angle, useful
+for a whiteboard:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Offline-only</th>
+<th>Runs in both</th>
+<th>Online-only</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Answer correctness vs. a written reference</td>
+<td>Faithfulness / groundedness (context is its own reference)</td>
+<td>Deflection rate, escalation rate, reformulation rate</td>
+</tr>
+<tr class="even">
+<td>Task/tool correctness vs. a known-correct action</td>
+<td>Safety &amp; trajectory assertions (approval, tenant isolation)</td>
+<td>p95 latency, cost-per-success drift, queue depth</td>
+</tr>
+<tr class="odd">
+<td>Anything scored against a human-authored “right answer”</td>
+<td>Citation accuracy, contradiction disclosure</td>
+<td>Tool status mix, cache hit rate, corpus/traffic drift</td>
+</tr>
+</tbody>
+</table>
+<p>The middle column is the one worth sitting with: it isn’t a <em>weaker</em> version of the left
+column, it’s a different <em>kind</em> of check — one that never needed a reference in the first
+place, offline or online. The right column is a different phenomenon again: metrics that
+simply don’t exist until real traffic exists to measure.</p>
+<p><strong>One number worth naming explicitly: an offline resolution rate and an online resolution
+rate are never comparable, and should never be plotted on the same axis.</strong> A golden set is
+deliberately hard; production is mostly easy. A gap between the two numbers is expected — what
+matters is whether that gap <em>changes</em> over time, not its absolute size at any one moment.</p>
+<hr />
+<h2 id="reference-free-production-metrics-three-techniques-no-answer-key">2. Reference-free production metrics: three techniques, no answer key</h2>
+<p>If a check can’t compare against a pre-written answer, what is an “online judge” actually
+scoring? Not the same thing offline scoring does — production substitutes for a golden answer
+in three different ways, and a fourth complementary technique validates the whole setup from
+outside.</p>
+<p><strong>Self-consistency — judging the answer against its own trajectory.</strong> The judge doesn’t
+compare the answer to a golden reference; it compares the answer to the context <em>this exact
+run just retrieved</em>, which production already logs as part of the trace. “Is every claim in
+this answer entailed by the passages this run retrieved?” needs zero external ground truth,
+because the reference travels with the run itself.</p>
+<ul>
+<li>RAG example: faithfulness, citation accuracy, contradiction-disclosure — all scored against
+the run’s own retrieved context.</li>
+<li>Support example: “did the reply match what the tool actually returned” — scored against the
+tool’s logged output, never a human-written answer key.</li>
+</ul>
+<p><strong>Deterministic trajectory rules — no judge model needed at all.</strong> Safety and policy checks
+were never comparisons to a reference answer, offline or online. “Did it call the write-tool
+without an approval step,” “did it cross a tenant boundary” are pass/fail assertions read
+directly off the logged trace. These run online exactly as they run in the gate, at full
+volume, for free.</p>
+<p><strong>Periodic human labels — calibration, not live scoring.</strong> A small sample of production runs
+goes to human reviewers, but on a delay, in a batch — never inline per request. That labeled
+batch does two jobs: it measures how well the judge agrees with a human on the <em>same</em> case (a
+kappa score, watched for drift — the calibration discipline from Level 4), and it becomes new
+golden-set cases that keep the offline suite from describing last quarter’s traffic. The judge
+scores every live sample instantly and self-referentially; the human sample is what keeps
+those scores honest.</p>
+<p><strong>Paired canary comparison — relative, not absolute.</strong> For an actual rollout, the question
+isn’t “is this answer correct” in isolation, it’s “does the new build win, lose, or tie
+against the old one on the same live input.” A judge — or a real user signal — picks a winner
+per pair. That’s a relative verdict, and it needs no ground truth either, only two things to
+compare. Section 6 below covers this technique in full, because it deserves its own worked
+example.</p>
+<pre class="mermaid">flowchart TD
+    Q{&quot;Does this need a&lt;br/&gt;pre-written correct answer?&quot;}
+    Q --&gt;|&quot;Yes&quot;| OFF[&quot;Offline-only.&lt;br/&gt;Dies silently in production —&lt;br/&gt;returns &#39;skip&#39;, not an error.&quot;]
+    Q --&gt;|&quot;No — it can be checked against&lt;br/&gt;its own trace, a fixed rule,&lt;br/&gt;or another build&quot;| ONL[&quot;Runs online.&lt;br/&gt;Self-consistency, deterministic&lt;br/&gt;rules, or paired comparison.&quot;]
+    ONL --&gt; H[&quot;Periodic human labels (delayed,&lt;br/&gt;batched) calibrate whichever&lt;br/&gt;judge is doing the scoring.&quot;]
+    style OFF fill:#EDE3CE,stroke:#9A6A12,color:#0E2226
+    style ONL fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226</pre>
+<p>In short: production substitutes the logged context for a golden answer wherever it can (most
+of the time), falls back to rule-based assertions where no judgment call is needed at all, and
+only reaches for real human-labeled ground truth in small, delayed samples used to keep the
+judge honest and the offline suite fresh — never to score every request.</p>
+<p><strong>Where each tool named across this roadmap actually helps here, briefly:</strong></p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tool</th>
+<th>What it’s genuinely good at online</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>RAGAS</td>
+<td>RAG-specific metrics; its with/without-reference split is unusually explicit about which side of Section 1’s line each metric falls on</td>
+</tr>
+<tr class="even">
+<td>DeepEval</td>
+<td>Component-level metrics, <code>assert_test</code> in CI, tracing via <code>@observe</code></td>
+</tr>
+<tr class="odd">
+<td>Langfuse</td>
+<td>Trace storage, annotation queues, user-feedback scores — the human-label loop this section describes</td>
+</tr>
+<tr class="even">
+<td>MLflow / LangSmith</td>
+<td>Experiment tracking and trace comparison across builds</td>
+</tr>
+</tbody>
+</table>
+<p><strong>None of them ships the two things this level actually depends on: the final-state check
+(Level 2) and the release gate (Level 6).</strong> Those stay yours to build, because only you know
+what your own system’s database should look like afterward, and what “good enough to ship”
+means for your own product.</p>
+<hr />
+<h2 id="sampling-cheap-checks-on-everything-judges-see-a-slice">3. Sampling: cheap checks on everything, judges see a slice</h2>
+<p>Once you know <em>which</em> checks can run online, the next question is <em>how much</em> of production
+each one should see — and the honest answer is two different amounts.</p>
+<p><strong>Never sample the free checks.</strong> Deterministic rules cost nothing per call, so sampling one
+just buys you a blind spot for no saving — it’s pure loss. They run on 100% of traffic,
+always. Sampling is a question that only applies to judge-based, model-scored metrics, because
+those cost real money per call: at $0.0015 per judged conversation, scoring 100% of 2,000
+daily conversations costs roughly $3/day: cheap for one agent, but the number that gets a
+sampling policy approved once you’re running dozens.</p>
+<p><strong>A sampled rate is an estimate, and estimates have error bars.</strong> This is where production
+monitoring most often goes wrong, and it has nothing to do with which tool you’re using. Grade
+a 5% sample of 2,000 daily conversations — 100 traces — and the resulting pass rate can sit
+about <strong>±4.5 percentage points</strong> either side of the truth, from sampling luck alone. Grade a
+different 100 tomorrow, with nothing about the agent changed, and you can see a 2–3 point swing
+that is pure noise.</p>
+<blockquote>
+<p><strong>The soup analogy.</strong> Tasting a pot of soup: one spoonful tells you instantly if it’s far
+too salty. It can never tell you whether today’s pot is 2% saltier than yesterday’s —
+especially when it’s a different pot of soup every day, which is exactly what a day of
+production traffic is.</p>
+</blockquote>
+<p>The practical consequence, worked out in numbers:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Sample rate</th>
+<th>Traces/day (at 2,000/day)</th>
+<th>Resolution (95% CI half-width)</th>
+<th>Smallest reliably detectable drop</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>5%</td>
+<td>100</td>
+<td>± 4.5 points</td>
+<td>~9 points</td>
+</tr>
+<tr class="even">
+<td>30%</td>
+<td>600</td>
+<td>± 1.8 points</td>
+<td>~2 points</td>
+</tr>
+<tr class="odd">
+<td>100%</td>
+<td>2,000</td>
+<td>± 1.0 point</td>
+<td>~1 point — and if even this can’t resolve it, the comparison belongs offline</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The rule: pick the sample rate from the smallest regression you refuse to miss, not from a
+round number that felt affordable.</strong> Decide the drop you must catch (say, 2 points), look up
+the sample size that resolves it (roughly 600 traces, ≈30% at this volume), then price it —
+that’s a real budget conversation, and it’s better had before an incident than during one.</p>
+<p><strong>An alert set tighter than your resolution fires on noise, and gets muted within a month.</strong>
+After that you have monitoring that looks healthy and tells nobody anything — arguably worse
+than no monitoring, because it still <em>looks</em> like monitoring. This is also why an alert
+threshold has to be paired with knowing what a delta even means: a metric named after the
+failure it detects runs backwards (a “hallucination” score of 0.9 is very bad, not very good;
+the direction-check habit from Level 0 still applies here).</p>
+<p><strong>If a regression is too small to see even at 100% sampling, don’t chase it online at all.</strong>
+Move that comparison offline, where every input in a fixed dataset gets scored and the
+comparison is <em>paired</em> — the same inputs run against both builds, so traffic variation is
+eliminated as a confound rather than averaged away.</p>
+<p><strong>Sample rates aren’t set once and left alone.</strong> The usual pattern in practice: raise a
+judge’s sample rate temporarily while actively investigating a complaint, then lower it back
+to the steady-state rate once the investigation is done; pause a monitor entirely during a
+known-noisy event like a migration, without losing its configuration; delete one outright once
+its scorer has been superseded. Monitoring configuration is a living thing, not a
+set-and-forget deployment step.</p>
+<p><strong>A gap worth naming honestly: cost and latency get measured here, but nothing above gates on
+them.</strong> Both show up on the dashboards this section builds, but neither blocks a release the
+way a quality or safety floor does. In production, they should: a technically correct answer
+that takes nine seconds to arrive is a different kind of failure from a wrong one, not a
+success with a footnote.</p>
+<hr />
+<h2 id="the-five-standard-alerts">4. The five standard alerts</h2>
+<p>Given that quality judges are sampled and slow, what should actually page someone? The
+alerts below are deliberately <strong>not</strong> quality metrics — they’re <em>shape</em> metrics, chosen
+because shape is what you can measure without an answer key, cheaply, on all of production.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Alert</th>
+<th>Fires when</th>
+<th>Catches</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cost spike</td>
+<td>Cost per conversation exceeds 3× the trailing median</td>
+<td>A verbose-prompt regression, a retry loop</td>
+</tr>
+<tr class="even">
+<td>Citation-free rate</td>
+<td>Share of answers citing nothing exceeds a floor</td>
+<td>A silently empty retrieval index, a retrieval outage</td>
+</tr>
+<tr class="odd">
+<td>Tool status mix</td>
+<td>The share of <code>empty</code>/<code>unavailable</code> tool results shifts materially</td>
+<td>A data source going quietly stale</td>
+</tr>
+<tr class="even">
+<td>Approval decision time</td>
+<td>The median falls below a floor</td>
+<td>Rubber-stamping — the same signal Level 4 warned about in human review</td>
+</tr>
+<tr class="odd">
+<td>Loop rate</td>
+<td>An identical tool call repeats within one conversation</td>
+<td>Retry storms, stuck agents</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Your first alert shouldn’t be a quality metric at all.</strong> The most valuable early signal is
+structural — trace volume, error-span rate, scorer-coverage rate — because those catch the
+case where the monitoring pipeline <em>itself</em> silently stopped, which looks exactly like a
+healthy system on every other dashboard.</p>
+<p><strong>There’s a wider list beyond these five, worth naming explicitly because a quality score is
+the <em>least</em> sensitive thing on a dashboard.</strong> A prompt change that makes an agent chattier and
+more hedging can move like this:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Signal</th>
+<th>Before</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Quality judge</td>
+<td>0.90</td>
+<td>0.89 — barely moves</td>
+</tr>
+<tr class="even">
+<td>Tool-call rate</td>
+<td>62%</td>
+<td>31% — halved</td>
+</tr>
+<tr class="odd">
+<td>Mean response length</td>
+<td>140 words</td>
+<td>310 words — doubled</td>
+</tr>
+<tr class="even">
+<td>Refusal rate</td>
+<td>3%</td>
+<td>11% — tripled</td>
+</tr>
+</tbody>
+</table>
+<p>Three of those four moved immediately, and none of them is a quality score. That gives four
+categories worth watching, only one of which is a quality number: quality on sampled traffic
+(as a <em>trend</em>, never a gate); behavioral distributions like tool-call rate; operational shape
+per step, which is what turns “it got slower” into “retrieval latency doubled” rather than a
+vague complaint; and failures and refusals, because <strong>a rising refusal rate is a quality
+regression that most quality metrics will happily score as a pass</strong> — the refusal itself is
+well-written and safe, so nothing about it looks wrong to a judge reading one turn at a time.</p>
+<p>And the one people miss entirely: <strong>a monitor that was configured but never switched on looks
+exactly like a monitor reporting no problems.</strong> Registering a scorer creates it; starting it is
+what begins evaluating. A registered-but-never-started scorer evaluates nothing and is
+indistinguishable, on every list view, from a healthy one. Verifying the pipeline is genuinely
+running belongs on the launch checklist, not in the assumptions.</p>
+<hr />
+<h2 id="incident-drills-proving-which-alert-catches-what">5. Incident drills: proving which alert catches what</h2>
+<p>An alert you’ve never <em>seen</em> fire is an alert you don’t actually know is wired up. The way to
+find out is to break production on purpose and watch which lights come on — and, just as
+importantly, which ones stay dark.</p>
+<p><strong>Drill 1 — a silently empty retrieval index.</strong> A knowledge-base rebuild returns zero
+documents for every query, but the service still answers with a fluent “200 OK” — an ordinary
+error-rate dashboard sees nothing wrong. In the drill, the <strong>citation-free rate alert fires
+almost immediately</strong> — it’s a counting rule over data already being logged, so it’s minutes
+old, not hours. <strong>Resolution rate barely moves</strong>, because billing and account questions still
+“succeed” without any documentation behind them at all — a customer got an answer, just not a
+grounded one. This is the same incident the RAG-vs-support walkthrough calls the tell for a
+silently empty index: <em>“an index rebuild that returns zero rows still returns HTTP success, so
+error-rate monitoring stays green while quality collapses.”</em></p>
+<p><strong>Drill 2 — a retry loop.</strong> A tool starts calling itself repeatedly within a single
+conversation. <strong>Cost and loop-rate both fire.</strong> <strong>Citation-free stays quiet.</strong> <strong>Resolution
+rate is unchanged</strong> — customers are being helped correctly, repeatedly, at several times the
+price, and no quality dashboard would show this at all. The support side of the walkthrough
+tells the same story at larger scale, as a real production drill: an upstream service returned
+HTTP 200 with an empty body during an outage, the model kept retrying with reworded arguments,
+and 70% of conversations hit the step ceiling for eleven hours. The signal that caught the
+<em>cause</em> wasn’t latency or error rate — both stayed green — it was the tool status mix shifting
+toward <code>empty</code>/<code>unavailable</code>, exactly the alert built for this.</p>
+<p>Running every fault against every alert produces a coverage matrix, and the gaps are the
+point, not an embarrassment to hide:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Incident</th>
+<th>Cost spike</th>
+<th>Citation-free</th>
+<th>Tool status mix</th>
+<th>Approval time</th>
+<th>Loop rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Healthy day</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Empty index</td>
+<td>—</td>
+<td>🚨</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Retry loop</td>
+<td>🚨</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>🚨</td>
+</tr>
+<tr class="even">
+<td>Verbose prompt</td>
+<td>🚨</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Tool source stale</td>
+<td>—</td>
+<td>—</td>
+<td>🚨</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>An alert that never fires in any drill isn’t necessarily useless — the approval-time alert, for
+instance, catches rubber-stamping, which none of the drills above simulate. But <strong>an alert you
+have never seen fire is an alert whose wiring you’re only assuming is correct.</strong> Run a drill for
+every alert you own, on a schedule; an alert whose last confirmed firing was during its own
+code review is decoration, not monitoring.</p>
+<hr />
+<h2 id="the-canary-the-only-online-question-thats-properly-answerable">6. The canary: the only online question that’s properly answerable</h2>
+<p>Without a reference, you cannot ask <em>“is this build good?”</em> You can ask a strictly easier
+question that also happens to be the actual decision in front of you: <strong>“is it better than the
+one already running?”</strong></p>
+<p>The mechanism is a paired comparison: route a slice of traffic to the new build, the same
+slice’s inputs to the old one, and count outcomes across four buckets — both succeeded, only
+the old one succeeded, only the new one succeeded, both failed. The two “only one succeeded”
+counts are exactly the paired cells McNemar’s test (Level 5) was built for, which is not a
+coincidence — it’s the same statistical question about the same shape of paired data, just
+asked about two live builds instead of two offline runs.</p>
+<p>Three outcomes, not two:</p>
+<ul>
+<li><strong>Promote</strong> — statistically significant, and the new build wins more often than it loses.</li>
+<li><strong>Roll back</strong> — statistically significant, and the new build loses more often than it wins.</li>
+<li><strong>Keep watching</strong> — not yet distinguishable from noise.</li>
+</ul>
+<p><strong>“Keep watching” is a real answer, not a failure to decide.</strong> With a small canary slice, most
+genuine differences aren’t resolvable yet, and the honest move is to let the canary keep
+running rather than promote on what amounts to a coin flip. This is the same sample-size
+discipline from Section 3, applied to a decision instead of a dashboard number: name the
+regression you can’t afford to miss, and don’t call the race before the sample can actually
+call it.</p>
+<hr />
+<h2 id="closing-the-loop">7. Closing the loop</h2>
+<p>Every technique above produces a signal. The signal only compounds if it turns into a
+<strong>permanently harder test suite</strong> — otherwise a finding helps exactly once, and the next
+incident starts from zero again.</p>
+<pre class="mermaid">flowchart TD
+    A[&quot;Production trace&quot;] --&gt; B[&quot;Sampled: judge disagreement,&lt;br/&gt;alert-adjacent, unrepresented intents&quot;]
+    B --&gt; C[&quot;Human label&lt;br/&gt;(the Level 4 calibration step)&quot;]
+    C --&gt; D[&quot;New golden case,&lt;br/&gt;with strata tags (Level 3)&quot;]
+    D --&gt; E[&quot;The release gate now blocks&lt;br/&gt;on a failure that once shipped (Level 6)&quot;]</pre>
+<p><strong>What gets selected for labeling is deliberately not a random sample of healthy traffic</strong> —
+that would be cheap to label and teach you nothing you don’t already know from the golden set.
+Instead, selection targets exactly where the suite is weakest: conversations from intents the
+golden set has zero examples of, answers with no citation (the shape that precedes a
+hallucination), and conversations where a tool returned something other than <code>ok</code>. Each bucket
+is where the annotation cost is actually worth paying.</p>
+<p><strong>A drift check keeps the gate honest about what it’s protecting.</strong> A golden set is a claim
+about what traffic looks like; traffic moves. Comparing the golden set’s stratum mix (say, by
+language) against production’s actual mix, using total variation distance, tells you whether
+that claim still holds. When the two have drifted apart by more than a rough threshold, the
+per-stratum floors from Level 6’s gate are tuned for a traffic mix that no longer exists —
+either rebalance the suite, or accept that a shrinking segment is being over-protected at the
+expense of a growing one.</p>
+<p><strong>The rule worth keeping: every incident ends by adding a golden case.</strong> An incident that
+doesn’t change the suite will happen again — and the second time, nobody will remember the
+first. <strong>Online discovers; offline prevents recurrence.</strong> A problem caught only by a live
+dashboard gets fixed once; turned into a permanent offline test, it protects every release
+after.</p>
+<hr />
+<h2 id="live-tracing-in-phoenix-and-two-genuinely-new-ideas">8. Live tracing in Phoenix, and two genuinely new ideas</h2>
+<p>Everything on this roadmap up to here builds and scores test cases by hand — a hand-rolled
+trace list, a manually populated tool-call object. That’s the right way to <em>learn</em> what each
+check does, but it isn’t how evaluation runs against a live, deployed system, where every LLM
+call, tool call, and agent step needs to be captured automatically, as a span, not appended to
+a list by hand.</p>
+<p><strong>Real tracing changes what “the trace” even is.</strong> Instrumentation — an <code>OpenAIInstrumentor</code>
+auto-capturing every LLM call, plus explicit spans wrapped around a router loop and each tool
+call — is the production version of a hand-rolled trace list: same underlying idea, a
+structured record of what happened step by step, just captured by real infrastructure instead
+of your own <code>.append()</code> call. Router and tool-selection checks (Level 2’s territory) run
+unchanged against this, just queried off real spans instead of a hand-populated object.</p>
+<p><strong>Traces land as genuinely queryable data, which has no offline equivalent.</strong> In a warehouse
+(Unity Catalog trace tables, in the Databricks track) each span — retrieval, generation, a
+tool call — is one row in a Delta table, joinable and SQL-able. That turns a vague complaint
+into a specific diagnosis: <strong>“it got slower” becomes “retrieval p95 doubled,”</strong> because you can
+query latency per span type rather than guessing which stage of the agent actually cost the
+time.</p>
+<p>Two ideas belong here because nothing earlier in the roadmap covers them:</p>
+<p><strong>Skill evaluation — judging a tool’s own output quality, in isolation.</strong> Is the SQL a tool
+generated actually correct? Does generated chart code actually run? A well-<em>chosen</em> tool that
+does its job badly is invisible to every check covered so far: tool selection passes (the
+right tool was picked), argument correctness passes (the arguments were valid), and the
+output is still quietly wrong. This can be code-based (does the generated code execute
+without error?) rather than judged, wherever the check allows it.</p>
+<p><strong>Version comparison — re-running the same experiment against a changed system.</strong> Every check
+covered up to this point judges one run in isolation. Version comparison instead re-runs the
+identical dataset/task/evaluator triple against a system with one deliberate change — a
+different prompt — and compares the two runs directly. This is the honest answer to <em>“did my
+prompt change actually help, or did it just feel better?”</em> — the same question a paired canary
+answers in production (Section 6), but run offline, against a fixed dataset, before anything
+ships.</p>
+<p>The dataset/task/evaluator shape is what makes this generalize: instead of a one-off script
+computed over a single hand-built trace, the same three objects — a dataset of examples, a
+task that runs the agent, an evaluator that scores what came back — work for any agent and any
+metric, which is the difference between a one-time analysis and a reusable experiment.</p>
+<hr />
+<h2 id="question-bank-corner-offline-online">Question-bank corner — offline → online</h2>
+<p><em>(From <code>QUESTION_BANK.md</code>, Part 5 — Q18 through Q20, plus Case 15. Q21, “a metric dropped two
+points this week,” sits in the same Part but belongs to a later diagnostic skill than this
+level’s roadmap scope names, so it’s deliberately not repeated here.)</em></p>
+<p><strong>Q18 — what can you measure in production that you can’t measure offline, and vice versa?</strong>
+The difference isn’t the environment, it’s ground truth. Anything reference-free transfers to
+production unchanged; anything that needs a written answer key is offline-only, and fails
+<em>quietly</em> online rather than loudly (Section 1). Offline is total coverage of a narrow, fixed
+world with a hard pass/fail bar; online is partial coverage of the real world with only a
+trend. The loop between them is not optional — a production discovery becomes a permanent
+offline test, or it only ever helps once.</p>
+<p><strong>Q19 — you can’t afford to judge every production request, so how do you sample?</strong> Two
+decisions, and the first is where people go wrong by treating everything as one pool: never
+sample the free deterministic checks — sampling those buys a blind spot for no saving. Then
+derive the judge sample rate from the smallest regression you must detect, not from a round,
+affordable-sounding number — because a rate picked for affordability might be unable to detect
+anything anyone would act on, which is the worst outcome, since it still looks like monitoring
+(Section 3).</p>
+<p><strong>Q20 — what does production monitoring look like beyond a quality score?</strong> Four things, and
+only one is a quality number: quality on sampled traffic as a trend; behavioral distributions
+like tool-call rate, which drift long before quality does; per-step operational shape, which
+turns “it got slower” into a diagnosis; and failures/refusals, since a rising refusal rate is a
+quality regression most quality judges will happily score as a pass. The detail people miss
+entirely: a monitor that was configured but never started looks exactly like a monitor
+reporting no problems (Section 4).</p>
+<p><strong>Case 15 — “set up production monitoring for a 2,000-conversation-a-day agent.”</strong> Walks
+through the same reasoning as a single design exercise: the mechanical eligibility test,
+sampling judges but never deterministic checks, deriving the sample rate from the smallest
+detectable drop (≈30% to resolve 2 points at this volume), landing traces as queryable tables
+so “it got worse” becomes “retrieval p95 doubled for tenant 14 starting Tuesday,” and carrying
+every finding into a gated offline test. The line worth keeping from it: <em>“An alert threshold
+finer than your sampling resolution is a noise generator.”</em> The silent failure it calls out by
+name is the same one Section 4 covers — a registered-but-never-started monitor, verified by
+checking that each scorer actually has a live sampling config, not just a registration.</p>
+<hr />
+<h2 id="references">References</h2>
+<p>All content above was drawn only from material already in this repository. Nothing here was
+invented, and no external source was consulted.</p>
+<p><strong>Notebook:</strong></p>
+<ul>
+<li><code>courses/03-agentic-eval-harness/12_online_evaluation_and_the_loop.ipynb</code> — the traffic
+simulator, the which-metrics-survive table, the sampling arithmetic, the five alerts and
+their thresholds, both incident drills, the canary/McNemar verdict logic, the label-queue
+selection buckets, and the drift check by total variation distance.</li>
+<li><code>courses/02-databricks-mlflow-evals/06_online_eval_production_monitoring.ipynb</code> — the
+mechanical <code>expectations</code>-reading eligibility test and its <code>classify_scorer</code> output, the
+register/start distinction and its silent-failure mode, the cost-of-monitoring and
+confidence-interval arithmetic (including the “not achievable even at 100%” case), traces
+as Unity Catalog Delta tables, and the per-span SQL that turns “it got slower” into
+“retrieval p95 doubled.”</li>
+<li><code>courses/01-rag-agent-tool-evaluation/13_Production_Grade_Agent_Eval_Overview.ipynb</code> — the
+bridge into the Arize Phoenix labs; contributed the two genuinely new ideas (skill
+evaluation and version comparison) and the dataset/task/evaluator generalization, described
+here without reproducing the labs’ own code (left in place per the labs’ own unmodified
+status, per <code>CLAUDE.md</code>).</li>
+</ul>
+<p><strong>Docs:</strong></p>
+<ul>
+<li><code>docs/concepts/online_vs_offline_evaluation.md</code> — the two-regimes table, the sampling
+resolution problem worked out at three sample rates, the soup analogy, and the flywheel
+connecting online discovery back to the offline suite.</li>
+<li><code>docs/concepts/rag-agent-tool-evaluation.md</code>, Part 4 (§4.1–4.4) — the offline/online split
+as one line each, “your first alert shouldn’t be a quality metric,” and the two genuinely
+new ideas (skill evaluation, version comparison) cross-checked against the notebook 13
+bridge.</li>
+<li><code>docs/concepts/rag-vs-support-eval-walkthrough.html</code> — the three reference-free techniques
+(self-consistency, deterministic rules, periodic human labels) plus the paired-canary
+technique, the offline/runs-in-both/online-only three-way metric split, and the two worked
+incident examples used in Section 5 (the silently empty RAG index; the support system’s
+retry-storm caught by tool status mix, not latency or error rate).</li>
+<li><code>docs/study-guide/evaluation-roadmap.md</code> — Level 7’s topic list and goal statement, used to
+scope what this file needed to cover.</li>
+<li><code>docs/study-guide/evaluation-topic-notebook-mapping.md</code> — Level 7’s resource table, used to
+identify every source above and each one’s cost tag.</li>
+<li><code>docs/interview-prep/QUESTION_BANK.md</code>, Part 5 (Q18–Q20) and Case 15 — condensed in the
+question-bank corner above; Q21 was judged out of scope for this level per the
+notebook-mapping doc’s own Level 7 resource list, which stops at Q20/Case 15.</li>
+</ul>
+<p><strong>Limitations.</strong> This file was written by reading the repository’s own material, not by
+running any notebook or calling any API — no cost was incurred producing it, consistent with
+this project’s rule against executing anything that spends money without being asked. It does
+not independently verify DeepEval’s, RAGAS’s, MLflow’s, Langfuse’s, or Arize Phoenix’s own
+documentation; descriptions of those tools above are this repository’s characterization of
+them, not a review of the vendors’ docs.</p>
+<div class="footer-nav">
+  <a href="06-the-release-gate-and-ci.html">← Previous: The Release Gate &amp; CI</a>
+  <a href="08-safety-adversarial-and-multi-agent-attribution.html">Next: → Safety, Adversarial &amp; Multi-Agent Attribution</a>
+</div>
+</main>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: { primaryColor: '#D9E3DB', primaryBorderColor: '#2F6B4F', primaryTextColor: '#0E2226', lineColor: '#4a5450', fontFamily: 'sans-serif' } });
+</script>
+</body>
+</html>

@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agents, Tools, Conversations, Trajectories &amp; Outcomes — Agent Evaluation Demystified</title>
+<script src="assets/mermaid.min.js" charset="utf-8"></script>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --panel: #ffffff;
+    --ink: #1c2321;
+    --ink-soft: #4a5450;
+    --accent: #2F6B4F;
+    --accent-soft: #D9E3DB;
+    --border: #e2e0da;
+    --code-bg: #f2f1ec;
+    --link: #1d5c86;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+  }
+  .topbar {
+    background: var(--accent);
+    color: #fff;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 6px;
+  }
+  .topbar a:hover { background: rgba(255,255,255,0.15); }
+  .topbar .brand { font-weight: 700; font-size: 15px; }
+  .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 36px 24px 80px;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 { font-size: 2rem; line-height: 1.25; margin: 0 0 8px; color: var(--ink); }
+  h2 {
+    font-size: 1.4rem;
+    margin-top: 2.4em;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-soft);
+    color: var(--accent);
+  }
+  h3 { font-size: 1.15rem; margin-top: 1.8em; color: var(--ink); }
+  h4 { font-size: 1rem; margin-top: 1.4em; }
+  p { margin: 1em 0; }
+  a { color: var(--link); }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.5em 0; }
+  blockquote {
+    margin: 1.5em 0;
+    padding: 12px 18px;
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+  }
+  blockquote p { margin: 0.4em 0; }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: "SF Mono", Consolas, Monaco, monospace;
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 14px 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+  }
+  pre code { background: none; padding: 0; }
+  pre.mermaid, div.mermaid {
+    background: var(--panel);
+    text-align: center;
+    padding: 20px 10px;
+    border: 1px solid var(--border);
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1.5em 0;
+    font-size: 0.94rem;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: var(--accent-soft); color: var(--accent); }
+  tr:nth-child(even) td { background: #f6f5f1; }
+  ul, ol { padding-left: 1.4em; }
+  li { margin: 0.4em 0; }
+  strong { color: var(--ink); }
+  img { max-width: 100%; }
+  .footer-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3em;
+    padding-top: 1.5em;
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .footer-nav a { text-decoration: none; font-weight: 600; }
+  @media (max-width: 600px) {
+    main { padding: 24px 16px 60px; }
+    h1 { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="brand">Agent Evaluation Demystified</span>
+  <div class="nav-links">
+    <a href="index.html">Index</a>
+    <a href="01-rag-retrieval-and-generation.html">← RAG: Retrieval &amp; Generation</a>
+    <a href="03-ground-truth.html">→ Ground Truth</a>
+  </div>
+</div>
+<main>
+<div class="badge">Level 2 &middot; Intermediate</div>
+<h1 id="level-2-explainer-agents-tools-conversations-trajectories-outcomes">Level 2 Explainer: Agents (tools, conversations, trajectories, outcomes)</h1>
+<p><em>A plain-language walkthrough of everything Level 2 covers, pulled together from the four
+notebooks, the field guide, the two interactive labs, and the interview question bank — with
+nothing repeated twice. Level 0’s five-layer map named “tool mechanics,” “trajectory,” and
+“outcome” as three of the five things you can evaluate; this file is where each of those three
+actually gets built out, plus the multi-turn axis Level 0 flagged but didn’t cover.</em></p>
+<blockquote>
+<p><strong>Who this is for.</strong> You don’t need to have read anything beyond Level 0 to follow this.
+Every technical term — including the DeepEval class names — is defined in plain words the
+first time it shows up.</p>
+</blockquote>
+<hr />
+<h2 id="why-this-level-exists">Why this level exists</h2>
+<p>Picture a customer-support agent with three tools: <code>search_orders</code>, <code>get_refund_policy</code>, and
+<code>issue_refund</code>. A user writes: <em>“My order #4521 arrived broken, can I get a refund?”</em></p>
+<p>A single “was the final reply good?” check cannot tell you much here, because a lot can go
+wrong on the way to that reply, and each kind of wrong needs a completely different fix:</p>
+<ul>
+<li>It could call the wrong tool, or the right tool with a typo’d order ID.</li>
+<li>It could call every tool correctly and still book a refund $30 over what the user’s stated
+budget allowed.</li>
+<li>It could take five steps to do a job that needed three — repeating a lookup that already
+succeeded, or retrying blindly instead of noticing its own mistake.</li>
+<li>It could say <em>“Your refund of $45 has been issued”</em> in a perfectly fluent sentence, while no
+refund was ever recorded anywhere.</li>
+<li>If this is a multi-turn conversation, it could handle every single turn well in isolation
+and still end up somewhere it shouldn’t — because it forgot something the user said three
+turns back, or took an action the user never actually agreed to.</li>
+</ul>
+<p>This level is about pulling those apart. The roadmap’s own framing for it is <strong>mechanics ≠
+process ≠ outcome</strong>: whether the tool calls were mechanically correct, whether the <em>path</em> the
+agent took was sound, and whether the real-world result actually happened, are three separate
+questions, and passing one tells you nothing about the other two. Everything below is built
+around that one running refund-agent example, because it’s the exact scenario the notebooks
+use to exercise all of it in one trace.</p>
+<pre class="mermaid">flowchart LR
+    A[&quot;Mechanics&lt;br/&gt;right tool, right arguments?&quot;] -.-&gt;|&quot;doesn&#39;t guarantee&quot;| B[&quot;Process&lt;br/&gt;sound path, no waste,&lt;br/&gt;recovered from errors?&quot;]
+    B -.-&gt;|&quot;doesn&#39;t guarantee&quot;| C[&quot;Outcome&lt;br/&gt;did the real side effect&lt;br/&gt;actually happen?&quot;]
+    style A fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
+    style B fill:#EDE3CE,stroke:#9A6A12,color:#0E2226
+    style C fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226</pre>
+<hr />
+<h2 id="multi-turn-conversational-evaluation">1. Multi-turn conversational evaluation</h2>
+<p>Every check in Level 0 and Level 1 scored one request/response pair. Real chatbots hold a
+<strong>conversation</strong> — a sequence of turns where earlier turns constrain what a later turn should
+say. A system can pass every individual turn and still fail the conversation as a whole: by
+forgetting what the user said three turns ago, drifting off-topic turn by turn, or taking an
+action nobody actually asked for.</p>
+<h3 id="why-95-per-turn-is-not-95-conversation-quality">Why “95% per turn” is not 95% conversation quality</h3>
+<p>This is the single most important piece of arithmetic in this level, and almost nobody does it
+by default. If each turn independently passes at rate <em>p</em>, the probability that <strong>all</strong> <em>n</em>
+turns in a conversation pass is <em>p</em> raised to the power <em>n</em> — because every turn has to go
+right, not just most of them.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Turn pass rate</th>
+<th>3 turns</th>
+<th>5 turns</th>
+<th>10 turns</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.99</td>
+<td>0.970</td>
+<td>0.951</td>
+<td>0.904</td>
+</tr>
+<tr class="even">
+<td><strong>0.95</strong></td>
+<td>0.857</td>
+<td><strong>0.774</strong></td>
+<td>0.599</td>
+</tr>
+<tr class="odd">
+<td>0.90</td>
+<td>0.729</td>
+<td>0.590</td>
+<td>0.349</td>
+</tr>
+</tbody>
+</table>
+<p>At a healthy-looking <strong>95% per turn</strong>, a conversation is more likely failed than not by <strong>turn
+14</strong>. And this is the <em>optimistic</em> version of the calculation — it assumes each turn fails
+independently of the others, when in practice one bad turn tends to poison the context for
+every turn that follows it, so real conversation-level rates land below the table, not on it.</p>
+<p><strong>The practical rule: if you report a turn-level number, report the session-level number
+beside it.</strong> A dashboard showing “95% turn quality” and a customer saying “conversations fall
+apart” are describing the exact same system — the dashboard is just reporting it in the wrong
+unit. It also follows that <strong>multi-turn systems need a conversation-level gate, not just a
+turn-level one</strong> — see <a href="../06-the-release-gate-and-ci/">Level 6</a> for what a gate actually is.</p>
+<h3 id="the-three-multi-turn-metrics">The three multi-turn metrics</h3>
+<p>DeepEval represents a whole dialogue as a <code>ConversationalTestCase</code> made of <code>Turn</code>s, and scores
+it with three purpose-built metrics:</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 80%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>What it checks</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong><code>TurnRelevancyMetric</code></strong></td>
+<td>For a sliding window of recent turns, is the last assistant turn actually relevant to what came before it in that window?</td>
+</tr>
+<tr class="even">
+<td><strong><code>KnowledgeRetentionMetric</code></strong></td>
+<td>Does the assistant correctly remember and reuse information the user already supplied earlier in the conversation?</td>
+</tr>
+<tr class="odd">
+<td><strong><code>ConversationalGEval</code></strong></td>
+<td>Your own custom rubric (the multi-turn counterpart to single-turn <code>GEval</code>), applied across the whole conversation — e.g. “never diagnose, always recommend a doctor for serious concerns” for a medical chatbot</td>
+</tr>
+</tbody>
+</table>
+<p>Beyond hand-writing dialogues, DeepEval’s <code>ConversationSimulator</code> (or simply prompting an LLM
+to role-play “an angry customer” or “someone who keeps changing their mind”) generates
+dialogues from a defined goal and policy, including mid-conversation curveballs — which scales
+conversational testing to far more scenarios than anyone would write by hand.</p>
+<h3 id="failures-with-no-single-turn-representation">Failures with no single-turn representation</h3>
+<p>Some failures genuinely cannot show up in any single-turn check, because what makes them wrong
+happened in a <em>different</em> turn from where the problem is visible:</p>
+<ul>
+<li><strong>Acting without consent.</strong> The agent says <em>“I’ve opened a ticket for you”</em> on turn one, and
+nobody asked it to. Read that reply on its own — it’s helpful, on-topic, grounded, and
+reports a completed action. Every single-turn check passes it. What makes it wrong is that
+the agreement that should have come first never happened, and agreement lives <em>between</em>
+turns — there’s nowhere in a single-turn check for its absence to show up. Most agent write
+actions are gated by an instruction in the prompt, not by the tool itself refusing, so this
+obedience has to be <em>tested</em>, never assumed.</li>
+<li><strong>Ignoring a refusal.</strong> The user says “no, don’t do that” on turn two, and it happens anyway
+on turn four.</li>
+<li><strong>Drift.</strong> Every individual turn is fine, and the conversation as a whole ends somewhere it
+shouldn’t.</li>
+</ul>
+<p><strong>Score three outcomes here, not two:</strong> <em>complied</em>, <em>violated</em>, and <strong>stalled</strong> — the customer
+agreed and then nothing happened. Stalled isn’t dangerous the way “violated” is, but the
+customer asked for something and didn’t get it, and it needs a different fix than either of the
+other two.</p>
+<p>One consequence worth stating precisely: <strong>a conversation-level check run on a single-turn
+interaction must report “not measured,” never zero.</strong> An unmeasured check and a genuinely
+failed one must never be allowed to look identical on a dashboard.</p>
+<pre class="mermaid">flowchart TD
+    Q{&quot;Did the customer ask&lt;br/&gt;for this action?&quot;}
+    Q --&gt;|&quot;Yes, and it happened&quot;| OK[&quot;Complied&quot;]
+    Q --&gt;|&quot;Yes, but nothing happened&quot;| STALL[&quot;Stalled — not dangerous,&lt;br/&gt;but unmet. Different fix.&quot;]
+    Q --&gt;|&quot;No&quot;| VIOL[&quot;Violated — the business risk.&lt;br/&gt;No single-turn check sees it.&quot;]
+    style OK fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
+    style STALL fill:#EDE3CE,stroke:#9A6A12,color:#0E2226
+    style VIOL fill:#F2D9D9,stroke:#9A3B3B,color:#0E2226</pre>
+<hr />
+<h2 id="tool-use-metrics-the-mechanics-layer">2. Tool-use metrics: the mechanics layer</h2>
+<p>Tool use is where an agent’s output stops being “just text.” A travel bot that says <em>“Your
+flight is booked!”</em> is useless if it never actually called the booking API — and the fluent,
+confident sentence looks exactly the same whether the tool call succeeded, failed, or never
+happened. This is why tool evaluation needs its own approach:</p>
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 21%" />
+<col style="width: 51%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>\</th>
+<th>Standard LLM evaluation</th>
+<th>Tool-using agent evaluation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>What you score</strong></td>
+<td>One output against a reference</td>
+<td>A sequence of decisions, <em>then</em> the output</td>
+</tr>
+<tr class="even">
+<td><strong>Where failure lives</strong></td>
+<td>In the text</td>
+<td>Underneath it — which tool, what order, what arguments, how results were read</td>
+</tr>
+<tr class="odd">
+<td><strong>What a good-looking reply proves</strong></td>
+<td>Usually that it’s good</td>
+<td>Nothing on its own — it could be describing a tool call that never happened</td>
+</tr>
+</tbody>
+</table>
+<p>DeepEval provides three dedicated metrics, each answering a different question at a different
+granularity:</p>
+<table>
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 20%" />
+<col style="width: 18%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Type</th>
+<th>Needs</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong><code>ToolCorrectnessMetric</code></strong></td>
+<td>Reference-based, deterministic</td>
+<td><code>expected_tools</code></td>
+<td>Regression and CI, where the correct tool behaviour is already known</td>
+</tr>
+<tr class="even">
+<td><strong><code>ArgumentCorrectnessMetric</code></strong></td>
+<td>Referenceless, LLM-judged</td>
+<td>Tool descriptions only</td>
+<td>Dynamic workflows and production monitoring, where you can’t pre-write correct argument values</td>
+</tr>
+<tr class="odd">
+<td><strong><code>ToolUseMetric</code></strong></td>
+<td>Multi-turn, LLM-judged</td>
+<td><code>available_tools</code> (required)</td>
+<td>Conversational agents, where tool use spans several exchanges. Final score = <code>min(</code>selection score, argument score<code>)</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="strict-vs.-loose-tool-call-matching-the-same-metric-can-score-1.00-or-0.00">Strict vs. loose tool-call matching: the same metric can score 1.00 or 0.00</h3>
+<p><code>ToolCorrectnessMetric</code>’s strictness lives entirely in how you configure it, not in the agent’s
+behaviour — and this is worth seeing on real numbers, because the default configuration is far
+looser than it looks. Take one expected trajectory (<code>FlightSearch</code> for NYC→London on
+2026-03-13, then <code>WeatherCheck</code> for London on that date) and six actual traces run against it:
+an exact match, one with an extra unrequested <code>CurrencyConvert</code> call, one with the two calls in
+the wrong order, one where the flight-search output was never recorded, one with a transposed
+date (<code>03-31</code> instead of <code>03-13</code>), and one where the weather check never happened at all. Five
+of those six traces are broken in some way that should matter.</p>
+<table>
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 25%" />
+<col style="width: 13%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Configuration</th>
+<th>What it actually compares</th>
+<th>Mean score across the six traces</th>
+<th>What it misses</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>A · names only</strong> (the library default, <code>should_exact_match=False</code>)</td>
+<td>Is a tool with this <em>name</em> present anywhere in the list?</td>
+<td><strong>0.92</strong></td>
+<td>Order, arguments, outputs, and extra calls are all invisible — 5 of 6 traces score 1.00, and 4 of those 5 are actually broken</td>
+</tr>
+<tr class="even">
+<td><strong>B · + <code>INPUT_PARAMETERS</code></strong></td>
+<td>Names <em>and</em> arguments must match, still order-blind</td>
+<td>0.83</td>
+<td>Catches the wrong date (drops to 0.50). Still misses the extra call, the reversed order, and the dropped output</td>
+</tr>
+<tr class="odd">
+<td><strong>C · + <code>OUTPUT</code>, <code>should_exact_match=True</code></strong></td>
+<td>Exact list equality — same tools, same arguments, same recorded outputs, same order</td>
+<td>0.17 (5 of 6 score exactly 0)</td>
+<td>Catches all five broken traces — and turns the metric binary: it either matches perfectly or it doesn’t</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Config A reading 0.92 is not measuring tool correctness — it’s measuring whether the agent
+knows the tools exist.</strong> A dashboard built on the library default can look nearly perfect while
+missing a reversed sequence, a silently dropped output, and a wrong travel date, all at once.</p>
+<p>Both extremes of strictness are wrong in their own way, which is why this is a decision you
+make deliberately rather than a setting you leave at its default:</p>
+<ul>
+<li><strong>Too strict</strong> (exact tools, exact order, nothing extra) and an agent that harmlessly also
+checked the weather fails the whole run for a call that hurt nobody.</li>
+<li><strong>Too loose</strong> (expected tools appear somewhere, extras ignored) and an agent that fires all
+eight of its tools on every question passes every time — it’s spraying, and the metric
+applauds.</li>
+</ul>
+<p><strong>Demand strict ordering only where the order genuinely <em>is</em> the requirement</strong> — you cannot
+book a flight before you’ve searched for one, so that ordering is real; whether the weather
+check happened first or third usually isn’t.</p>
+<p><strong>One more knob worth knowing about <code>ToolCorrectnessMetric</code> specifically:</strong> you can optionally
+pass it an <code>available_tools</code> list — every tool the agent theoretically had access to, not just
+the ones it called. Left out, the metric only compares <code>tools_called</code> against <code>expected_tools</code>
+mechanically. Passed in, DeepEval can additionally use an LLM judge to ask whether the agent
+picked the <em>best</em> tools out of everything available to it, not just tools that happen to match
+the expected list. Turning this on makes the score more conservative, since it now combines
+deterministic matching with a genuine judgment call about tool-selection quality — it’s an
+optional escalation from a pure code check to a partly-judged one, the same rung-climbing
+decision Level 0’s cost ladder describes in general.</p>
+<h3 id="argument-correctness-cheap-check-first-judge-second">Argument correctness: cheap check first, judge second</h3>
+<p>“Were the arguments right?” is really two separate questions, and they don’t cost the same:</p>
+<ol type="1">
+<li><strong>Is it even well-formed?</strong> Does the <code>book_flight</code> call have a <code>date</code> field, and is
+<code>2026-02-31</code> a real date? <strong>Plain code answers this</strong> — free, instant, and it never wobbles.</li>
+<li><strong>Does it make sense for what was asked?</strong> The user wanted a morning flight to Delhi; did it
+book an evening flight to Dubai instead? <strong>Only a judge can answer this.</strong></li>
+</ol>
+<p>The pattern used throughout the notebooks: validate the schema deterministically first, and
+only spend the LLM call if that passes.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="co"># A structurally malformed call is worth zero -- no point spending a judge call</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="co"># to have a model tell you the date field isn&#39;t a date.</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>valid, reason <span class="op">=</span> validate_args(test_case.tools_called)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="cf">if</span> <span class="kw">not</span> valid:</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Score: 0</span><span class="ch">\n</span><span class="ss">Reason: </span><span class="sc">{</span>reason<span class="sc">}</span><span class="ss">&quot;</span>)   <span class="co"># judge never runs -- free rejection</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a><span class="cf">else</span>:</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>    metric.measure(test_case)              <span class="co"># now spend the LLM call</span></span></code></pre></div>
+<h3 id="combining-sub-scores-the-worst-one-not-the-average">Combining sub-scores: the worst one, not the average</h3>
+<p><code>ToolUseMetric</code>’s final score is <code>min(</code>tool selection score, argument correctness score<code>)</code>, and
+that choice is deliberate. Suppose selection scores 1.0 — exactly the right tool was picked —
+and arguments score 0.0 — it handed that tool nonsense. The <strong>mean</strong> would say 0.5, which reads
+as “half working.” Nothing was half working: the booking failed. The <strong>minimum</strong> says 0.0,
+which is the truth. Averaging lets a healthy dimension cover for a broken one — exactly the
+failure the metric exists to catch.</p>
+<h3 id="doing-nothing-is-behaviour-and-it-needs-scoring-too">Doing nothing is behaviour, and it needs scoring too</h3>
+<p>“What’s your refund policy?” should produce <strong>no tool call at all</strong> — the agent should answer
+from what it already knows and stop. That restraint is <em>correct</em>, and it deserves a passing
+score, not silence.</p>
+<p>Most eval suites only inspect the calls that actually happened, which leaves them blind in both
+directions:</p>
+<ul>
+<li><strong>Should have stayed still, and moved.</strong> It calls a tool it didn’t need — wasted money, one
+more thing that can go wrong. Invisible if you only check whether the calls that <em>did</em> happen
+were correct, because they were.</li>
+<li><strong>Should have moved, and stayed still.</strong> It says <em>“your flight is booked!”</em> without ever
+calling <code>book_flight</code>. Invisible, because there’s no call to inspect.</li>
+</ul>
+<p>So <code>expected_tools</code> has to be allowed to be an <strong>empty set</strong>, and an empty set needs to be
+something you can pass or fail against, exactly like any other expected value.</p>
+<hr />
+<h2 id="task-completion-and-outcome-verification">3. Task completion and outcome verification</h2>
+<p>Everything in Section 2 judges <strong>mechanics</strong> — right tools, right arguments, right order. None
+of it asks the question the user actually cares about: <strong>did the agent get the job done?</strong></p>
+<p>The gap is real in both directions. An agent can call every tool correctly and still book the
+wrong hotel because it silently dropped a budget constraint the user stated. And a slightly
+inefficient tool-calling sequence can still land on a perfectly satisfactory outcome. Tool-level
+and outcome-level metrics are answering genuinely different questions, and a production suite
+needs both.</p>
+<h3 id="taskcompletionmetric"><code>TaskCompletionMetric</code></h3>
+<p>DeepEval’s dedicated metric for this: an LLM-judged, referenceless check that reads the
+<code>input</code> (the user’s goal), the <code>actual_output</code>, and — strongly recommended, though technically
+optional — the <code>tools_called</code>, and asks whether the underlying task was actually accomplished.</p>
+<p>The concrete case worth holding onto: an agent books a real, valid hotel reservation through
+correctly-formed tool calls, but the price is $30/night over the user’s stated $150 budget.
+<code>ToolCorrectnessMetric</code> and <code>ArgumentCorrectnessMetric</code> would both score this run well — the
+tools were right and the arguments were well-formed. <code>TaskCompletionMetric</code> is built to catch
+that the actual requirement — staying under budget — was not met.</p>
+<p>A few details worth knowing before reaching for it:</p>
+<ul>
+<li>Passing <code>tools_called</code> is what lets the judge see <em>how</em> the outcome was reached, not just
+what the agent claims happened in its final sentence.</li>
+<li>The <code>task</code> parameter is optional — if omitted, the metric infers the task from <code>input</code>
+itself. Pass it explicitly when the real task is broader than the literal wording (e.g. a
+constraint mentioned earlier in a conversation rather than in the final message).</li>
+<li>A full execution trace beats a flat <code>tools_called</code> list where one is available, because a
+trace also carries the agent’s intermediate reasoning.</li>
+</ul>
+<h3 id="two-escalations-beyond-the-default-metric">Two escalations beyond the default metric</h3>
+<p><code>TaskCompletionMetric</code> uses a fixed, general-purpose definition of “done.” Two situations call
+for going further:</p>
+<ol type="1">
+<li><strong>When “done” is domain-specific</strong>, write your own rubric with <code>GEval</code> instead of relying on
+the generic prompt — e.g. “the summary must cite at least two sources,” or “a refund
+response must never promise a specific dollar amount before policy lookup.” This costs more
+to author, because you have to spell out exactly what “satisfies the requirement” means for
+your product, but it applies your bar instead of a generic one.</li>
+<li><strong>When the stakes are high enough that an LLM judge isn’t enough</strong>, skip judging the text
+entirely and <strong>verify the actual side effect</strong>. Both <code>TaskCompletionMetric</code> and a custom
+<code>GEval</code> rubric are still LLM-as-judge — they read text and reason about whether it <em>sounds</em>
+like the task completed. For agents that book, send, or write to a database, query the
+system the agent acted on directly — e.g. after a “book the hotel” task, check the booking
+system for a confirmed reservation matching the requested dates and budget, rather than
+trusting the agent’s sentence saying it booked one. This state-based check can’t be fooled
+by a fluent-but-wrong response.</li>
+</ol>
+<p><strong>In practice, combine them:</strong> a deterministic state check as the pass/fail gate wherever a
+checkable outcome exists, and <code>TaskCompletionMetric</code> (or a custom rubric) as a secondary
+quality signal for the genuinely fuzzy parts — tone, or the completeness of an explanation.</p>
+<h3 id="why-reading-the-database-beats-every-judged-metric-wherever-a-side-effect-exists">Why reading the database beats every judged metric, wherever a side effect exists</h3>
+<p>This is worth stating as its own principle, because it’s the throughline connecting Sections 3
+and 4: an LLM judge reads words and decides whether they <em>sound</em> right. <em>“Your refund of $45
+has been issued”</em> reads as confident and complete whether or not any refund actually happened.
+Reading the real system of record directly — the order database, the booking system, the
+ledger — cannot be fooled this way, because it isn’t reading a <em>description</em> of the event, it’s
+reading the event itself. Wherever a real side effect exists to check, this is the strongest
+signal in the whole level, and it’s free and deterministic once you have access to the system
+the agent acted on.</p>
+<p><strong>Failing quietly is the specific way this goes wrong.</strong> A tool can return a soft failure —
+<code>found: false</code>, an empty result, a 200 with an empty payload — instead of raising an error. The
+model gets something that <em>looks</em> like data, skates past it, and fills the gap with fluent,
+plausible, wrong content: an agent stating a plan and balance for an account that doesn’t exist,
+with nothing crashing and nothing alerting. Neither grounding (which compares the answer to
+<em>retrieved documents</em>) nor task success (which reads the final string) catches this, because
+<strong>neither one reads the tool’s own output.</strong> The fix is a deterministic check that reads the
+tool result directly and, if it indicates failure, asserts the response doesn’t state the facts
+that tool was supposed to supply — and making “I couldn’t retrieve that” an explicitly rewarded
+behaviour in the rubric, since this failure mode is not fixable by prompting alone.</p>
+<hr />
+<h2 id="agent-trajectory-evaluation-the-nine-trace-level-checks">4. Agent trajectory evaluation: the nine trace-level checks</h2>
+<p>Sections 2 and 3 both score a <strong>finished</strong> interaction — given the tools that were called and
+the final answer, was it right? This section asks a different question: given a <strong>multi-step
+run</strong>, was the <em>path</em> any good, independent of where it ended up? An agent can reach the
+correct final answer while taking twice as many steps as necessary, retrying a failed call
+blindly instead of correcting course, or repeating an identical call for no new information —
+and none of Section 2 or 3’s metrics see any of that, because they only look at the final
+<code>tools_called</code> list and <code>actual_output</code>, never the shape of the trace that produced them.</p>
+<p><strong>The standard approach:</strong> run the agent’s loop to build a <strong>trace</strong> — a step-by-step record of
+what was called, with what arguments, and what happened — then hand that trace to a <em>separate</em>
+evaluation pass, scored against a <strong>gold trajectory</strong>: the sequence a human decided ahead of
+time was correct. The agent never grades itself; a separate harness does.</p>
+<h3 id="the-refund-agent-scenario-and-the-nine-checks-against-it">The refund-agent scenario, and the nine checks against it</h3>
+<p>The notebooks build one deliberately messy trace to exercise all nine metrics at once: the
+customer-support agent from the running example above, working the order-#4521 refund. Its
+five-step trace contains a typo’d order ID that fails, a corrected retry that succeeds, a
+policy lookup, an identical <em>redundant</em> repeat of that same lookup, and finally the refund
+itself — which really does mutate a mock order database, so end-state verification has
+something real to check against.</p>
+<table>
+<colgroup>
+<col style="width: 0%" />
+<col style="width: 23%" />
+<col style="width: 60%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Check</th>
+<th>What it catches</th>
+<th>Level in this trace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><strong>Tool selection accuracy</strong></td>
+<td>Coverage only — does the called set include every tool in the gold set? Loosest of the nine — passes even with wrong order or extra calls</td>
+<td>Outcome</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><strong>Argument correctness</strong></td>
+<td>Right tool, invalid or malformed arguments</td>
+<td>Outcome</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td><strong>Redundant calls</strong></td>
+<td>A (tool, arguments) pair that already <em>succeeded</em> earlier in the same trace</td>
+<td>Step</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td><strong>Step-wise accuracy</strong></td>
+<td>Fraction of all steps that made real forward progress (succeeded <em>and</em> weren’t redundant)</td>
+<td>Step</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td><strong>Task success rate</strong></td>
+<td>The ground-truth outcome for this one run</td>
+<td>Outcome</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td><strong>Trajectory match (fuzzy)</strong></td>
+<td>Successful tool <em>set</em> vs. gold set, ignoring order and retries entirely</td>
+<td>Outcome</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td><strong>End-state verification</strong></td>
+<td>Reads the mutated system of record directly — not the agent’s own claimed <code>final_answer</code></td>
+<td>Outcome</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td><strong>Recovery / self-correction rate</strong></td>
+<td>After an error, did a <em>later</em> step call the same tool and succeed?</td>
+<td>Step</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td><strong>Cost / efficiency proxy</strong></td>
+<td>Redundant calls and errors, treated as waste; <code>1 - wasted/total</code> (a stand-in for real token/latency cost)</td>
+<td>Step</td>
+</tr>
+</tbody>
+</table>
+<h3 id="five-of-these-nine-never-move">Five of these nine never move</h3>
+<p>This is the single most important reading of the scenario, and it’s the reason the notebooks
+insist on running step-level and outcome-level metrics <em>together</em>. Progressively cleaning the
+same trace — first removing the redundant policy lookup, then also removing the typo’d call
+that had to be retried, down to the three-step minimal path — shows exactly which metrics are
+sensitive to waste and which aren’t:</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 4%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Trace variant</th>
+<th>Steps</th>
+<th>Redundant (#3)</th>
+<th>Step-wise (#4)</th>
+<th>Recovery (#8)</th>
+<th>Cost/efficiency (#9)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>As actually traced</td>
+<td>5</td>
+<td>1</td>
+<td>0.60</td>
+<td>1.00</td>
+<td>0.60</td>
+</tr>
+<tr class="even">
+<td>Without the redundant call</td>
+<td>4</td>
+<td>0</td>
+<td>0.75</td>
+<td>1.00</td>
+<td>0.75</td>
+</tr>
+<tr class="odd">
+<td>Without the typo’d ID (nothing to recover from)</td>
+<td>4</td>
+<td>1</td>
+<td>0.75</td>
+<td>n/a</td>
+<td>0.75</td>
+</tr>
+<tr class="even">
+<td>Minimal clean path</td>
+<td>3</td>
+<td>0</td>
+<td><strong>1.00</strong></td>
+<td>n/a</td>
+<td><strong>1.00</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Across all four variants, checks <strong>1, 2, 5, 6, and 7</strong> stay flat at a passing score the entire
+way — tool selection, argument correctness, task success, trajectory match, and end-state
+verification never budge, because the agent used every tool it needed and the refund really was
+recorded, waste or no waste. Meanwhile <strong>step-wise accuracy and cost/efficiency swing from 0.60
+all the way to 1.00</strong> as the waste is removed. <strong>Task success alone would have reported “pass”
+on the very first, messiest version of the trace and told you nothing about the wasted policy
+lookup or the initial wrong order ID that cost 40% more calls than the task needed.</strong> This is
+the concrete argument for running both families of check together, not picking one.</p>
+<p>The two checks that cannot be fooled by a fluent sentence are worth seeing as code, because the
+“read the real record, not the string” principle from Section 3 is exactly what they do:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="co"># 7 -- End-State Verification. Do NOT read result[&quot;final_answer&quot;]; the agent</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="co"># wrote that string and it can be wrong. Read the system of record instead.</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a><span class="kw">def</span> end_state_verified(order_db_after, order_id, expected_amount):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>    order <span class="op">=</span> order_db_after[order_id]</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>    <span class="cf">return</span> order[<span class="st">&quot;refund_issued&quot;</span>] <span class="kw">is</span> <span class="va">True</span> <span class="kw">and</span> order[<span class="st">&quot;refund_amount&quot;</span>] <span class="op">==</span> expected_amount</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a><span class="co"># 8 -- Recovery. For every errored step, did a LATER step call the same tool</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a><span class="co"># and succeed? That is the difference between self-correction and blind retry.</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a><span class="kw">def</span> recovery_rate(trace):</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a>    errors <span class="op">=</span> [(i, s) <span class="cf">for</span> i, s <span class="kw">in</span> <span class="bu">enumerate</span>(trace) <span class="cf">if</span> s[<span class="st">&quot;status&quot;</span>] <span class="op">==</span> <span class="st">&quot;error&quot;</span>]</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>    <span class="cf">if</span> <span class="kw">not</span> errors:</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>        <span class="cf">return</span> <span class="va">None</span>   <span class="co"># None, not 1.0 -- there was nothing to recover from</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>    recovered <span class="op">=</span> <span class="bu">sum</span>(</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a>        <span class="dv">1</span> <span class="cf">for</span> i, s <span class="kw">in</span> errors</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a>        <span class="cf">if</span> <span class="bu">any</span>(l[<span class="st">&quot;tool&quot;</span>] <span class="op">==</span> s[<span class="st">&quot;tool&quot;</span>] <span class="kw">and</span> l[<span class="st">&quot;status&quot;</span>] <span class="op">==</span> <span class="st">&quot;ok&quot;</span> <span class="cf">for</span> l <span class="kw">in</span> trace[i <span class="op">+</span> <span class="dv">1</span>:])</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true"></a>    )</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true"></a>    <span class="cf">return</span> recovered <span class="op">/</span> <span class="bu">len</span>(errors)</span></code></pre></div>
+<p>Notice <code>recovery_rate</code> returns <code>None</code>, never <code>1.0</code>, when there were no errors at all — the same
+“unmeasured must never look like passed” rule from Section 1’s stalled-consent case applies
+here too.</p>
+<h3 id="three-traps">Three traps</h3>
+<ul>
+<li><strong>The tool-selection scorer that scores 100% for calling everything.</strong> A commonly published
+version of this check computes both missing and unexpected tools, then bases the verdict only
+on the missing ones. <strong>Fail both directions</strong> — an unexpected account lookup on an unrelated
+request is a privacy problem, not a harmless inefficiency, and a coverage-only check will
+never see it.</li>
+<li><strong>Exact-sequence matching as the default.</strong> It fails on a mid-trace typo or a harmless extra
+lookup even when the agent did everything else right — which is exactly what “trajectory
+match (fuzzy)” in the table above is built to avoid, by comparing the <em>successful</em> tool set to
+the gold set and ignoring order and retries. Use fuzzy matching by default, and demand exact
+ordering only where the order genuinely <em>is</em> the requirement (Section 2’s “you cannot book
+before you search” rule applies to full trajectories too, not just individual tool pairs).</li>
+<li><strong>Rewarding recovery on its own.</strong> A high recovery rate is genuinely good news — an error
+caught and corrected is a different, better system than one that fails silently. But pair it
+with step-wise accuracy, or you end up rewarding a system that generates errors on purpose so
+it has something to recover from.</li>
+</ul>
+<h3 id="from-a-hand-built-trace-to-a-live-system">From a hand-built trace to a live system</h3>
+<p>Hand-computing all nine from a toy <code>trace</code> list, the way the notebooks do it, is how you learn
+what each one actually measures. On a running production system, the <em>questions</em> don’t change —
+only where the answer comes from:</p>
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 73%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Question</th>
+<th>Where the answer comes from in production</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Did it call the tools it needed?</td>
+<td>Gold tool set stored beside the eval questions; called set read from tool spans tracing already captures</td>
+</tr>
+<tr class="even">
+<td>Were the arguments valid?</td>
+<td>Typed tool signatures reject a malformed call before it ever executes — the failure never reaches evaluation</td>
+</tr>
+<tr class="odd">
+<td>Did it repeat itself?</td>
+<td>Query the trace store for duplicate (tool, arguments) spans inside one request — pure SQL, no judge needed</td>
+</tr>
+<tr class="even">
+<td>Did each step make progress?</td>
+<td>A per-step scorer walking each trace’s spans, run as part of the eval job</td>
+</tr>
+<tr class="odd">
+<td>Did the task succeed?</td>
+<td>An eval set of (task, expected outcome) pairs, run on a schedule, trended over time</td>
+</tr>
+<tr class="even">
+<td>Was the path close to gold?</td>
+<td>Gold trajectories stored as structured data; a comparison function registered once</td>
+</tr>
+<tr class="odd">
+<td>Did the real effect happen?</td>
+<td>A before/after diff of the system-of-record table, taken in the same run as the agent</td>
+</tr>
+<tr class="even">
+<td>Did it recover?</td>
+<td>Tracing marks error spans automatically; a job matches them against later successful spans in the same trace tree</td>
+</tr>
+<tr class="odd">
+<td>What did it cost?</td>
+<td>Tracing captures tokens and latency per span automatically — query the trace table</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Instrumentation is the precondition underneath every row of that table, not an implementation
+detail: an untraceable agent is unevaluable.</strong> Every request needs a span per retrieval, per
+model call, and per tool call, carrying tokens and latency, or none of these nine checks have
+anything to read.</p>
+<hr />
+<h2 id="question-bank-corner-the-design-round-follow-ups-this-level-answers">Question-bank corner — the design-round follow-ups this level answers</h2>
+<p><em>(From <code>QUESTION_BANK.md</code>, Part 7, “Multi-turn, tools and agency” — the part of the question
+bank that’s genuinely Level-2 material. Part 10.4 and 10.5 walk metric-specific drill questions
+directly against this level’s own notebooks and aren’t repeated here since they’re numbered
+practice on content already covered above, not new material. Four items from Appendix D’s
+rapid-fire set are this level’s own “you are done when you can” checks, spoken back as
+one-liners — also not repeated in full here.)</em></p>
+<p>If you’re using this material to prep for a design-style interview round, four questions in
+Part 7 are where this level gets tested directly:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Question</th>
+<th>The trap in a weak answer</th>
+<th>What a strong answer says instead</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>“Per-turn quality is 95%, but the customer says conversations fall apart. Both true?”</strong></td>
+<td>Assumes the complaint must be about one hard category and proposes slicing by topic</td>
+<td>Both are true, and it’s arithmetic, not a mismatch — see Section 1’s <code>p ** n</code> table. Even a uniform 95% fails a quarter of five-turn conversations, so track <em>where</em> conversations first break, not just the rate</td>
+</tr>
+<tr class="even">
+<td><strong>“What kind of failure can only be seen across turns?”</strong></td>
+<td>“Multi-turn failures are mostly about memory, so I’d add a context-retention check” — names the most benign member of the family and stops</td>
+<td>Acting without consent: the final reply can pass every single-turn check and still be wrong, because the missing agreement lived in an earlier turn. Score complied / violated / stalled, not pass / fail</td>
+</tr>
+<tr class="odd">
+<td><strong>“How do you evaluate whether an agent took an efficient path, not just a correct one?”</strong></td>
+<td>“I’d define the expected tool sequence per test case and score how closely the actual sequence matches it” — encodes one path when several are valid, and becomes a maintenance burden that gets loosened until it measures nothing</td>
+<td>Assert <em>properties</em> of the path (recovery, redundancy, ordering) rather than prescribing one gold sequence — this is exactly Section 4’s “fuzzy by default” rule, generalized</td>
+</tr>
+<tr class="even">
+<td><strong>“The agent has five tools. What new evaluation risks does that create?”</strong></td>
+<td>“More tools means more combinations to test, so I’d expand the test set” — treats it as a coverage problem when the real risk is a check silently changing meaning</td>
+<td>A check like “was a tool called when one was expected?” is correct for a one-tool agent and <em>passes a wrong-tool call</em> once there are five — nothing turns red, and the check is now certifying the failure. Scorers have a scope of validity a system can outgrow; audit them whenever the agent gains a capability</td>
+</tr>
+</tbody>
+</table>
+<p>The wrong-tool risk in that last row is worth carrying forward on its own: <strong>wrong-tool is worse
+than no-tool</strong>, because it returns data that’s genuine, irrelevant, and confidently presented —
+which is far more convincing to a user, and to a judge, than a missing answer would be.</p>
+<hr />
+<h2 id="references">References</h2>
+<p>All content above was drawn only from material already in this repository. Nothing here was
+invented, and no external source was consulted.</p>
+<p><strong>Notebook:</strong></p>
+<ul>
+<li><code>courses/01-rag-agent-tool-evaluation/08_MultiTurn_Conversational_Evaluation.ipynb</code> — the
+<code>ConversationalTestCase</code>/<code>Turn</code> representation, <code>TurnRelevancyMetric</code>,
+<code>KnowledgeRetentionMetric</code>, <code>ConversationalGEval</code>, and the note on conversation simulation.</li>
+<li><code>courses/01-rag-agent-tool-evaluation/09_Tool_Use_Evaluation.ipynb</code> — <code>ToolCorrectnessMetric</code>,
+<code>ArgumentCorrectnessMetric</code>, <code>ToolUseMetric</code>, the two-pass argument-validation pattern, and
+the <code>min()</code>-not-average design of <code>ToolUseMetric</code>.</li>
+<li><code>courses/01-rag-agent-tool-evaluation/10_Task_Completion_Evaluation.ipynb</code> —
+<code>TaskCompletionMetric</code>, the budget-violation worked example, the custom-<code>GEval</code>-rubric
+escalation, and the case for state-based outcome verification.</li>
+<li><code>courses/01-rag-agent-tool-evaluation/12_Agent_Trajectory_Evaluation.ipynb</code> — the full nine
+trajectory checks, Parts A–C (the mocked 2-tool loop, the flagship 3-tool refund scenario, and
+the real OpenAI tool-calling agent), the <code>end_state_verified</code>/<code>recovery_rate</code> functions, and
+the Databricks implementation-notes table.</li>
+</ul>
+<p><strong>Docs:</strong></p>
+<ul>
+<li><code>docs/concepts/rag-agent-tool-evaluation.md</code>, Part 2 (§2.1–2.4) and Part 3 (§3.1–3.3) — the
+multi-turn arithmetic and consent/stalled framing, the tool-use “four properties” (strict vs.
+loose matching, two-pass argument checks, min-not-average, scoring the absence of a call), the
+task-completion escalation ladder, the “polite tool failure” failure mode, the nine trajectory
+checks, the three traps, and the “from hand-built trace to live system” table.</li>
+<li><code>docs/concepts/databricks-mlflow-evals.md</code>, Part 4 — the <code>p ** n</code> conversation-success table
+used in Section 1 (the field guide’s Part 2 states the arithmetic; this table supplies the
+exact figures).</li>
+<li><code>docs/interactive-labs/04-tool-use-evaluation.html</code> — the six-trace, three-configuration
+strictness comparison used in Section 2 (its numbers — 0.92 / 0.83 / 0.17 mean scores — were
+independently recomputed against the page’s own scoring logic before use here).</li>
+<li><code>docs/interactive-labs/05-agent-trajectory-evaluation.html</code> — the four-variant “progressively
+remove the waste” table used in Section 4, and the observation that five of the nine metrics
+never move across those variants (recomputed against the page’s own metric functions).</li>
+<li><code>docs/interview-prep/QUESTION_BANK.md</code>, Part 7 (Q26–Q29) — the question-bank corner above.
+Appendix D items 1, 9, 10, and 12 restate this level’s own “you are done when you can” checks
+as rapid-fire drills and were judged out of scope for separate coverage here, as were Part
+10.4 and 10.5’s per-notebook metric drills (practice questions on material already covered
+above, not new content).</li>
+<li><code>docs/study-guide/evaluation-roadmap.md</code> — Level 2’s topic list and goal statement, used to
+scope what this file needed to cover.</li>
+<li><code>docs/study-guide/evaluation-topic-notebook-mapping.md</code> — Level 2’s resource table.</li>
+<li><code>labs/multiturn-and-tool-eval/README.md</code> — checked for anything not already distilled into
+the course notebooks above; it introduced no topic beyond what course 01 modules 2.1–2.4
+already cover, since those modules are explicitly the distilled version of this lab.</li>
+</ul>
+<p><strong>Limitations.</strong> This file was written by reading the repository’s own material, not by running
+any notebook or calling any API — no cost was incurred producing it, consistent with this
+project’s rule against executing anything that spends money without being asked. The percentage
+figures in the tool-use strictness table (Section 2) and the trajectory-variant table (Section
+4) were recomputed by hand against the scoring logic embedded in each interactive lab’s own
+source, not copied from a live DeepEval run. This file does not independently verify DeepEval’s
+own documentation; descriptions of its metrics above are this repository’s characterization of
+them, not a review of the vendor’s docs.</p>
+<div class="footer-nav">
+  <a href="01-rag-retrieval-and-generation.html">← Previous: RAG: Retrieval &amp; Generation</a>
+  <a href="03-ground-truth.html">Next: → Ground Truth</a>
+</div>
+</main>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: { primaryColor: '#D9E3DB', primaryBorderColor: '#2F6B4F', primaryTextColor: '#0E2226', lineColor: '#4a5450', fontFamily: 'sans-serif' } });
+</script>
+</body>
+</html>
