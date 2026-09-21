@@ -25,6 +25,7 @@ import os
 import re
 import shutil
 import sys
+from html import escape
 
 try:
     import markdown
@@ -190,6 +191,78 @@ SECTION_ORDER = ["Theory", "Interview prep", "Audits", "Interactive labs", "Road
 # --------------------------------------------------------------------------
 # Rendering
 # --------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------
+# Roadmap topics on the explainer cards
+# --------------------------------------------------------------------------
+#
+# Each explainer card lists what its level actually covers, and the list is
+# parsed out of the roadmap at build time rather than retyped here. The roadmap
+# is where a level's topics are decided; a second hand-kept copy in this file
+# would drift the first time somebody edited one and not the other, which is the
+# exact failure check_drill_sync.py exists to catch elsewhere in this repo.
+#
+# Shape relied on, from docs/study-guide/evaluation-roadmap.md:
+#
+#     ### Level 3: Ground truth
+#     **Topics**
+#     - Golden-set case anatomy (six expectations per case)
+#     - ...
+ROADMAP = os.path.join(DOCS, "study-guide", "evaluation-roadmap.md")
+LEVEL_HEAD = re.compile(r"^###\s+Level\s+(\d+):", re.M)
+
+# Level 10 has no roadmap row on purpose -- it is a synthesis of the ten levels,
+# not an eleventh level of material -- so its topics are the six stages of its
+# own loop, kept here and nowhere else.
+EXTRA_TOPICS = {
+    10: ["The contract: deciding \u201cgood\u201d before the code exists",
+         "Ground truth: the frozen set and the mined set",
+         "Offline evaluation across all five layers",
+         "The release gate, its four checks, and the CI split",
+         "Production and online evaluation with no answer key",
+         "Human feedback, judge alignment, and closing the loop",
+         "The traps at every stage, and the order to build them in"],
+}
+
+
+def roadmap_topics():
+    """{level number: [topic, ...]} parsed from the roadmap's own Topics lists."""
+    text = io.open(ROADMAP, encoding="utf-8").read()
+    heads = list(LEVEL_HEAD.finditer(text))
+    out = {}
+    for i, m in enumerate(heads):
+        end = heads[i + 1].start() if i + 1 < len(heads) else len(text)
+        body = text[m.start():end]
+        if "**Topics**" not in body:
+            raise SystemExit("roadmap Level %s has no **Topics** list" % m.group(1))
+        after = body.split("**Topics**", 1)[1]
+        topics = []
+        for line in after.splitlines():
+            line = line.strip()
+            if line.startswith("- "):
+                topics.append(line[2:].strip())
+            elif topics and line:
+                break          # the list ended -- **Goal.** and the rest follow
+        if not topics:
+            raise SystemExit("roadmap Level %s has an empty Topics list" % m.group(1))
+        out[int(m.group(1))] = topics
+    out.update(EXTRA_TOPICS)
+    return out
+
+
+def topics_html(slug, topics):
+    """The topic list for one explainer card, keyed off its NN- filename prefix.
+
+    Anything in the explainers section has to resolve, so a new level without a
+    roadmap entry fails the build instead of quietly rendering a card with no
+    topics on it -- indistinguishable, from outside, from a level that has none.
+    """
+    level = int(slug[:2])
+    if level not in topics:
+        raise SystemExit("no roadmap topics for explainer level %d (%s)" % (level, slug))
+    return ('<ul class="topics">%s</ul>'
+            % "".join("<li>%s</li>" % escape(x) for x in topics[level]))
+
 
 def slug_for(src):
     for entries in RENDER.values():
@@ -1029,10 +1102,18 @@ def build():
             copied.append((src, copied_name(src)))
 
     # ---- index
+    topics = roadmap_topics()
     cards = []
     for section in SECTION_ORDER:
         items = []
         for src, slug, title, blurb in RENDER.get(section, []):
+            # Explainer cards carry the level's topics instead of a word count:
+            # "what is in here" is the thing a reader is choosing on, and a
+            # length was never the reason to open one rather than another.
+            if section == "Roadmap explainers":
+                items.append('<li><a href="%s.html">%s</a><p>%s</p>%s</li>'
+                             % (slug, title, blurb, topics_html(slug, topics)))
+                continue
             words = len(io.open(os.path.join(DOCS, src), encoding="utf-8").read().split())
             items.append('<li><a href="%s.html">%s</a><span class="meta">%s words</span>'
                          '<p>%s</p></li>' % (slug, title, "{:,}".format(words), blurb))
