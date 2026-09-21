@@ -258,13 +258,14 @@ version of each is field guide **Part 6**; the interview questions are question 
 | `04-tool-use-evaluation` | Five broken traces all score 1.00 until you set `should_exact_match=True`, then 0.17 |
 | `05-agent-trajectory-evaluation` | Five of nine metrics never move; task success reports a clean pass on 40% waste |
 
-### The ten roadmap-level explainers
+### The roadmap-level explainers
 
-`docs/roadmap-explainers/0N-*.md` — one plain-language walkthrough per level of the
+`docs/roadmap-explainers/NN-*.md` — one plain-language walkthrough per level of the
 [evaluation roadmap](docs/study-guide/evaluation-roadmap.md), pulled together from that
 level's notebooks, field guide sections, labs and question-bank entries, with nothing
 repeated twice. Sequential, with prev/next links between them; each is self-contained
-and does not require reading the roadmap first.
+and does not require reading the roadmap first. Ten levels, plus a Level 10 cram sheet
+that synthesises all ten into one end-to-end mental model and introduces nothing new.
 
 | Level | File | The question it answers |
 |---|---|---|
@@ -278,6 +279,7 @@ and does not require reading the roadmap first.
 | 7 &middot; Advanced | `07-online-evaluation-and-the-loop` | Measure without an answer key, alert only on what you can resolve, and carry every finding back into a gated test |
 | 8 &middot; Expert | `08-safety-adversarial-and-multi-agent-attribution` | Separate what must never happen from what should usually happen, test by attack surface, and say which agent broke a multi-agent run |
 | 9 &middot; Expert | `09-the-harness-as-a-product` | Keep the evaluation system itself trustworthy and affordable &mdash; the layer above the metrics |
+| 10 &middot; Cram | `10-the-enterprise-harness-end-to-end` | Build the whole enterprise harness as one six-stage loop &mdash; contract, ground truth, offline, gate and CI, production and online, human feedback &mdash; and name the trap at every stage |
 
 ### `docs/roadmap-explainers/00-orientation.md` — Level 0, Beginner (4,800 words)
 
@@ -338,6 +340,12 @@ and does not require reading the roadmap first.
 | | Covers |
 |---|---|
 | **Sections** | Why this level exists · 1. Keeping the measuring instrument honest · 2. Repo conventions that keep every number traceable · 3. Eval-driven development — deciding "good" before the code exists · 4. What the harness still doesn't do — the open gaps · Question-bank corner — cost, ownership, decay, and building a platform · References |
+
+### `docs/roadmap-explainers/10-the-enterprise-harness-end-to-end.md` — Level 10, Cram sheet (5,200 words)
+
+| | Covers |
+|---|---|
+| **Sections** | Why this page exists · 1. Stage ① — The contract: decide "good" before the code exists · 2. Stage ② — Ground truth: the golden set · 3. Stage ③ — Offline evaluation: score every layer separately · 4. Stage ③b — Who does the scoring, and reading the numbers honestly · 5. Stage ④ — The release gate and CI · 6. Stage ⑤ — Production and online evaluation · 7. Stage ⑥ — Human feedback, and closing the loop · 8. The layer above: is the harness itself still working? · 9. The traps, in one table · 10. Build order — what to do first · 11. The one-page card · References |
 
 ### Folder indexes
 

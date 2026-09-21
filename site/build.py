@@ -117,6 +117,10 @@ RENDER = {
          "Level 9 &middot; The harness as a product",
          "Keep the evaluation system itself trustworthy and affordable &mdash; the "
          "layer above the metrics."),
+        ("roadmap-explainers/10-the-enterprise-harness-end-to-end.md", "10-the-enterprise-harness-end-to-end",
+         "Level 10 &middot; The whole harness, end to end",
+         "The cram sheet: the six-stage loop the ten levels add up to, from contract "
+         "to gate to production to human labels, with every trap in one table."),
     ],
 }
 
