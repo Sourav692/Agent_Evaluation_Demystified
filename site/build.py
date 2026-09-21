@@ -541,6 +541,26 @@ def unfence_in_lists(text):
     return (INDENTED_FENCE.sub(one, text) if n else text), n
 
 
+# References support the page but are not part of its reading flow, so they
+# fold away rather than sitting in the main scroll. The heading stays outside
+# the fold so the rail still has something to land on and the section is still
+# findable; only the list itself collapses. Nothing is removed.
+REFS_H = re.compile(r'<h2 id="references"[^>]*>.*?</h2>', re.S)
+
+
+def fold_references(html):
+    """Collapse the trailing References list. Returns (html, count)."""
+    m = REFS_H.search(html)
+    if not m:
+        return html, 0
+    body = html[m.end():].strip()
+    if not body:
+        return html, 0
+    return (html[:m.end()]
+            + '<details class="refs"><summary>Show the sources this page was '
+              'built from</summary><div class="refs-body">%s</div></details>' % body), 1
+
+
 def tablecards(html):
     """Put every table in a bordered, horizontally scrollable card.
 
@@ -976,6 +996,7 @@ def build():
             html, _rules = dedupe_rules(html)
             html, callouts = calloutify(html)
             html, examples = worked_examples(html)
+            html, refs = fold_references(html)
             html, tables = tablecards(html)
             rail, sections = docnav(html)
             article = '<article class="doc">%s</article>' % html

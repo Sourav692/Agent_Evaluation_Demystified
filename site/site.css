@@ -95,9 +95,22 @@ strong,b{font-weight:600}
 code{font-family:var(--mono); font-size:.845em; letter-spacing:-.01em;
   background:var(--surface-2); padding:.1em .38em; border-radius:2px;
   overflow-wrap:break-word}
+/* Code and formulas wrap; they never scroll sideways. A reader should not have
+   to notice a scrollbar to discover that half a formula is missing, and the
+   longest line here is 89 characters -- at phone width no font size small
+   enough to fit it would still be readable, so wrapping is the only option
+   that shows the whole line. */
 pre{background:var(--ink); color:#DCE3E0; border:0; border-radius:3px;
-  padding:18px 20px; overflow-x:auto; font-family:var(--mono); font-size:13px;
-  line-height:1.78; margin:24px 0; max-width:44em}
+  padding:18px 20px; font-family:var(--mono); font-size:13px;
+  line-height:1.78; margin:24px 0; max-width:44em;
+  white-space:pre-wrap; overflow-wrap:break-word; word-break:normal; tab-size:2;
+  /* With pre-wrap, text-indent applies per source line, so a hanging indent
+     makes a wrapped continuation read as continuation rather than as the next
+     statement. */
+  padding-left:44px; text-indent:-24px}
+/* pre.mermaid holds a rendered SVG, not text: wrapping would deform it. */
+pre.mermaid{white-space:normal; overflow-wrap:normal;
+  padding-left:14px; text-indent:0}
 pre code{background:none; padding:0; font-size:1em; color:inherit}
 blockquote{margin:24px 0; padding:2px 0 2px 19px; background:none;
   border-left:2px solid var(--accent); border-radius:0; color:var(--text);
@@ -407,3 +420,42 @@ details.plain[open] > summary{border-bottom:1px solid var(--rule)}
 @media (prefers-reduced-motion:reduce){ .docnav{transition:none} }
 @media print{ .chapter, .toc-toggle, .doc .anchor, .rail-progress{display:none}
   .table-card{border:1px solid #bbb; overflow:visible} }
+
+/* ---- phone: the explicit breakpoint the layout needs -------------------- */
+/* The three-column desktop shape (rail + column + margin) is not scaled down
+   here, it is replaced: rail to a drawer (above), single full-width column,
+   and a nav that cannot overflow its row. */
+@media (max-width:600px){
+  .wrap{padding:26px 16px 64px}
+  .withnav{display:block}
+  pre{font-size:11.5px; padding:14px 14px 14px 32px; text-indent:-18px;
+    line-height:1.7; max-width:none}
+  .doc > p, .doc > ul, .doc > ol, .doc > blockquote, .callout{max-width:none}
+  .callout{padding:12px 14px}
+  .worked-example{padding:13px 14px}
+  h1{font-size:clamp(28px,7.6vw,34px)}
+  h2{font-size:clamp(22px,5.6vw,26px); margin-top:38px; padding-top:18px}
+  h3{font-size:19px}
+  /* A stat that is 16px of monospace in a two-column table is unreadable at
+     this width whatever the card does, so the card scrolls and the page does
+     not. */
+  .table-card > table{font-size:14px}
+  .badge-row .badge{font-size:11px}
+}
+
+/* ---- folded references -------------------------------------------------- */
+/* Reference-only material is kept, not deleted -- it just stops occupying the
+   main scroll. The heading stays above the fold so the rail can land on it. */
+details.refs{margin:8px 0 34px; max-width:var(--measure)}
+details.refs > summary{cursor:pointer; list-style:none; display:inline-flex;
+  align-items:center; gap:8px; padding:7px 13px; border:1px solid var(--rule);
+  border-radius:4px; background:var(--surface); color:var(--muted);
+  font-family:var(--mono); font-size:12px}
+details.refs > summary::-webkit-details-marker{display:none}
+details.refs > summary::before{content:"+"; font-size:13px; line-height:1}
+details.refs[open] > summary::before{content:"\2212"}
+details.refs > summary:hover{color:var(--text); border-color:var(--muted)}
+.refs-body{padding-top:14px; font-size:15.5px}
+.refs-body > :first-child{margin-top:0}
+@media print{ details.refs{display:block} details.refs > div{display:block!important}
+  details.refs > summary{display:none} }
