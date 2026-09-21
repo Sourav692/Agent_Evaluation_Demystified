@@ -260,7 +260,7 @@ version of each is field guide **Part 6**; the interview questions are question 
 
 ### The ten roadmap-level explainers
 
-`docs/roadmap-explainers/0N-*.html` — one plain-language walkthrough per level of the
+`docs/roadmap-explainers/0N-*.md` — one plain-language walkthrough per level of the
 [evaluation roadmap](docs/study-guide/evaluation-roadmap.md), pulled together from that
 level's notebooks, field guide sections, labs and question-bank entries, with nothing
 repeated twice. Sequential, with prev/next links between them; each is self-contained
@@ -278,6 +278,66 @@ and does not require reading the roadmap first.
 | 7 &middot; Advanced | `07-online-evaluation-and-the-loop` | Measure without an answer key, alert only on what you can resolve, and carry every finding back into a gated test |
 | 8 &middot; Expert | `08-safety-adversarial-and-multi-agent-attribution` | Separate what must never happen from what should usually happen, test by attack surface, and say which agent broke a multi-agent run |
 | 9 &middot; Expert | `09-the-harness-as-a-product` | Keep the evaluation system itself trustworthy and affordable &mdash; the layer above the metrics |
+
+### `docs/roadmap-explainers/00-orientation.md` — Level 0, Beginner (4,800 words)
+
+| | Covers |
+|---|---|
+| **Sections** | Why this level exists · 1. The five things you can actually evaluate · 2. The one question that splits every metric in two: does it need an answer key? · 3. LLM-as-judge: powerful, but not an oracle · 4. The decision you'll make constantly: code, or a judge? · 5. The cost ladder for building a check (which rung do you actually need?) · 6. The other cost ladder: what it costs in real dollars to *run* a notebook or check · 7. The tooling landscape: four frameworks, two shapes · 8. Offline vs. online: the two questions that decide where a check can run · Question-bank corner — what a decomposition round pushes on · References |
+
+### `docs/roadmap-explainers/01-rag-retrieval-and-generation.md` — Level 1, Beginner (7,000 words)
+
+| | Covers |
+|---|---|
+| **Sections** | Why this level exists · 1. The RAG pipeline, and why you evaluate its two halves separately · 2. Deterministic retrieval metrics: four numbers that are supposed to disagree · 3. LLM-judged retrieval metrics: three metrics because there are three failures · 4. Generation without a reference: three ways "the answer is wrong" can happen · 5. Generation against a reference: Answer Correctness and Semantic Similarity · 6. Writing a rubric that doesn't produce a vague judge · 7. Evaluation as pipeline gates, not just after-the-fact scoring · 8. RAGAS as a second opinion, and the pytest/CI batch pattern · 9. Building a RAG system and synthesizing a golden set · 10. Reading the results · Question-bank corner — retrieval and generation numbers, live on a dashboard · References |
+
+### `docs/roadmap-explainers/02-agents-tools-conversations-trajectories-outcomes.md` — Level 2, Intermediate (5,800 words)
+
+| | Covers |
+|---|---|
+| **Sections** | Why this level exists · 1. Multi-turn conversational evaluation · 2. Tool-use metrics: the mechanics layer · 3. Task completion and outcome verification · 4. Agent trajectory evaluation: the nine trace-level checks · Question-bank corner — the design-round follow-ups this level answers · References |
+
+### `docs/roadmap-explainers/03-ground-truth.md` — Level 3, Intermediate (4,500 words)
+
+| | Covers |
+|---|---|
+| **Sections** | Why this level exists · 1. Case anatomy — six expectations, not one · 2. Stratification and the refusal quota · 3. Dataset datasheets · 4. Mining production traces into eval datasets · 5. Provenance and merge-by-input-hash · 6. Synthesized vs. hand-authored cases · 7. The two ways a dataset lies to you · Question-bank corner — ground truth and datasets · References |
+
+### `docs/roadmap-explainers/04-judges-and-the-humans-who-validate-them.md` — Level 4, Intermediate (7,200 words)
+
+| | Covers |
+|---|---|
+| **Sections** | Why this level exists · 1. Building a judge, three ways · 2. Custom scorers: spend judgement where judgement is actually needed · 3. Judge bias: the three specific ways a judge lies · 4. Human feedback: three kinds, and only one can calibrate a judge · 5. Calibration: agreement, and agreement above chance · 6. Judge alignment: turning expert disagreement into a better judge · 7. Blinded preference testing, and why it needs a second rater · 8. The rubber-stamp signal: evaluating the human, not just the record · Question-bank corner · References |
+
+### `docs/roadmap-explainers/05-statistics-and-stratified-reporting.md` — Level 5, Advanced (4,300 words)
+
+| | Covers |
+|---|---|
+| **Sections** | Why this level exists · 1. Stratified reporting: score each slice, not the whole · 2. Sample size: could your suite even see the change? · 3. The small-stratum rule: when a group is too small to gate on · 4. Paired comparison and McNemar's test · 5. Confidence intervals: bootstrap and Wilson · 6. The same problem in production: the sampling-resolution problem · 7. Simpson's paradox: when every stratum improves and the total falls · 8. Putting it together · Question-bank corner — the two rounds this level prepares you for · References |
+
+### `docs/roadmap-explainers/06-the-release-gate-and-ci.md` — Level 6, Advanced (6,700 words)
+
+| | Covers |
+|---|---|
+| **Sections** | Why this level exists · 1. A gate is not another metric · 2. The four checks, in order · 3. Why a threshold alone is not enough — the erosion problem · 4. Tolerance has to be set per metric type · 5. Free CI gate vs. paid evaluation job · 6. Prompt registry and production aliasing · 7. The two-condition promotion gate, worked through a real prompt edit · 8. Optimizer scores vs. the same gate · 9. What a gate is not · Question-bank corner — what this level's interview material adds · References |
+
+### `docs/roadmap-explainers/07-online-evaluation-and-the-loop.md` — Level 7, Advanced (5,300 words)
+
+| | Covers |
+|---|---|
+| **Sections** | Why this level exists · 1. The fact that decides everything: production has no ground truth · 2. Reference-free production metrics: three techniques, no answer key · 3. Sampling: cheap checks on everything, judges see a slice · 4. The five standard alerts · 5. Incident drills: proving which alert catches what · 6. The canary: the only online question that's properly answerable · 7. Closing the loop · 8. Live tracing in Phoenix, and two genuinely new ideas · Question-bank corner — offline → online · References |
+
+### `docs/roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution.md` — Level 8, Expert (6,200 words)
+
+| | Covers |
+|---|---|
+| **Sections** | Why this level exists · 1. Safety assertions that never get averaged · 2. Routing confusion matrices and handoff integrity · 3. Circular-handoff detection and blame attribution · 4. Adversarial design by attack surface · 5. Consent and approval gating between turns · Question-bank corner · Key checks to carry forward · References |
+
+### `docs/roadmap-explainers/09-the-harness-as-a-product.md` — Level 9, Expert (6,600 words)
+
+| | Covers |
+|---|---|
+| **Sections** | Why this level exists · 1. Keeping the measuring instrument honest · 2. Repo conventions that keep every number traceable · 3. Eval-driven development — deciding "good" before the code exists · 4. What the harness still doesn't do — the open gaps · Question-bank corner — cost, ownership, decay, and building a platform · References |
 
 ### Folder indexes
 

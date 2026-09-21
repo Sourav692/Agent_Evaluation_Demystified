@@ -76,6 +76,48 @@ RENDER = {
          "The complete path, basic to expert: ten levels with exit checks, then "
          "what an OpenAI round pushes on and the Databricks track as its own ladder."),
     ],
+    "Roadmap explainers": [
+        ("roadmap-explainers/00-orientation.md", "00-orientation",
+         "Level 0 &middot; Orientation",
+         "Draw the five-layer taxonomy from memory and choose between a deterministic "
+         "scorer and a judge without hesitating."),
+        ("roadmap-explainers/01-rag-retrieval-and-generation.md", "01-rag-retrieval-and-generation",
+         "Level 1 &middot; RAG: retrieval &amp; generation",
+         "Separate a retrieval failure from a generation failure with numbers, and know "
+         "the one failure no referenceless metric can see."),
+        ("roadmap-explainers/02-agents-tools-conversations-trajectories-outcomes.md", "02-agents-tools-conversations-trajectories-outcomes",
+         "Level 2 &middot; Agents, tools, trajectories &amp; outcomes",
+         "Hold three things apart &mdash; mechanics, process, outcome &mdash; and reach "
+         "for the system of record before any judge."),
+        ("roadmap-explainers/03-ground-truth.md", "03-ground-truth",
+         "Level 3 &middot; Ground truth",
+         "Know where cases and labels come from on day one and by month three, and the "
+         "two ways a dataset lies to you."),
+        ("roadmap-explainers/04-judges-and-the-humans-who-validate-them.md", "04-judges-and-the-humans-who-validate-them",
+         "Level 4 &middot; Judges &amp; the humans who validate them",
+         "Build a judge three ways, catch it lying three ways, and know the only thing "
+         "that licenses trusting it."),
+        ("roadmap-explainers/05-statistics-and-stratified-reporting.md", "05-statistics-and-stratified-reporting",
+         "Level 5 &middot; Statistics &amp; stratified reporting",
+         "Refuse to act on a number you cannot resolve, and never report an average "
+         "that buries a segment."),
+        ("roadmap-explainers/06-the-release-gate-and-ci.md", "06-the-release-gate-and-ci",
+         "Level 6 &middot; The release gate &amp; CI",
+         "Turn metrics into a decision that can refuse a deploy, and put the cost of "
+         "loosening it on a named line."),
+        ("roadmap-explainers/07-online-evaluation-and-the-loop.md", "07-online-evaluation-and-the-loop",
+         "Level 7 &middot; Online evaluation &amp; the loop",
+         "Measure without an answer key, alert only on what you can resolve, and carry "
+         "every finding back into a gated test."),
+        ("roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution.md", "08-safety-adversarial-and-multi-agent-attribution",
+         "Level 8 &middot; Safety, adversarial &amp; multi-agent attribution",
+         "Separate what must never happen from what should usually happen, test by "
+         "attack surface, and say which agent broke a multi-agent run."),
+        ("roadmap-explainers/09-the-harness-as-a-product.md", "09-the-harness-as-a-product",
+         "Level 9 &middot; The harness as a product",
+         "Keep the evaluation system itself trustworthy and affordable &mdash; the "
+         "layer above the metrics."),
+    ],
 }
 
 # standalone pages already under docs/ -- interactive, not producible from Markdown
@@ -119,48 +161,6 @@ COPY = {
         ("interactive-labs/05-agent-trajectory-evaluation.html",
          "Lab 05 &middot; Trajectory",
          "Five of nine metrics never move; task success reports a clean pass on 40% waste."),
-    ],
-    "Roadmap explainers": [
-        ("roadmap-explainers/00-orientation.html",
-         "Level 0 &middot; Orientation",
-         "Draw the five-layer taxonomy from memory and choose between a deterministic "
-         "scorer and a judge without hesitating."),
-        ("roadmap-explainers/01-rag-retrieval-and-generation.html",
-         "Level 1 &middot; RAG: retrieval &amp; generation",
-         "Separate a retrieval failure from a generation failure with numbers, and know "
-         "the one failure no referenceless metric can see."),
-        ("roadmap-explainers/02-agents-tools-conversations-trajectories-outcomes.html",
-         "Level 2 &middot; Agents, tools, trajectories &amp; outcomes",
-         "Hold three things apart &mdash; mechanics, process, outcome &mdash; and reach "
-         "for the system of record before any judge."),
-        ("roadmap-explainers/03-ground-truth.html",
-         "Level 3 &middot; Ground truth",
-         "Know where cases and labels come from on day one and by month three, and the "
-         "two ways a dataset lies to you."),
-        ("roadmap-explainers/04-judges-and-the-humans-who-validate-them.html",
-         "Level 4 &middot; Judges &amp; the humans who validate them",
-         "Build a judge three ways, catch it lying three ways, and know the only thing "
-         "that licenses trusting it."),
-        ("roadmap-explainers/05-statistics-and-stratified-reporting.html",
-         "Level 5 &middot; Statistics &amp; stratified reporting",
-         "Refuse to act on a number you cannot resolve, and never report an average "
-         "that buries a segment."),
-        ("roadmap-explainers/06-the-release-gate-and-ci.html",
-         "Level 6 &middot; The release gate &amp; CI",
-         "Turn metrics into a decision that can refuse a deploy, and put the cost of "
-         "loosening it on a named line."),
-        ("roadmap-explainers/07-online-evaluation-and-the-loop.html",
-         "Level 7 &middot; Online evaluation &amp; the loop",
-         "Measure without an answer key, alert only on what you can resolve, and carry "
-         "every finding back into a gated test."),
-        ("roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution.html",
-         "Level 8 &middot; Safety, adversarial &amp; multi-agent attribution",
-         "Separate what must never happen from what should usually happen, test by "
-         "attack surface, and say which agent broke a multi-agent run."),
-        ("roadmap-explainers/09-the-harness-as-a-product.html",
-         "Level 9 &middot; The harness as a product",
-         "Keep the evaluation system itself trustworthy and affordable &mdash; the "
-         "layer above the metrics."),
     ],
 }
 
@@ -311,7 +311,6 @@ QA_SCRIPT = """
   bar.innerHTML = '<span class="qa-count">' + all.length + ' questions</span>' +
     '<button type="button" data-qa="open">Expand all</button>' +
     '<button type="button" data-qa="shut">Collapse all</button>';
-  var doc = document.querySelector("article.doc");
   var first = all[0];
   first.parentNode.insertBefore(bar, first);
 
@@ -459,6 +458,131 @@ def mermaidise(html):
     return html, count
 
 
+# ---- reusable content components ----------------------------------------
+#
+# The explainers are prose with three recurring shapes -- a reference table, an
+# aside, and a "Notebook: x / Lab: y" credit line under a section heading. Each
+# gets one component here rather than a style choice per instance, so a change
+# to how asides look is a change in one place. All three are derived from the
+# Markdown's own output; none of them needs new source markup.
+
+TABLE = re.compile(r"(<table>.*?</table>)", re.S)
+
+# "*Notebook: `x.ipynb` \u00b7 Lab: `y.html`*" directly under a section heading.
+BADGES = re.compile(
+    r"<p><em>((?:Notebook|Notebooks|Lab|Source)s?:.*?)</em></p>", re.S)
+
+# A blockquote whose lead-in names a trap reads as a warning; the rest are notes.
+WARN = re.compile(r"trap|gotcha|collision|backwards|never|danger|careful|"
+                  r"worth flagging|watch out", re.I)
+
+
+EXAMPLE_H = re.compile(r'<h3 id="[^"]*"[^>]*>(?:(?!</h3>).)*?'
+                       r'(?:worked example|walkthrough|worked through)'
+                       r'(?:(?!</h3>).)*?</h3>', re.I | re.S)
+NEXT_H = re.compile(r"<h[123][ >]")
+
+
+def worked_examples(html):
+    """Tint the worked-example sections so they read as demonstrations.
+
+    The block runs from its own <h3> to whatever heading comes next, which is
+    how the Markdown already delimits it -- there is no wrapper in the source
+    to key off, and adding one would put presentation into the prose.
+    """
+    out, at, n = [], 0, 0
+    while True:
+        m = EXAMPLE_H.search(html, at)
+        if not m:
+            out.append(html[at:])
+            break
+        nxt = NEXT_H.search(html, m.end())
+        end = nxt.start() if nxt else len(html)
+        out.append(html[at:m.start()])
+        out.append('<section class="worked-example">%s</section>' % html[m.start():end])
+        at = end
+        n += 1
+    return "".join(out), n
+
+
+# A section heading already draws its own rule, so the "---" the Markdown puts
+# above it lands as a second line 20px from the first. Dropping the <hr> is a
+# presentation fix -- the separator is still there, once.
+HR_BEFORE_H2 = re.compile(r"<hr\s*/?>\s*(?=<h2[ >])")
+
+
+def dedupe_rules(html):
+    """Drop the horizontal rule immediately above a section heading."""
+    n = len(HR_BEFORE_H2.findall(html))
+    return (HR_BEFORE_H2.sub("", html) if n else html), n
+
+
+# Python-Markdown's fenced_code does not recognise a fence that is indented
+# as list-item content: the backticks survive as literal text and the list
+# breaks in half around them. An indented code block is the form it does
+# understand inside a list, so the fence is rewritten into one before the
+# Markdown is converted. Source files keep the fence, which is what every other
+# renderer wants.
+INDENTED_FENCE = re.compile(
+    r"^(?P<pad>[ ]+)```[^\n]*\n(?P<body>.*?)^(?P=pad)```[ ]*$",
+    re.M | re.S)
+
+
+def unfence_in_lists(text):
+    """Rewrite list-indented fences as indented code blocks. Returns (text, n)."""
+    def one(m):
+        pad = m.group("pad")
+        # 4 spaces puts it inside the list item, 4 more make it a code block
+        deep = pad + " " * 6
+        lines = [deep + ln[len(pad):] if ln.startswith(pad) else deep + ln.lstrip()
+                 for ln in m.group("body").rstrip("\n").split("\n")]
+        return "\n".join(lines) + "\n"
+    n = len(INDENTED_FENCE.findall(text))
+    return (INDENTED_FENCE.sub(one, text) if n else text), n
+
+
+def tablecards(html):
+    """Put every table in a bordered, horizontally scrollable card.
+
+    A wide reference table sitting directly in the reading flow either squeezes
+    its columns or pushes the whole page sideways on a phone; the card owns the
+    overflow so the page itself never scrolls horizontally.
+    """
+    n = len(TABLE.findall(html))
+    if n:
+        html = TABLE.sub(lambda m: '<div class="table-card">%s</div>' % m.group(1), html)
+    return html, n
+
+
+def calloutify(html):
+    """Style blockquotes as callouts, warnings distinguished from notes."""
+    out, at, n = [], 0, 0
+    while True:
+        i = html.find("<blockquote>", at)
+        if i < 0:
+            out.append(html[at:])
+            break
+        j = html.index("</blockquote>", i) + len("</blockquote>")
+        inner = html[i + len("<blockquote>"):j - len("</blockquote>")]
+        lead = re.sub(r"<[^>]+>", " ", inner)[:120]
+        kind = "callout--warning" if WARN.search(lead) else "callout--note"
+        out.append(html[at:i])
+        out.append('<aside class="callout %s">%s</aside>' % (kind, inner))
+        at = j
+        n += 1
+    return "".join(out), n
+
+
+def badgify(html):
+    """Turn a section's Notebook/Lab credit line into a row of pills."""
+    def one(m):
+        parts = [s.strip() for s in re.split(r"\u00b7|&middot;", m.group(1)) if s.strip()]
+        return ('<p class="badge-row">%s</p>'
+                % "".join('<span class="badge">%s</span>' % s for s in parts))
+    n = len(BADGES.findall(html))
+    return (BADGES.sub(one, html) if n else html), n
+
+
 # ---- in-document section rail -------------------------------------------
 #
 # Long documents here are one flat Markdown file with 25 top-level sections,
@@ -475,11 +599,33 @@ DOCNAV_MIN = 4
 DOCNAV_SKIP = ("appendix",)
 
 H1 = re.compile(r'<h1 id="([^"]+)"[^>]*>(.*?)</h1>', re.S)
+H2 = re.compile(r'<h2 id="([^"]+)"[^>]*>(.*?)</h2>', re.S)
+TITLE = re.compile(r'<h1 id="([^"]+)"[^>]*>(.*?)</h1>', re.S)
 FAMILY = [
     (re.compile(r"^Part\s+(\d+)\s*[\u2014\u2013-]\s*(.*)$", re.S), "part"),
     (re.compile(r"^Tier\s+([A-Z])\s*[\u2014\u2013-]\s*(.*)$", re.S), "tier"),
     (re.compile(r"^Appendix\s+([A-Z])\s*[\u2014\u2013-]\s*(.*)$", re.S), "appendix"),
+    # The roadmap explainers number their sections "1." .. "13." at <h2>.
+    (re.compile(r"^(\d+)\.\s+(.*)$", re.S), "section"),
 ]
+
+
+def rail_headings(html):
+    """The headings the rail is built from.
+
+    Documents here come in two shapes. The field guide and the question bank
+    are one flat file whose sections are <h1> ("Part 3 -- Trajectory"); the
+    roadmap explainers are a single <h1> title with numbered <h2> sections.
+    Whichever level carries the sections is the one to index -- mixing both
+    would list every subsection of a document that already has enough parts.
+    """
+    tops = H1.findall(html)
+    if len(tops) >= DOCNAV_MIN:
+        return tops
+    subs = H2.findall(html)
+    if len(subs) >= DOCNAV_MIN:
+        return tops[:1] + subs
+    return []
 
 
 def docnav(html):
@@ -489,8 +635,8 @@ def docnav(html):
     becomes the rail's way back to the top, labelled Orientation to match the
     drill.
     """
-    heads = H1.findall(html)
-    if len(heads) < DOCNAV_MIN:
+    heads = rail_headings(html)
+    if not heads:
         return "", 0
 
     items, prev = [], None
@@ -507,16 +653,18 @@ def docnav(html):
                               m.group(2).strip(), hid))
                 break
         else:
-            # A section that follows none of the three naming schemes still
-            # belongs in the rail; it just has no index to show.
-            items.append(("other", "\u00b7", text, hid))
+            # A section that follows none of the naming schemes still belongs
+            # in the rail; it just has no index to show. It shares the family
+            # of the numbered ones so an unnumbered lead-in ("Why this level
+            # exists") does not split the rail into three captioned groups.
+            items.append(("section", "\u00b7", text, hid))
 
     items = [it for it in items if it[0] not in DOCNAV_SKIP]
 
     # Families are captioned rather than merely ruled off: Tier A..H indexes by
     # bare letter, and a lone column of letters names nothing.
-    caption = {"part": "Parts", "tier": "Tiers", "other": "Sections", "": ""}
-    out = ['<nav class="docnav" aria-label="Sections">']
+    caption = {"part": "Parts", "tier": "Tiers", "section": "Sections", "": ""}
+    out = ['<nav class="docnav" id="docnav" aria-label="Sections">']
     for fam, idx, label, hid in items:
         if fam != prev:
             if prev is not None:
@@ -527,7 +675,14 @@ def docnav(html):
         prev = fam
         out.append('<li><a href="#%s"><span class="i">%s</span>'
                    '<span class="t">%s</span></a></li>' % (hid, idx, label))
-    out.append("</ol></nav>")
+    out.append("</ol>")
+    # How far in you are, in the rail rather than as a bar across the top: the
+    # question a reader asks here is "how much is left", which is a count of
+    # sections, not a percentage of pixels.
+    out.append('<div class="rail-progress" aria-hidden="true">'
+               '<div class="rail-bar"><i></i></div>'
+               '<span class="rail-count">Section 1 of %d</span></div>' % (len(items) - 1))
+    out.append("</nav>")
     return "".join(out), len(items)
 
 
@@ -545,9 +700,15 @@ DOCNAV_SCRIPT = """
     return document.getElementById(decodeURIComponent(a.hash.slice(1)));
   });
 
+  var fill = rail.querySelector(".rail-bar i");
+  var count = rail.querySelector(".rail-count");
+  var bar = document.querySelector("header.bar");
+
   var current = -1;
   function mark() {
-    var line = 90, at = 0;
+    // The line a heading has to cross to count as current sits just below the
+    // sticky header, so it moves with it rather than assuming one row.
+    var line = (bar ? bar.getBoundingClientRect().height : 58) + 32, at = 0;
     for (var i = 0; i < heads.length; i++) {
       if (heads[i] && heads[i].getBoundingClientRect().top <= line) { at = i; }
     }
@@ -560,6 +721,14 @@ DOCNAV_SCRIPT = """
     var r = links[at].getBoundingClientRect(), box = rail.getBoundingClientRect();
     if (r.top < box.top + 8) { rail.scrollTop -= box.top + 8 - r.top; }
     else if (r.bottom > box.bottom - 8) { rail.scrollTop += r.bottom - box.bottom + 8; }
+
+    // The first rail item is the title, not a section, so both the count and
+    // the bar are measured against the sections that follow it.
+    var total = links.length - 1;
+    if (fill && total > 0) {
+      fill.style.width = Math.round((at / total) * 100) + "%";
+      if (count) { count.textContent = "Section " + Math.max(at, 1) + " of " + total; }
+    }
   }
 
   var queued = false;
@@ -577,10 +746,79 @@ DOCNAV_SCRIPT = """
   // which fire `scroll`. Watching the article's box catches all three, and it
   // is the difference between a rail that is right and one that is right until
   // the reader touches something.
+  // The header's height decides the drawer's top edge and every anchor jump's
+  // offset. It is not a constant -- the nav wraps at some widths and the
+  // chapter row is only on some pages -- so it is measured rather than
+  // guessed. The CSS carries a static fallback for when this does not run.
+  if (bar) {
+    var measure = function () {
+      // Set on <body>, not <html>: the stylesheet's fallback is a rule on
+      // body, and a value set on the ancestor would be shadowed by it for
+      // every descendant that reads the token.
+      document.body.style.setProperty(
+        "--bar-h", Math.round(bar.getBoundingClientRect().height) + "px");
+    };
+    measure();
+    if (window.ResizeObserver) { new ResizeObserver(measure).observe(bar); }
+    else { addEventListener("resize", measure); }
+  }
+
   var doc = document.querySelector("article.doc");
   if (doc && window.ResizeObserver) { new ResizeObserver(onScroll).observe(doc); }
   if (document.fonts && document.fonts.ready) { document.fonts.ready.then(mark); }
   mark();
+
+  // ---- the drawer on narrow screens ------------------------------------
+  // The rail is navigation, so it is never dropped on a phone -- it becomes a
+  // panel the Contents button opens. The button is hidden in the markup and
+  // revealed here, so a reader without JS is not offered a control that would
+  // do nothing.
+  var toggle = document.querySelector(".toc-toggle");
+  if (toggle) {
+    toggle.hidden = false;
+    var open = function (want) {
+      document.body.classList.toggle("toc-open", want);
+      toggle.setAttribute("aria-expanded", want ? "true" : "false");
+    };
+    toggle.addEventListener("click", function () {
+      open(!document.body.classList.contains("toc-open"));
+    });
+    rail.addEventListener("click", function (e) {
+      if (e.target.closest("a")) { open(false); }
+    });
+    addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { open(false); }
+    });
+  }
+})();
+</script>
+
+<script>
+// ---- a copyable link on every heading ----------------------------------
+// The ids are already there (the `toc` extension writes them); what is missing
+// is a way to get at one without reading the source. Added here rather than in
+// the Markdown so no document carries link markup of its own.
+(function () {
+  var heads = document.querySelectorAll("article.doc h1[id], article.doc h2[id], "
+                                        + "article.doc h3[id]");
+  [].forEach.call(heads, function (h) {
+    var a = document.createElement("a");
+    a.className = "anchor";
+    a.href = "#" + h.id;
+    a.setAttribute("aria-label", "Link to this section");
+    a.textContent = "#";
+    a.addEventListener("click", function (e) {
+      if (!navigator.clipboard) return;          // let the plain jump happen
+      e.preventDefault();
+      history.replaceState(null, "", a.href);
+      h.scrollIntoView();
+      navigator.clipboard.writeText(a.href).then(function () {
+        a.classList.add("copied");
+        setTimeout(function () { a.classList.remove("copied"); }, 1200);
+      });
+    });
+    h.appendChild(a);
+  });
 })();
 </script>
 """
@@ -641,7 +879,28 @@ def badge_for(html_path):
     return "{:,} words".format(len(re.sub(r"<[^>]+>", " ", prose).split()))
 
 
-def shell(title, body, nav, blurb="", is_index=False, diagrams=0, qa=0, rail=0):
+def chapter_row(group, pos, title):
+    """The header's slim second row: where you are, and the way on.
+
+    Prev/next come from the order of the section's own RENDER list, so adding a
+    level in the right place is the only thing needed to wire it in -- there is
+    no per-page copy of the sequence to fall out of step.
+    """
+    if len(group) < 2:
+        return ""
+    ends = []
+    if pos:
+        ends.append('<a class="prev" href="%s.html">&larr; %s</a>'
+                    % (group[pos - 1][1], group[pos - 1][2]))
+    if pos < len(group) - 1:
+        ends.append('<a class="next" href="%s.html">%s &rarr;</a>'
+                    % (group[pos + 1][1], group[pos + 1][2]))
+    return ('<div class="chapter"><span class="here">%s</span>'
+            '<span class="ends">%s</span></div>' % (title, "".join(ends)))
+
+
+def shell(title, body, nav, blurb="", is_index=False, diagrams=0, qa=0, rail=0,
+          chapter=""):
     home = "" if is_index else '<a class="home" href="index.html">&larr; All documents</a>'
     return """<!doctype html>
 <html lang="en">
@@ -657,8 +916,13 @@ def shell(title, body, nav, blurb="", is_index=False, diagrams=0, qa=0, rail=0):
 </head>
 <body>
 <header class="bar">
-  <a class="brand" href="index.html">Agent Evaluation <span>Demystified</span></a>
-  <nav>%s</nav>
+  <div class="bar-top">
+    <a class="brand" href="index.html">Agent Evaluation <span>Demystified</span></a>
+    <button class="toc-toggle" type="button" aria-expanded="false"
+            aria-controls="docnav" hidden>Contents</button>
+    <nav>%s</nav>
+  </div>
+  %s
 </header>
 <main class="wrap">
 %s
@@ -670,7 +934,7 @@ def shell(title, body, nav, blurb="", is_index=False, diagrams=0, qa=0, rail=0):
 </footer>%s
 </body>
 </html>
-""" % (title, blurb, nav, home, body,
+""" % (title, blurb, nav, chapter, home, body,
        (MERMAID_SCRIPT if diagrams else "") + (QA_SCRIPT if qa else "")
        + (DOCNAV_SCRIPT if rail else ""))
 
@@ -694,27 +958,36 @@ def build():
     rendered, copied = [], []
 
     for section in SECTION_ORDER:
-        for src, slug, title, blurb in RENDER.get(section, []):
+        group = RENDER.get(section, [])
+        for pos, (src, slug, title, blurb) in enumerate(group):
             path = os.path.join(DOCS, src)
             text = io.open(path, encoding="utf-8").read()
+            source, unfenced = unfence_in_lists(text)
             md = markdown.Markdown(extensions=["tables", "fenced_code", "toc",
                                                "sane_lists", "attr_list"])
-            html = md.convert(text)
+            html = md.convert(source)
             html = LINK.sub(
                 lambda m: m.group(1) + rewrite_link(m.group(2), "docs/" + src) + m.group(3),
                 html)
             html, diagrams = mermaidise(html)
             html, plains = plainify(html)
             html, questions = collapsify(html)
+            html, badges = badgify(html)
+            html, _rules = dedupe_rules(html)
+            html, callouts = calloutify(html)
+            html, examples = worked_examples(html)
+            html, tables = tablecards(html)
             rail, sections = docnav(html)
             article = '<article class="doc">%s</article>' % html
             body = '<div class="withnav">%s%s</div>' % (rail, article) if rail else article
             page = shell(re.sub("<[^>]+>", "", title), body,
                          top_nav(section), re.sub("<[^>]+>", "", blurb),
-                         diagrams=diagrams, qa=questions, rail=sections)
+                         diagrams=diagrams, qa=questions, rail=sections,
+                         chapter=chapter_row(group, pos, title))
             io.open(os.path.join(DIST, slug + ".html"), "w", encoding="utf-8").write(page)
             rendered.append((src, slug + ".html", len(text.split()), diagrams,
-                             questions, plains, sections))
+                             questions, plains, sections, tables, callouts,
+                             badges, examples))
 
         for src, title, blurb in COPY.get(section, []):
             # Copied pages carry links written for their old home under docs/ --
@@ -769,11 +1042,15 @@ interactive labs. The notebooks live in
 
     # ---- report
     print("rendered from Markdown:")
-    for src, out, w, d, q, pl, sec in rendered:
+    for src, out, w, d, q, pl, sec, tb, co, bg, ex in rendered:
         extra = "  ".join(x for x in (("%d diagrams" % d) if d else "",
                                       ("%d collapsible" % q) if q else "",
                                       ("%d plain-English" % pl) if pl else "",
-                                      ("%d-item rail" % sec) if sec else "") if x)
+                                      ("%d-item rail" % sec) if sec else "",
+                                      ("%d tables" % tb) if tb else "",
+                                      ("%d callouts" % co) if co else "",
+                                      ("%d badges" % bg) if bg else "",
+                                      ("%d examples" % ex) if ex else "") if x)
         print("   %-48s -> %-26s %6s words  %s"
               % (src, out, "{:,}".format(w), extra))
     print("\ncopied as-is (interactive, not producible from Markdown):")

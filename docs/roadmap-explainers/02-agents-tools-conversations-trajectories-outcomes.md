@@ -79,7 +79,7 @@ every turn that follows it, so real conversation-level rates land below the tabl
 beside it.** A dashboard showing "95% turn quality" and a customer saying "conversations fall
 apart" are describing the exact same system — the dashboard is just reporting it in the wrong
 unit. It also follows that **multi-turn systems need a conversation-level gate, not just a
-turn-level one** — see [Level 6](../06-the-release-gate-and-ci/) for what a gate actually is.
+turn-level one** — see [Level 6](06-the-release-gate-and-ci.md) for what a gate actually is.
 
 ### The three multi-turn metrics
 

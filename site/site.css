@@ -21,7 +21,12 @@
   --serif:"Newsreader",Georgia,"Times New Roman",serif;
   --mono:"Spline Sans Mono",ui-monospace,Menlo,monospace;
   --maxw:1080px; --measure:34em;
+  --bar-h:58px;
 }
+/* A page carrying the chapter row has a taller header. :has() is the only way
+   to know that from CSS; where it is missing the anchor lands a row high,
+   which is the right way for this to fail. */
+body:has(.chapter){ --bar-h:88px }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --ink:#081113; --paper:#0D1618; --surface:#142124; --surface-2:#132023; --text:#DDE5E3;
@@ -50,9 +55,12 @@ body{margin:0; background:var(--paper); color:var(--text);
   font-synthesis:none; -webkit-font-smoothing:antialiased}
 
 /* ---- top bar ---- */
-.bar{position:sticky; top:0; z-index:20; display:flex; align-items:baseline; gap:24px;
-  flex-wrap:wrap; padding:13px clamp(16px,3vw,28px); background:var(--paper);
-  border-bottom:1px solid var(--rule)}
+/* One header, two rows. The second row (where you are, and the way on) used to
+   be a separate coloured bar below this one; stacking two sticky bars cost a
+   fifth of a phone screen before a word of the document showed. */
+.bar{position:sticky; top:0; z-index:20; padding:13px clamp(16px,3vw,28px);
+  background:var(--paper); border-bottom:1px solid var(--rule)}
+.bar-top{display:flex; align-items:baseline; gap:24px; flex-wrap:wrap}
 .brand{font-family:var(--serif); font-weight:600; font-size:18px; letter-spacing:-.012em;
   color:var(--text); text-decoration:none; white-space:nowrap}
 .brand span{color:var(--muted); font-weight:400}
@@ -255,9 +263,10 @@ details.plain[open] > summary{border-bottom:1px solid var(--rule)}
    either cover text or push it off-centre at every width. */
 .withnav{display:grid; grid-template-columns:216px minmax(0,1fr);
   gap:clamp(22px,4vw,58px); align-items:start}
+.withnav > .doc{min-width:0}
 
-.docnav{position:sticky; top:58px; max-height:calc(100vh - 92px); overflow-y:auto;
-  overscroll-behavior:contain; scrollbar-width:thin}
+.docnav{position:sticky; top:var(--bar-h); max-height:calc(100vh - var(--bar-h) - 34px);
+  overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin}
 .docnav ol{list-style:none; margin:0; padding:0}
 .docnav li{margin:0}
 /* Parts, Tiers and Appendices are captioned, not merely ruled apart: the last
@@ -275,16 +284,126 @@ details.plain[open] > summary{border-bottom:1px solid var(--rule)}
 .docnav a.on{background:var(--unmeas-soft); color:var(--accent-text); font-weight:600}
 .docnav a.on .i{color:var(--accent-text); opacity:1}
 
-/* Anchor jumps have to clear the sticky top bar. */
-.doc h1{scroll-margin-top:62px}
+/* Anchor jumps have to clear the sticky header -- every level, not just h1,
+   since the explainers section at h2 and deep-link at h3. */
+.doc h1, .doc h2, .doc h3{scroll-margin-top:calc(var(--bar-h) + 12px)}
 
 @media (max-width:900px){
   /* Below this a sticky rail would eat the reading column, so it becomes a
      plain contents list above the document. Index-only chips were the other
      option and were rejected: "A" and "07" name nothing on their own. */
-  .withnav{grid-template-columns:1fr; gap:0}
+  /* minmax(0,...) not 1fr: a grid item's automatic minimum is its content's
+     min-content width, so a wide table would push the column -- and with it
+     the page -- wider than the screen. */
+  .withnav{grid-template-columns:minmax(0,1fr); gap:0}
   .docnav{position:static; max-height:none; overflow:visible; margin-bottom:34px;
     padding-bottom:18px; border-bottom:1px solid var(--rule)}
   .docnav a{padding:5px 8px}
 }
 @media print{ .docnav{display:none} }
+
+/* ==========================================================================
+   Reading components
+   --------------------------------------------------------------------------
+   Five shapes recur through the explainers: the chapter row in the header, a
+   reference table, an aside, a credit line under a section heading, and the
+   rail's progress footer. Each is one class used everywhere rather than a
+   style decision taken per instance.
+   ========================================================================== */
+
+/* ---- header: chapter row ------------------------------------------------ */
+.chapter{display:flex; align-items:baseline; gap:18px; flex-wrap:wrap;
+  margin-top:9px; padding-top:9px; border-top:1px solid var(--rule);
+  font-family:var(--mono); font-size:12px; line-height:1.4}
+.chapter .here{color:var(--text); font-weight:500}
+.chapter .ends{display:flex; gap:18px; flex-wrap:wrap; margin-left:auto}
+.chapter .ends a{color:var(--muted); text-decoration:none; white-space:nowrap}
+.chapter .ends a:hover{color:var(--accent-text)}
+
+/* ---- header: the Contents button, shown by script on narrow screens ----- */
+.toc-toggle{display:none; margin-left:auto; padding:4px 11px; border-radius:3px;
+  border:1px solid var(--rule); background:var(--surface); color:var(--muted);
+  font-family:var(--mono); font-size:12px; cursor:pointer}
+.toc-toggle:hover{color:var(--text)}
+.toc-toggle[aria-expanded="true"]{background:var(--unmeas-soft); color:var(--accent-text);
+  border-color:var(--accent)}
+
+/* ---- tables in a card --------------------------------------------------- */
+/* The card owns the horizontal overflow so a wide table never makes the page
+   itself scroll sideways -- the failure that makes a phone unusable. */
+.table-card{margin:26px 0; border:1px solid var(--rule); border-radius:6px;
+  background:var(--surface); overflow-x:auto; overscroll-behavior-x:contain}
+.table-card > table{margin:0; background:transparent}
+.table-card th{background:var(--surface-2); position:sticky; top:0}
+.table-card td, .table-card th{padding:9px 14px}
+.table-card > table tr:last-child td{border-bottom:none}
+
+/* ---- callouts ----------------------------------------------------------- */
+.callout{margin:26px 0; max-width:var(--measure); padding:14px 18px;
+  border-left:3px solid var(--rule); border-radius:0 5px 5px 0;
+  background:var(--surface); font-size:16px}
+.callout > :first-child{margin-top:0}
+.callout > :last-child{margin-bottom:0}
+.callout--warning{border-left-color:var(--accent); background:var(--accent-soft)}
+.callout--note{border-left-color:var(--muted)}
+
+/* ---- worked example ----------------------------------------------------- */
+.worked-example{margin:26px 0; padding:16px 20px; border-radius:6px;
+  background:var(--pass-soft); border:1px solid var(--rule)}
+.worked-example > :first-child{margin-top:0}
+.worked-example > :last-child{margin-bottom:0}
+
+/* ---- the Notebook / Lab credit row -------------------------------------- */
+.badge-row{display:flex; gap:8px; flex-wrap:wrap; margin:-8px 0 22px}
+.badge-row .badge{padding:3px 10px; border-radius:11px; border:1px solid var(--rule);
+  background:var(--surface); color:var(--muted);
+  font-family:var(--mono); font-size:11.5px; line-height:1.6}
+.badge-row .badge code{background:none; padding:0; font-size:inherit; color:var(--text)}
+
+/* ---- heading anchors ---------------------------------------------------- */
+.doc h1, .doc h2, .doc h3{position:relative}
+.doc .anchor{margin-left:.4em; color:var(--muted); opacity:0; text-decoration:none;
+  font-family:var(--mono); font-weight:400; font-size:.7em; vertical-align:middle}
+.doc h1:hover .anchor, .doc h2:hover .anchor, .doc h3:hover .anchor,
+.doc .anchor:focus{opacity:.55}
+.doc .anchor:hover{opacity:1; color:var(--accent-text)}
+.doc .anchor.copied{opacity:1; color:var(--pass)}
+.doc .anchor.copied::after{content:" copied"; font-size:11px}
+
+/* ---- rail progress ------------------------------------------------------ */
+.rail-progress{margin-top:16px; padding-top:12px; border-top:1px solid var(--rule)}
+.rail-bar{height:3px; border-radius:2px; background:var(--surface-2); overflow:hidden}
+.rail-bar i{display:block; height:100%; width:0; background:var(--accent);
+  transition:width .18s ease}
+.rail-count{display:block; margin-top:7px; font-family:var(--mono); font-size:10.5px;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--muted); opacity:.8}
+
+/* ---- narrow screens: the rail becomes a drawer -------------------------- */
+/* It is never removed. An index-only strip was the other option and was
+   rejected once already -- "A" and "07" name nothing on their own. */
+@media (max-width:900px){
+  .toc-toggle{display:inline-block}
+  /* Wrapping five nav links plus a chapter row cost roughly half a phone
+     screen before the document started. One scrollable row instead. */
+  .bar{padding-bottom:9px}
+  .bar-top{gap:12px}
+  .bar nav{order:3; width:100%; flex-wrap:nowrap; overflow-x:auto; gap:16px;
+    padding-bottom:2px; scrollbar-width:none; -ms-overflow-style:none}
+  .bar nav::-webkit-scrollbar{display:none}
+  .bar nav a{white-space:nowrap}
+  .chapter{margin-top:7px; padding-top:7px; gap:4px 14px; font-size:11.5px}
+  .chapter .ends{margin-left:0; width:100%; justify-content:space-between; gap:14px}
+  .docnav{position:fixed; top:var(--bar-h); left:0; bottom:0; z-index:19;
+    width:min(82vw,320px); max-height:none; margin:0; padding:20px 16px 28px;
+    background:var(--paper); border-right:1px solid var(--rule); border-bottom:none;
+    overflow-y:auto; transform:translateX(-102%); transition:transform .2s ease;
+    box-shadow:0 0 0 100vmax rgba(0,0,0,0); pointer-events:none}
+  body.toc-open .docnav{transform:translateX(0); pointer-events:auto;
+    box-shadow:0 0 0 100vmax rgba(0,0,0,.34)}
+  body.toc-open{overflow:hidden}
+  .table-card{border-radius:5px}
+  .table-card th{position:static}
+}
+@media (prefers-reduced-motion:reduce){ .docnav{transition:none} }
+@media print{ .chapter, .toc-toggle, .doc .anchor, .rail-progress{display:none}
+  .table-card{border:1px solid #bbb; overflow:visible} }
