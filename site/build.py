@@ -120,6 +120,48 @@ COPY = {
          "Lab 05 &middot; Trajectory",
          "Five of nine metrics never move; task success reports a clean pass on 40% waste."),
     ],
+    "Roadmap explainers": [
+        ("roadmap-explainers/00-orientation.html",
+         "Level 0 &middot; Orientation",
+         "Draw the five-layer taxonomy from memory and choose between a deterministic "
+         "scorer and a judge without hesitating."),
+        ("roadmap-explainers/01-rag-retrieval-and-generation.html",
+         "Level 1 &middot; RAG: retrieval &amp; generation",
+         "Separate a retrieval failure from a generation failure with numbers, and know "
+         "the one failure no referenceless metric can see."),
+        ("roadmap-explainers/02-agents-tools-conversations-trajectories-outcomes.html",
+         "Level 2 &middot; Agents, tools, trajectories &amp; outcomes",
+         "Hold three things apart &mdash; mechanics, process, outcome &mdash; and reach "
+         "for the system of record before any judge."),
+        ("roadmap-explainers/03-ground-truth.html",
+         "Level 3 &middot; Ground truth",
+         "Know where cases and labels come from on day one and by month three, and the "
+         "two ways a dataset lies to you."),
+        ("roadmap-explainers/04-judges-and-the-humans-who-validate-them.html",
+         "Level 4 &middot; Judges &amp; the humans who validate them",
+         "Build a judge three ways, catch it lying three ways, and know the only thing "
+         "that licenses trusting it."),
+        ("roadmap-explainers/05-statistics-and-stratified-reporting.html",
+         "Level 5 &middot; Statistics &amp; stratified reporting",
+         "Refuse to act on a number you cannot resolve, and never report an average "
+         "that buries a segment."),
+        ("roadmap-explainers/06-the-release-gate-and-ci.html",
+         "Level 6 &middot; The release gate &amp; CI",
+         "Turn metrics into a decision that can refuse a deploy, and put the cost of "
+         "loosening it on a named line."),
+        ("roadmap-explainers/07-online-evaluation-and-the-loop.html",
+         "Level 7 &middot; Online evaluation &amp; the loop",
+         "Measure without an answer key, alert only on what you can resolve, and carry "
+         "every finding back into a gated test."),
+        ("roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution.html",
+         "Level 8 &middot; Safety, adversarial &amp; multi-agent attribution",
+         "Separate what must never happen from what should usually happen, test by "
+         "attack surface, and say which agent broke a multi-agent run."),
+        ("roadmap-explainers/09-the-harness-as-a-product.html",
+         "Level 9 &middot; The harness as a product",
+         "Keep the evaluation system itself trustworthy and affordable &mdash; the "
+         "layer above the metrics."),
+    ],
 }
 
 # Deliberate omissions. Printed on every build so nothing disappears quietly.
@@ -138,7 +180,7 @@ SKIP = [
     ("study-guide/README.md", "Folder index -- see navigation."),
 ]
 
-SECTION_ORDER = ["Theory", "Interview prep", "Audits", "Interactive labs"]
+SECTION_ORDER = ["Theory", "Interview prep", "Audits", "Interactive labs", "Roadmap explainers"]
 
 
 # --------------------------------------------------------------------------

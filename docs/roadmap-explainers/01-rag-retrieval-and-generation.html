@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG: Retrieval &amp; Generation — Agent Evaluation Demystified</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js" charset="utf-8"></script>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --panel: #ffffff;
+    --ink: #1c2321;
+    --ink-soft: #4a5450;
+    --accent: #2F6B4F;
+    --accent-soft: #D9E3DB;
+    --border: #e2e0da;
+    --code-bg: #f2f1ec;
+    --link: #1d5c86;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+  }
+  .topbar {
+    background: var(--accent);
+    color: #fff;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 6px;
+  }
+  .topbar a:hover { background: rgba(255,255,255,0.15); }
+  .topbar .brand { font-weight: 700; font-size: 15px; }
+  .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 36px 24px 80px;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 { font-size: 2rem; line-height: 1.25; margin: 0 0 8px; color: var(--ink); }
+  h2 {
+    font-size: 1.4rem;
+    margin-top: 2.4em;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-soft);
+    color: var(--accent);
+  }
+  h3 { font-size: 1.15rem; margin-top: 1.8em; color: var(--ink); }
+  h4 { font-size: 1rem; margin-top: 1.4em; }
+  p { margin: 1em 0; }
+  a { color: var(--link); }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.5em 0; }
+  blockquote {
+    margin: 1.5em 0;
+    padding: 12px 18px;
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+  }
+  blockquote p { margin: 0.4em 0; }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: "SF Mono", Consolas, Monaco, monospace;
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 14px 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+  }
+  pre code { background: none; padding: 0; }
+  pre.mermaid, div.mermaid {
+    background: var(--panel);
+    text-align: center;
+    padding: 20px 10px;
+    border: 1px solid var(--border);
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1.5em 0;
+    font-size: 0.94rem;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: var(--accent-soft); color: var(--accent); }
+  tr:nth-child(even) td { background: #f6f5f1; }
+  ul, ol { padding-left: 1.4em; }
+  li { margin: 0.4em 0; }
+  strong { color: var(--ink); }
+  img { max-width: 100%; }
+  .footer-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3em;
+    padding-top: 1.5em;
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .footer-nav a { text-decoration: none; font-weight: 600; }
+  @media (max-width: 600px) {
+    main { padding: 24px 16px 60px; }
+    h1 { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="brand">Agent Evaluation Demystified</span>
+  <div class="nav-links">
+    <a href="00-orientation.html">← Orientation</a>
+    <a href="02-agents-tools-conversations-trajectories-outcomes.html">→ Agents, Tools, Conversations, Trajectories &amp; Outcomes</a>
+  </div>
+</div>
+<main>
+<div class="badge">Level 1 &middot; Beginner</div>
+<h1 id="level-1-explainer-rag-retrieval-and-generation">Level 1 Explainer: RAG (Retrieval and Generation)</h1>
+<p><em>A plain-language walkthrough of everything Level 1 covers, pulled together from the seven
+notebooks, the field guide, the three interactive labs, and the interview question bank —
+with nothing repeated twice. Level 0’s Explainer is the prerequisite: this file assumes you
+already have the five-surface map and the reference-based/referenceless split from there, and
+builds on top of them rather than re-deriving them.</em></p>
+<blockquote>
+<p><strong>Who this is for.</strong> You don’t need to know DeepEval, RAGAS, or LangGraph to follow this.
+Every technical term is defined in plain words the first time it shows up, and every number
+below is taken straight from this repo’s own notebooks and labs — nothing is invented.</p>
+</blockquote>
+<hr />
+<h2 id="why-this-level-exists">Why this level exists</h2>
+<p>A RAG (Retrieval-Augmented Generation) system answers a question in two steps: it <strong>retrieves</strong>
+a handful of text chunks from a document store, then it <strong>generates</strong> an answer using those
+chunks as its only source of truth. Several sections below (2, 4, and 5, specifically) return
+to the same toy question — <em>“What is the time complexity of deleting a node from a binary
+search tree (BST)?”</em> — because it makes the two-step failure obvious: the correct fact (“O(h),
+where h is the tree’s height”) either gets found or it doesn’t, and the answer either sticks to
+what was found or it doesn’t. Other sections use whichever worked example the source notebook
+built around (Apache Spark, Type 2 Diabetes symptoms, ocean levels) — each is reused as-is
+rather than replaced, since the point that example makes is specific to it.</p>
+<p>Here is the failure that motivates this entire level: a user reports a wrong answer, and the
+reflexive diagnosis is “the model hallucinated.” That is often false. If the retriever never
+fetched the chunk that says “O(h)”, the generator did not hallucinate anything — it answered
+faithfully from a context that simply didn’t contain the fact. Faithfulness, answer relevancy,
+and every other generation metric are <strong>bounded by retrieval</strong>; measuring them while retrieval
+is broken tells you nothing about the generator. The fix is completely different in each case:
+a retrieval failure wants chunking, hybrid search, or reranking; a generation failure wants
+prompt or model changes. Guessing wrong costs a sprint.</p>
+<p>So Level 1 is built as two toolkits, retrieval and generation, each with metrics that need
+labels and metrics that don’t — and then it shows the one failure so structural that <em>neither</em>
+toolkit, run without a reference answer, can ever catch it.</p>
+<hr />
+<h2 id="the-rag-pipeline-and-why-you-evaluate-its-two-halves-separately">1. The RAG pipeline, and why you evaluate its two halves separately</h2>
+<pre class="mermaid">flowchart LR
+    Q[&quot;Query&quot;] --&gt; R[&quot;Retriever&lt;br/&gt;fetches chunks from a document store&quot;]
+    R --&gt; RC[&quot;retrieval_context&lt;br/&gt;(the chunks that came back)&quot;]
+    RC --&gt; G[&quot;Generator&lt;br/&gt;writes an answer from those chunks&quot;]
+    G --&gt; A[&quot;actual_output&lt;br/&gt;(the answer)&quot;]
+
+    style R fill:#D9E3DB,stroke:#2F6B4F
+    style G fill:#EDE3CE,stroke:#9A6A12</pre>
+<ul>
+<li><strong>Retrieval metrics</strong> (Sections 2–3) score the box on the left: did the right chunks come
+back, and in a good order?</li>
+<li><strong>Generation metrics</strong> (Sections 4–5) score the box on the right: given whatever <em>did</em> come
+back, is the answer any good?</li>
+<li>Every metric in this level takes its inputs from exactly one of these two boxes — which is
+why, later on, you can look at a table of scores and know immediately which half of the
+system to go fix.</li>
+</ul>
+<p>Within each half, the metrics split again along the line Level 0 already drew: does the check
+need a human-written <strong>label</strong> or <strong>reference answer</strong>, or can it run on its own? Sections 2
+and 4 are the label-needing (or reference-needing) checks; Sections 3 and (partly) 5 are the
+ones that manage without one.</p>
+<hr />
+<h2 id="deterministic-retrieval-metrics-four-numbers-that-are-supposed-to-disagree">2. Deterministic retrieval metrics: four numbers that are supposed to disagree</h2>
+<p><em>Notebook: <code>01_Retrieval_Metrics_Deterministic.ipynb</code> · Lab: <code>01-deterministic-retrieval-metrics.html</code></em></p>
+<p>Before any judge model, any API key, or any cost, there is a layer of retrieval evaluation
+that is pure arithmetic over labelled ground truth: a query, the chunk IDs your retriever
+returned in rank order, and the chunk IDs that are <em>actually</em> relevant (written down once, by
+a human, and reused across every eval run). It is the cheapest signal in the whole stack, and
+because retrieval is the first stage of the pipeline, it caps everything measured downstream.</p>
+<p><strong>The four metrics:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Question it answers</th>
+<th>Penalizes</th>
+<th>Reach for it when</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Precision@K</strong></td>
+<td>Of the K chunks retrieved, how many are relevant?</td>
+<td>Noise in the retrieved set</td>
+<td>Context windows are expensive and clutter is diluting the prompt</td>
+</tr>
+<tr class="even">
+<td><strong>Recall@K</strong></td>
+<td>Of all the relevant chunks that exist, how many made the top K?</td>
+<td>Missing evidence</td>
+<td>You want to know the hard ceiling everything downstream is capped by</td>
+</tr>
+<tr class="odd">
+<td><strong>MRR</strong> (Mean Reciprocal Rank)</td>
+<td>1 / the rank of the <em>first</em> relevant hit</td>
+<td>Burying the best chunk under noise</td>
+<td>There’s typically one best chunk and you care how early it lands</td>
+</tr>
+<tr class="even">
+<td><strong>nDCG@K</strong> (normalized Discounted Cumulative Gain)</td>
+<td>Is the ranking good once relevance is a matter of <em>degree</em>, not just yes/no?</td>
+<td>Bad ordering among several relevant-but-unequal chunks</td>
+<td>Relevance is graded (0–3) and more than one relevant chunk can coexist</td>
+</tr>
+</tbody>
+</table>
+<p>The formulas, in plain terms:</p>
+<pre><code>Precision@K = (relevant chunks in top K) / K
+Recall@K    = (relevant chunks in top K) / (total relevant chunks that exist)
+MRR         = 1 / (rank of the FIRST relevant chunk)
+nDCG@K      = DCG@K / IDCG@K,   where DCG = Σ grade_i / log2(i + 2)</code></pre>
+<p>The one detail worth sitting with: <strong>IDCG is computed over the ideal ranking of every
+relevant chunk that exists — including ones the retriever never returned at all.</strong> That is
+why nDCG can stay capped below 1.0 no matter how you reorder what <em>was</em> retrieved.</p>
+<h3 id="the-worked-example">The worked example</h3>
+<pre class="mermaid">flowchart LR
+    Q[&quot;query:&lt;br/&gt;BST delete complexity&quot;] --&gt; RET[&quot;retriever&quot;]
+    RET --&gt; R1[&quot;#1 chunk_3&lt;br/&gt;grade 0 · noise&quot;]
+    RET --&gt; R2[&quot;#2 chunk_1&lt;br/&gt;grade 3 · relevant&quot;]
+    RET --&gt; R3[&quot;#3 chunk_7&lt;br/&gt;grade 1 · not labelled relevant&quot;]
+    RET --&gt; R4[&quot;#4 chunk_2&lt;br/&gt;grade 2 · relevant&quot;]
+    RET --&gt; R5[&quot;#5 chunk_9&lt;br/&gt;grade 0 · noise&quot;]
+    GT[&quot;chunk_5&lt;br/&gt;grade 3 · relevant&quot;] -.-&gt;|&quot;never retrieved&quot;| RET
+
+    style GT fill:#EDDCD8,stroke:#8C2F22
+    style R2 fill:#D9E3DB,stroke:#2F6B4F
+    style R4 fill:#D9E3DB,stroke:#2F6B4F</pre>
+<p><code>chunk_5</code> is the whole lesson: it’s labelled relevant, graded 3 (the highest grade), and the
+retriever never returned it — so it’s invisible to Precision and MRR, and it’s the single
+reason Recall and nDCG are capped no matter what happens to the other chunks.</p>
+<p>At K=5: <strong>Precision@5 = 0.40</strong> (2 of 5 retrieved chunks were relevant — <code>chunk_1</code>, <code>chunk_2</code>;
+3 were noise), <strong>Recall@5 = 0.67</strong> (2 of the 3 relevant chunks that exist were found;
+<code>chunk_5</code> was missed entirely), <strong>MRR = 0.50</strong> (the first relevant chunk, <code>chunk_1</code>, landed at
+rank 2, so 1/2), <strong>nDCG@5 = 0.51</strong> (the graded penalty for <code>chunk_1</code>, grade 3, ranking below
+<code>chunk_3</code>, grade 0, is much larger than a small swap between two similarly-graded chunks would
+be).</p>
+<p>What happens as K moves from 1 to 5:</p>
+<table>
+<thead>
+<tr class="header">
+<th>K</th>
+<th>Precision@K</th>
+<th>Recall@K</th>
+<th>MRR</th>
+<th>nDCG@K</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>0.00</td>
+<td>0.00</td>
+<td>0.50</td>
+<td>0.00</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>0.50</td>
+<td>0.33</td>
+<td>0.50</td>
+<td>0.39</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>0.33</td>
+<td>0.33</td>
+<td>0.50</td>
+<td>0.41</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>0.50</td>
+<td>0.67</td>
+<td>0.50</td>
+<td>0.51</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>0.40</td>
+<td>0.67</td>
+<td>0.50</td>
+<td>0.51</td>
+</tr>
+</tbody>
+</table>
+<p>Three things worth noticing in that table: <strong>Precision is not monotonic</strong> — it drops at K=3
+(a noise chunk enters) and recovers at K=4 (a relevant one does), so a single precision number
+without its K is meaningless. <strong>MRR is flat at 0.50 across every K</strong> — the first relevant
+chunk sits at rank 2 and no amount of retrieving more can move it; a flat, low MRR means a
+<em>ranking</em> problem (reranker), not a <em>retrieve-more</em> problem. <strong>Recall and nDCG both flatline
+after K=4</strong> — that flatline is the signature of a chunk that isn’t reachable at all; raising K
+further buys tokens and latency and nothing else.</p>
+<h3 id="reading-the-four-together">Reading the four together</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>What you see</th>
+<th>What it means</th>
+<th>Where to look</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Low recall, any precision</td>
+<td>The answer isn’t in the prompt at all</td>
+<td>Chunking, embedding model, hybrid search, query rewriting</td>
+</tr>
+<tr class="even">
+<td>Good recall, low MRR</td>
+<td>It’s in the prompt, but buried</td>
+<td>Reranker / cross-encoder</td>
+</tr>
+<tr class="odd">
+<td>Good recall, falling precision</td>
+<td>K is too large for this query</td>
+<td>Dynamic K, or retrieve wide and rerank narrow</td>
+</tr>
+<tr class="even">
+<td>Good recall and MRR, low nDCG</td>
+<td>Ranking ignores <em>degrees</em> of usefulness</td>
+<td>Graded labels + a ranking-aware retriever</td>
+</tr>
+<tr class="odd">
+<td>Everything good, answer still wrong</td>
+<td>Retrieval is fine — the bug is downstream</td>
+<td>Sections 4–5’s generation metrics</td>
+</tr>
+</tbody>
+</table>
+<h3 id="when-to-use-it-and-when-not-to">When to use it, and when not to</h3>
+<p>Use deterministic retrieval metrics when you’re setting up evaluation for the first time (no
+keys, no cost, the highest-leverage day of work available), when you’re comparing retrievers
+or chunk sizes exactly and repeatably, or when you need a CI gate that will never flake — these
+numbers can’t disagree with themselves the way a judge model can. Don’t rely on them alone
+when you have no hand-labelled <code>relevant_ids</code> and can’t produce them at scale, when relevance
+is genuinely fuzzy or query-dependent, or when your golden set was built once and never
+refreshed — a stale eval set stays green while the real system’s quality drifts, because it
+has stopped measuring what users actually ask.</p>
+<hr />
+<h2 id="llm-judged-retrieval-metrics-three-metrics-because-there-are-three-failures">3. LLM-judged retrieval metrics: three metrics because there are three failures</h2>
+<p><em>Notebook: <code>02_Retrieval_Metrics_LLM_Judged.ipynb</code> · Lab: <code>02-llm-judged-retrieval-metrics.html</code></em></p>
+<p>Section 2’s metrics all need a hand-written <code>relevant_ids</code> list, per query, written by a
+person. That doesn’t scale to arbitrary production traffic. DeepEval’s three <strong>Contextual</strong>
+metrics ask the same “is retrieval working” question with an LLM judge standing in for the
+hand-labelled IDs — and, on purpose, they ask it three separate times, because averaging the
+three into one “retrieval score” is the fastest way to make a real bug invisible: precision
+can halve while the average barely moves, and nobody investigates.</p>
+<blockquote>
+<p><strong>A naming collision worth flagging early.</strong> Section 2 and this section both use the words
+“Precision” and “Recall” — but the underlying math is not the same. Contextual Relevancy
+turns out to be <em>exactly</em> Section 2’s Precision@K formula (<code>relevant / total</code>, unweighted,
+order-blind) under a different name. Contextual Precision is a genuinely different,
+<strong>rank-weighted</strong> metric — the same idea as Precision@K, but scored so that a relevant chunk
+near the top counts for more than the same chunk buried lower. That’s the entire reason
+reordering chunks (with nothing added or removed) can move Contextual Precision while
+leaving Contextual Relevancy untouched.</p>
+</blockquote>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Question</th>
+<th>Needs <code>expected_output</code>?</th>
+<th>Cares about order?</th>
+<th>Catches</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Contextual Precision</strong></td>
+<td>Are relevant chunks ranked <em>above</em> irrelevant ones?</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>A good chunk buried under noise</td>
+</tr>
+<tr class="even">
+<td><strong>Contextual Recall</strong></td>
+<td>Does the context, as a whole, cover everything the expected answer needs?</td>
+<td>Yes</td>
+<td>No</td>
+<td>Missing information — retrieval found <em>something</em>, not <em>enough</em></td>
+</tr>
+<tr class="odd">
+<td><strong>Contextual Relevancy</strong></td>
+<td>Of everything retrieved, how much is actually on-topic?</td>
+<td>No</td>
+<td>No</td>
+<td>Noise diluting the context, independent of ranking or completeness</td>
+</tr>
+</tbody>
+</table>
+<p>Precision cares about <strong>order</strong>. Recall cares about <strong>coverage</strong>. Relevancy cares about
+<strong>signal-to-noise</strong>. A retriever can fail any one of the three while passing the other two —
+which is exactly why the tutorial ships all three rather than one blended number.</p>
+<p><strong>One easy-to-miss detail about Contextual Recall:</strong> it checks the retrieved context against
+<code>expected_output</code> — the reference answer — <strong>not</strong> against what the generator actually said
+(<code>actual_output</code>). It’s asking “was enough fetched to <em>support</em> the full expected answer?”,
+regardless of whether the generator used all of it. That trips people up constantly.</p>
+<h3 id="the-judge-produces-verdicts-arithmetic-does-the-scoring">The judge produces verdicts; arithmetic does the scoring</h3>
+<pre><code>Contextual Precision = Σ (precision@i, for each position i holding a relevant chunk) / (number of relevant chunks)
+Contextual Recall    = (claims in expected_output supported by the context) / (total claims)
+Contextual Relevancy = (relevant chunks) / (total chunks retrieved)</code></pre>
+<p>The judge’s only job is to label each chunk relevant/irrelevant, or each claim
+supported/unsupported. Everything after that is deterministic math — which is why the same set
+of verdicts always produces the same score, but two separate judge runs can still disagree,
+because the <em>verdicts themselves</em> are non-deterministic (Level 0, §3).</p>
+<h3 id="one-query-four-retrieval-outcomes">One query, four retrieval outcomes</h3>
+<p>Question: <em>“What is Apache Spark used for?”</em></p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Scenario</th>
+<th>Contextual Precision</th>
+<th>Contextual Recall</th>
+<th>Contextual Relevancy</th>
+<th>What moved</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Healthy retrieval</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>0.67</td>
+<td>— (baseline)</td>
+</tr>
+<tr class="even">
+<td><strong>Bad ranking</strong> (same chunks, reordered)</td>
+<td><strong>0.58</strong></td>
+<td>1.00</td>
+<td>0.67</td>
+<td>Precision alone</td>
+</tr>
+<tr class="odd">
+<td><strong>Thin coverage</strong> (one perfect chunk only)</td>
+<td>1.00</td>
+<td><strong>0.50</strong></td>
+<td>1.00</td>
+<td>Recall alone</td>
+</tr>
+<tr class="even">
+<td><strong>Noise dilution</strong> (1 relevant of 4 chunks)</td>
+<td><strong>0.33</strong></td>
+<td>1.00</td>
+<td><strong>0.25</strong></td>
+<td>Relevancy, dragging Precision with it</td>
+</tr>
+</tbody>
+</table>
+<p>Three things easy to miss in that table:</p>
+<ul>
+<li><strong>Healthy retrieval scores only 0.67 on Relevancy.</strong> That is not a bug in the retriever — a
+perfect 1.00 on Relevancy usually means K was set too small, not that the retriever is
+flawless.</li>
+<li><strong>Thin coverage scores 1.00 on two of the three metrics.</strong> If Relevancy is the only metric
+you’re running (the only one that needs no reference), a retriever with a real coverage gap
+looks perfect.</li>
+<li><strong>Relevancy and Precision fail <em>together</em> under noise dilution</strong>, but they <em>decouple</em> under
+bad ranking — noise ranked <em>above</em> signal is simultaneously a ranking failure and a
+signal-to-noise failure, while a reordering with the same chunks present doesn’t touch
+Relevancy at all.</li>
+</ul>
+<h3 id="deciding-which-of-the-three-to-run">Deciding which of the three to run</h3>
+<pre class="mermaid">flowchart TD
+    S[&quot;Retrieval looks wrong&quot;] --&gt; Q1{&quot;Do you have an&lt;br/&gt;expected_output?&quot;}
+    Q1 --&gt;|no| REL[&quot;Contextual Relevancy only&lt;br/&gt;signal-to-noise, runs on live traffic&quot;]
+    Q1 --&gt;|yes| Q2{&quot;Are all the answer&#39;s&lt;br/&gt;claims supported by context?&quot;}
+    Q2 --&gt;|no| CR[&quot;Contextual Recall fails&lt;br/&gt;→ chunking, K, query rewriting&quot;]
+    Q2 --&gt;|yes| Q3{&quot;Are the relevant chunks&lt;br/&gt;ranked above the noise?&quot;}
+    Q3 --&gt;|no| CP[&quot;Contextual Precision fails&lt;br/&gt;→ reranker, hybrid search&quot;]
+    Q3 --&gt;|yes| OK[&quot;Retrieval is sound&lt;br/&gt;→ go look at generation (Sections 4–5)&quot;]
+
+    style CR fill:#D9E3DB,stroke:#2F6B4F
+    style CP fill:#D9E3DB,stroke:#2F6B4F
+    style REL fill:#EDE3CE,stroke:#9A6A12</pre>
+<p>Coverage is checked before ranking on purpose: there’s no point tuning a reranker over a
+context that never contained the answer in the first place.</p>
+<h3 id="the-threshold-trap">The threshold trap</h3>
+<p>The lab’s “thin coverage” scenario lands Contextual Recall at exactly <strong>0.50</strong> — DeepEval’s
+default <code>threshold</code>. That’s dangerous for a concrete reason: the judge is non-deterministic,
+so one flipped claim-level verdict on a re-run flips the whole test case from pass to fail. A
+score sitting exactly on its threshold should be read as a coin toss, not a verdict — either
+move the threshold away from where your scores actually cluster, or re-run near-threshold
+cases and take a majority.</p>
+<h3 id="when-to-use-it-and-when-not-to-1">When to use it, and when not to</h3>
+<p>Reach for judged contextual metrics when you have production traffic and no labelled chunk
+IDs (Relevancy runs on anything), or when your golden set doesn’t cover the query shapes real
+users send and hand-labelling every new one isn’t realistic. Stay with Section 2’s
+deterministic metrics when you’re gating CI on a hard pass/fail line (judge non-determinism
+makes for a flaky gate), when comparing two retrievers head to head (deterministic metrics
+remove judge variance from the comparison entirely), or when cost matters at volume — three
+contextual metrics over 500 test cases is 1,500+ judge calls, before generation has even been
+measured.</p>
+<hr />
+<h2 id="generation-without-a-reference-three-ways-the-answer-is-wrong-can-happen">4. Generation without a reference: three ways “the answer is wrong” can happen</h2>
+<p><em>Notebook: <code>03_Generator_Metrics_Referenceless.ipynb</code> · Lab: <code>03-generator-metrics.html</code></em></p>
+<p>Sections 2–3 asked whether the right chunks reached the prompt. This section asks the next
+question: given whatever <em>was</em> retrieved, is the generated answer any good — without a
+human-written reference answer for every query. These are the checks you can realistically run
+against live production traffic, because none of them need a labelled ground truth for the
+specific query being scored.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Question</th>
+<th>Compares against</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Answer Relevancy</strong></td>
+<td>Does the answer actually address the question that was asked?</td>
+<td><code>input</code> only</td>
+</tr>
+<tr class="even">
+<td><strong>Faithfulness</strong></td>
+<td>Is the answer grounded in what was retrieved, with no invented claims?</td>
+<td><code>retrieval_context</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Hallucination</strong></td>
+<td>Does the answer align with a separately-supplied, trusted <code>context</code>, regardless of what retrieval fetched?</td>
+<td>a curated <code>context</code>, not <code>retrieval_context</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Why “referenceless” doesn’t mean “compares against nothing.”</strong> A <em>reference</em> means one
+specific thing: a correct answer, written by a person, <em>before</em> the system ever ran
+(<code>expected_output</code>). <code>retrieval_context</code> is not that — it’s something the pipeline produced
+<em>while</em> answering, exactly like the generated answer itself. The mechanical test: could this
+metric score a brand-new production query with zero human preparation? Faithfulness and
+Answer Relevancy — yes, which is why they can run on live traffic. Answer Correctness
+(Section 5) — no, because a person has to have written down the right answer first.</p>
+<p><strong>One honest caveat.</strong> Hallucination’s trusted <code>context</code> <em>is</em> human-curated, so it isn’t free
+the way the other two are. It’s referenceless in the sense that matters — it needs no
+<em>per-query</em> answer key, just a maintained corpus of trusted source material — but that corpus
+has to be kept current, so it doesn’t scale to arbitrary traffic quite as freely as
+Faithfulness does. Source material also isn’t an answer key: it says what’s <em>true</em>, not what
+this specific answer <em>should have said</em>.</p>
+</blockquote>
+<p>The judge doesn’t score the answer as one blob — it decomposes first, and the three metrics
+use <strong>different decompositions of the same text</strong>:</p>
+<pre><code>Faithfulness     = (claims supported by retrieval_context) / (total claims)
+Answer Relevancy = (statements that address the input) / (total statements)
+Hallucination     = (claims contradicting the trusted context) / (total claims)</code></pre>
+<p>An answer can have three grounded <em>claims</em> and only one on-topic <em>statement</em> — Faithfulness
+and Answer Relevancy are not just two takes on the same slicing of the text.</p>
+<p><strong>A gotcha worth memorizing: Hallucination’s score runs backwards.</strong> A <em>higher</em> score means
+<em>more</em> hallucination, the opposite convention from Faithfulness and Answer Relevancy, where
+higher is better. Always check a new metric’s score direction rather than assuming.</p>
+<h3 id="telling-the-three-failures-apart">Telling the three failures apart</h3>
+<p>An answer can be wrong in three genuinely different ways, and only one of them is visible to
+any referenceless metric:</p>
+<ul>
+<li><strong>Faithful but irrelevant</strong> — perfectly grounded in the retrieved context, but answers a
+different question than the one asked.</li>
+<li><strong>Relevant but unfaithful</strong> — directly addresses the question, but invents facts that aren’t
+in the context.</li>
+<li><strong>Faithful to bad context</strong> — accurately reflects retrieved chunks that were themselves
+wrong. <strong>Faithfulness cannot catch this.</strong> Neither can Answer Relevancy. Only a
+reference-based check (Section 5) can.</li>
+</ul>
+<pre class="mermaid">flowchart TD
+    A[&quot;actual_output&quot;] --&gt; Q1{&quot;Does it address&lt;br/&gt;the input?&quot;}
+    Q1 --&gt;|no| AR[&quot;Answer Relevancy fails&lt;br/&gt;→ prompt / instruction problem&quot;]
+    Q1 --&gt;|yes| Q2{&quot;Is every claim in&lt;br/&gt;retrieval_context?&quot;}
+    Q2 --&gt;|no| FA[&quot;Faithfulness fails&lt;br/&gt;→ grounding / decoding problem&quot;]
+    Q2 --&gt;|yes| Q3{&quot;Was retrieval_context&lt;br/&gt;itself correct?&quot;}
+    Q3 --&gt;|&quot;referenceless metrics&lt;br/&gt;cannot ask this&quot;| BLIND[&quot;BLIND SPOT&lt;br/&gt;faithful and wrong&quot;]
+    Q3 --&gt;|&quot;needs expected_output&lt;br/&gt;or a trusted context&quot;| AC[&quot;Answer Correctness (§5)&lt;br/&gt;Hallucination&quot;]
+
+    style BLIND fill:#EDDCD8,stroke:#8C2F22
+    style AC fill:#DADCD6,stroke:#3C4E51</pre>
+<p>This blind spot is <strong>structural, not a tuning problem.</strong> Faithfulness is defined <em>relative to</em>
+the retrieved context, so it has no way to evaluate whether that context was true in the first
+place.</p>
+<p><strong>Faithfulness vs. Hallucination — the distinction people get wrong:</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Faithfulness</th>
+<th>Hallucination</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Compares against</td>
+<td><code>retrieval_context</code> — whatever <em>this</em> query’s retriever fetched</td>
+<td>a separate curated <code>context</code>, independent of retrieval</td>
+</tr>
+<tr class="even">
+<td>Score direction</td>
+<td>Higher is better</td>
+<td><strong>Higher is worse</strong></td>
+</tr>
+<tr class="odd">
+<td>Changes per query?</td>
+<td>Yes — the baseline moves with retrieval</td>
+<td>No — the baseline is fixed</td>
+</tr>
+<tr class="even">
+<td>Catches</td>
+<td>A generator inventing beyond what it was given</td>
+<td>An answer contradicting known truth, however it got there</td>
+</tr>
+<tr class="odd">
+<td>Blind to</td>
+<td>Retrieved context that was itself wrong</td>
+<td>Anything outside the curated context</td>
+</tr>
+<tr class="even">
+<td>Runs on live traffic</td>
+<td>Yes, nothing extra needed</td>
+<td>Only where you maintain a trusted corpus</td>
+</tr>
+</tbody>
+</table>
+<p>Use Faithfulness to police the generator. Use Hallucination when you have an independent,
+trusted source and want to check the answer against it regardless of what retrieval returned.</p>
+<h3 id="when-to-use-it-and-when-not-to-2">When to use it, and when not to</h3>
+<p>Reach for referenceless metrics when monitoring production traffic with nobody writing
+reference answers, when catching decoding-level failures — invention, over-claiming, drifting
+off the question — or whenever you need volume, since they scale to any input at zero labelling
+cost. Watch specifically for <strong>Semantic Similarity as a stand-in for correctness</strong> (Section 5)
+and for <strong>vague <code>GEval</code> criteria</strong> (Section 6) — the specificity you put into a rubric is the
+specificity you get back.</p>
+<p><strong>A cheaper alternative for Answer Relevancy specifically.</strong> DeepEval also ships
+<code>RAGASAnswerRelevancyMetric</code>, a binding into RAGAS that scores relevancy with embedding cosine
+similarity instead of an LLM judge call — cheaper and faster, at the cost of missing subtler
+forms of “technically similar wording, wrong answer” that a judge would catch. It’s the same
+tradeoff Section 5 draws out fully for Semantic Similarity vs. Answer Correctness, just applied
+one metric earlier in the pipeline.</p>
+<p><strong>What each of the five metrics in this level structurally cannot catch</strong>, gathered in one
+place (the individual “blind to” details are scattered across Sections 3–5 above):</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Cannot catch</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Contextual Precision / Recall / Relevancy (§3)</td>
+<td>See §3’s own triage table — each of the three is blind to the other two’s failure mode</td>
+</tr>
+<tr class="even">
+<td>Answer Relevancy</td>
+<td>A confidently wrong answer <em>to the right question</em></td>
+</tr>
+<tr class="odd">
+<td>Faithfulness</td>
+<td>Context that was itself wrong</td>
+</tr>
+<tr class="even">
+<td>Hallucination</td>
+<td>Anything outside the one curated context you supplied</td>
+</tr>
+<tr class="odd">
+<td>Answer Correctness (§5)</td>
+<td>Any query with no written reference to check against</td>
+</tr>
+<tr class="even">
+<td>Semantic Similarity (§5)</td>
+<td>Wrong numbers and facts — it measures topic, not truth</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="generation-against-a-reference-answer-correctness-and-semantic-similarity">5. Generation against a reference: Answer Correctness and Semantic Similarity</h2>
+<p><em>Notebook: <code>04_Generator_Metrics_Reference_Based.ipynb</code> · Lab: <code>03-generator-metrics.html</code></em></p>
+<p>Section 4’s three metrics all judge the answer on its own terms — grounded, on-topic,
+consistent with a trusted source. None of them ask the most direct question: <strong>is the answer
+actually correct</strong>, against a known-good reference? That is what this section covers, and it’s
+the only place in Level 1 that can catch “faithful to bad context.”</p>
+<ul>
+<li><strong>Answer Correctness has no dedicated metric class.</strong> That’s not an oversight — “is it
+factually right” is specific to what “right” means for your task, so the recommended pattern
+is a custom <code>GEval</code> rubric rather than one generic class (Section 6 covers how to write one).</li>
+<li><strong>Answer Semantic Similarity</strong> isn’t an LLM-judged metric at all — it’s plain embedding
+cosine similarity between the answer and the reference. Cheap, fast, no judge call — and
+weaker at catching a subtly wrong fact, because two answers can sit close in embedding space
+while disagreeing on the one number that actually matters.</li>
+<li><strong>Both need <code>expected_output</code></strong> — a reference answer a person had to write. That’s the
+precise cost side of the reference-based/referenceless tradeoff from Level 0: exact, but only
+as scalable as your ability to write and keep reference answers current.</li>
+</ul>
+<h3 id="the-same-four-answers-now-with-reference-based-scores-added">The same four answers, now with reference-based scores added</h3>
+<p>Question: <em>“What is the time complexity of deleting a node from a BST?”</em> Reference: <em>“O(h),
+where h is the height of the tree.”</em></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Answer</th>
+<th>Answer Relevancy</th>
+<th>Faithfulness</th>
+<th>Hallucination ↓</th>
+<th>Answer Correctness</th>
+<th>Semantic Similarity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Grounded &amp; relevant</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>0.00</td>
+<td>0.95</td>
+<td>0.94</td>
+</tr>
+<tr class="even">
+<td>Faithful but irrelevant</td>
+<td>0.33</td>
+<td>1.00</td>
+<td>0.00</td>
+<td>0.35</td>
+<td>0.78</td>
+</tr>
+<tr class="odd">
+<td>Relevant but unfaithful</td>
+<td>1.00</td>
+<td>0.50</td>
+<td>0.50</td>
+<td>0.40</td>
+<td>0.91</td>
+</tr>
+<tr class="even">
+<td><strong>Faithful to bad context</strong></td>
+<td><strong>1.00</strong></td>
+<td><strong>1.00</strong></td>
+<td><strong>1.00</strong></td>
+<td><strong>0.10</strong></td>
+<td>0.83</td>
+</tr>
+</tbody>
+</table>
+<p>Read the last row carefully. The retriever returned a chunk claiming BST deletion is O(1). The
+generator repeated it accurately. Every claim is supported by the context it was handed, and
+the answer directly addresses the question — so <strong>both referenceless metrics report a perfect
+score on an answer that is simply false.</strong> Only Answer Correctness, checked against the
+reference, catches it: 0.10.</p>
+<p>The Semantic Similarity column carries its own warning: <strong>0.83</strong> for an answer that says O(1)
+where the truth is O(h). Embeddings measure <em>topic</em>, and “constant time” and “logarithmic time”
+sit topically close together — similarity will happily score a wrong answer as “pretty good.”
+Pair Semantic Similarity with a judged correctness check; never let it substitute for one.</p>
+<h3 id="two-ways-to-write-the-correctness-rubric">Two ways to write the correctness rubric</h3>
+<p><code>GEval</code> (the tool behind Answer Correctness) takes exactly one of two configurations — never
+both at once, it’s one or the other:</p>
+<ul>
+<li><strong><code>criteria</code></strong> — a short, plain-language sentence (<em>“Determine whether actual_output is
+factually correct relative to expected_output, focusing on whether key facts match — wording
+may differ”</em>), which the judge expands into its own evaluation steps internally.</li>
+<li><strong><code>evaluation_steps</code></strong> — an explicit, ordered procedure you write yourself (e.g. <em>“1. list the
+statements in actual_output, 2. check each is relevant to input, 3. check each agrees with
+expected_output, 4. check each is grounded in retrieval_context, 5. penalize anything
+invented”</em>), which lets you weave several test-case fields — input, expected answer, <em>and</em>
+retrieved context — into one rubric at once.</li>
+</ul>
+<p><code>evaluation_steps</code> is the more controllable of the two: instead of trusting the judge to expand
+a one-line criteria into a good procedure, you write the procedure. Section 6 explains why that
+control matters so much.</p>
+<h3 id="when-to-use-it-and-when-not-to-3">When to use it, and when not to</h3>
+<p>Gate CI where you control the test set and want a hard pass/fail bar. Reach for reference-based
+checks specifically when the failure you fear is <em>wrongness</em>, not <em>ungroundedness</em> — which
+covers every index-corruption and stale-document scenario Section 4 structurally cannot see.
+Use them when comparing prompt or model versions, where a fixed reference makes the comparison
+meaningful. And always watch the two traps: Semantic Similarity standing in for correctness,
+and a <code>criteria</code> sentence too vague to say what should fail (Section 6).</p>
+<hr />
+<h2 id="writing-a-rubric-that-doesnt-produce-a-vague-judge">6. Writing a rubric that doesn’t produce a vague judge</h2>
+<p><em>Field guide §1.5</em></p>
+<p>Every custom <code>GEval</code> — Answer Correctness above, or any other rubric you write — comes down to
+one fact: <strong>you are either writing the test, or letting the judge invent it for you.</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>You give the judge</th>
+<th>What happens</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>One sentence — <em>“check the answer is accurate”</em></td>
+<td>The judge has to invent its own evaluation steps, and invents slightly different ones on every run</td>
+<td>The same answer gets different scores on different runs</td>
+</tr>
+<tr class="even">
+<td>Explicit steps — <em>“1. every figure appears in the context, 2. it answers the question asked, 3. no advice beyond the policy”</em></td>
+<td>The judge follows the procedure you wrote</td>
+<td>The same answer gets the same score every time</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Write explicit steps whenever a one-liner won’t pin down what should fail.</strong> Steps also let
+you check several things in one pass — relevance, agreement with a reference, and grounding —
+instead of running three separate metrics.</li>
+<li><strong>A vague rubric never errors.</strong> Nothing goes red. You just get numbers that wobble slightly
+from run to run, with no signal pointing at the rubric as the cause. That’s what makes vague
+rubrics dangerous: they fail silently, as noise, not as a visible break.</li>
+<li><strong>The test to apply to your own rubric:</strong> if you can’t say precisely what would make an
+answer fail it, neither can the judge.</li>
+</ul>
+<p>The same idea shows up outside AI evaluation constantly: handing a human grader “mark this
+fairly” instead of a marking scheme produces five different grades from five different graders,
+every one of them individually defensible.</p>
+<hr />
+<h2 id="evaluation-as-pipeline-gates-not-just-after-the-fact-scoring">7. Evaluation as pipeline gates, not just after-the-fact scoring</h2>
+<p><em>Notebook: <code>05_RAG_Eval_Inside_the_Pipeline.ipynb</code></em></p>
+<p>Every metric in Sections 2–5 scores a RAG system’s output <strong>after the fact</strong> — build a test
+case, hand it to a metric, read a score. That’s how you evaluate offline, against a batch of
+test cases. But context relevance and faithfulness are exactly the kind of check that can also
+run <strong>as part of the pipeline itself</strong>, gating generation on bad retrieval, or flagging a
+hallucinated answer, before either one ever reaches a user.</p>
+<pre class="mermaid">flowchart LR
+    RET[&quot;retrieve&quot;] --&gt; JCR[&quot;judge_context_relevance&lt;br/&gt;(§3&#39;s Contextual Relevancy,&lt;br/&gt;computed by hand)&quot;]
+    JCR --&gt; GEN[&quot;generate&lt;br/&gt;(fed only the relevant chunks)&quot;]
+    GEN --&gt; CF[&quot;check_faithfulness&lt;br/&gt;(§4&#39;s Faithfulness,&lt;br/&gt;computed by hand)&quot;]
+
+    style JCR fill:#D9E3DB,stroke:#2F6B4F
+    style CF fill:#EDE3CE,stroke:#9A6A12</pre>
+<p>Two reasons this pattern is worth knowing, beyond it being a different way to compute the same
+numbers:</p>
+<ol type="1">
+<li><strong>You can act on the result mid-pipeline.</strong> <code>judge_context_relevance</code> runs <em>before</em>
+generation — cheap enough, and early enough, that a real system could branch on it: skip
+generation and ask a clarifying question instead of generating a plausible-sounding answer
+from noise, if nothing relevant came back.</li>
+<li><strong>It demystifies the metric classes.</strong> Building “context relevance” and “faithfulness” out
+of raw judge calls once, by hand, makes it far clearer what a ready-made metric class like
+<code>ContextualRelevancyMetric</code> is actually doing underneath.</li>
+</ol>
+<p>The worked example retrieves three chunks for the BST question, one of them deliberately
+off-topic (a fact about Python lists). The mock judge correctly flags the off-topic chunk
+<code>irrelevant</code>, filters it out <em>before</em> generation runs, and the resulting answer scores
+<strong>Faithfulness 1.00</strong> — no hallucination detected, because it was only ever given the chunks
+that actually supported an answer.</p>
+<p><strong>Prototype against mocked judges first.</strong> Same graph structure, byte-identical output, zero
+cost — build and debug the pipeline’s <em>shape</em> this way. Only once that shape is right do you
+swap in real judge calls, and that swap is exactly where non-determinism becomes visible: the
+same graph, run twice against a live model, can produce slightly different judgments and
+slightly different extracted claims each time. That’s why production evals typically run a
+judge at <code>temperature=0</code> (as deterministic as a model can be made) and sometimes track
+judge-agreement itself as a metric, rather than trusting any single pass.</p>
+<hr />
+<h2 id="ragas-as-a-second-opinion-and-the-pytestci-batch-pattern">8. RAGAS as a second opinion, and the pytest/CI batch pattern</h2>
+<p><em>Notebook: <code>06_RAGAS_in_Practice.ipynb</code></em></p>
+<p>RAGAS is a second framework — narrower in scope than DeepEval, RAG-specific, and a common
+default in the wider RAG ecosystem — that measures the same ideas from Sections 3–4 in its own
+vocabulary:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>RAGAS class</th>
+<th>The DeepEval idea it mirrors</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>LLMContextPrecisionWithoutReference</code></td>
+<td>Contextual Precision (§3)</td>
+<td>The <code>WithoutReference</code> suffix spells the reference-based/referenceless split out in the class name itself, rather than leaving you to infer it from which fields you populate</td>
+</tr>
+<tr class="even">
+<td><code>LLMContextRecall</code></td>
+<td>Contextual Recall (§3)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>Faithfulness</code></td>
+<td>Faithfulness (§4)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Two mechanical differences worth knowing if you switch between the two libraries: RAGAS’s unit
+of evaluation is a <code>SingleTurnSample</code> (fields <code>user_input</code>, <code>response</code>, <code>retrieved_contexts</code>,
+<code>reference</code>) rather than DeepEval’s <code>LLMTestCase</code> — same idea, different field names — and
+RAGAS is <strong>async-first</strong> (<code>await sample.single_turn_ascore(...)</code>, or <code>asyncio.run(...)</code>),
+where DeepEval defaults to a synchronous <code>.measure()</code>. RAGAS also wants an explicit
+<code>LangchainLLMWrapper</code> around any LangChain-compatible chat model to act as its judge, rather
+than resolving a judge from a <code>model="..."</code> string the way DeepEval does — a small extra step
+that buys the ability to use <em>any</em> LangChain-integrated provider as the judge, not only
+OpenAI models by name.</p>
+<p>On a sample built so retrieval pulls in one irrelevant chunk alongside a correct one, Context
+Precision comes back lower than Context Recall — the same signature Section 3 already taught
+you to read: precision is penalized directly by noise sitting in the ranking, while recall
+(checked against the reference, which the irrelevant chunk doesn’t contradict) is far less
+affected by it.</p>
+<h3 id="the-batchci-pattern">The batch/CI pattern</h3>
+<p>A single hand-built test case teaches you what a metric does. It says nothing about your
+system. Turning “one scored example” into “a real evaluation” is always the same shape:</p>
+<blockquote>
+<p>dataset of inputs → call the <strong>live</strong> system once per row → score the real response → write
+the score back beside its input</p>
+</blockquote>
+<p>The production version of this in the repo’s source material is a <code>pytest</code>-parametrized test
+that reads questions from a spreadsheet, calls a live RAG backend for each one, scores the
+response with RAGAS, writes the score back into the same spreadsheet next to the question that
+produced it, and asserts the score as a CI gate. <code>pytest.mark.parametrize</code> is what turns “one
+eval sample” into “one test per row” — pytest itself becomes the batch runner and the pass/fail
+reporter, with no separate eval-harness loop to write. This is a general pattern, not specific
+to RAGAS or to this one notebook — Level 1’s own capstone (Section 9) runs a version of it, and
+Level 2 reuses the exact same shape for tool-use and task-completion metrics.</p>
+<p>Why every row has to hit the <em>live</em> system matters: scores land right next to the input that
+produced them (a bad number is one click from its cause — a dashboard, not just a diagnosis),
+and the whole thing re-runs on demand, which is the actual prerequisite for comparing a change
+against what’s currently live.</p>
+<hr />
+<h2 id="building-a-rag-system-and-synthesizing-a-golden-set">9. Building a RAG system and synthesizing a golden set</h2>
+<p><em>Notebook: <code>07_RAG_Capstone_Build_and_Evaluate.ipynb</code> · Field guide §1.8</em></p>
+<p>Every notebook up to this point either used hand-constructed test cases (Sections 2–6) or
+fixture data in a toy graph (Section 7). The capstone does the real thing:</p>
+<pre class="mermaid">flowchart TD
+    D[&quot;10 real documents&lt;br/&gt;(a small CSV)&quot;] --&gt; IDX[&quot;Indexed into Chroma&lt;br/&gt;(a vector store)&quot;]
+    IDX --&gt; RC[&quot;A real retriever + generator chain&lt;br/&gt;(the actual RAG system)&quot;]
+    D --&gt; SYN[&quot;Synthesizer generates&lt;br/&gt;question + reference-answer pairs&lt;br/&gt;FROM the documents&quot;]
+    SYN --&gt; GOLD[&quot;Golden dataset&quot;]
+    GOLD --&gt;|&quot;each golden question run through&quot;| RC
+    RC --&gt; TC[&quot;Test cases built from LIVE retrieval,&lt;br/&gt;not from the golden&#39;s source doc&quot;]
+    TC --&gt; SUITE[&quot;Full metric suite&lt;br/&gt;(§2–§5, all at once)&quot;]
+    SUITE --&gt; TABLE[&quot;One row per question,&lt;br/&gt;one column per metric&quot;]
+
+    style SYN fill:#EDE3CE,stroke:#9A6A12
+    style TC fill:#D9E3DB,stroke:#2F6B4F</pre>
+<p><strong>Hand-writing reference answers doesn’t scale past a handful of examples.</strong> A synthesizer
+generates question/expected-answer pairs directly from your own documents instead, evolved
+along dimensions you choose — for instance, requiring multi-step reasoning, or requiring
+information pulled from more than one chunk at once — so you get a labelled eval set without
+writing a single reference answer by hand. <strong>Spot-check the output anyway</strong>: a generated
+question is only as good as the generation process that produced it.</p>
+<p><strong>The one detail that makes this an honest end-to-end test, not a generator-only test:</strong> each
+golden question’s test case is built by <em>actually running the live retriever</em> on that
+question — not by reusing the document the golden question was originally generated from. If
+the retriever performs badly on a given question, its <code>retrieval_context</code> reflects that badly,
+and the evaluation below is testing the real, currently-deployed pipeline, not just checking
+whether the generator can write a good answer given hand-picked, perfect context.</p>
+<p>Running the full metric suite together — retrieval and generation, reference-based and
+referenceless, all at once — over every golden question is how a RAG quality report actually
+gets read in practice: an aggregate table (mean, min, max per metric), not one hand-picked
+example eyeballed at a time. Which is exactly what Section 10 explains how to read.</p>
+<hr />
+<h2 id="reading-the-results">10. Reading the results</h2>
+<p><em>Field guide §1.9</em></p>
+<p>A table of per-metric scores across a golden set is diagnostic, not just descriptive — if you
+read it right.</p>
+<ul>
+<li><strong>Diagnose by pattern, not by the headline number.</strong> Low Contextual Precision with high
+everything else points at a ranking problem (Section 3). Low Faithfulness alongside high
+Contextual Relevancy points at the generator inventing things despite good retrieval
+(Section 4). The <em>shape</em> of a scorecard carries more information than any single number in
+it.</li>
+<li><strong>Aggregates hide the thing you need to see.</strong> An 85% average with one query category sitting
+at zero, and an 85% average spread evenly across every category, are two entirely different
+systems reporting the identical headline score.</li>
+<li><strong>Slice before you conclude.</strong> Break scores down by query category, tenant, intent, or
+document type before deciding the system is “fine” or “broken” — an aggregate can hide a
+segment that’s failing completely.</li>
+</ul>
+<hr />
+<h2 id="question-bank-corner-retrieval-and-generation-numbers-live-on-a-dashboard">Question-bank corner — retrieval and generation numbers, live on a dashboard</h2>
+<p><em>(From <code>QUESTION_BANK.md</code>, Part 10, §10.1–§10.3 — the three sections that map onto Level 1’s
+three labs. §10.4 onward belongs to Level 2’s tool-use and trajectory material and isn’t
+repeated here.)</em></p>
+<p>These aren’t the conceptual questions Sections 1–10 already answered — they’re the follow-up
+questions asked once an interviewer has your metrics dashboard on screen, phrased the way a
+production, real-time interview round (OpenAI-, Anthropic-, Google-caliber) tends to phrase
+them. A representative sample from each of the three sections:</p>
+<ul>
+<li><strong>§10.1 (deterministic retrieval):</strong> <em>“Leadership wants one number for retrieval quality on
+an exec dashboard — what do you put there, and what do you say about the request?”</em> A strong
+answer picks Recall@K if forced (it’s the ceiling everything downstream is capped by), states
+plainly what that one number hides (a good recall figure is compatible with the right answer
+sitting at rank 8 under seven pieces of noise), and proposes Recall@K on the dashboard with
+Precision@K and MRR one click away, rather than either refusing the request or pretending one
+number is enough.</li>
+<li><strong>§10.2 (LLM-judged retrieval):</strong> <em>“Contextual Precision drops from 0.91 to 0.62 after a
+release; Recall and Relevancy are unchanged. What shipped?”</em> The signature reads directly off
+Section 3’s table: the same chunks are still being retrieved (recall didn’t move) but their
+<em>order</em> changed — so the likely cause is a reranker change, a scoring/fusion weight change, or
+how ties get broken, not an embedding or chunking change.</li>
+<li><strong>§10.3 (generator metrics):</strong> <em>“Faithfulness and Answer Relevancy both sit above 0.95 for a
+month, then a customer proves the assistant has been giving wrong compliance guidance the
+whole time. How is that possible?”</em> This is Section 4/5’s blind spot, verbatim: both metrics
+are referenceless, so a knowledge-base document that is itself wrong produces a perfectly
+faithful, perfectly relevant, <em>wrong</em> answer — no threshold on either metric could have caught
+it, because it’s a structural blind spot, not a calibration failure. The fix is reference-based
+coverage (Section 5) for the high-stakes slice, plus an upstream fix: index freshness
+monitoring, since the root cause lives in the knowledge base, not the model.</li>
+</ul>
+<p>The full sections (§10.1 has 5 questions, §10.2 has 5, §10.3 has 4) walk through the reasoning
+for each in more depth than fits here — this corner is a map of <em>what kind</em> of question to
+expect, not a substitute for reading them.</p>
+<hr />
+<h2 id="references">References</h2>
+<p>All content above was drawn only from material already in this repository. Nothing here was
+invented, and no external source was consulted.</p>
+<p><strong>Notebook:</strong></p>
+<ul>
+<li><code>courses/01-rag-agent-tool-evaluation/01_Retrieval_Metrics_Deterministic.ipynb</code> — the four
+deterministic retrieval metrics, their formulas, and the BST worked example (Section 2).</li>
+<li><code>courses/01-rag-agent-tool-evaluation/02_Retrieval_Metrics_LLM_Judged.ipynb</code> — the three
+Contextual metrics and the Apache Spark / Type 2 Diabetes / climate-change worked examples
+(Section 3).</li>
+<li><code>courses/01-rag-agent-tool-evaluation/03_Generator_Metrics_Referenceless.ipynb</code> — Answer
+Relevancy, Faithfulness, and Hallucination, plus the “why referenceless” callout and the
+score-direction gotcha (Section 4).</li>
+<li><code>courses/01-rag-agent-tool-evaluation/04_Generator_Metrics_Reference_Based.ipynb</code> — Answer
+Correctness (<code>GEval</code>, both configuration styles) and Answer Semantic Similarity (Sections 5–6).</li>
+<li><code>courses/01-rag-agent-tool-evaluation/05_RAG_Eval_Inside_the_Pipeline.ipynb</code> — evaluation
+wired directly into a LangGraph pipeline as gates, mocked and then live (Section 7).</li>
+<li><code>courses/01-rag-agent-tool-evaluation/06_RAGAS_in_Practice.ipynb</code> — RAGAS’s own API shape and
+the pytest/CI batch pattern (Section 8).</li>
+<li><code>courses/01-rag-agent-tool-evaluation/07_RAG_Capstone_Build_and_Evaluate.ipynb</code> — building a
+real RAG system, synthesizing a golden dataset, and running the full metric suite end to end
+(Section 9).</li>
+</ul>
+<p><strong>Docs:</strong></p>
+<ul>
+<li><code>docs/concepts/rag-agent-tool-evaluation.md</code>, Part 1 (§1.1–§1.9) — the compressed reference
+version of every section above, plus §1.5 (writing a rubric) and §1.9 (reading results), which
+have no notebook of their own.</li>
+<li><code>docs/concepts/rag-agent-tool-evaluation.md</code>, Part 6 (§6.1–§6.3) — the slow narrative version
+of Sections 2–5, walked against the same numbers used above, including the triage tables and
+the “when to use it / when not to” guidance reused directly in this file.</li>
+<li><code>docs/interactive-labs/01-deterministic-retrieval-metrics.html</code>,
+<code>docs/interactive-labs/02-llm-judged-retrieval-metrics.html</code>,
+<code>docs/interactive-labs/03-generator-metrics.html</code> — the three companion labs; each contributed
+its scenario table and its own framing of the “what this metric is blind to” column, folded
+into Sections 2, 3, and 4–5 respectively rather than repeated separately.</li>
+<li><code>docs/interview-prep/QUESTION_BANK.md</code>, Part 10, §10.1–§10.3 — the metric-level, dashboard-framed
+follow-up questions used in the Question-bank corner.</li>
+<li><code>docs/study-guide/evaluation-roadmap.md</code> — used to scope Level 1’s topic list and goal
+statement, not quoted directly.</li>
+<li><code>docs/study-guide/evaluation-topic-notebook-mapping.md</code> — used for the resource list and cost
+tags (all Level 1 notebooks are tagged <code>key</code>, meaning they make live <code>OPENAI_API_KEY</code> calls
+when actually run; this file was written without running any of them).</li>
+</ul>
+<p><strong>Limitations.</strong> This file was written by reading the repository’s own notebooks, field guide,
+labs, and question bank — not by running any notebook or calling any API — no cost was incurred
+producing it, consistent with this project’s rule against executing anything that spends money
+without being asked. It does not independently verify DeepEval’s, RAGAS’s, or LangGraph’s own
+upstream documentation; every description of what those libraries do is this repository’s own
+characterization (its notebooks and field guide), not a review of the vendors’ docs.</p>
+<div class="footer-nav">
+  <a href="00-orientation.html">← Previous: Orientation</a>
+  <a href="02-agents-tools-conversations-trajectories-outcomes.html">Next: → Agents, Tools, Conversations, Trajectories &amp; Outcomes</a>
+</div>
+</main>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: { primaryColor: '#D9E3DB', primaryBorderColor: '#2F6B4F', primaryTextColor: '#0E2226', lineColor: '#4a5450', fontFamily: 'sans-serif' } });
+</script>
+</body>
+</html>

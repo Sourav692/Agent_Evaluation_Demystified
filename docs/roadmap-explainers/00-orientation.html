@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orientation — Agent Evaluation Demystified</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js" charset="utf-8"></script>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --panel: #ffffff;
+    --ink: #1c2321;
+    --ink-soft: #4a5450;
+    --accent: #2F6B4F;
+    --accent-soft: #D9E3DB;
+    --border: #e2e0da;
+    --code-bg: #f2f1ec;
+    --link: #1d5c86;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+  }
+  .topbar {
+    background: var(--accent);
+    color: #fff;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 6px;
+  }
+  .topbar a:hover { background: rgba(255,255,255,0.15); }
+  .topbar .brand { font-weight: 700; font-size: 15px; }
+  .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 36px 24px 80px;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 { font-size: 2rem; line-height: 1.25; margin: 0 0 8px; color: var(--ink); }
+  h2 {
+    font-size: 1.4rem;
+    margin-top: 2.4em;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-soft);
+    color: var(--accent);
+  }
+  h3 { font-size: 1.15rem; margin-top: 1.8em; color: var(--ink); }
+  h4 { font-size: 1rem; margin-top: 1.4em; }
+  p { margin: 1em 0; }
+  a { color: var(--link); }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.5em 0; }
+  blockquote {
+    margin: 1.5em 0;
+    padding: 12px 18px;
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+  }
+  blockquote p { margin: 0.4em 0; }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: "SF Mono", Consolas, Monaco, monospace;
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 14px 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+  }
+  pre code { background: none; padding: 0; }
+  pre.mermaid, div.mermaid {
+    background: var(--panel);
+    text-align: center;
+    padding: 20px 10px;
+    border: 1px solid var(--border);
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1.5em 0;
+    font-size: 0.94rem;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: var(--accent-soft); color: var(--accent); }
+  tr:nth-child(even) td { background: #f6f5f1; }
+  ul, ol { padding-left: 1.4em; }
+  li { margin: 0.4em 0; }
+  strong { color: var(--ink); }
+  img { max-width: 100%; }
+  .footer-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3em;
+    padding-top: 1.5em;
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .footer-nav a { text-decoration: none; font-weight: 600; }
+  @media (max-width: 600px) {
+    main { padding: 24px 16px 60px; }
+    h1 { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="brand">Agent Evaluation Demystified</span>
+  <div class="nav-links">
+    
+    <a href="01-rag-retrieval-and-generation.html">→ RAG: Retrieval &amp; Generation</a>
+  </div>
+</div>
+<main>
+<div class="badge">Level 0 &middot; Beginner</div>
+<h1 id="level-0-explainer-orientation">Level 0 Explainer: Orientation</h1>
+<p><em>A plain-language walkthrough of everything Level 0 covers, pulled together from the
+notebook, the field guide, the interactive lab, and the interview question bank — with
+nothing repeated twice. If you only read one file before starting the roadmap, read this one.</em></p>
+<blockquote>
+<p><strong>Who this is for.</strong> You don’t need to know any of the tools named below (DeepEval, RAGAS,
+MLflow, Phoenix) to follow this. Every technical term is defined in plain words the first
+time it shows up.</p>
+</blockquote>
+<hr />
+<h2 id="why-this-level-exists">Why this level exists</h2>
+<p>“Evaluate the AI system” sounds like one task. It isn’t. A chatbot that searches documents
+and then answers a question is really a small assembly line: it searches, then it writes an
+answer, then — if it’s an agent — it might call tools (send an email, book something, look up
+an order) in some order, across possibly many turns of a conversation, before it finally does
+or says the thing the user actually wanted.</p>
+<p>Each of those stages can fail in a different way, for a different reason, and the fix for one
+failure does nothing for another. If you only have one blunt “is it good?” check, you cannot
+tell <em>which</em> stage broke — and you’ll waste time fixing the wrong thing.</p>
+<p>Level 0’s whole job is to give you the map before you start measuring anything: what the
+stages are, what kind of check fits each one, what that check costs, and which tool people
+usually reach for. Nothing here is executable — it’s the vocabulary and the decision rules
+you’ll use in every later level.</p>
+<hr />
+<h2 id="the-five-things-you-can-actually-evaluate">1. The five things you can actually evaluate</h2>
+<p>Think of a support agent that searches a knowledge base and can also issue refunds. Its work
+breaks into five layers, and a wrong final answer could be caused by a problem in <em>any</em> of
+them:</p>
+<table>
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 42%" />
+<col style="width: 39%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Layer</th>
+<th>The question it answers</th>
+<th>A concrete symptom</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>① Retrieval</strong></td>
+<td>Did we fetch the right information?</td>
+<td>The agent quotes a policy that isn’t the current one</td>
+</tr>
+<tr class="even">
+<td><strong>② Generation</strong></td>
+<td>Given what it found, did it write a grounded, on-topic answer?</td>
+<td>It invents a detail that wasn’t in the source it read</td>
+</tr>
+<tr class="odd">
+<td><strong>③ Tool mechanics</strong></td>
+<td>Did it call the right tool with the right inputs?</td>
+<td>It calls<code>refund()</code> with the wrong order ID</td>
+</tr>
+<tr class="even">
+<td><strong>④ Trajectory</strong></td>
+<td>Was the<em>sequence</em> of steps sensible?</td>
+<td>It checks the same order three times before acting</td>
+</tr>
+<tr class="odd">
+<td><strong>⑤ Outcome</strong></td>
+<td>Did the real-world result actually happen?</td>
+<td>It says “refund issued” but no refund exists in the system</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The rule to remember: mechanics ≠ process ≠ outcome.</strong> Calling the right tool with the right
+arguments doesn’t guarantee the steps were taken in a sound order, and a sound order doesn’t
+guarantee the user’s goal was actually met. You have to check all three separately — none of
+them substitutes for the others.</p>
+<pre class="mermaid">flowchart LR
+    subgraph L1[&quot;① Retrieval&quot;]
+        direction TB
+        R1[&quot;Right chunks fetched?&quot;]
+    end
+    subgraph L2[&quot;② Generation&quot;]
+        direction TB
+        G1[&quot;Answer grounded &amp; on-topic?&quot;]
+    end
+    subgraph L3[&quot;③ Tool mechanics&quot;]
+        direction TB
+        T1[&quot;Right tool, right arguments?&quot;]
+    end
+    subgraph L4[&quot;④ Trajectory&quot;]
+        direction TB
+        J1[&quot;Was the path efficient &amp; sound?&quot;]
+    end
+    subgraph L5[&quot;⑤ Outcome&quot;]
+        direction TB
+        O1[&quot;Did the real side effect happen?&lt;br/&gt;(the strongest signal — read the&lt;br/&gt;system of record directly)&quot;]
+    end
+    L1 --&gt; L2 --&gt; L3 --&gt; L4 --&gt; L5
+    style O1 fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226</pre>
+<p><strong>Why outcome verification is the strongest check of all.</strong> An LLM can write a perfectly
+fluent sentence — <em>“Your refund of $45 has been issued”</em> — whether or not a refund actually
+happened. A judge that only reads that sentence can be fooled by confident, wrong prose.
+Checking the real database, ledger, or booking system directly cannot be fooled this way,
+because it isn’t reading a description of the event — it’s reading the event.</p>
+<p><strong>A sixth behavior worth naming, even though it doesn’t fit neatly into the five layers
+above: conversational quality.</strong> Across a multi-turn dialogue an agent can pass every one of
+the five layer-checks on every individual turn and still fail overall — by forgetting what the
+user said three turns ago, drifting off-topic turn by turn, or giving advice it shouldn’t once
+the conversation has gone on long enough. It’s a separate axis from the five above because the
+failure only shows up <em>across</em> turns, not within any single one. This roadmap picks it up
+properly at Level 2.</p>
+<h3 id="what-breaks-where-at-a-glance">What breaks where, at a glance</h3>
+<p>This is the same five layers, but read as a troubleshooting table: symptom on the left, what
+actually catches it and what that costs on the right.</p>
+<table>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 11%" />
+<col style="width: 21%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>① Retrieval (no labels)</th>
+<th>① Retrieval (with labels)</th>
+<th>② Generation</th>
+<th>③ Tool use</th>
+<th>④ Trajectory</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Symptom you’d notice</strong></td>
+<td>“It hallucinated”</td>
+<td>Missed a chunk you know exists</td>
+<td>Answer is wrong but every metric is green</td>
+<td>“Your flight is booked!” (it wasn’t)</td>
+<td>99% success rate, but cost tripled</td>
+</tr>
+<tr class="even">
+<td><strong>What actually catches it</strong></td>
+<td>An LLM judge scoring relevance</td>
+<td>Precision@K / Recall@K (exact math)</td>
+<td>Answer Correctness against a written answer</td>
+<td>Checking the arguments passed to the tool</td>
+<td>Reading the real system of record</td>
+</tr>
+<tr class="odd">
+<td><strong>What it costs</strong></td>
+<td>One judge call per case</td>
+<td>Free, instant</td>
+<td>1–3 judge calls per case</td>
+<td>Free (it’s just checking a value) or one call</td>
+<td>A full run of the whole trace</td>
+</tr>
+<tr class="even">
+<td><strong>What it needs</strong></td>
+<td>Nothing pre-written</td>
+<td>A list of which chunks are correct, written in advance</td>
+<td>A correct answer, written in advance</td>
+<td>The expected tool name/arguments, or nothing</td>
+<td>The full trace plus the real system of record</td>
+</tr>
+<tr class="odd">
+<td><strong>Runs in CI?</strong></td>
+<td>Smoke set per commit</td>
+<td>Every commit</td>
+<td>Nightly full suite</td>
+<td>Every commit</td>
+<td>Pre-release</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="the-one-question-that-splits-every-metric-in-two-does-it-need-an-answer-key">2. The one question that splits every metric in two: does it need an answer key?</h2>
+<p>This is the single most important distinction in evaluation, because it decides <em>where</em> a
+check can run.</p>
+<ul>
+<li><strong>Reference-based</strong> — the check compares the output to something a <strong>person wrote down
+before the system ever ran</strong>: the correct answer, the correct list of chunks, the correct
+tool call. Precise, and perfect for automated testing — but someone has to write and
+maintain that answer key, so it only scales to a curated test set, never to live traffic.</li>
+<li><strong>Referenceless</strong> — the check judges quality using only things the <strong>run itself just
+produced</strong>. Faithfulness, for example, compares the answer to the passages the system just
+retrieved — nobody wrote those passages in advance, the retriever produced them a moment
+ago. This scales to any real user question at zero labeling cost, but it’s less precise and
+only as good as whatever is judging it.</li>
+</ul>
+<blockquote>
+<p><strong>A common trap.</strong> “Referenceless” does <em>not</em> mean “reads nothing.” It means no <em>human-
+written correct answer</em> is involved. Faithfulness reads plenty — the question, the answer,
+and the retrieved passages — it just never reads a pre-written answer key.</p>
+</blockquote>
+<p><strong>The mechanical test that settles it every time:</strong> <em>could this check score a brand-new,
+never-seen-before question from a real user, with zero human preparation?</em> If yes, it’s
+referenceless and can run in production. If the check needs someone to have already written
+the “right answer,” it can never run on live traffic — however good it is — because nobody has
+written a right answer for a question that hasn’t been asked yet.</p>
+<p><strong>This split cuts across the five layers, not along them.</strong> Two checks that both look at
+retrieval can land on opposite sides: one metric might compare the retrieved passages to the
+<em>question</em> (referenceless — no answer key needed), while a close neighbor compares the same
+passages to the <em>expected answer</em> (reference-based). Same retrieved chunks, opposite sides of
+the line — so “which layer is this?” and “does it need a reference?” are two independent
+questions, not one.</p>
+<pre class="mermaid">flowchart TD
+    Q{&quot;Does this check need a&lt;br/&gt;correct-answer key written&lt;br/&gt;down beforehand?&quot;}
+    Q --&gt;|&quot;Yes&quot;| REF[&quot;Reference-based&lt;br/&gt;precise · gateable in CI&lt;br/&gt;CANNOT run on live production traffic&quot;]
+    Q --&gt;|&quot;No&quot;| FREE[&quot;Referenceless&lt;br/&gt;scales to any traffic, free to label&lt;br/&gt;only as good as the judge behind it&quot;]
+    style REF fill:#EDE3CE,stroke:#9A6A12,color:#0E2226
+    style FREE fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226</pre>
+<p><strong>Mature setups run both</strong> — reference-based checks in CI against a curated test set,
+referenceless checks on live traffic. It’s not a choice between the two; each one covers a gap
+the other cannot.</p>
+<h3 id="the-blind-spot-in-the-oldest-referenceless-metrics-word-overlap-scores">The blind spot in the oldest referenceless metrics: word-overlap scores</h3>
+<p>Before anyone used an LLM to judge text, quality was scored by counting overlapping words with
+a reference answer. You’ll still meet these three constantly, so it’s worth knowing exactly
+where they mislead:</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 69%" />
+<col style="width: 18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>What it actually measures</th>
+<th>What it was built for</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>BLEU</strong></td>
+<td>How many chunks of words (“n-grams”) in the answer also appear in the reference</td>
+<td>Machine translation</td>
+</tr>
+<tr class="even">
+<td><strong>ROUGE-L</strong></td>
+<td>The longest run of matching words shared between the answer and the reference</td>
+<td>Summarization</td>
+</tr>
+<tr class="odd">
+<td><strong>BERTScore</strong></td>
+<td>The same idea, but matching by meaning (via embeddings) instead of exact words, so a paraphrase can still count</td>
+<td>Anything where wording varies</td>
+</tr>
+</tbody>
+</table>
+<p>Here’s the example that makes the failure concrete. Reference answer: <em>“Refunds are available
+within 14 days of renewal.”</em></p>
+<table>
+<colgroup>
+<col style="width: 71%" />
+<col style="width: 7%" />
+<col style="width: 4%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Candidate answer</th>
+<th>ROUGE-L</th>
+<th>BLEU</th>
+<th>Actually correct?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“Refunds are available within 14 days of renewal.”</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>✅ Yes</td>
+</tr>
+<tr class="even">
+<td>“Refunds are<strong>not</strong> available within 14 days of renewal.”</td>
+<td>0.94</td>
+<td>0.66</td>
+<td>❌<strong>No</strong></td>
+</tr>
+<tr class="odd">
+<td>“You can get your money back up to two weeks after the renewal date.”</td>
+<td>0.09</td>
+<td>0.00</td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+<p>One inserted word (“not”) flips the meaning entirely, and it only costs six points of ROUGE-L.
+A completely correct paraphrase that shares almost no wording scores 0.09. <strong>The metric ranks
+the false answer ten times higher than the true one — reliably, not as a rare edge case.</strong></p>
+<p>The reason, in one line: these metrics measure <em>how similar the wording looks</em>, not <em>whether
+the statement is true</em>. BERTScore fixes half the problem — it correctly rescues the paraphrase
+in row three, because embeddings recognize the meaning is the same. It does <strong>not</strong> rescue row
+two, because “available” and “not available” sit close together in embedding space too.
+Negation, numbers, dates, and conditions are exactly where every similarity-based metric
+breaks down — and that is most of what a real support answer needs to get right.</p>
+<p><strong>These metrics aren’t useless — they’re narrow.</strong> They’re the right tool when the output is
+templated or extractive (so matching wording actually is the thing you’re testing), when
+you’re regression-testing and only need to know <em>whether the output changed</em> rather than
+whether it got better (cheap, deterministic, no API call), or when you’re summarizing against
+a fixed reference and have already measured, on your own data, that the score correlates with
+what a human would say. As one data point: a well-known evaluation guide uses “ROUGE-L ≥ 0.40”
+as a threshold in a summarization example — read that as “the summary is drawn from the source
+text,” a formatting-and-extraction check, never as “the summary is correct.” Where a real
+answer key exists and correctness genuinely matters, an LLM judge given an explicit rubric (or
+semantic similarity, where some paraphrase tolerance is wanted) is what later levels reach for
+instead.</p>
+<hr />
+<h2 id="llm-as-judge-powerful-but-not-an-oracle">3. LLM-as-judge: powerful, but not an oracle</h2>
+<p>Most referenceless checks (and even some reference-based ones, like Answer Correctness) work
+by handing the output to a second LLM and asking it to judge quality against a rubric. This is
+the only practical way to score open-ended text at scale — but treating the judge’s number as
+ground truth is the single most common mistake in evaluation work. Specifically:</p>
+<ul>
+<li><strong>Judge capability matters.</strong> A weaker model produces noisier, less trustworthy scores — the
+judge often needs to be at least as capable as the system it’s grading.</li>
+<li><strong>The same input can get two different scores.</strong> Ask the same judge to score the same case
+twice and it can disagree with itself, especially near a pass/fail threshold. Treat one score
+as a noisy estimate, never as an exact fact, and never gate a release on a single row.</li>
+<li><strong>Vague instructions produce a vague judge.</strong> A one-line rubric like “is this a good answer?”
+produces an inconsistent judge. The precision you put into writing the rubric is the
+precision you get back in the judgment.</li>
+<li><strong>Cost and time add up fast.</strong> Every judged check is at least one extra API call per case,
+per metric. Five checks over 500 test cases is 2,500+ calls — this is why the reference-
+based/referenceless split above is a budget decision, not just a conceptual one.</li>
+<li><strong>Nobody validates the validator by default.</strong> An unchecked judge produces numbers that are
+internally consistent with itself but never verified against what a human would actually
+say. It’s good at detecting <em>that something changed</em>, not at asserting <em>that it’s good</em>.</li>
+<li><strong>Measure agreement, not average.</strong> A judge that rates almost everything highly produces a
+beautiful-looking average score and is completely useless — the number to watch is how often
+the judge agrees with a human on the <em>same</em> case, not how high its scores run overall.</li>
+<li><strong>It can be fooled by confident, fluent, wrong text.</strong> An LLM judge reads the words and
+decides whether they <em>sound</em> right — which is exactly why outcome verification (layer ⑤
+above) matters: reading the real system of record can’t be talked into a wrong verdict by
+good writing.</li>
+<li><strong>The score’s direction isn’t always what you’d assume.</strong> A metric named after the failure
+it detects runs backwards — a “Hallucination” score of 0.9 means a <em>lot</em> of hallucination,
+not excellent grounding. Always check which direction is “good” before wiring a threshold to
+it.</li>
+</ul>
+<hr />
+<h2 id="the-decision-youll-make-constantly-code-or-a-judge">4. The decision you’ll make constantly: code, or a judge?</h2>
+<p>Every time you want to add a new check, you’re really asking one question, twice.</p>
+<p>A <strong>scorer</strong> is just one automatic check: it looks at a single case and answers one yes/no or
+numeric question about it. There are only two ways to build one:</p>
+<table>
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 48%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>How it works</th>
+<th>What it costs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Code</strong></td>
+<td>An ordinary program:<code>if amount &gt; 500: fail</code></td>
+<td>Nothing — free and instant</td>
+</tr>
+<tr class="even">
+<td><strong>A judge</strong></td>
+<td>A second LLM reads the case and gives a verdict</td>
+<td>One API call, per case, per check</td>
+</tr>
+</tbody>
+</table>
+<p>Every named metric you’ll meet in DeepEval, RAGAS, or MLflow is really one of these two, wearing
+a framework’s naming on top.</p>
+<pre class="mermaid">flowchart TD
+    Q1{&quot;Can an ordinary program work&lt;br/&gt;out the right answer from the&lt;br/&gt;inputs, outputs, or trace?&quot;}
+    Q1 --&gt;|&quot;Yes — e.g. &#39;was the refund&lt;br/&gt;over $500?&#39;, &#39;was check_order&lt;br/&gt;called first?&#39;&quot;| CODE[&quot;Use code.&lt;br/&gt;Free, instant, and never wobbles.&quot;]
+    Q1 --&gt;|&quot;No — e.g. &#39;was the reply&lt;br/&gt;polite?&#39; has no formula&quot;| Q2{&quot;What are you judging —&lt;br/&gt;the answer, or the path?&quot;}
+    Q2 --&gt;|&quot;The final reply the&lt;br/&gt;user saw&quot;| ANS[&quot;Judge the answer.&lt;br/&gt;One (small) call per case.&quot;]
+    Q2 --&gt;|&quot;The steps taken&lt;br/&gt;to get there&quot;| PATH[&quot;Judge the path (trajectory).&lt;br/&gt;One (large) call per case —&lt;br/&gt;the whole trace, not just the reply.&quot;]
+    style CODE fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226</pre>
+<p><strong>Why an agent needs the “path” question at all.</strong> An agent can reach a <em>good</em> answer through a
+<em>terrible</em> process — refunding money without checking anything and getting lucky produces a
+perfectly nice-sounding reply. Judge only the final answer and you will never catch this.</p>
+<p><strong>One wrinkle that isn’t a third option.</strong> Sometimes a judge needs information it doesn’t have
+in front of it — to decide “did this follow our refund policy?”, the judge needs the actual
+policy text handed to it, since it can’t go fetch it. That’s not a new kind of scorer; it’s the
+same judge with someone bringing it the paperwork first.</p>
+<p><strong>Why “code first” isn’t really about saving money.</strong> The obvious argument is cost (code is
+free, judges aren’t), but the real reason is reliability: a judge is an LLM, so its score can
+move slightly even when nothing about the system changed. When a code-based score changes, you
+know behavior actually changed. When a judged score changes, you’re stuck asking “did the
+system get worse, or did the judge just have a bad day?” — and you can’t always tell. Every
+judge you add trades some of that certainty for a measurement you couldn’t otherwise get. One
+consequence worth remembering: a judged score can tell you something moved, but it can never
+<em>certify</em> the very thing you used it to optimize toward — you’d just be asking the judge to
+grade its own homework.</p>
+<p><strong>Once you do need a judge, ask it to <em>choose</em>, not to <em>compose</em>.</strong> Models are much better at
+picking between options than at generating an unanchored score:</p>
+<table>
+<colgroup>
+<col style="width: 36%" />
+<col style="width: 15%" />
+<col style="width: 48%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Ask it this</th>
+<th>Not this</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“Which of these two replies is better?”</td>
+<td>“Rate this out of ten”</td>
+<td>A bare number has no anchor and drifts between runs — the other reply<em>is</em> the anchor</td>
+</tr>
+<tr class="even">
+<td>“Which of these four categories?”</td>
+<td>“Describe what went wrong”</td>
+<td>A closed set can be counted and compared; prose cannot</td>
+</tr>
+<tr class="odd">
+<td>A yes/no decision tree (“did it cite? → is the citation right?”)</td>
+<td>“Judge the overall quality”</td>
+<td>Each step has a real right answer, and the path explains the verdict</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="the-cost-ladder-for-building-a-check-which-rung-do-you-actually-need">5. The cost ladder for building a check (which rung do you actually need?)</h2>
+<p>This is about how <em>sophisticated</em> a check needs to be — always start at the cheapest rung that
+actually answers your question, and only climb when you must.</p>
+<pre class="mermaid">flowchart TD
+    R1[&quot;Rung 1 · Deterministic check&lt;br/&gt;arithmetic, a regex, a schema&lt;br/&gt;reads only the one field it checks — free, instant&quot;]
+    R2[&quot;Rung 2 · Off-the-shelf judged check&lt;br/&gt;a standard rubric someone else wrote&lt;br/&gt;one small judge call&quot;]
+    R3[&quot;Rung 3 · Custom rubric&lt;br/&gt;a rubric YOU write for your own definition of &#39;good&#39;&lt;br/&gt;one small judge call + your authoring time&quot;]
+    R4[&quot;Rung 4 · Trace-based judge&lt;br/&gt;reads the WHOLE run — every step, every tool call&lt;br/&gt;one large judge call (a trace is many times bigger than an answer)&quot;]
+    R1 --&gt; R2 --&gt; R3 --&gt; R4
+    style R1 fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
+    style R4 fill:#EDE3CE,stroke:#9A6A12,color:#0E2226</pre>
+<p><strong>Climbing from rung 2 to 3 changes the standard, not the mechanism</strong> — same evidence, same
+cost per call. You only climb because a generic “is this complete?” rubric doesn’t know your
+answer specifically needs, say, a budget breakdown and a day-by-day itinerary.</p>
+<p><strong>Climbing from rung 3 to 4 is the expensive jump</strong>, because it changes <em>what evidence the
+judge even sees</em>. Only make this jump when the answer genuinely isn’t visible in the final
+output — “did it take a sensible path?”, “did it recover from an earlier error?”, “did it ask
+permission before acting?” No rubric can extract those from the finished text alone; the judge
+has to be shown the whole run.</p>
+<p><strong>The most common overspend is paying for rung 4 when rung 1 would do.</strong> Counting redundant
+calls, detecting loops, counting steps, or spotting an error-then-retry pattern are all things
+code can count directly — paying a large-prompt judge to count duplicate tool calls is one of
+the most common ways evaluation budgets get wasted. The second most common overspend is rung 3
+for something a plain regex would settle.</p>
+<hr />
+<h2 id="the-other-cost-ladder-what-it-costs-in-real-dollars-to-run-a-notebook-or-check">6. The other cost ladder: what it costs in real dollars to <em>run</em> a notebook or check</h2>
+<p>This is a completely different ladder from the one above — this one is about actual spend when
+you sit down and work through the material, not about how a check is built:</p>
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 48%" />
+<col style="width: 40%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tag</th>
+<th>What it means</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>none</strong></td>
+<td>No API calls at all</td>
+<td>Reading a concept doc, running deterministic math like Precision@K</td>
+</tr>
+<tr class="even">
+<td><strong>key</strong></td>
+<td>Requires a live API key and makes real calls</td>
+<td>Any notebook that runs an LLM judge</td>
+</tr>
+<tr class="odd">
+<td><strong>cached</strong></td>
+<td>Judged once, then replayed from a saved cache on every later run</td>
+<td>A judge-building notebook you’ve already run once</td>
+</tr>
+<tr class="even">
+<td><strong>workspace</strong></td>
+<td>Needs a real cloud workspace (e.g. a Databricks workspace), not just an API key</td>
+<td>The advanced Databricks-track phases</td>
+</tr>
+</tbody>
+</table>
+<p>You’ll see this exact tag on every notebook and resource link across the roadmap, so knowing
+what each word means up front saves you from accidentally triggering a paid run.</p>
+<hr />
+<h2 id="the-tooling-landscape-four-frameworks-two-shapes">7. The tooling landscape: four frameworks, two shapes</h2>
+<p>You’ll meet four tools across this material. None of them is “the right one” in the abstract —
+knowing what each is actually <em>for</em> matters more than picking a favorite.</p>
+<table>
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 92%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tool</th>
+<th>What it’s really for</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>DeepEval</strong></td>
+<td>A general-purpose metric library — dozens of ready-made checks (retrieval, generation, tool use, task completion, conversation) plus a way to write custom judge rubrics. Plays well with standard testing tools.</td>
+</tr>
+<tr class="even">
+<td><strong>RAGAS</strong></td>
+<td>A metric library focused specifically on RAG (retrieval + generation), older and narrower than DeepEval, but a common default in that ecosystem and useful as a second opinion on the same case.</td>
+</tr>
+<tr class="odd">
+<td><strong>MLflow</strong></td>
+<td>Evaluation built into an experiment-tracking platform — the same underlying ideas as DeepEval, but every run is versioned, logged, and comparable the way you’d compare training runs. Fits teams already living in MLflow.</td>
+</tr>
+<tr class="even">
+<td><strong>Arize Phoenix</strong></td>
+<td>Production-grade tracing plus an offline experiment framework — lets you instrument a live system, capture every step it takes, then run structured checks against those captured traces. The only one of the four built around live tracing rather than one-off test cases.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>In one line each:</strong> DeepEval and RAGAS both answer “is this output good?”; MLflow answers
+“is this output good, tracked as part of my experiment history?”; Phoenix answers “is this
+output good, and here’s the full trace of how the system produced it?”</p>
+<p>Underneath the branding, every tool here is really one of two shapes:</p>
+<ul>
+<li><strong>Metric libraries</strong> (DeepEval, RAGAS) — ready-made, named measurements. Fast to start with,
+right up until you need a check nobody happened to name and ship.</li>
+<li><strong>Platforms with primitives</strong> (MLflow, Phoenix) — you’re handed a scoring function, a custom
+judge, and a trace to read, rather than a catalog of named metrics. More setup, more
+flexibility, and usually comes paired with versioned runs and a trace store.</li>
+</ul>
+<p>None of the four lets you skip the two decisions from sections 2 and 4 above — they only change
+how you express the answer.</p>
+<hr />
+<h2 id="offline-vs.-online-the-two-questions-that-decide-where-a-check-can-run">8. Offline vs. online: the two questions that decide where a check can run</h2>
+<p>Pulling sections 2 and 6 together into the one decision that actually matters when a system
+goes live:</p>
+<ol type="1">
+<li><strong>Does this check need an answer key?</strong> (Section 2.) If yes, it can only ever run offline,
+against a curated test set — never on live traffic, because nobody has pre-written the
+correct answer to a question a real user hasn’t asked yet.</li>
+<li><strong>What does it cost to run per case?</strong> (Sections 5–6.) A free, deterministic check can run
+on every single production request. A judged check costs a real API call each time, so
+running it on 100% of live traffic is usually the wrong call — you sample instead.</li>
+</ol>
+<p>A reference-based check that skips every unlabeled production request will still look
+perfectly healthy on a dashboard (100% “skipped” isn’t the same as 100% “passed,” but it can
+easily be <em>read</em> that way) — which is exactly why mature teams run reference-based checks in
+CI against a curated set, and referenceless checks against sampled live traffic, rather than
+picking one and calling it done.</p>
+<hr />
+<h2 id="question-bank-corner-what-a-decomposition-round-pushes-on">Question-bank corner — what a decomposition round pushes on</h2>
+<p><em>(From <code>QUESTION_BANK.md</code>, Part 0 — the only part of the question bank that’s genuinely Level-0
+material; everything from Q1 onward belongs to later levels.)</em></p>
+<p>If you’re using this material to prepare for a system-design-style interview round, the round
+isn’t a trivia quiz about metric names — it’s scoring how you <em>think</em>, across five axes:</p>
+<table>
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 24%" />
+<col style="width: 57%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Axis</th>
+<th>A weak answer</th>
+<th>A strong answer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Handling ambiguity</strong></td>
+<td>Starts drawing a system diagram in minute two</td>
+<td>Spends 5–8 minutes first on who the user is, what today’s process costs, and what “good” means as a number</td>
+</tr>
+<tr class="even">
+<td><strong>Breaking the problem down</strong></td>
+<td>One blob: “the agent does X”</td>
+<td>Named components, each with a clear input/output and its own way to fail</td>
+</tr>
+<tr class="odd">
+<td><strong>Measurement discipline</strong></td>
+<td>“We’d use RAGAS”</td>
+<td>Separates the five layers from Section 1, and says which are must-pass vs. nice-to-know</td>
+</tr>
+<tr class="even">
+<td><strong>Reasoning about failure</strong></td>
+<td>Assumes everything goes right</td>
+<td>Names what happens when each decision goes wrong, and designs so the model is<em>allowed</em> to be wrong safely</td>
+</tr>
+<tr class="odd">
+<td><strong>Judgment under pressure</strong></td>
+<td>Agrees with whatever’s asked</td>
+<td>Pushes back with a reason and a different plan</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The single highest-signal behavior:</strong> treating evaluation as part of the <em>design</em>, not
+something bolted on afterward. If you can’t say how you’d measure a piece of the system, you
+haven’t actually finished designing that piece yet.</p>
+<h3 id="the-eight-step-spine-for-answering-any-design-an-evaluation-question">The eight-step spine for answering any “design an evaluation” question</h3>
+<pre class="mermaid">flowchart TD
+    A[&quot;1 · Clarify&lt;br/&gt;who is the user, what does today&#39;s&lt;br/&gt;process cost, what decision changes&quot;] --&gt; B
+    B[&quot;2 · Define &#39;good&#39; as a number&lt;br/&gt;set thresholds before any architecture —&lt;br/&gt;decide what&#39;s must-pass vs. nice-to-know&quot;] --&gt; C
+    C[&quot;3 · Break it into measurable pieces&lt;br/&gt;each with its own inputs, outputs,&lt;br/&gt;and way to fail&quot;] --&gt; D
+    D[&quot;4 · Pick the cheapest check that works&lt;br/&gt;per piece — deterministic first,&lt;br/&gt;then judged only if you must (Section 5)&quot;] --&gt; E
+    E[&quot;5 · Decide where the test cases&lt;br/&gt;and correct answers come from,&lt;br/&gt;and who writes them&quot;] --&gt; F
+    F[&quot;6 · Design the release gate. &lt;br/&gt;a hard floor, AND no regression&lt;br/&gt;versus what&#39;s live today&quot;] --&gt; G
+    G[&quot;7 · Plan the rollout by risk&lt;br/&gt;assistive → gated → autonomous,&lt;br/&gt;not by a calendar date&quot;] --&gt; H
+    H[&quot;8 · Close the loop&lt;br/&gt;production monitoring finds new problems;&lt;br/&gt;the offline gate stops them recurring&quot;] --&gt; B</pre>
+<p>Two lines worth having ready when you draw this out loud:</p>
+<ul>
+<li><strong>“Online discovers; offline prevents recurrence.”</strong> A problem caught only by a live
+dashboard gets fixed once. Turned into a permanent offline test, it protects every release
+after.</li>
+<li><strong>“The gate is the only thing allowed to deploy.”</strong> A prompt a person wrote and a prompt a
+machine optimized go through the exact same check — nothing skips it for being
+machine-generated. If anything, an optimized prompt deserves <em>more</em> scrutiny, since it was
+tuned specifically against a metric that lives inside that same gate.</li>
+</ul>
+<hr />
+<h2 id="references">References</h2>
+<p>All content above was drawn only from material already in this repository. Nothing here was
+invented, and no external source was consulted.</p>
+<p><strong>Notebook:</strong></p>
+<ul>
+<li><code>courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb</code> — the taxonomy
+(including the conversational-quality behavior and the cross-cutting reference-based/
+referenceless example), the ROUGE-L/BLEU example and when those metrics are the right tool,
+LLM-as-judge failure modes, the code-vs-judge decision, and the four-framework map.</li>
+</ul>
+<p><strong>Docs:</strong></p>
+<ul>
+<li><code>docs/concepts/rag-agent-tool-evaluation.md</code>, Part 0 (§0.1–0.5) — the five-layer table, the
+“what breaks where” triage table (including the “runs in CI?” row), the two deciding
+questions, LLM-as-judge failure modes (including “measure agreement, not average”), the
+scorer-cost ladder, and the note on framework shapes.</li>
+<li><code>docs/interactive-labs/00-evaluation-index.html</code> — the same five-surface map presented as an
+interactive page (used to cross-check the triage table above; introduced no topic not
+already covered by the field guide).</li>
+<li><code>docs/interview-prep/QUESTION_BANK.md</code>, Part 0 (§0.1–0.3) — what a decomposition round
+scores, the eight-step Decomposition Spine, and the taxonomy diagram (the taxonomy itself is
+the same one covered in Section 1 above, so it isn’t repeated a second time).</li>
+<li><code>docs/study-guide/evaluation-roadmap.md</code> — Level 0’s topic list and goal statement, used to
+scope what this file needed to cover.</li>
+<li><code>docs/study-guide/evaluation-topic-notebook-mapping.md</code> — Level 0’s resource table and the
+cost-key definitions (none / key / cached / workspace) used in Section 6.</li>
+</ul>
+<p><strong>Limitations.</strong> This file was written by reading the repository’s own material, not by running
+any notebook or calling any API — no cost was incurred producing it, consistent with this
+project’s rule against executing anything that spends money without being asked. It does not
+independently verify DeepEval’s, RAGAS’s, MLflow’s, or Phoenix’s own documentation; the
+descriptions of each tool above are this repository’s characterization of them, not a review of
+the vendors’ docs.</p>
+<div class="footer-nav">
+  <span></span>
+  <a href="01-rag-retrieval-and-generation.html">Next: → RAG: Retrieval &amp; Generation</a>
+</div>
+</main>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: { primaryColor: '#D9E3DB', primaryBorderColor: '#2F6B4F', primaryTextColor: '#0E2226', lineColor: '#4a5450', fontFamily: 'sans-serif' } });
+</script>
+</body>
+</html>

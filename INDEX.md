@@ -218,6 +218,17 @@ can…* check.
 | **Databricks** | Course 02's ten phases as the ladder, the concepts to state grouped basic → expert (span contracts, prerequisites, six aggregations, two-condition promotion, online eligibility, sampling, weighted kappa, GEPA through the same gate), the three-vocabulary naming map, environment realities |
 | **Fast paths** | One hour, one evening, one weekend, two weeks, interview-only — and where the money goes |
 
+### `docs/study-guide/evaluation-topic-notebook-mapping.md` — Topic & notebook mapping (2,530 words)
+
+The lookup companion to the roadmap above. The roadmap carries the narrative — goal and
+self-check per level; this file carries every topic &rarr; notebook/resource &rarr; cost table,
+one per level, so neither document has to hold both jobs.
+
+| | Covers |
+|---|---|
+| **Cost key** | none (no API calls) · key (live `OPENAI_API_KEY` calls) · cached (judged once, replayed from `data/score_cache/`) · workspace (a real Databricks workspace) |
+| **Levels 0–9** | One table per level, each row a notebook or doc, what it teaches, and its cost — the same ten levels as the roadmap, in lookup form |
+
 ### The four interactive HTML pages
 
 Open in a browser. No build step, no server, no API key.
@@ -246,6 +257,27 @@ version of each is field guide **Part 6**; the interview questions are question 
 | `03-generator-metrics` | An answer scoring 1.00 faithfulness *and* 1.00 relevancy while being flatly false |
 | `04-tool-use-evaluation` | Five broken traces all score 1.00 until you set `should_exact_match=True`, then 0.17 |
 | `05-agent-trajectory-evaluation` | Five of nine metrics never move; task success reports a clean pass on 40% waste |
+
+### The ten roadmap-level explainers
+
+`docs/roadmap-explainers/0N-*.html` — one plain-language walkthrough per level of the
+[evaluation roadmap](docs/study-guide/evaluation-roadmap.md), pulled together from that
+level's notebooks, field guide sections, labs and question-bank entries, with nothing
+repeated twice. Sequential, with prev/next links between them; each is self-contained
+and does not require reading the roadmap first.
+
+| Level | File | The question it answers |
+|---|---|---|
+| 0 &middot; Beginner | `00-orientation` | Draw the five-layer taxonomy from memory and choose between a deterministic scorer and a judge without hesitating |
+| 1 &middot; Beginner | `01-rag-retrieval-and-generation` | Separate a retrieval failure from a generation failure with numbers, and know the one failure no referenceless metric can see |
+| 2 &middot; Intermediate | `02-agents-tools-conversations-trajectories-outcomes` | Hold three things apart &mdash; mechanics, process, outcome &mdash; and reach for the system of record before any judge |
+| 3 &middot; Intermediate | `03-ground-truth` | Know where cases and labels come from on day one and by month three, and the two ways a dataset lies to you |
+| 4 &middot; Intermediate | `04-judges-and-the-humans-who-validate-them` | Build a judge three ways, catch it lying three ways, and know the only thing that licenses trusting it |
+| 5 &middot; Advanced | `05-statistics-and-stratified-reporting` | Refuse to act on a number you cannot resolve, and never report an average that buries a segment |
+| 6 &middot; Advanced | `06-the-release-gate-and-ci` | Turn metrics into a decision that can refuse a deploy, and put the cost of loosening it on a named line |
+| 7 &middot; Advanced | `07-online-evaluation-and-the-loop` | Measure without an answer key, alert only on what you can resolve, and carry every finding back into a gated test |
+| 8 &middot; Expert | `08-safety-adversarial-and-multi-agent-attribution` | Separate what must never happen from what should usually happen, test by attack surface, and say which agent broke a multi-agent run |
+| 9 &middot; Expert | `09-the-harness-as-a-product` | Keep the evaluation system itself trustworthy and affordable &mdash; the layer above the metrics |
 
 ### Folder indexes
 
