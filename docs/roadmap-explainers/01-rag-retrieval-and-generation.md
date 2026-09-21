@@ -210,7 +210,7 @@ regardless of whether the generator used all of it. That trips people up constan
 The judge's only job is to label each chunk relevant/irrelevant, or each claim
 supported/unsupported. Everything after that is deterministic math — which is why the same set
 of verdicts always produces the same score, but two separate judge runs can still disagree,
-because the *verdicts themselves* are non-deterministic (Level 0, §3).
+because the *verdicts themselves* are non-deterministic (Level 0, Section 3).
 
 ### One query, four retrieval outcomes
 
@@ -344,7 +344,7 @@ flowchart TD
     Q2 -->|no| FA["Faithfulness fails<br/>→ grounding / decoding problem"]
     Q2 -->|yes| Q3{"Was retrieval_context<br/>itself correct?"}
     Q3 -->|"referenceless metrics<br/>cannot ask this"| BLIND["BLIND SPOT<br/>faithful and wrong"]
-    Q3 -->|"needs expected_output<br/>or a trusted context"| AC["Answer Correctness (§5)<br/>Hallucination"]
+    Q3 -->|"needs expected_output<br/>or a trusted context"| AC["Answer Correctness (Section 5)<br/>Hallucination"]
 
     style BLIND fill:#EDDCD8,stroke:#8C2F22
     style AC fill:#DADCD6,stroke:#3C4E51
@@ -389,12 +389,12 @@ place (the individual "blind to" details are scattered across Sections 3–5 abo
 
 | Metric | Cannot catch |
 | --- | --- |
-| Contextual Precision / Recall / Relevancy (§3) | See §3's own triage table — each of the three is blind to the other two's failure mode |
+| Contextual Precision / Recall / Relevancy (Section 3) | See Section 3's own triage table — each of the three is blind to the other two's failure mode |
 | Answer Relevancy | A confidently wrong answer *to the right question* |
 | Faithfulness | Context that was itself wrong |
 | Hallucination | Anything outside the one curated context you supplied |
-| Answer Correctness (§5) | Any query with no written reference to check against |
-| Semantic Similarity (§5) | Wrong numbers and facts — it measures topic, not truth |
+| Answer Correctness (Section 5) | Any query with no written reference to check against |
+| Semantic Similarity (Section 5) | Wrong numbers and facts — it measures topic, not truth |
 
 ---
 
@@ -509,9 +509,9 @@ hallucinated answer, before either one ever reaches a user.
 
 ```mermaid
 flowchart LR
-    RET["retrieve"] --> JCR["judge_context_relevance<br/>(§3's Contextual Relevancy,<br/>computed by hand)"]
+    RET["retrieve"] --> JCR["judge_context_relevance<br/>(Section 3's Contextual Relevancy,<br/>computed by hand)"]
     JCR --> GEN["generate<br/>(fed only the relevant chunks)"]
-    GEN --> CF["check_faithfulness<br/>(§4's Faithfulness,<br/>computed by hand)"]
+    GEN --> CF["check_faithfulness<br/>(Section 4's Faithfulness,<br/>computed by hand)"]
 
     style JCR fill:#D9E3DB,stroke:#2F6B4F
     style CF fill:#EDE3CE,stroke:#9A6A12
@@ -554,9 +554,9 @@ vocabulary:
 
 | RAGAS class | The DeepEval idea it mirrors | Note |
 | --- | --- | --- |
-| `LLMContextPrecisionWithoutReference` | Contextual Precision (§3) | The `WithoutReference` suffix spells the reference-based/referenceless split out in the class name itself, rather than leaving you to infer it from which fields you populate |
-| `LLMContextRecall` | Contextual Recall (§3) | |
-| `Faithfulness` | Faithfulness (§4) | |
+| `LLMContextPrecisionWithoutReference` | Contextual Precision (Section 3) | The `WithoutReference` suffix spells the reference-based/referenceless split out in the class name itself, rather than leaving you to infer it from which fields you populate |
+| `LLMContextRecall` | Contextual Recall (Section 3) | |
+| `Faithfulness` | Faithfulness (Section 4) | |
 
 Two mechanical differences worth knowing if you switch between the two libraries: RAGAS's unit
 of evaluation is a `SingleTurnSample` (fields `user_input`, `response`, `retrieved_contexts`,
@@ -613,7 +613,7 @@ flowchart TD
     SYN --> GOLD["Golden dataset"]
     GOLD -->|"each golden question run through"| RC
     RC --> TC["Test cases built from LIVE retrieval,<br/>not from the golden's source doc"]
-    TC --> SUITE["Full metric suite<br/>(§2–§5, all at once)"]
+    TC --> SUITE["Full metric suite<br/>(Sections 2–5, all at once)"]
     SUITE --> TABLE["One row per question,<br/>one column per metric"]
 
     style SYN fill:#EDE3CE,stroke:#9A6A12

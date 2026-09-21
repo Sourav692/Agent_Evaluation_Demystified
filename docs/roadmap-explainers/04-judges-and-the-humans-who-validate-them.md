@@ -115,7 +115,7 @@ Climbing from a generic, off-the-shelf judged check to a **custom rubric you wro
 changes the standard being applied, not the mechanism or the cost — you climb that step only
 because the generic definition of "good" isn't specific to your task. Climbing further, to a
 **trace-based judge** (one that reads the agent's whole run rather than only its final answer,
-covered in §2 below), changes what evidence the judge can see, and that is the expensive jump:
+covered in Section 2 below), changes what evidence the judge can see, and that is the expensive jump:
 worth making only when the answer to your question genuinely is not present in the final
 output text, however well written.
 
@@ -169,7 +169,7 @@ The same three-way choice, with rough cost and coverage attached to each:
 
 That bottom row is the practical constraint the rest of this level works around: code is cheap
 enough to run on everything, a judge is only affordable on a slice, and a human is only
-affordable on a small, deliberately chosen sample — which is exactly why §4 below spends so
+affordable on a small, deliberately chosen sample — which is exactly why Section 4 below spends so
 much care on *which* cases get sent to that scarce human attention.
 
 ### The cost hierarchy of scorers
@@ -330,7 +330,7 @@ good" versus "the reply is good," with no line between them — gives the judge 
 improvise, and a judge with room to improvise does not reproduce. Nothing about a vague rubric
 sounds wrong when you read it; the problem only shows up empirically, and the test is not "does
 it sound reasonable" but "can two careful people apply it independently and actually agree" —
-which is exactly what §5's Cohen's kappa measures. This is the most common way a working judge
+which is exactly what Section 5's Cohen's kappa measures. This is the most common way a working judge
 quietly stops working: somebody "clarifies" the wording and removes the very specificity that
 made it reproducible.
 
@@ -349,7 +349,7 @@ as interchangeable is why many feedback efforts produce nothing useful.
 
 A **runtime approval** is a single blocking decision about one specific pending action (should
 this refund actually go out?). It isn't a rating of quality at all, so it cannot calibrate
-anything — though the approval process itself needs to be evaluated, which §6 below covers.
+anything — though the approval process itself needs to be evaluated, which Section 6 below covers.
 
 **End-user thumbs** are abundant but self-selected: the people who click are disproportionately
 the angriest and the most delighted, which is not a representative sample of how the system is
@@ -373,7 +373,7 @@ decision in this step — "a random sample" is rarely the best answer.
 | Safety-adjacent | The cases most likely to hurt someone | A tiny, unrepresentative slice |
 
 A practical default is **disagreement-first with a random tail**: send a human the cases where
-multiple judges (built in §1 above) could not agree, plus a smaller random sample so the
+multiple judges (built in Section 1 above) could not agree, plus a smaller random sample so the
 labels remain usable for estimating overall agreement too — and keep the two groups tagged
 separately, because estimating overall agreement from the disagreement group alone would
 understate the judge badly (you deliberately picked its worst cases for that group).
@@ -381,7 +381,7 @@ understate the judge badly (you deliberately picked its worst cases for that gro
 The label schema itself matters as much as any tool used to collect it: a human's verdict
 should be recorded on the **same scale** the judge uses (so the two are directly comparable
 without inventing a mapping), and the time a reviewer took to decide is worth recording too —
-it becomes the input to §6's rubber-stamp check.
+it becomes the input to Section 6's rubber-stamp check.
 
 ---
 
@@ -458,7 +458,7 @@ cannot use for a per-stratum release gate (covered in Level 5) in that language 
 
 ## 6. Judge alignment: turning expert disagreement into a better judge
 
-Calibration (§5) tells you *whether* a judge agrees with your experts. **Alignment** is the
+Calibration (Section 5) tells you *whether* a judge agrees with your experts. **Alignment** is the
 next step: using the pattern in where they disagreed to actually improve the judge.
 
 One specific technique for this, referenced in this repo as **MemAlign**, reads a set of
@@ -512,9 +512,9 @@ confidently wrong.
 
 ## 7. Blinded preference testing, and why it needs a second rater
 
-Everything in §5 and §6 scores one reply at a time. A **preference test** asks a different
+Everything in Sections 5 and 6 scores one reply at a time. A **preference test** asks a different
 kind of question: shown two replies to the same request, which one do people actually pick?
-It is the human counterpart to the pairwise judge covered in §3, and it is the thing a
+It is the human counterpart to the pairwise judge covered in Section 3, and it is the thing a
 production canary comparison is usually standing in for.
 
 Three rules make a preference test worth running, and dropping any single one of them quietly
@@ -527,7 +527,7 @@ invalidates the result:
 | **Use two raters** | One rater's taste is not a measurement | Agreement becomes unmeasurable — and Cohen's kappa needs two raters by definition |
 
 The third rule is the one worth dwelling on, because of what it lets you check that nothing
-else in this level can. Calibration in §5 measures kappa **between a judge and a human**. The
+else in this level can. Calibration in Section 5 measures kappa **between a judge and a human**. The
 same statistic computed **between two humans** tells you something different and equally
 important: whether the underlying rubric is *teachable* at all. If a judge disagrees with a
 human, that's a judge problem. If two humans disagree with *each other*, that is a **rubric**
@@ -550,7 +550,7 @@ panel actually needs).
 
 ## 8. The rubber-stamp signal: evaluating the human, not just the record
 
-A runtime approval step (the first row of §4's table) is easy to check for *existence* — does
+A runtime approval step (the first row of Section 4's table) is easy to check for *existence* — does
 every refund carry an approval ID in the database? — and that check can pass completely while
 the approval step itself does nothing at all. This is worth its own section because it is the
 part of an evaluation system most likely to be quietly broken and least likely to be checked.
@@ -587,29 +587,29 @@ belongs on a production dashboard — a theme this level keeps returning to.
 
 ## Question-bank corner
 
-This section deliberately does **not** re-draw the judge-comparison table from §1, the
-bias-testing table from §3, or the three-kinds-of-feedback table from §4 — see those sections
+This section deliberately does **not** re-draw the judge-comparison table from Section 1, the
+bias-testing table from Section 3, or the three-kinds-of-feedback table from Section 4 — see those sections
 for the underlying mechanics. What follows is how those same ideas get asked, and answered, in
 an interview setting (Question Bank Part 4, Q14–Q17).
 
 - **Q14 — "You're using an LLM to grade another LLM. Why should anyone believe the number?"**
   The honest answer is: they shouldn't, not until it's been checked against a human and the
   agreement (not the average score) has been measured. Expect the score to *drop* once that
-  happens, and say so out loud before it happens rather than after — that is the §6 lesson,
+  happens, and say so out loud before it happens rather than after — that is the Section 6 lesson,
   stated as an interview answer.
 
 - **Q15 — "Your judge and your domain expert disagree on 20% of cases. What do you do?"**
   First find out *which* 20% — scattered across the whole range is a genuinely unreliable
   judge, while disagreement bunched right at the threshold is mostly borderline cases and
   matters far less than the headline number suggests. Then check whether your own experts
-  agree with *each other* before blaming the judge at all (the §7 lesson): if two experts
+  agree with *each other* before blaming the judge at all (the Section 7 lesson): if two experts
   disagree 15% of the time, then 20% judge disagreement is close to the human ceiling, and the
   actual work is getting an unresolved policy question decided, not tuning a model.
 
 - **Q16 — "When would you not use an LLM judge?"** Four situations: when code can decide the
-  question outright (§2); when the judge is also the thing an optimiser is being tuned against
+  question outright (Section 2); when the judge is also the thing an optimiser is being tuned against
   (it cannot then certify its own result — that is the most overfit number available); when
-  the humans haven't actually agreed on the standard yet (§7); and at very high volume on every
+  the humans haven't actually agreed on the standard yet (Section 7); and at very high volume on every
   single request, where the judged-call bill can exceed the cost of serving the traffic itself.
 
 - **Q17 — "The judge scores 0.9 and the customer says it's terrible. Who's wrong?"** Usually
@@ -648,7 +648,7 @@ invented, and no external source was consulted.
   `make_judge`.
 - `courses/02-databricks-mlflow-evals/07_judge_alignment_memalign.ipynb` (plus its
   `alignment.py` module, read directly for the exact agreement/kappa/weighted-kappa figures
-  quoted in §5) — why average score is the wrong metric for judge quality, the three agreement
+  quoted in Section 5) — why average score is the wrong metric for judge quality, the three agreement
   measures compared side by side, MemAlign alignment mechanics, and the before/after alignment
   result.
 
@@ -657,14 +657,14 @@ invented, and no external source was consulted.
 - `docs/concepts/rag-agent-tool-evaluation.md`, §0.3 — the LLM-as-judge failure modes list
   (judge capability, non-determinism, rubric sensitivity, cost, "nobody validates the
   validator" and the change-vs-quality distinction, agreement vs. average, fluent-but-wrong,
-  score direction) used throughout §1. §0.4 (the cost ladder) was read for context but is not
+  score direction) used throughout Section 1. §0.4 (the cost ladder) was read for context but is not
   quoted directly, since the notebook-mapping for this level cites only §0.3.
 - `docs/guide-audits/openai-eval-guide-tutorial.md`, §4 (§4.1–§4.6) — the code-vs-judge-vs-human
-  decision flowchart adapted into this file's Mermaid diagram in §2, the accompanying
-  cost/reproducibility/coverage table also in §2, the three-bias framing and wine-judge analogy
-  in §3, the 12-of-12 / 25.2-vs-18.7-words verbosity figures, and the "humans are the
+  decision flowchart adapted into this file's Mermaid diagram in Section 2, the accompanying
+  cost/reproducibility/coverage table also in Section 2, the three-bias framing and wine-judge analogy
+  in Section 3, the 12-of-12 / 25.2-vs-18.7-words verbosity figures, and the "humans are the
   calibration source, not the throughput" framing plus the blinded-preference-testing rules in
-  §4 and §7.
+  Sections 4 and 7.
 - `docs/interview-prep/QUESTION_BANK.md`, Part 4 (Q14–Q17) — used for the Question-bank corner
   above; this is the exact range the roadmap's own "Rehearsal" pointer names for Level 4, so no
   other part of that file was drawn on for this level.
@@ -677,7 +677,7 @@ invented, and no external source was consulted.
 **Limitations.** This file was written by reading the repository's own material, not by
 running any notebook or calling any API — no cost was incurred producing it, consistent with
 this project's rule against executing anything that spends money without being asked. The
-figures quoted for Cohen's kappa, quadratic weighted kappa, and exact agreement in §5 were
+figures quoted for Cohen's kappa, quadratic weighted kappa, and exact agreement in Section 5 were
 independently recomputed from the `off_by_one` / `uncorrelated` example already present in
 `courses/02-databricks-mlflow-evals/alignment.py`, using that same module's own functions —
 this is arithmetic on numbers already fixed in the repository, not a new judge call or any
