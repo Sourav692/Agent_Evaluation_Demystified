@@ -535,15 +535,17 @@ only evaluation, reading what actually happened across turns, can tell you wheth
 
 ### Designing the blast radius, assuming the model sometimes gets it wrong
 
-Once you accept that consent lives in the prompt and can fail, the remaining question is how
-much damage one failure can do. The design pattern for that: read-only by default; write
-scopes kept narrow and reversible; a value or row-count cap; an idempotency key so a retried
-write can't double-execute; and an audit record of what was *proposed* versus what actually
-*executed* — so end-state verification (Section 2's strongest check) can catch a write that
-happened without the matching consent turn, not just trust that it didn't. A refund below a
-set value threshold, with a reversal window and a daily cap, can reasonably auto-execute; above
-that threshold, the answer is propose-and-confirm. **The real question was never "autonomous or
-not" — it's "autonomous within what bounded, reversible envelope."**
+If consent lives in the prompt and can fail, the question becomes how much damage one failure
+does. The pattern: read-only by default; narrow, reversible write scopes; a value or row-count
+cap; an idempotency key so a retried write can't double-execute; and an audit record of what was
+*proposed* versus *executed*, so end-state verification catches a write with no matching consent
+turn rather than trusting there wasn't one.
+
+A refund below a value threshold, with a reversal window and a daily cap, can auto-execute;
+above it, propose-and-confirm.
+
+> **The question was never "autonomous or not" — it's "autonomous within what bounded,
+> reversible envelope."**
 
 ---
 
@@ -576,16 +578,18 @@ flowed through the system, customer data included — so the rule is to log what
 and redact what they don't, not to retain everything that happened to pass through.
 
 **Q32 — "The customer wants to launch next week and evaluation isn't ready."** Neither "we
-can't launch" nor "the scores look fine, ship it" survives contact with this question. The
-answer that fits in a week doesn't require a complete harness — it requires the minimum that
-makes the launch **reversible and its failures visible**: the must-never-happen checks, even
-crude and deterministic (this is about consequence, not polish); full tracing from the very
-first request (cheap, non-negotiable, and without it the launch produces no evidence at all);
-a rollback that's actually been run once, not just planned; and a narrowed blast radius — one
-segment, one category, internal users first. Then the risk gets named out loud rather than
-absorbed silently: *"we can't currently tell if it's giving wrong advice about X, so we're
-reading traces manually for the first week"* is a legitimate position, as long as someone says
-it and it's written down when a must-never-happen gap gets overruled by the business.
+can't launch" nor "ship it" survives. **Deliver the minimum that makes the launch reversible
+and its failures visible:**
+
+- Must-never-happen checks, even crude and deterministic — consequence, not polish.
+- Full tracing from the first request. Without it the launch produces no evidence at all.
+- A rollback that has actually been run once, not planned.
+- A narrowed blast radius: one segment, one category, internal users first.
+
+> **Then name the risk out loud instead of absorbing it.** *"We can't tell if it's giving wrong
+> advice about X, so we're reading traces manually for the first week"* is a legitimate
+> position — as long as someone says it, and it is written down when the business overrules a
+> must-never-happen gap.
 
 ---
 

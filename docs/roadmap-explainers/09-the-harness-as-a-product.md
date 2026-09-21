@@ -411,20 +411,18 @@ it earns the next stage.
 
 ### 4.5 Named but not expanded here
 
-A handful of other gaps the same audit found are real but sit outside "the harness as a
-product" specifically — they belong closer to Level 1 (retrieval operations: permission-filter
-pass rate, embedding freshness, duplicate-chunk rate, reranker evaluation, retriever version
-tracking — none of which are measured here) or are single-paragraph additions to notebooks that
-already exist (an eight-dimension answer-quality rubric beyond helpfulness and relevancy;
-protecting human labellers from sensitive data; a customer-facing debugging-scenario template;
-real-traffic A/B testing with cohorts and segmentation, as distinct from the paired canary;
-templates for an eval scorecard, a failure-investigation report, an acceptance-criteria
-document, and a regression-test report — only the golden-set datasheet has an equivalent today;
-and regulated-advice risk, medical or legal answers requiring caveats, which the adversarial
-taxonomy at Level 8 doesn't currently name as its own attack surface).
-They're named here so their absence reads as a deliberate scoping choice rather than something
-this file missed, not expanded because they're a different level's material or a mechanical
-follow-on rather than a new idea.
+Other gaps the same audit found are real but sit outside "the harness as a product," and are
+named here so their absence reads as scoping rather than oversight:
+
+- **Closer to Level 1 — retrieval operations:** permission-filter pass rate, embedding
+  freshness, duplicate-chunk rate, reranker evaluation, retriever version tracking. None
+  measured here.
+- **Single-paragraph additions to existing notebooks:** an eight-dimension answer-quality
+  rubric; protecting human labellers from sensitive data; a customer-facing debugging-scenario
+  template; real-traffic A/B testing with cohorts, as distinct from the paired canary;
+  templates for a scorecard, failure-investigation report, acceptance-criteria document and
+  regression-test report — only the golden-set datasheet has an equivalent today; and
+  regulated-advice risk, which Level 8's adversarial taxonomy doesn't name as its own surface.
 
 ### 4.6 What this repo has that the playbook doesn't
 
@@ -506,17 +504,19 @@ stop.)
 | Engineers | The mechanism — instrumentation, harness, gates, pipeline | And the obligation to keep checks meaning what they say as the system changes |
 | Nobody, separately | — | See below |
 
-That last row is the one worth pushing on. An evaluation team disconnected from shipping
-becomes an *approval queue* — it lacks context to judge borderline cases, delivery treats it as
-an obstacle, and the first hard deadline sets the precedent for going around it. The gate
-belongs in the release path, not in a meeting: independence in *the standard* (experts outside
-the build team define the bar), integration in *the mechanism* (the check runs where the code
-actually ships). One failure mode worth naming on its own: evaluation only its original author
-understands. They move on, the suite keeps running, and it slowly stops being trusted because
-nobody can say what a failing check actually *means* — which is why writing down what each gate
-protects, and why the bar sits where it does, is what lets a suite survive a handover. (The
-analogy: the chef decides what the dish should taste like; the kitchen decides how it gets
-cooked every time; a separate tasting department at the end of the corridor just slows service.)
+An evaluation team disconnected from shipping becomes an *approval queue*: no context for
+borderline cases, treated as an obstacle by delivery, and the first hard deadline sets the
+precedent for going around it.
+
+> **Independence in the standard, integration in the mechanism.** Experts outside the build
+> team define the bar; the check runs where the code actually ships.
+
+> **Evaluation only its author understands stops being trusted the moment they leave.** Write
+> down what each gate protects and why the bar sits where it does, or the suite cannot survive
+> a handover.
+
+The chef decides what the dish should taste like; the kitchen decides how it gets cooked every
+time; a tasting department at the end of the corridor just slows service.
 
 ### Is the harness itself still working, six months later?
 

@@ -20,16 +20,13 @@ Picture a customer-support agent with three tools: `search_orders`, `get_refund_
 A single "was the final reply good?" check cannot tell you much here, because a lot can go
 wrong on the way to that reply, and each kind of wrong needs a completely different fix:
 
-- It could call the wrong tool, or the right tool with a typo'd order ID.
-- It could call every tool correctly and still book a refund $30 over what the user's stated
-  budget allowed.
-- It could take five steps to do a job that needed three — repeating a lookup that already
-  succeeded, or retrying blindly instead of noticing its own mistake.
-- It could say *"Your refund of $45 has been issued"* in a perfectly fluent sentence, while no
-  refund was ever recorded anywhere.
-- If this is a multi-turn conversation, it could handle every single turn well in isolation
-  and still end up somewhere it shouldn't — because it forgot something the user said three
-  turns back, or took an action the user never actually agreed to.
+- The wrong tool, or the right tool with a typo'd order ID.
+- Every tool called correctly, and a refund $30 over the user's stated budget.
+- Five steps for a three-step job — repeating a lookup that already succeeded, or retrying
+  blindly instead of noticing its own mistake.
+- *"Your refund of $45 has been issued"*, fluently, with no refund recorded anywhere.
+- Every turn handled well in isolation and the conversation still ending somewhere it
+  shouldn't — something forgotten three turns back, or an action never agreed to.
 
 This level is about pulling those apart. The roadmap's own framing for it is **mechanics ≠
 process ≠ outcome**: whether the tool calls were mechanically correct, whether the *path* the
@@ -102,13 +99,11 @@ conversational testing to far more scenarios than anyone would write by hand.
 Some failures genuinely cannot show up in any single-turn check, because what makes them wrong
 happened in a *different* turn from where the problem is visible:
 
-- **Acting without consent.** The agent says *"I've opened a ticket for you"* on turn one, and
-  nobody asked it to. Read that reply on its own — it's helpful, on-topic, grounded, and
-  reports a completed action. Every single-turn check passes it. What makes it wrong is that
-  the agreement that should have come first never happened, and agreement lives *between*
-  turns — there's nowhere in a single-turn check for its absence to show up. Most agent write
-  actions are gated by an instruction in the prompt, not by the tool itself refusing, so this
-  obedience has to be *tested*, never assumed.
+- **Acting without consent.** *"I've opened a ticket for you"* on turn one, unasked. Read
+  alone the reply is helpful, on-topic, grounded and reports a completed action — every
+  single-turn check passes it. The agreement that should have come first lives *between*
+  turns, so there is nowhere for its absence to show up. Most write actions are gated by a
+  prompt instruction rather than by the tool refusing, so this obedience must be *tested*.
 - **Ignoring a refusal.** The user says "no, don't do that" on turn two, and it happens anyway
   on turn four.
 - **Drift.** Every individual turn is fine, and the conversation as a whole ends somewhere it
@@ -160,14 +155,12 @@ granularity:
 
 ### Strict vs. loose tool-call matching: the same metric can score 1.00 or 0.00
 
-`ToolCorrectnessMetric`'s strictness lives entirely in how you configure it, not in the agent's
-behaviour — and this is worth seeing on real numbers, because the default configuration is far
-looser than it looks. Take one expected trajectory (`FlightSearch` for NYC→London on
-2026-03-13, then `WeatherCheck` for London on that date) and six actual traces run against it:
-an exact match, one with an extra unrequested `CurrencyConvert` call, one with the two calls in
-the wrong order, one where the flight-search output was never recorded, one with a transposed
-date (`03-31` instead of `03-13`), and one where the weather check never happened at all. Five
-of those six traces are broken in some way that should matter.
+Strictness lives in how you configure the metric, not in the agent's behaviour — and the
+default is looser than it looks. One expected trajectory (`FlightSearch` NYC→London on
+2026-03-13, then `WeatherCheck` for London that date) against six traces: an exact match, an
+extra unrequested `CurrencyConvert`, the two calls in the wrong order, a missing flight-search
+output, a transposed date (`03-31` for `03-13`), and a missing weather check. Five of the six
+are broken in a way that should matter.
 
 | Configuration                                                              | What it actually compares                                       | Mean score across the six traces | What it misses                                                               |
 | ---------------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------- | -------------------------------------------------------------------------------- |
@@ -192,15 +185,12 @@ make deliberately rather than a setting you leave at its default:
 book a flight before you've searched for one, so that ordering is real; whether the weather
 check happened first or third usually isn't.
 
-**One more knob worth knowing about `ToolCorrectnessMetric` specifically:** you can optionally
-pass it an `available_tools` list — every tool the agent theoretically had access to, not just
-the ones it called. Left out, the metric only compares `tools_called` against `expected_tools`
-mechanically. Passed in, DeepEval can additionally use an LLM judge to ask whether the agent
-picked the *best* tools out of everything available to it, not just tools that happen to match
-the expected list. Turning this on makes the score more conservative, since it now combines
-deterministic matching with a genuine judgment call about tool-selection quality — it's an
-optional escalation from a pure code check to a partly-judged one, the same rung-climbing
-decision Level 0's cost ladder describes in general.
+`ToolCorrectnessMetric` takes an optional `available_tools` list — every tool the agent *could*
+have called. Left out, it compares `tools_called` to `expected_tools` mechanically; passed in,
+an LLM judge also asks whether the agent picked the *best* tools available.
+
+> **Turning it on escalates a pure code check into a partly-judged one** — Level 0's cost
+> ladder, applied to a single metric.
 
 ### Argument correctness: cheap check first, judge second
 
@@ -291,19 +281,15 @@ A few details worth knowing before reaching for it:
 `TaskCompletionMetric` uses a fixed, general-purpose definition of "done." Two situations call
 for going further:
 
-1. **When "done" is domain-specific**, write your own rubric with `GEval` instead of relying on
-   the generic prompt — e.g. "the summary must cite at least two sources," or "a refund
-   response must never promise a specific dollar amount before policy lookup." This costs more
-   to author, because you have to spell out exactly what "satisfies the requirement" means for
-   your product, but it applies your bar instead of a generic one.
-2. **When the stakes are high enough that an LLM judge isn't enough**, skip judging the text
-   entirely and **verify the actual side effect**. Both `TaskCompletionMetric` and a custom
-   `GEval` rubric are still LLM-as-judge — they read text and reason about whether it *sounds*
-   like the task completed. For agents that book, send, or write to a database, query the
-   system the agent acted on directly — e.g. after a "book the hotel" task, check the booking
-   system for a confirmed reservation matching the requested dates and budget, rather than
-   trusting the agent's sentence saying it booked one. This state-based check can't be fooled
-   by a fluent-but-wrong response.
+1. **When "done" is domain-specific**, write a `GEval` rubric instead of the generic prompt —
+   *"the summary must cite at least two sources"*, *"a refund response must never promise a
+   dollar amount before policy lookup"*. It costs more to author and applies your bar.
+2. **When the stakes are too high for a judge at all**, verify the side effect. Both
+   `TaskCompletionMetric` and a custom `GEval` are still LLM-as-judge reading text. After a
+   "book the hotel" task, query the booking system for a confirmed reservation matching the
+   dates and budget.
+
+> **A state-based check cannot be fooled by a fluent-but-wrong response.**
 
 **In practice, combine them:** a deterministic state check as the pass/fail gate wherever a
 checkable outcome exists, and `TaskCompletionMetric` (or a custom rubric) as a secondary
@@ -311,37 +297,34 @@ quality signal for the genuinely fuzzy parts — tone, or the completeness of an
 
 ### Why reading the database beats every judged metric, wherever a side effect exists
 
-This is worth stating as its own principle, because it's the throughline connecting Sections 3
-and 4: an LLM judge reads words and decides whether they *sound* right. *"Your refund of $45
-has been issued"* reads as confident and complete whether or not any refund actually happened.
-Reading the real system of record directly — the order database, the booking system, the
-ledger — cannot be fooled this way, because it isn't reading a *description* of the event, it's
-reading the event itself. Wherever a real side effect exists to check, this is the strongest
-signal in the whole level, and it's free and deterministic once you have access to the system
-the agent acted on.
+*"Your refund of $45 has been issued"* reads as confident and complete whether or not any
+refund happened. The order database, the booking system, the ledger cannot be fooled that way —
+they hold the event, not a *description* of it.
 
-**Failing quietly is the specific way this goes wrong.** A tool can return a soft failure —
-`found: false`, an empty result, a 200 with an empty payload — instead of raising an error. The
-model gets something that *looks* like data, skates past it, and fills the gap with fluent,
-plausible, wrong content: an agent stating a plan and balance for an account that doesn't exist,
-with nothing crashing and nothing alerting. Neither grounding (which compares the answer to
-*retrieved documents*) nor task success (which reads the final string) catches this, because
-**neither one reads the tool's own output.** The fix is a deterministic check that reads the
-tool result directly and, if it indicates failure, asserts the response doesn't state the facts
-that tool was supposed to supply — and making "I couldn't retrieve that" an explicitly rewarded
-behaviour in the rubric, since this failure mode is not fixable by prompting alone.
+> **Wherever a real side effect exists to check, reading it is the strongest signal in this
+> level** — and it is free and deterministic.
+
+A tool can return a soft failure — `found: false`, an empty result, a 200 with an empty
+payload — instead of raising. The model gets something that *looks* like data and fills the gap
+with a plan and balance for an account that doesn't exist. Nothing crashes, nothing alerts.
+
+> **Neither grounding nor task success reads the tool's own output**, which is the only place
+> this failure is visible.
+
+The fix is a deterministic check that reads the tool result and, on failure, asserts the
+response doesn't state the facts that tool was meant to supply — plus making "I couldn't
+retrieve that" an explicitly rewarded behaviour, since prompting alone doesn't fix it.
 
 ---
 
 ## 4. Agent trajectory evaluation: the nine trace-level checks
 
-Sections 2 and 3 both score a **finished** interaction — given the tools that were called and
-the final answer, was it right? This section asks a different question: given a **multi-step
-run**, was the *path* any good, independent of where it ended up? An agent can reach the
-correct final answer while taking twice as many steps as necessary, retrying a failed call
-blindly instead of correcting course, or repeating an identical call for no new information —
-and none of Section 2 or 3's metrics see any of that, because they only look at the final
-`tools_called` list and `actual_output`, never the shape of the trace that produced them.
+Given a **multi-step run**, was the *path* any good, independent of where it ended up? An
+agent can reach the right answer in twice the steps, retry blindly instead of correcting, or
+repeat an identical call for no new information.
+
+> **Sections 2 and 3 see none of that.** They read the final `tools_called` list and
+> `actual_output`, never the shape of the trace that produced them.
 
 **The standard approach:** run the agent's loop to build a **trace** — a step-by-step record of
 what was called, with what arguments, and what happened — then hand that trace to a *separate*
@@ -384,14 +367,12 @@ sensitive to waste and which aren't:
 | Without the typo'd ID (nothing to recover from) | 4     | 1                 | 0.75              | n/a               | 0.75                     |
 | Minimal clean path                     | 3     | 0                 | **1.00**          | n/a               | **1.00**                 |
 
-Across all four variants, checks **1, 2, 5, 6, and 7** stay flat at a passing score the entire
-way — tool selection, argument correctness, task success, trajectory match, and end-state
-verification never budge, because the agent used every tool it needed and the refund really was
-recorded, waste or no waste. Meanwhile **step-wise accuracy and cost/efficiency swing from 0.60
-all the way to 1.00** as the waste is removed. **Task success alone would have reported "pass"
-on the very first, messiest version of the trace and told you nothing about the wasted policy
-lookup or the initial wrong order ID that cost 40% more calls than the task needed.** This is
-the concrete argument for running both families of check together, not picking one.
+Checks **1, 2, 5, 6 and 7** stay flat and passing across all four variants — the agent used
+every tool it needed and the refund really was recorded, waste or no waste. **Step-wise
+accuracy and cost/efficiency swing from 0.60 to 1.00** as the waste comes out.
+
+> **Task success alone reports "pass" on the messiest version of the trace** and says nothing
+> about the wasted policy lookup or the wrong order ID that cost 40% more calls than needed.
 
 The two checks that cannot be fooled by a fluent sentence are worth seeing as code, because the
 "read the real record, not the string" principle from Section 3 is exactly what they do:
@@ -422,21 +403,16 @@ here too.
 
 ### Three traps
 
-- **The tool-selection scorer that scores 100% for calling everything.** A commonly published
-  version of this check computes both missing and unexpected tools, then bases the verdict only
-  on the missing ones. **Fail both directions** — an unexpected account lookup on an unrelated
-  request is a privacy problem, not a harmless inefficiency, and a coverage-only check will
-  never see it.
+- **The tool-selection scorer that scores 100% for calling everything.** The published version
+  computes both missing and unexpected tools but bases the verdict only on the missing ones.
+  **Fail both directions** — an unexpected account lookup on an unrelated request is a privacy
+  problem, and a coverage-only check never sees it.
 - **Exact-sequence matching as the default.** It fails on a mid-trace typo or a harmless extra
-  lookup even when the agent did everything else right — which is exactly what "trajectory
-  match (fuzzy)" in the table above is built to avoid, by comparing the *successful* tool set to
-  the gold set and ignoring order and retries. Use fuzzy matching by default, and demand exact
-  ordering only where the order genuinely *is* the requirement (Section 2's "you cannot book
-  before you search" rule applies to full trajectories too, not just individual tool pairs).
-- **Rewarding recovery on its own.** A high recovery rate is genuinely good news — an error
-  caught and corrected is a different, better system than one that fails silently. But pair it
-  with step-wise accuracy, or you end up rewarding a system that generates errors on purpose so
-  it has something to recover from.
+  lookup. Use fuzzy matching — the *successful* tool set against the gold set, order and
+  retries ignored — and demand exact ordering only where order genuinely is the requirement.
+- **Rewarding recovery on its own.** A high recovery rate is good news, but pair it with
+  step-wise accuracy or you reward a system that generates errors to have something to recover
+  from.
 
 ### From a hand-built trace to a live system
 

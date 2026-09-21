@@ -80,13 +80,11 @@ happened. A judge that only reads that sentence can be fooled by confident, wron
 Checking the real database, ledger, or booking system directly cannot be fooled this way,
 because it isn't reading a description of the event — it's reading the event.
 
-**A sixth behavior worth naming, even though it doesn't fit neatly into the five layers
-above: conversational quality.** Across a multi-turn dialogue an agent can pass every one of
-the five layer-checks on every individual turn and still fail overall — by forgetting what the
-user said three turns ago, drifting off-topic turn by turn, or giving advice it shouldn't once
-the conversation has gone on long enough. It's a separate axis from the five above because the
-failure only shows up *across* turns, not within any single one. This roadmap picks it up
-properly at Level 2.
+> **A sixth behaviour sits across the five layers rather than in them: conversational
+> quality.** An agent can pass every layer-check on every individual turn and still fail the
+> dialogue — forgetting what was said three turns ago, drifting off-topic, or over-advising.
+
+The failure only shows up *across* turns, never within one. Level 2 picks it up properly.
 
 ### What breaks where, at a glance
 
@@ -108,15 +106,13 @@ actually catches it and what that costs on the right.
 This is the single most important distinction in evaluation, because it decides *where* a
 check can run.
 
-- **Reference-based** — the check compares the output to something a **person wrote down
-  before the system ever ran**: the correct answer, the correct list of chunks, the correct
-  tool call. Precise, and perfect for automated testing — but someone has to write and
-  maintain that answer key, so it only scales to a curated test set, never to live traffic.
-- **Referenceless** — the check judges quality using only things the **run itself just
-  produced**. Faithfulness, for example, compares the answer to the passages the system just
-  retrieved — nobody wrote those passages in advance, the retriever produced them a moment
-  ago. This scales to any real user question at zero labeling cost, but it's less precise and
-  only as good as whatever is judging it.
+- **Reference-based** — compares the output to something a **person wrote before the system
+  ran**: the correct answer, chunk list, or tool call. Precise and perfect for automated
+  testing, but someone maintains that answer key, so it scales to a curated set, never to live
+  traffic.
+- **Referenceless** — judges quality using only what the **run itself produced**. Faithfulness
+  compares the answer to the passages just retrieved. Scales to any real question at zero
+  labelling cost, less precise, and only as good as whatever is judging.
 
 > **A common trap.** "Referenceless" does *not* mean "reads nothing." It means no *human-
 > written correct answer* is involved. Faithfulness reads plenty — the question, the answer,
@@ -128,12 +124,11 @@ referenceless and can run in production. If the check needs someone to have alre
 the "right answer," it can never run on live traffic — however good it is — because nobody has
 written a right answer for a question that hasn't been asked yet.
 
-**This split cuts across the five layers, not along them.** Two checks that both look at
-retrieval can land on opposite sides: one metric might compare the retrieved passages to the
-*question* (referenceless — no answer key needed), while a close neighbor compares the same
-passages to the *expected answer* (reference-based). Same retrieved chunks, opposite sides of
-the line — so "which layer is this?" and "does it need a reference?" are two independent
-questions, not one.
+> **This split cuts across the five layers, not along them.** One retrieval metric compares
+> the passages to the *question* (referenceless); its neighbour compares the same passages to
+> the *expected answer* (reference-based).
+
+*Which layer is this?* and *does it need a reference?* are two independent questions.
 
 ```mermaid
 flowchart TD
@@ -173,24 +168,19 @@ One inserted word ("not") flips the meaning entirely, and it only costs six poin
 A completely correct paraphrase that shares almost no wording scores 0.09. **The metric ranks
 the false answer ten times higher than the true one — reliably, not as a rare edge case.**
 
-The reason, in one line: these metrics measure *how similar the wording looks*, not *whether
-the statement is true*. BERTScore fixes half the problem — it correctly rescues the paraphrase
-in row three, because embeddings recognize the meaning is the same. It does **not** rescue row
-two, because "available" and "not available" sit close together in embedding space too.
-Negation, numbers, dates, and conditions are exactly where every similarity-based metric
-breaks down — and that is most of what a real support answer needs to get right.
+> **These metrics measure how similar the wording looks, not whether the statement is true.**
 
-**These metrics aren't useless — they're narrow.** They're the right tool when the output is
-templated or extractive (so matching wording actually is the thing you're testing), when
-you're regression-testing and only need to know *whether the output changed* rather than
-whether it got better (cheap, deterministic, no API call), or when you're summarizing against
-a fixed reference and have already measured, on your own data, that the score correlates with
-what a human would say. As one data point: a well-known evaluation guide uses "ROUGE-L ≥ 0.40"
-as a threshold in a summarization example — read that as "the summary is drawn from the source
-text," a formatting-and-extraction check, never as "the summary is correct." Where a real
-answer key exists and correctness genuinely matters, an LLM judge given an explicit rubric (or
-semantic similarity, where some paraphrase tolerance is wanted) is what later levels reach for
-instead.
+BERTScore fixes half of it — row three's paraphrase is rescued, row two is not, because
+"available" and "not available" sit close in embedding space too. Negation, numbers, dates and
+conditions are where every similarity-based metric breaks down, and that is most of what a
+support answer has to get right.
+
+**Reach for them** when the output is templated or extractive, when regression-testing only
+needs to know *whether the output changed*, or when you have measured on your own data that
+the score tracks human judgment. **Don't** treat them as correctness: a well-known guide's
+"ROUGE-L ≥ 0.40" summarization threshold reads as *"the summary is drawn from the source
+text"* — a formatting check. Where an answer key exists and correctness matters, later levels
+reach for a judge with an explicit rubric instead.
 
 ---
 
@@ -201,31 +191,22 @@ by handing the output to a second LLM and asking it to judge quality against a r
 the only practical way to score open-ended text at scale — but treating the judge's number as
 ground truth is the single most common mistake in evaluation work. Specifically:
 
-- **Judge capability matters.** A weaker model produces noisier, less trustworthy scores — the
-  judge often needs to be at least as capable as the system it's grading.
-- **The same input can get two different scores.** Ask the same judge to score the same case
-  twice and it can disagree with itself, especially near a pass/fail threshold. Treat one score
-  as a noisy estimate, never as an exact fact, and never gate a release on a single row.
-- **Vague instructions produce a vague judge.** A one-line rubric like "is this a good answer?"
-  produces an inconsistent judge. The precision you put into writing the rubric is the
-  precision you get back in the judgment.
-- **Cost and time add up fast.** Every judged check is at least one extra API call per case,
-  per metric. Five checks over 500 test cases is 2,500+ calls — this is why the reference-
-  based/referenceless split above is a budget decision, not just a conceptual one.
-- **Nobody validates the validator by default.** An unchecked judge produces numbers that are
-  internally consistent with itself but never verified against what a human would actually
-  say. It's good at detecting *that something changed*, not at asserting *that it's good*.
-- **Measure agreement, not average.** A judge that rates almost everything highly produces a
-  beautiful-looking average score and is completely useless — the number to watch is how often
-  the judge agrees with a human on the *same* case, not how high its scores run overall.
-- **It can be fooled by confident, fluent, wrong text.** An LLM judge reads the words and
-  decides whether they *sound* right — which is exactly why outcome verification (layer ⑤
-  above) matters: reading the real system of record can't be talked into a wrong verdict by
-  good writing.
-- **The score's direction isn't always what you'd assume.** A metric named after the failure
-  it detects runs backwards — a "Hallucination" score of 0.9 means a *lot* of hallucination,
-  not excellent grounding. Always check which direction is "good" before wiring a threshold to
-  it.
+- **Judge capability matters.** A weaker model gives noisier scores; the judge usually needs
+  to be at least as capable as the system it grades.
+- **The same input can get two different scores.** One score is a noisy estimate, never an
+  exact fact — never gate a release on a single row.
+- **Vague instructions produce a vague judge.** The precision you put into the rubric is the
+  precision you get back.
+- **Cost adds up fast.** Five checks over 500 test cases is 2,500+ calls, which makes the
+  reference-based/referenceless split a budget decision.
+- **Nobody validates the validator by default.** An unchecked judge is good at detecting *that
+  something changed*, not at asserting *that it's good*.
+- **Measure agreement, not average.** A judge that rates everything highly has a beautiful
+  average and is useless; watch how often it agrees with a human on the *same* case.
+- **It can be fooled by confident, fluent, wrong text.** Which is why outcome verification
+  (layer ⑤) matters — a system of record can't be talked into a wrong verdict by good writing.
+- **The score's direction isn't always what you'd assume.** "Hallucination" 0.9 means a *lot*
+  of hallucination. Check direction before wiring a threshold.
 
 ---
 
@@ -263,15 +244,13 @@ in front of it — to decide "did this follow our refund policy?", the judge nee
 policy text handed to it, since it can't go fetch it. That's not a new kind of scorer; it's the
 same judge with someone bringing it the paperwork first.
 
-**Why "code first" isn't really about saving money.** The obvious argument is cost (code is
-free, judges aren't), but the real reason is reliability: a judge is an LLM, so its score can
-move slightly even when nothing about the system changed. When a code-based score changes, you
-know behavior actually changed. When a judged score changes, you're stuck asking "did the
-system get worse, or did the judge just have a bad day?" — and you can't always tell. Every
-judge you add trades some of that certainty for a measurement you couldn't otherwise get. One
-consequence worth remembering: a judged score can tell you something moved, but it can never
-*certify* the very thing you used it to optimize toward — you'd just be asking the judge to
-grade its own homework.
+> **"Code first" is about reliability, not cost.** When a code-based score changes, behaviour
+> changed. When a judged score changes, you cannot always tell the system getting worse from
+> the judge having a bad day.
+
+Every judge you add trades some of that certainty for a measurement you couldn't otherwise
+get — and a judged score can never *certify* the thing you used it to optimize toward. That is
+asking the judge to grade its own homework.
 
 **Once you do need a judge, ask it to *choose*, not to *compose*.** Models are much better at
 picking between options than at generating an unanchored score:
@@ -369,12 +348,10 @@ how you express the answer.
 Pulling sections 2 and 6 together into the one decision that actually matters when a system
 goes live:
 
-1. **Does this check need an answer key?** (Section 2.) If yes, it can only ever run offline,
-   against a curated test set — never on live traffic, because nobody has pre-written the
-   correct answer to a question a real user hasn't asked yet.
-2. **What does it cost to run per case?** (Sections 5–6.) A free, deterministic check can run
-   on every single production request. A judged check costs a real API call each time, so
-   running it on 100% of live traffic is usually the wrong call — you sample instead.
+1. **Does this check need an answer key?** (Section 2.) If yes it runs offline only — nobody
+   pre-wrote the answer to a question a real user hasn't asked yet.
+2. **What does it cost per case?** (Sections 5–6.) A free deterministic check can run on every
+   production request; a judged one costs an API call each time, so you sample.
 
 A reference-based check that skips every unlabeled production request will still look
 perfectly healthy on a dashboard (100% "skipped" isn't the same as 100% "passed," but it can

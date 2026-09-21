@@ -22,12 +22,10 @@ version 2 is ready to ship. Here is the full result:
 | Hindi | 8 | 7 (88%) | 4 (50%) | **collapsed** |
 | **Overall** | **40** | **35 (87.5%)** | **36 (90%)** | **better** |
 
-The overall score went up — 87.5% to 90%. Every dashboard in the world shows that as green,
-and version 2 ships. But Hindi went from 88% to 50%: nearly half of those customers now get a
-wrong answer. Nothing in the overall number tells you this happened, because the improvement
-in English and Spanish more than paid for the collapse. Hindi is only 8 of 40 cases — 20% of
-the test set — so the average only felt 20% of its 37.5-point fall, which is 7.5 points, and
-that got buried under 10 points of gain from the other two groups.
+The overall score went up, 87.5% to 90% — green on every dashboard, version 2 ships. Hindi
+went 88% to 50%: nearly half those customers now get a wrong answer. Hindi is 8 of 40 cases,
+so the average felt only 20% of its 37.5-point fall — 7.5 points, buried under 10 points of
+gain from the other two groups.
 
 This is arithmetic, not bad luck. **A group is only as loud in the average as it is big.** A
 group that is 5% of your traffic can fail entirely and move the overall score by five points.
@@ -122,14 +120,12 @@ be able to see. (15.7 comes from `2 × (1.96 + 0.84)²` — the standard two-sid
 95%-confidence, 80%-power constants — so this is a documented rule of thumb, not a substitute
 for a full power analysis, but it's the right order of magnitude instantly.)
 
-A worked example: at `p = 0.80` and wanting to see a 10-point move (`δ = 0.10`), you need
-`n ≈ 251` cases. A 40-case suite, by contrast, **can see a collapse, but not a slip** — it
-simply doesn't have the resolution for small moves. The same formula runs in reverse, too:
-given the `n` you actually have, it tells you the smallest change you're capable of detecting
-at all (`δ ≈ √(15.7 · p(1−p) / n)`). **Publish that number next to every report.** It turns
-"the score dropped 4 points" from a fire drill into a known, honest limitation of the suite —
-and it's the honest answer to "do you ship?" when someone asks about a move that's actually
-inside your own blind spot.
+At `p = 0.80`, seeing a 10-point move (`δ = 0.10`) needs `n ≈ 251` cases. A 40-case suite
+**sees a collapse but not a slip**. Run the formula backwards and it gives the smallest change
+your `n` can detect at all: `δ ≈ √(15.7 · p(1−p) / n)`.
+
+> **Publish that number next to every report.** It turns "the score dropped 4 points" from a
+> fire drill into a known limitation of the suite.
 
 This same arithmetic is the reason a dashboard sampling live traffic can miss a real
 regression — see [Section 6](#6-the-same-problem-in-production-the-sampling-resolution-problem)
@@ -305,14 +301,14 @@ ordinary, unchanged days can differ by several points from luck alone, so the al
 days when nothing broke. A team that gets paged for nothing learns to close the page without
 looking, which is exactly the credibility cost this whole level is trying to avoid.
 
-**To detect a 2-point drop you need about 606 scored traces** — at 2,000 traces/day, that's a
-30% sample rate, not the 5% that felt affordable. And if a delta can't be resolved even at
-100% sampling, the answer isn't more sampling — it's to move that comparison **offline**,
-where every input is scored and, crucially, the comparison is **paired**: the exact same fixed
-set of questions asked of the old build and the new one, which removes the day-to-day
-variation in *what customers happened to ask* as a confound (this is the same paired-vs-
-unpaired idea behind McNemar in Section 4 — a fixed, shared set of cases is what lets you
-attribute a difference to the *change*, rather than to which traffic showed up that day).
+**To detect a 2-point drop you need about 606 scored traces** — at 2,000 traces/day that is a
+30% sample rate, not the 5% that felt affordable.
+
+> **If a delta can't be resolved even at 100% sampling, the answer isn't more sampling.** Move
+> the comparison offline, where every input is scored and the comparison is **paired**.
+
+The same fixed questions asked of the old build and the new one removes *what customers
+happened to ask* as a confound — the paired-vs-unpaired idea behind McNemar in Section 4.
 
 **The analogy.** Tasting a pot of soup. One spoonful tells you instantly if it's far too
 salty; it can never tell you whether today's pot is 2% saltier than yesterday's — especially
@@ -343,13 +339,14 @@ shifts the *mix* of traffic between strata. A constructed illustration:
 | Hindi (n: 10 → 80) | 50.00% | 55.00% | **+5.00** |
 | **Overall** | **86.00%** | **63.00%** | **−23.00** |
 
-Every single stratum went *up* by 5 points. The overall number *collapsed* by 23 points —
-because the mix of who's asking moved from 90% English / 10% Hindi to 20% English / 80% Hindi,
-and Hindi is the weaker segment regardless of which version is live. A gate on the aggregate
-alone would block a release that made every group better; a gate on the worst stratum would
-correctly pass it. **This is the single best argument for gating per stratum rather than on
-the mean**, and it's the reason the release gate (Level 6) has a dedicated check for exactly
-this case, separate from its overall-average check.
+Every stratum went *up* 5 points while the overall number *collapsed* 23, because the mix
+moved from 90% English / 10% Hindi to 20% / 80% and Hindi is the weaker segment either way.
+
+> **A gate on the aggregate would block a release that made every group better; a gate on the
+> worst stratum passes it correctly.**
+
+This is why the release gate (Level 6) carries a dedicated per-stratum check separate from its
+overall-average one.
 
 ---
 
@@ -382,32 +379,33 @@ genuinely disagree, and the aggregate is the one that's wrong.
 *(From `QUESTION_BANK.md` — Q4 and Q21, the two questions in the bank that this level's
 material speaks to directly; the rest of the bank belongs to other levels.)*
 
-**Q4 — "The customer wants one number for a dashboard. What do you give them?"** This is
-Section 1's argument, aimed at an executive audience: two systems — one slightly mediocre
-everywhere, one excellent everywhere except that it leaks account data under an adversarial
-prompt — can produce the identical headline average. The strong answer restructures the
-dashboard into three layers instead of fighting the request for "one number": a **headline**
-that's a pass/fail verdict against the blocking gates (not an average — a verdict can't be
-rescued by being good at something else), the **slices** underneath it (by category, by
-whether a tool was involved, by attack type, by turn), and a separate **"not measured"**
-column, because an unmeasured dimension and a failed one must never look the same — reporting
-a gap as a zero makes a healthy system look broken, and hiding it makes a blind spot look like
-coverage. The line worth having ready: *"the headline tells you whether to look, the slices
-tell you where."*
+**Q4 — "The customer wants one number for a dashboard. What do you give them?"** **Restructure
+into three layers rather than fighting the request.** Two systems — one mediocre everywhere,
+one excellent except that it leaks account data under an adversarial prompt — produce the same
+headline average.
 
-**Q21 — "A metric dropped two points this week. Walk me through what you do."** This is
-Sections 2 and 6 turned into an investigation checklist. The first question is never "what
-caused it" — it's *"can this sample even resolve two points?"* (Section 6's whole argument).
-If the drop clears the noise floor and is real, three things could have changed, and they
-need separating: **us** (a prompt, model, retrieval config or tool — check the deployment
-timeline first, because it's cheapest to confirm or rule out), **them** (the traffic mix
-shifted — slice by category; a drop concentrated in one category almost always means this,
-while a drop spread evenly points at "us"), or **the measurement itself** (a judge model got
-upgraded underneath you, or the scored population changed — rare, and easy to miss, because
-in that case the system never moved at all). Then reproduce it **offline**, where the
-comparison is controlled and paired (Section 6 again), confirm it, fix it, and leave the case
-behind as a permanent regression test. The line worth having ready: *"paging someone about
-noise is how you teach a team to ignore the alert — that costs more than the drop."*
+- **Headline** — a pass/fail verdict against the blocking gates, not an average. A verdict
+  can't be rescued by being good at something else.
+- **Slices** — by category, by whether a tool was involved, by attack type, by turn.
+- **"Not measured"** — its own column. Reporting a gap as a zero makes a healthy system look
+  broken; hiding it makes a blind spot look like coverage.
+
+*"The headline tells you whether to look, the slices tell you where."*
+
+**Q21 — "A metric dropped two points this week. Walk me through what you do."** **First ask
+whether the sample can resolve two points at all; only then ask what caused it.** If it clears
+the noise floor, separate three candidates:
+
+- **Us** — a prompt, model, retrieval config or tool. Check the deployment timeline first;
+  cheapest to confirm or rule out.
+- **Them** — the traffic mix shifted. A drop concentrated in one category is almost always
+  this; spread evenly points back at us.
+- **The measurement** — a judge model upgraded underneath you, or the scored population
+  changed. Rare, easy to miss, and the system never moved at all.
+
+Then reproduce it offline where the comparison is paired, fix it, and leave the case behind as
+a regression test. *"Paging someone about noise is how you teach a team to ignore the alert —
+that costs more than the drop."*
 
 ---
 

@@ -29,15 +29,17 @@ Level 7 is about the second half of a system's life: once a build ships, how do 
 measuring it with **no answer key, ever**, and how do you make sure anything you learn there
 doesn't just help once, but flows back into the gate so the next build is protected too.
 
-Production differs from a golden set in three ways that matter, and every technique in this
-level exists because of one of them: **the traffic mix isn't your suite's mix** (real traffic
-is mostly easy, repetitive questions; a golden set is deliberately hard, on purpose, so it can
-catch subtle failures); **there are no reference answers, ever**; and **there is a long tail
-your dataset never represented at all** — which is the entire reason online evaluation is
-worth doing. The reframe that follows from this: **stop trying to score correctness, and start
-scoring consistency and shape.** Without a reference you cannot ask "is this right?" — but you
-can ask "is this grounded in what it retrieved?" and "is this better than the build we already
-shipped?"
+Production differs from a golden set in three ways, and every technique here exists because of
+one of them:
+
+- **The traffic mix isn't your suite's mix.** Real traffic is mostly easy and repetitive; a
+  golden set is deliberately hard.
+- **There are no reference answers, ever.**
+- **There is a long tail your dataset never represented** — the entire reason to do this.
+
+> **Stop scoring correctness; start scoring consistency and shape.** You cannot ask "is this
+> right?" without a reference, but you can ask "is this grounded in what it retrieved?" and
+> "is this better than the build we shipped?"
 
 ---
 
@@ -256,13 +258,16 @@ more hedging can move like this:
 | Mean response length | 140 words | 310 words — doubled |
 | Refusal rate | 3% | 11% — tripled |
 
-Three of those four moved immediately, and none of them is a quality score. That gives four
-categories worth watching, only one of which is a quality number: quality on sampled traffic
-(as a *trend*, never a gate); behavioral distributions like tool-call rate; operational shape
-per step, which is what turns "it got slower" into "retrieval latency doubled" rather than a
-vague complaint; and failures and refusals, because **a rising refusal rate is a quality
-regression that most quality metrics will happily score as a pass** — the refusal itself is
-well-written and safe, so nothing about it looks wrong to a judge reading one turn at a time.
+Three of those four moved immediately and none is a quality score. Four categories are worth
+watching, only one of them a quality number:
+
+- **Quality on sampled traffic** — as a *trend*, never a gate.
+- **Behavioural distributions** like tool-call rate.
+- **Operational shape per step** — what turns "it got slower" into "retrieval latency doubled."
+- **Failures and refusals.**
+
+> **A rising refusal rate is a quality regression that most quality metrics score as a pass.**
+> The refusal is well-written and safe, so nothing looks wrong to a judge reading one turn.
 
 And the one people miss entirely: **a monitor that was configured but never switched on looks
 exactly like a monitor reporting no problems.** Registering a scorer creates it; starting it is
@@ -278,25 +283,25 @@ An alert you've never *seen* fire is an alert you don't actually know is wired u
 find out is to break production on purpose and watch which lights come on — and, just as
 importantly, which ones stay dark.
 
-**Drill 1 — a silently empty retrieval index.** A knowledge-base rebuild returns zero
-documents for every query, but the service still answers with a fluent "200 OK" — an ordinary
-error-rate dashboard sees nothing wrong. In the drill, the **citation-free rate alert fires
-almost immediately** — it's a counting rule over data already being logged, so it's minutes
-old, not hours. **Resolution rate barely moves**, because billing and account questions still
-"succeed" without any documentation behind them at all — a customer got an answer, just not a
-grounded one. This is the same incident the RAG-vs-support walkthrough calls the tell for a
-silently empty index: *"an index rebuild that returns zero rows still returns HTTP success, so
-error-rate monitoring stays green while quality collapses."*
+**Drill 1 — a silently empty retrieval index.** A rebuild returns zero documents for every
+query and the service still answers with a fluent 200 OK, so an error-rate dashboard sees
+nothing. **Citation-free rate fires almost immediately** — a counting rule over data already
+logged, so minutes old, not hours. **Resolution rate barely moves**: billing and account
+questions still "succeed" with no documentation behind them.
 
-**Drill 2 — a retry loop.** A tool starts calling itself repeatedly within a single
-conversation. **Cost and loop-rate both fire.** **Citation-free stays quiet.** **Resolution
-rate is unchanged** — customers are being helped correctly, repeatedly, at several times the
-price, and no quality dashboard would show this at all. The support side of the walkthrough
-tells the same story at larger scale, as a real production drill: an upstream service returned
-HTTP 200 with an empty body during an outage, the model kept retrying with reworded arguments,
-and 70% of conversations hit the step ceiling for eleven hours. The signal that caught the
-*cause* wasn't latency or error rate — both stayed green — it was the tool status mix shifting
-toward `empty`/`unavailable`, exactly the alert built for this.
+> *"An index rebuild that returns zero rows still returns HTTP success, so error-rate
+> monitoring stays green while quality collapses."*
+
+**Drill 2 — a retry loop.** A tool starts calling itself repeatedly inside one conversation.
+**Cost and loop-rate fire. Citation-free stays quiet. Resolution rate is unchanged** — customers
+are helped correctly, repeatedly, at several times the price, and no quality dashboard shows it.
+
+At larger scale: an upstream service returned HTTP 200 with an empty body during an outage, the
+model retried with reworded arguments, and 70% of conversations hit the step ceiling for eleven
+hours.
+
+> **Latency and error rate both stayed green.** What caught the cause was the tool status mix
+> shifting toward `empty`/`unavailable`.
 
 Running every fault against every alert produces a coverage matrix, and the gaps are the
 point, not an embarrassment to hide:
@@ -458,15 +463,17 @@ quality regression most quality judges will happily score as a pass. The detail 
 entirely: a monitor that was configured but never started looks exactly like a monitor
 reporting no problems (Section 4).
 
-**Case 15 — "set up production monitoring for a 2,000-conversation-a-day agent."** Walks
-through the same reasoning as a single design exercise: the mechanical eligibility test,
-sampling judges but never deterministic checks, deriving the sample rate from the smallest
-detectable drop (≈30% to resolve 2 points at this volume), landing traces as queryable tables
-so "it got worse" becomes "retrieval p95 doubled for tenant 14 starting Tuesday," and carrying
-every finding into a gated offline test. The line worth keeping from it: *"An alert threshold
-finer than your sampling resolution is a noise generator."* The silent failure it calls out by
-name is the same one Section 4 covers — a registered-but-never-started monitor, verified by
-checking that each scorer actually has a live sampling config, not just a registration.
+**Case 15 — "set up production monitoring for a 2,000-conversation-a-day agent."** The same
+reasoning as one design exercise: the mechanical eligibility test, sampling judges but never
+deterministic checks, deriving the rate from the smallest detectable drop (≈30% to resolve 2
+points at this volume), landing traces as queryable tables so "it got worse" becomes "retrieval
+p95 doubled for tenant 14 starting Tuesday," and carrying every finding into a gated offline
+test.
+
+> *"An alert threshold finer than your sampling resolution is a noise generator."*
+
+The silent failure it names is Section 4's: a registered-but-never-started monitor, verified by
+checking each scorer has a live sampling config, not just a registration.
 
 ---
 

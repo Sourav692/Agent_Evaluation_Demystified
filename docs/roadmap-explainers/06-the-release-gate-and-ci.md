@@ -398,18 +398,15 @@ and what deliberately does not change, when the prompt is written by an automate
 instead — the source material's example is the GEPA optimizer paired with a judge that was
 calibrated against expert human labels (that calibration step itself belongs to Level 4).
 
-**One data requirement trips people up before the optimizer even runs: the dataset it
-optimizes against is not the evaluation dataset, and the difference is not cosmetic.** The
-evaluation dataset used everywhere else in this level can leave `expectations` off a row — some
-rows only carry facts to check, or a rule to obey. The optimization dataset needs
-`expectations` on **every single row**, and each one has to describe *what the agent should
-have done*, not a gold answer to match word for word — something like "the agent should state
-the $15 late fee, note the 5-day threshold, and mention the annual waiver." The optimizer uses
-that description during a reflection step: it compares what the agent actually produced against
-what should have happened, in order to reason about *why* the current prompt underperforms.
-Without it, the optimizer can see that a score is low but cannot diagnose why, and the
-candidates it proposes next are guesses rather than targeted fixes — this is named directly as
-the most common cause of a disappointing optimization run.
+> **The optimization dataset is not the evaluation dataset, and the difference is not
+> cosmetic.** Evaluation rows may leave `expectations` off; optimization needs them on **every
+> row**.
+
+Each one describes *what the agent should have done* — "state the $15 late fee, note the 5-day
+threshold, mention the annual waiver" — not a gold answer to match word for word. The optimizer
+compares actual against intended during a reflection step to reason about *why* the prompt
+underperforms. Without it, it sees a low score, cannot diagnose it, and proposes guesses. This
+is the most common cause of a disappointing run.
 
 **How it works, in one line: the optimizer proposes prompt candidates, scores each one against
 a chosen judge, and keeps whichever candidates that judge rewards.** That single fact has a
@@ -497,70 +494,61 @@ covers what those add beyond the mechanics already worked through above; it does
 the four-check breakdown, the two-condition rule, or the tolerance-by-metric-type material,
 all of which are Sections 2–4 and already covered once.)*
 
-**How far a single gate check should be trusted, and what to do when it isn't (Q22, Case
-13).** Both frame the two-condition rule (Section 3) as the direct answer to "how do you
-decide whether a new prompt is safe to ship" — nothing new mechanically, but they add a
-practical detail worth having ready: a gate that people learn to override, because its
-tolerance is set tighter than a judge's natural run-to-run noise, is *worse* than having no
-gate at all, since you keep the ceremony of a check without the actual protection. Case 13
-adds two further, genuinely separate points. First, **the gate needs two *datasets*, not one,
-and each has an opposite failure mode**: the curated, hand-authored regression set must stay
-fixed and must not drift, or a before/after comparison stops being valid (this is Level 3's
-"ground truth" material, referenced here rather than repeated); a separately mined set, by
-contrast, must be kept fresh against real traffic, or it stops discovering anything new. Second,
-a practical follow-up worth having ready: *how long should the gate itself take to run?*
-The answer is "whatever keeps it inside the merge path" — a forty-minute gate gets bypassed by
-a team in a hurry regardless of how sound its checks are — so the practical fix is tiering:
-cheap deterministic scorers run on every single commit, and the full judged suite runs only on
-merge to the main branch, mirroring the free/paid split in Section 5.
+**How far a single gate check should be trusted (Q22, Case 13).** Both point at Section 3's
+two-condition rule, and add three things worth having ready:
 
-**The post-mortem discipline for when a gate misses something (Q25).** This is new material,
-not covered above. When something does get through despite the gate, the fix to the specific
-input that leaked is described as the *smaller* half of the response — three questions matter
-more: (1) which check should have caught this, and was the reason it didn't one of *never
-measured*, *measured but not gated* (Section 7's trap), or *gated but the dataset had nothing
-resembling this case*; (2) was the failure even measurable in principle, or does it only exist
-across turns or in a real system's end state (some agent failures — covered properly at
-Levels 2 and 8 — simply cannot be seen from a single input/output pair, and no new rule fixes
-that, only better instrumentation does); and (3) what is the *class* of failure here, not just
-the one instance — patching the exact string that leaked protects against that exact string
-and nothing else, while adding a class of several phrasings to the permanently gated set
-protects against the next attempt. The genuinely uncomfortable question to ask afterward: *had
-this been happening silently before anyone noticed?* If the honest answer is "we can't tell,"
-that absence of an answer is itself the finding — it means the system's data retention or
-slicing wasn't good enough to answer a basic question about its own behavior.
+- **A gate people learn to override is worse than no gate.** Set its tolerance tighter than a
+  judge's natural run-to-run noise and you keep the ceremony without the protection.
+- **The gate needs two datasets with opposite failure modes.** The curated regression set must
+  stay fixed or before/after comparison stops being valid; a mined set must stay fresh or it
+  stops discovering anything.
+- **How long should the gate take? Whatever keeps it inside the merge path.** A forty-minute
+  gate gets bypassed by a team in a hurry. Tier it: deterministic scorers every commit, the
+  judged suite on merge to main.
 
-**The green-dashboard failure catalogue (Q24).** Section 5 above covers one specific instance
-of this — a gate with nothing to read looking identical to a gate that passed. Q24 generalizes
-it into a short catalogue of ways a dashboard can read as healthy while measuring nothing:
-a metric that's faithfully computed and displayed but was never wired to a *blocking* gate
-(Section 7's trap, restated at the dashboard level); a check that was configured but never
-actually started running, or that silently errors on every row and drops out of the results
-entirely, so its absence reads as the absence of a problem rather than as a broken check; a
-gate configuration pointing at a metric name that was mistyped, which looks up nothing and
-can render as either a zero or a pass depending on how the surrounding code handles a missing
-key; and — the most common of all, and the only one with no purely mechanical fix — a
-dimension nobody ever wrote a check for in the first place. None of these four is a bug in the
-agent being evaluated; every one is a bug in the *measurement* being used to judge the agent,
-which is what makes them dangerous — they all look exactly like health from the outside. The
-concrete countermeasure this section adds: an unmatched or never-run gate should report an
-explicit **"not measured"** state, visually distinct from both pass and fail, never silently
-rendered as either one — and a gate should occasionally be tested the way a fire alarm is
-tested, by deliberately shipping something that should fail and confirming it actually gets
-blocked, because a gate that has never once blocked a release is unproven, not safe.
+**The post-mortem discipline when a gate misses something (Q25).** Fixing the input that
+leaked is the *smaller* half. Three questions matter more:
 
-**The specific way "we optimized exactly what we were asked to" goes wrong (Case 14).** This
-sharpens Section 8's optimizer material with one clean number set worth keeping. Asked for
-shorter answers, a release delivers: conciseness 0.61 → 0.88 (the one metric anyone was
-reading), while groundedness falls 0.93 → 0.67 (citations got cut to save words), escalation-
-appropriateness falls 0.90 → 0.71 (shorter answers left no room to hedge or decline), and
-completeness falls 0.88 → 0.62. Nobody cheated and no single check was gamed — the system did
-exactly what was asked, and the cost was paid entirely by three dimensions nobody had gated.
-The added detail beyond Sections 3–4: reporting only a mean hides *both* tails of a
-distribution at once, and it hides them in opposite, equally important directions — the 90th
-percentile is where rambling, over-long answers live, while the 10th percentile is where
-answers got truncated past the point of being useful. A single average is comfortable sitting
-on top of both problems simultaneously.
+1. **Which check should have caught this** — and was it *never measured*, *measured but not
+   gated*, or *gated but the dataset had nothing resembling this case*?
+2. **Was it measurable in principle at all?** Some failures only exist across turns or in a
+   real system's end state; no new rule fixes that, only instrumentation.
+3. **What is the *class* of failure?** Patching the exact string that leaked protects against
+   that string and nothing else.
+
+> **Then ask: had this been happening silently before anyone noticed?** "We can't tell" is
+> itself the finding — retention or slicing wasn't good enough to answer a basic question
+> about the system's own behaviour.
+
+**The green-dashboard failure catalogue (Q24).** Four ways a dashboard reads healthy while
+measuring nothing:
+
+- **Computed but never gated** — Section 7's trap at the dashboard level.
+- **Configured but never started**, or silently erroring on every row and dropping out, so its
+  absence reads as the absence of a problem.
+- **A mistyped metric name** — looks up nothing, renders as a zero or a pass depending on how
+  the surrounding code handles a missing key.
+- **A dimension nobody wrote a check for.** The most common, and the only one with no
+  mechanical fix.
+
+> **None of the four is a bug in the agent. Every one is a bug in the measurement**, which is
+> what makes them dangerous — from outside they look exactly like health.
+
+The countermeasures: an unmatched or never-run gate reports an explicit **"not measured"**
+state, visually distinct from pass and fail; and the gate gets fire-alarm tested by
+deliberately shipping something that should fail. **A gate that has never blocked a release is
+unproven, not safe.**
+
+**How "we optimized exactly what we were asked to" goes wrong (Case 14).** Asked for shorter
+answers, a release delivers conciseness 0.61 → 0.88 — the one metric anyone was reading — while
+groundedness falls 0.93 → 0.67 (citations cut to save words), escalation-appropriateness 0.90 →
+0.71 (no room left to hedge or decline), and completeness 0.88 → 0.62.
+
+> **Nobody cheated and no check was gamed.** The cost was paid entirely by three dimensions
+> nobody had gated.
+
+> **A mean hides both tails at once, in opposite directions.** The 90th percentile is where
+> rambling answers live; the 10th is where answers got truncated past usefulness.
 
 ---
 

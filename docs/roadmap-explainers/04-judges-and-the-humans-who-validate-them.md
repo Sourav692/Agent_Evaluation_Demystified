@@ -15,15 +15,15 @@ each one and say yes or no. For thousands of replies a day, that doesn't scale �
 another large language model (LLM) to grade the replies. That grading model is called a
 **judge**.
 
-This immediately raises an uncomfortable question: if a judge is just another model, why
-should anyone believe the number it produces? A judge can be fooled by confident, fluent,
-wrong text in exactly the way it fools a person. It can prefer whichever answer it happens to
-see first. It can go easy on text that reads like its own writing. So a judge is not an oracle
-— it is an instrument, and every instrument needs calibrating against something more trustworthy:
-a person. An unchecked judge still has a use even before it's calibrated: its numbers are
-internally consistent, so it is genuinely useful for **detecting that something changed**
-between two versions. It is just not yet useful for **asserting that either version is any
-good** — that second claim is what the rest of this level is about earning.
+If a judge is just another model, why believe its number? It can be fooled by fluent, wrong
+text, prefer whichever answer it sees first, and go easy on writing that reads like its own.
+
+> **A judge is an instrument, not an oracle**, and every instrument is calibrated against
+> something more trustworthy: a person.
+
+Uncalibrated it is still internally consistent, so it detects **that something changed** — it
+just cannot yet assert **that either version is good**. Earning that is the rest of this
+level.
 
 This level covers three things that all sit on top of that one idea:
 
@@ -95,21 +95,17 @@ Building any of the three judges above is only worth it once you know a judged c
 right rung to stand on in the first place. The failure modes below (§0.3 of this repo's field
 guide) make this explicit:
 
-- A judge is **not an oracle**. It reads text and decides whether it *sounds* right — which
-  is exactly what a fluent, confident, wrong answer exploits.
-- A **weaker judge produces noisier scores**; it should be at least as capable as the task it
-  is grading, sometimes more capable than the system being graded.
-- Two runs on the *same* input can **disagree** with each other, especially near a threshold —
-  treat any single judge score as a noisy estimate, never a fact, and never gate a release on
-  one row.
-- A **vague rubric produces a judge that quietly disagrees with itself**. The specificity you
-  write down in a rubric or a set of evaluation steps is the specificity you get back out.
-- **Cost compounds**: five judged dimensions over 500 cases is 2,500+ model calls, which is
-  why deciding whether you even have an answer key is an operational decision, not just a
-  conceptual one (see Level 3).
-- **Score direction is not a convention.** A metric named for the *failure* it detects runs
-  backwards: a hallucination score of 0.9 means a lot of hallucination, not excellent
-  grounding. Always check which direction "good" points before wiring a metric to a threshold.
+- **Not an oracle.** It decides whether text *sounds* right — what a fluent, confident, wrong
+  answer exploits.
+- **A weaker judge produces noisier scores.** It should be at least as capable as the task it
+  grades.
+- **Two runs on the same input can disagree**, especially near a threshold. Never gate a
+  release on one row.
+- **A vague rubric produces a judge that disagrees with itself.** The specificity you write
+  down is the specificity you get back.
+- **Cost compounds.** Five judged dimensions over 500 cases is 2,500+ model calls.
+- **Score direction is not a convention.** A hallucination score of 0.9 means a lot of
+  hallucination. Check before wiring a threshold.
 
 Climbing from a generic, off-the-shelf judged check to a **custom rubric you wrote yourself**
 changes the standard being applied, not the mechanism or the cost — you climb that step only
@@ -287,16 +283,14 @@ tell them apart.
 
 Two steps separate the two explanations:
 
-1. **The length audit** (free — it re-reads verdicts you already have) reports the length
-   distribution next to the win rate. In one worked run of this exercise, the stronger reply
-   won 12 of 12 comparisons, and the winning replies averaged 25.2 words against the losers'
-   18.7 — a 35%-longer winner, every time. That number alone cannot say whether the judge
-   responded to quality or to word count.
-2. **The length-controlled probe** (costs real model calls) pads the *worse* reply with
-   content-free filler sentences until it becomes the *longer* of the two, and judges again.
-   If the genuinely better reply still wins, length was not doing the work. If the padded,
-   worse reply wins, the judge is measuring word count — and every pairwise number produced by
-   that judge, including any canary win-rate used to gate a rollout, is suspect.
+1. **The length audit** (free — re-reads verdicts you already have) puts the length
+   distribution next to the win rate. In one run the stronger reply won 12 of 12, winners
+   averaging 25.2 words against 18.7 — 35% longer, every time. That alone cannot separate
+   quality from word count.
+2. **The length-controlled probe** (costs model calls) pads the *worse* reply with filler until
+   it is the longer one, then judges again. Better reply still wins: length wasn't doing the
+   work. Padded reply wins: the judge measures word count, and every pairwise number it
+   produced — including any canary win rate gating a rollout — is suspect.
 
 The practical takeaway: **a win rate published without the length distribution beside it is
 partly a word count.**
@@ -323,16 +317,15 @@ strongest language rather than scoring the answer.
 
 ### A fourth failure mode, underneath all three: a rubric with room to improvise
 
-Position bias, verbosity bias and same-model bias are all failures of a judge given a
-perfectly clear question. There is a simpler failure underneath all three: give the judge an
-*ambiguous* question in the first place. A rubric whose levels overlap — "the reply is fairly
-good" versus "the reply is good," with no line between them — gives the judge room to
-improvise, and a judge with room to improvise does not reproduce. Nothing about a vague rubric
-sounds wrong when you read it; the problem only shows up empirically, and the test is not "does
-it sound reasonable" but "can two careful people apply it independently and actually agree" —
-which is exactly what Section 5's Cohen's kappa measures. This is the most common way a working judge
-quietly stops working: somebody "clarifies" the wording and removes the very specificity that
-made it reproducible.
+Those three biases are failures of a judge given a *clear* question. Underneath them sits a
+simpler one: an ambiguous question. A rubric whose levels overlap — "fairly good" against
+"good," with no line between — leaves room to improvise, and improvisation does not reproduce.
+
+> **The test is not "does the rubric sound reasonable" but "can two careful people apply it
+> independently and agree"** — which is what Section 5's Cohen's kappa measures.
+
+This is the most common way a working judge quietly stops working: somebody "clarifies" the
+wording and removes the specificity that made it reproducible.
 
 ---
 
@@ -564,17 +557,14 @@ control and a rubber stamp:
 | Median decision time | Long enough to actually read the case | A second or two |
 | Queue depth / age | Stable | Growing, or items quietly aging out unresolved |
 
-**An approval rate of 99.8% combined with a median decision time of 1.2 seconds is not a
-safety control — it is a latency cost with a compliance story attached.** A worked comparison
-makes the stakes concrete: an approver who is genuinely deciding (roughly an 86% approval
-rate, decisions taking tens of seconds to a few minutes) and an approver who is rubber-stamping
-(roughly a 99.9% approval rate, decisions in one to two seconds) both pass a check that only
-verifies "every refund has an approval ID attached" — because they do. The rubber-stamping
-column would pass every such check while the human safeguard behind it is absent in every way
-that matters. A crude, deliberate two-threshold rule — approval rate above roughly 98% **and**
-median decision time under about five seconds — is enough to flag this, because the failure it
-is catching is not subtle, and a subtler detector would just invite an argument about the exact
-cutoff instead of fixing the underlying problem.
+> **A 99.8% approval rate with a 1.2-second median decision time is not a safety control — it
+> is a latency cost with a compliance story attached.**
+
+A genuine approver (≈86% approval, decisions in tens of seconds to minutes) and a
+rubber-stamping one (≈99.9%, one to two seconds) both pass a check that verifies "every refund
+has an approval ID attached" — because both do. A crude two-threshold rule catches it: approval
+rate above ~98% **and** median decision time under ~5 seconds. The failure is not subtle, and a
+subtler detector would only invite an argument about the cutoff.
 
 This is also where **judge drift** shows up as a second, related danger: if a judge gradually
 drifts toward passing almost everything, raw agreement with a human barely moves (because most

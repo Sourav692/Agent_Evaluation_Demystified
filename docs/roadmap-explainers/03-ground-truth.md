@@ -82,16 +82,15 @@ flowchart LR
     style D fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
 ```
 
-**Worth knowing, even though it isn't a roadmap topic on its own:** the same case list can be
-loaded into more than one evaluation framework — the notebook turns Lumen Cloud's 40 cases
-into both a DeepEval `EvaluationDataset` (all 40 cases) and a RAGAS `EvaluationDataset` (only
-the cases with a `rag_type` set — RAGAS scores RAG behaviour specifically, so the billing,
-account, and escalation cases that never retrieve documents are left out) from one plain JSON
-file that neither framework owns. The point isn't the two libraries; it's that a golden set
-kept as plain JSON survives a framework renaming its own classes (RAGAS 0.4 moved metrics to
-`ragas.metrics.collections`; DeepEval 4.x renamed `LLMTestCaseParams` to `SingleTurnParams` —
-both in minor releases). A golden set stored inside a framework's own object model would have
-needed migrating twice.
+One case list loads into both frameworks: Lumen Cloud's 40 cases become a DeepEval
+`EvaluationDataset` (all 40) and a RAGAS one (only cases with a `rag_type`, since billing,
+account and escalation cases never retrieve documents), from one plain JSON file neither
+framework owns.
+
+> **A golden set kept as plain JSON survives a framework renaming its own classes.** RAGAS 0.4
+> moved metrics to `ragas.metrics.collections`; DeepEval 4.x renamed `LLMTestCaseParams` to
+> `SingleTurnParams` — both in minor releases. A set stored in a framework's object model
+> would have needed migrating twice.
 
 ---
 
@@ -108,14 +107,13 @@ easy English.
 language × intent × question type produces a grid of mostly-empty cells and a handful of
 ones, where a "50% drop" in a cell of size 2 is one single case flipping.
 
-**The set deliberately does not mirror real traffic, and that is the point.** Lumen Cloud's
-real traffic is roughly 85% English, but the golden set holds only 22 English cases against
-10 Spanish and 8 Hindi — Hindi is *over-sampled* relative to how often it actually occurs. The
-notebook proves why with a direct comparison: build a 20-case sample weighted to match that
-85/11/4 traffic split, and Hindi shrinks to a case count so small that its score can only ever
-land on 0%, 100%, or nothing in between — the exact documentation gap the notebook is trying
-to catch becomes statistically invisible, not because the metric is wrong, but because the
-sample can no longer see it. **You sample for detection, not for representativeness.**
+Lumen Cloud's traffic is roughly 85% English; the golden set holds 22 English cases against 10
+Spanish and 8 Hindi. Weight a 20-case sample to match the real 85/11/4 split instead and Hindi
+shrinks until its score can only land on 0%, 100%, or nothing between — the documentation gap
+becomes statistically invisible, not because the metric is wrong but because the sample cannot
+see it.
+
+> **You sample for detection, not for representativeness.**
 
 **The refusal quota: how much of the set rewards doing nothing?** If a golden set contains no
 cases where refusing, or escalating, or saying "I don't know" is the *correct* answer, then a
@@ -193,20 +191,17 @@ Real support traffic is heavily skewed: a handful of questions carry most of the
 everything interesting lives in the long tail. That shape is why *how* you sample from traces
 matters more than how many you pull.
 
-- **Random sampling reproduces the distribution** — which mostly hands back the head: the
-  common questions the curated set already covers. In the TelcoAssist notebook, a random
-  sample of 8 traces returns mostly-already-tested questions, which is the strategy "working
-  exactly as designed — and teaching nothing."
-- **Targeted sampling by novelty goes after the tail.** Score every trace's query by how much
-  it token-overlaps with anything already in the curated set (`0.0` = identical to something
-  already tested, `1.0` = nothing like it) and keep only queries above a threshold — no LLM
-  call required. TelcoAssist uses `NOVELTY_THRESHOLD = 0.40`, and the traces that clear it
-  surface an out-of-scope question, a non-English request, a rambling multi-part message, and
-  a billing dispute — none of which the curated 12-row set contains.
-- **Select by threshold, not by a fixed count.** Taking "the top 10" pads the selection with
-  whatever ranked highest once genuinely novel material runs out — and the tail is rare by
-  construction, so it runs out fast. A threshold returns fewer rows on a quiet day and more
-  after a real traffic shift, which is the behaviour you actually want.
+- **Random sampling reproduces the distribution**, which hands back the head the curated set
+  already covers. TelcoAssist's random sample of 8 traces returns mostly-already-tested
+  questions — the strategy working as designed, and teaching nothing.
+- **Targeted sampling by novelty goes after the tail.** Score each query by token overlap with
+  the curated set (`0.0` identical, `1.0` nothing like it) and keep what clears a threshold —
+  no LLM call. At `NOVELTY_THRESHOLD = 0.40` the survivors are an out-of-scope question, a
+  non-English request, a rambling multi-part message and a billing dispute, none of them in
+  the curated 12 rows.
+- **Select by threshold, not a fixed count.** "Top 10" pads the selection once genuinely novel
+  material runs out, and the tail runs out fast. A threshold returns fewer rows on a quiet day
+  and more after a real traffic shift.
 
 ```mermaid
 flowchart TD
@@ -233,16 +228,14 @@ gap wasn't found by thinking harder about the agent; it was found by looking at 
 users actually asked. Closing it needed a scorer (`abstains_when_unsupported`) that didn't
 exist before mining revealed the need for it.
 
-**One infrastructure constraint worth knowing before any of this runs: managed evaluation
-datasets need a SQL-backed MLflow tracking store** (SQLite, PostgreSQL, MySQL, MSSQL) — the
-same requirement as the Prompt Registry, and another reason a `file://` tracking store doesn't
-get you far. There are also two different forms of `create_dataset`, and which one applies
-depends on where you're running: `create_dataset(name=..., experiment_id=[...])` for OSS/local,
-needing only that SQL-backed store, versus `create_dataset(uc_table_name="catalog.schema.table")`
-on Databricks, which backs the dataset with a Unity Catalog table and needs a Spark session. Either
-way, a managed dataset differs from a plain Python list in ways that matter here: it is
-versioned, it is attached to an experiment, and it is queryable by tags — on top of the
-merge-by-input-hash behaviour covered next.
+> **Managed evaluation datasets need a SQL-backed MLflow tracking store** (SQLite, Postgres,
+> MySQL, MSSQL) — the same requirement as the Prompt Registry, and another reason `file://`
+> doesn't get you far.
+
+`create_dataset` has two forms: `create_dataset(name=..., experiment_id=[...])` for OSS/local,
+needing only that SQL store, and `create_dataset(uc_table_name="catalog.schema.table")` on
+Databricks, which backs it with a Unity Catalog table and needs a Spark session. Either way a
+managed dataset is versioned, attached to an experiment, and queryable by tags.
 
 ---
 
@@ -367,15 +360,17 @@ question, since that framing is what a live round actually tests.
 | **Q12** | How big does the evaluation set need to be? | Size is set by the smallest regression you must be able to detect, not a round number — composition (covering every category and must-never-happen class) beats raw count, and a judge's own run-to-run noise puts a floor under what any size can resolve. | A kitchen scale that reads to the nearest 100g — fine for flour, useless for telling whether you lost 20g, and weighing yourself more often doesn't fix that. |
 | **Q13** | Who actually writes the labels, and how do you get their time? | Expert attention, not tooling, is the real constraint. Spend it only on ambiguous/contested cases, ask for ratings not documents, and record provenance (Section 5) on every label. If pushed on "they'll give you two hours a month, total," the answer is to spend all of it on the contested cases that calibrate a judge, not on confirming easy cases are easy. | A consultant surgeon doesn't take the blood samples — not because it's beneath them, but because that isn't where their scarce hours change the outcome. |
 
-**The follow-up worth having ready for each:** Q10 pushes on *how* you'd choose which traces
-to promote (answer: novelty-targeted, against a quality bar, not a fixed count — Section 4).
-Q11 pushes on *when* you'd update the frozen set (answer: on a scope change, or a repeating
-production gap — and run both versions once, side by side, to record the offset so history
-stays interpretable). Q12 pushes for a number anyway (answer: enough to cover every category and must-never-happen
-class with more than one phrasing — in practice that lands somewhere in the dozens — then grow
-it from traffic). Q13 pushes with the real constraint stated as a number ("two hours a month,
-total") — answer: spend it entirely on contested cases, since that is what calibrates a judge
-for the other thousand.
+The follow-up each question pushes on, with the verdict to have ready:
+
+- **Q10 — *how* do you choose traces to promote?** **Novelty-targeted, against a quality bar,
+  never a fixed count.**
+- **Q11 — *when* do you update the frozen set?** **On a scope change or a repeating production
+  gap — and run both versions side by side once to record the offset, so history stays
+  interpretable.**
+- **Q12 — how many cases?** **Enough to cover every category and must-never-happen class with
+  more than one phrasing — in practice dozens — then grow it from traffic.**
+- **Q13 — two hours a month, total?** **Spend all of it on contested cases; that is what
+  calibrates a judge for the other thousand.**
 
 ---
 
