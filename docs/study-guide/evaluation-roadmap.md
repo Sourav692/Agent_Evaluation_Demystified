@@ -5,40 +5,22 @@ bands. Each level lists its topics, goal, notebooks/resources, and a self-check,
 order. Two dedicated sections follow the levels: the **Databricks / MLflow 3** track as its
 own ladder, and what an **OpenAI**-style evaluation round pushes on.
 
-> **Where are the notebook tables?** Every "read / run" resource list has been moved to its own
-> lookup document — [`evaluation-topic-notebook-mapping.md`](evaluation-topic-notebook-mapping.md)
-> — so this file stays the curriculum (topics → goal → self-check) and that file stays the
-> reference (topic → notebook → cost). Each level below links straight to its section there.
-
-Three paths through this repo exist; pick by intent.
-
-| Path | Ordered by | Use it when |
-|---|---|---|
-| **This roadmap** | skill level — nothing assumed, expert at the end | You want the subject, not just the round |
-| [`evaluation-study-plan.html`](evaluation-study-plan.html) | what an interview round tests, most-decisive first | You have an eval-heavy round in under two weeks |
-| [`openai-eval-guide-tutorial.md` §7](../guide-audits/openai-eval-guide-tutorial.md) | shortest route that still holds up — eight notebooks | You have one evening |
-
-**Cost key**, used throughout the mapping document: **none** — no API calls; **key** — live
-`OPENAI_API_KEY` calls; **cached** — judged once, replayed from `data/score_cache/` afterwards;
-**workspace** — a real Databricks workspace. Everything under `docs/` is free. Times are for
-reading and running, not mastering.
-
 ---
 
 ## The ladder at a glance
 
-| Band | Level | The question it answers | Time |
-|---|---|---|---|
-| Beginner | [0 · Orientation](#level-0-orientation) | What can be measured, and with what kind of scorer? | 3 h |
-| Beginner | [1 · RAG](#level-1-rag-retrieval-and-generation) | Did retrieval find it, and did the generator stay inside it? | 8 h |
-| Intermediate | [2 · Agents](#level-2-agents-tools-conversations-trajectories-outcomes) | Right tool, right arguments, sound path, goal met? | 8 h |
-| Intermediate | [3 · Ground truth](#level-3-ground-truth) | Where do the cases and the labels come from? | 4 h |
-| Intermediate | [4 · Judges](#level-4-judges-and-the-humans-who-validate-them) | Why should anyone believe an LLM's score? | 6 h |
-| Advanced | [5 · Statistics](#level-5-statistics-and-stratified-reporting) | Is this change real, and for whom? | 4 h |
-| Advanced | [6 · The gate](#level-6-the-release-gate-and-ci) | Ship or don't ship — and who can loosen that? | 5 h |
-| Advanced | [7 · Online](#level-7-online-evaluation-and-the-loop) | What survives when the answer key is gone? | 6 h |
-| Expert | [8 · Safety and multi-agent](#level-8-safety-adversarial-and-multi-agent-attribution) | What must never happen, and which agent broke it? | 6 h |
-| Expert | [9 · The harness](#level-9-the-harness-as-a-product) | How does the evaluation system stay trustworthy and affordable? | 4 h |
+| Band         | Level                                                                                 | The question it answers                                         | Time |
+| ------------ | ------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ---- |
+| Beginner     | [0 · Orientation](#level-0-orientation)                                               | What can be measured, and with what kind of scorer?             | 3 h  |
+| Beginner     | [1 · RAG](#level-1-rag-retrieval-and-generation)                                      | Did retrieval find it, and did the generator stay inside it?    | 8 h  |
+| Intermediate | [2 · Agents](#level-2-agents-tools-conversations-trajectories-outcomes)               | Right tool, right arguments, sound path, goal met?              | 8 h  |
+| Intermediate | [3 · Ground truth](#level-3-ground-truth)                                             | Where do the cases and the labels come from?                    | 4 h  |
+| Intermediate | [4 · Judges](#level-4-judges-and-the-humans-who-validate-them)                        | Why should anyone believe an LLM's score?                       | 6 h  |
+| Advanced     | [5 · Statistics](#level-5-statistics-and-stratified-reporting)                        | Is this change real, and for whom?                              | 4 h  |
+| Advanced     | [6 · The gate](#level-6-the-release-gate-and-ci)                                      | Ship or don't ship — and who can loosen that?                  | 5 h  |
+| Advanced     | [7 · Online](#level-7-online-evaluation-and-the-loop)                                 | What survives when the answer key is gone?                      | 6 h  |
+| Expert       | [8 · Safety and multi-agent](#level-8-safety-adversarial-and-multi-agent-attribution) | What must never happen, and which agent broke it?               | 6 h  |
+| Expert       | [9 · The harness](#level-9-the-harness-as-a-product)                                  | How does the evaluation system stay trustworthy and affordable? | 4 h  |
 
 Roughly 54 hours end to end. The [fast paths](#fast-paths) at the bottom cut it to an hour,
 an evening, or a weekend.
@@ -280,7 +262,6 @@ metrics.
 
 ---
 
-
 ## Databricks — the MLflow 3 GenAI track as its own ladder
 
 [`courses/02-databricks-mlflow-evals/`](../../courses/02-databricks-mlflow-evals/) builds
@@ -294,12 +275,12 @@ names defined in Phase 0.
 
 ### The phase map
 
-| Tier | Phases | What it proves | Environment |
-|---|---|---|---|
-| Basic | 0–3 | Tracing and scorers | local |
-| Intermediate | 4–5 | Datasets and gating | local |
-| Advanced | 6–7 | Online evaluation and judge alignment | workspace |
-| Expert | 8–10 | Optimisation and scope | workspace (8), local (9–10) |
+| Tier         | Phases | What it proves                        | Environment                  |
+| ------------ | ------ | ------------------------------------- | ---------------------------- |
+| Basic        | 0–3   | Tracing and scorers                   | local                        |
+| Intermediate | 4–5   | Datasets and gating                   | local                        |
+| Advanced     | 6–7   | Online evaluation and judge alignment | workspace                    |
+| Expert       | 8–10  | Optimisation and scope                | workspace (8), local (9–10) |
 
 **Notebooks & resources:** [Phase-by-phase mapping →](evaluation-topic-notebook-mapping.md#databricks--phase-by-phase-notebook-mapping)
 
@@ -427,13 +408,13 @@ Five axes, from [question bank §0.1](../interview-prep/QUESTION_BANK.md). The s
 highest-signal behaviour is treating evaluation as a **design input**: if you cannot say how
 you would measure a component, you have not finished designing it.
 
-| Axis | Weak | Strong |
-|---|---|---|
-| Ambiguity handling | Draws a RAG diagram in minute two | Spends 5–8 minutes on who the user is, what the workflow costs, what "good" is numerically |
-| Decomposition | "The agent does X" | Named components with contracts, each independently measurable and failable |
-| Measurement discipline | "We'd use RAGAS" | Separates the five surfaces; says which are blocking vs informational |
-| Failure reasoning | Assumes the happy path | Names the blast radius of each wrong decision; designs so the model is allowed to be wrong |
-| Judgment under constraint | Says yes to the goal | Pushes back with a reason and an alternative sequencing |
+| Axis                      | Weak                              | Strong                                                                                      |
+| ------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------- |
+| Ambiguity handling        | Draws a RAG diagram in minute two | Spends 5–8 minutes on who the user is, what the workflow costs, what "good" is numerically |
+| Decomposition             | "The agent does X"                | Named components with contracts, each independently measurable and failable                 |
+| Measurement discipline    | "We'd use RAGAS"                  | Separates the five surfaces; says which are blocking vs informational                       |
+| Failure reasoning         | Assumes the happy path            | Names the blast radius of each wrong decision; designs so the model is allowed to be wrong  |
+| Judgment under constraint | Says yes to the goal              | Pushes back with a reason and an alternative sequencing                                     |
 
 ### 2. The answer skeleton
 
@@ -485,13 +466,13 @@ filtered to weak items, Appendix D.
 
 ## Fast paths
 
-| You have | Do |
-|---|---|
-| **One hour** | Course 01: [nb 00](../../courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb) → [nb 02](../../courses/01-rag-agent-tool-evaluation/02_Retrieval_Metrics_LLM_Judged.ipynb) → [nb 09](../../courses/01-rag-agent-tool-evaluation/09_Tool_Use_Evaluation.ipynb) → [nb 12](../../courses/01-rag-agent-tool-evaluation/12_Agent_Trajectory_Evaluation.ipynb). Or, entirely free: the five [interactive labs](../interactive-labs/) |
-| **One evening** | Tutorial §7's four: define good ([course 01 nb 00](../../courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb)), build the set ([course 03 nb 03](../../courses/03-agentic-eval-harness/03_the_golden_set.ipynb)), judge it ([nb 08](../../courses/03-agentic-eval-harness/08_building_custom_judges.ipynb)), refuse to ship ([nb 11](../../courses/03-agentic-eval-harness/11_the_release_gate_and_ci.ipynb)) |
-| **One weekend** | Levels 0–2 with the labs, then Level 6 read-only. You can now draw the taxonomy, argue mechanics ≠ process ≠ outcome, and describe a gate |
-| **Two weeks** | All ten levels in order, running what you can afford. Course 03's own hour is [01](../../courses/03-agentic-eval-harness/01_knowledge_base_and_rag_agent.ipynb) → [03](../../courses/03-agentic-eval-harness/03_the_golden_set.ipynb) → [04](../../courses/03-agentic-eval-harness/04_rag_evaluation_with_ragas.ipynb) → [11](../../courses/03-agentic-eval-harness/11_the_release_gate_and_ci.ipynb) |
-| **An interview, not a subject** | [The study plan](evaluation-study-plan.html), then the OpenAI or Databricks section above, then [the drill](../interview-prep/evaluation-round-drill.html) |
+| You have                              | Do                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **One hour**                    | Course 01:[nb 00](../../courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb) → [nb 02](../../courses/01-rag-agent-tool-evaluation/02_Retrieval_Metrics_LLM_Judged.ipynb) → [nb 09](../../courses/01-rag-agent-tool-evaluation/09_Tool_Use_Evaluation.ipynb) → [nb 12](../../courses/01-rag-agent-tool-evaluation/12_Agent_Trajectory_Evaluation.ipynb). Or, entirely free: the five [interactive labs](../interactive-labs/) |
+| **One evening**                 | Tutorial §7's four: define good ([course 01 nb 00](../../courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb)), build the set ([course 03 nb 03](../../courses/03-agentic-eval-harness/03_the_golden_set.ipynb)), judge it ([nb 08](../../courses/03-agentic-eval-harness/08_building_custom_judges.ipynb)), refuse to ship ([nb 11](../../courses/03-agentic-eval-harness/11_the_release_gate_and_ci.ipynb))                 |
+| **One weekend**                 | Levels 0–2 with the labs, then Level 6 read-only. You can now draw the taxonomy, argue mechanics ≠ process ≠ outcome, and describe a gate                                                                                                                                                                                                                                                                                              |
+| **Two weeks**                   | All ten levels in order, running what you can afford. Course 03's own hour is[01](../../courses/03-agentic-eval-harness/01_knowledge_base_and_rag_agent.ipynb) → [03](../../courses/03-agentic-eval-harness/03_the_golden_set.ipynb) → [04](../../courses/03-agentic-eval-harness/04_rag_evaluation_with_ragas.ipynb) → [11](../../courses/03-agentic-eval-harness/11_the_release_gate_and_ci.ipynb)                                       |
+| **An interview, not a subject** | [The study plan](evaluation-study-plan.html), then the OpenAI or Databricks section above, then [the drill](../interview-prep/evaluation-round-drill.html)                                                                                                                                                                                                                                                                                  |
 
 **Where the money goes.** Course 01 nb 01 and the interactive labs are free; the rest of
 course 01 needs a key. Course 02 phases 0–5 and 9–10 spend on an LLM endpoint; 6–8 need a
@@ -505,8 +486,8 @@ the repo root — it sweeps up every paid batch script.
 
 Three paths through this repo exist; pick by intent.
 
-| Path | Ordered by | Use it when |
-|---|---|---|
-| **This roadmap** | skill level — nothing assumed, expert at the end | You want the subject, not just the round |
-| [`evaluation-study-plan.html`](evaluation-study-plan.html) | what an interview round tests, most-decisive first | You have an eval-heavy round in under two weeks |
-| [`openai-eval-guide-tutorial.md` §7](../guide-audits/openai-eval-guide-tutorial.md) | shortest route that still holds up — eight notebooks | You have one evening |
+| Path                                                                                  | Ordered by                                            | Use it when                                     |
+| ------------------------------------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------- |
+| **This roadmap**                                                                | skill level — nothing assumed, expert at the end     | You want the subject, not just the round        |
+| [`evaluation-study-plan.html`](evaluation-study-plan.html)                           | what an interview round tests, most-decisive first    | You have an eval-heavy round in under two weeks |
+| [`openai-eval-guide-tutorial.md` §7](../guide-audits/openai-eval-guide-tutorial.md) | shortest route that still holds up — eight notebooks | You have one evening                            |
