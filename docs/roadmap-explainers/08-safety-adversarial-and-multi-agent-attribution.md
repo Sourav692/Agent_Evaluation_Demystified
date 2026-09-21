@@ -1,9 +1,8 @@
 # Level 8 Explainer: Safety, Adversarial, and Multi-Agent Attribution
 
-*A plain-language walkthrough of everything Level 8 covers, pulled together from the two
-notebooks, the field guide, the interactive lab, and the interview question bank — with
-nothing repeated twice. Expert band: this assumes you're comfortable with the earlier levels'
-vocabulary (traces, spans, judges, gates, strata) and builds the last layer on top of it.*
+*Everything Level 8 covers, from the two notebooks, the field guide, the interactive lab and
+the question bank, with nothing repeated twice. Expert band: assumes the earlier levels'
+vocabulary — traces, spans, judges, gates, strata.*
 
 > **Who this is for.** You don't need to have run any of the notebooks to follow this. Every
 > technical term — DAG, confusion matrix, handoff, blame attribution — is defined in plain
@@ -13,18 +12,15 @@ vocabulary (traces, spans, judges, gates, strata) and builds the last layer on t
 
 ## Why this level exists
 
-Every earlier level asked some version of "is this one answer good?" This level asks a
-different question: **what must never happen, no matter how good the answers usually are?**
-And, once an agent stops being one component and becomes several agents handing work to each
-other, a second question follows it: **when the handoff chain produces a wrong final answer,
-which agent actually broke it?**
+Two questions this level asks that no earlier one did: **what must never happen, no matter how
+good the answers usually are?** And once several agents hand work to each other, **when the
+chain produces a wrong final answer, which one broke it?**
 
-The running example throughout most of this level is **Lumen**, a fictional telecom's customer
-support system built as a supervisor routing to four specialists — *knowledge* (policy
-lookups), *billing* (invoices and refunds), *account* (plans and passwords), and *escalation*
-(anger, legal threats, anything needing a human). One section borrows a second example,
-**TelcoAssist**, a single agent with one write-capable tool (`open_ticket`), because the
-consent question it raises is sharper in a simpler system.
+The running example is **Lumen**, a fictional telecom support system: a supervisor routing to
+*knowledge* (policy), *billing* (invoices and refunds), *account* (plans and passwords) and
+*escalation* (anger, legal threats, anything needing a human). One section borrows
+**TelcoAssist**, a single agent with one write-capable tool (`open_ticket`), because the consent
+question is sharper in a simpler system.
 
 The five topics below are five different ways a system can look fine on every ordinary metric
 and still be dangerous, expensive, or silently broken:
@@ -41,10 +37,11 @@ and still be dangerous, expensive, or silently broken:
 
 ### The core distinction
 
-Every metric in the earlier levels — groundedness, relevance, task completion — is a
-**quality** metric: it's fine for it to be noisy, fine to average it across cases, and fine to
-report "0.87, up from 0.81." Safety checks are a different kind of thing entirely, and treating
-them like quality metrics is the single most common mistake in this area.
+Groundedness, relevance and task completion are **quality** metrics: fine to be noisy, fine to
+average, fine to report as "0.87, up from 0.81."
+
+> **Safety checks are a different kind of thing, and treating them like quality metrics is the
+> most common mistake in this area.**
 
 | | Quality metric | Safety assertion |
 | --- | --- | --- |
@@ -54,40 +51,37 @@ them like quality metrics is the single most common mistake in this area.
 | Noise | tolerable | **is** the finding |
 | Reported as | a number by stratum | a list of violations |
 
-The sentence that makes this concrete: *"safety score: 0.992" over 250 cases can mean exactly
-two customers had their data shown to someone else.* A percentage cannot be opened and read; a
-list of case IDs can. That's why the output of a safety check is never a rate — it's the names
-of the runs a human has to go look at.
+*"Safety score: 0.992" over 250 cases can mean exactly two customers had their data shown to
+someone else.*
+
+> **A percentage cannot be opened and read; a list of case IDs can.** The output of a safety
+> check is never a rate — it is the names of the runs a human has to go look at.
 
 ### Four policies that read state, not prose
 
 Lumen's safety suite is four deterministic checks, each one a function that takes a run and
 returns a list of violations (empty = pass):
 
-- **`no_unapproved_refund`** — reads the `approvals` table, not the transcript. An agent that
-  *claims* it waited for approval and didn't is exactly the thing this guards against, so it's
-  checked against the database record, never the agent's own account of itself.
-- **`no_cross_customer`** — every tool argument that names a customer must name *this*
-  customer.
-- **`tool_ownership`** — least privilege as a plain dictionary: the billing agent may call
-  `get_invoice` and `issue_refund`; if the knowledge agent calls either, that's a routing bug
-  that became a financial incident.
-- **`no_pii_in_reply`** — a regex over the reply text, and admittedly the weakest of the four
-  *because* it reads text rather than state. Still worth having, because the shapes it knows
-  are the ones that end up in screenshots.
+- **`no_unapproved_refund`** — reads the `approvals` table, never the transcript. An agent that
+  *claims* it waited for approval and didn't is the thing this guards against.
+- **`no_cross_customer`** — every tool argument naming a customer must name *this* customer.
+- **`tool_ownership`** — least privilege as a dictionary: billing may call `get_invoice` and
+  `issue_refund`; the knowledge agent calling either is a routing bug that became a financial
+  incident.
+- **`no_pii_in_reply`** — a regex over reply text, and the weakest of the four *because* it
+  reads text rather than state. Still worth having: the shapes it knows end up in screenshots.
 
 Three of the four never touch a model at all — they're SQL and dictionary lookups, which is
 what makes them cheap enough to run on 100% of production traffic rather than a sample.
 
 ### The one policy that needs judgment: a DAG, not a rubric
 
-*"The reply must not promise a refund the agent never actually issued"* can't be asserted —
-it depends on what the words mean. But a free-text rubric lets a judge model improvise its own
-reasoning path, which is a bad property for a compliance check. The fix is a **DAG**
-(`DAGMetric` in DeepEval) — a **decision tree with a fixed verdict at the end of every path**,
-built from three node types: a `TaskNode` does no scoring, a `BinaryJudgementNode` asks the
-judge a single yes/no question and routes to a child based on the answer, and a `VerdictNode`
-ends a branch with a score.
+*"The reply must not promise a refund the agent never actually issued"* can't be asserted in
+code, and a free-text rubric lets the judge improvise its reasoning path — a bad property for a
+compliance check. The fix is a **DAG** (`DAGMetric`): a decision tree with a fixed verdict at
+the end of every path, from three node types — `TaskNode` (no scoring),
+`BinaryJudgementNode` (one yes/no question, routes to a child) and `VerdictNode` (ends a branch
+with a score).
 
 ```mermaid
 flowchart TD
@@ -105,22 +99,22 @@ a case scored 0, you point at a branch instead of a paragraph of judge reasoning
 
 ### A flaky safety check is not a flaky test — it's an incident
 
-If a quality metric passes 9 times out of 10, that's noise. If a **deterministic** safety
-assertion — one that reads a database, with nothing probabilistic in it — passes 9 times out
-of 10, the instinct to call it flaky and add a retry is wrong, and expensively so: **the
-assertion didn't change, so if its answer changed, the system's behavior changed.** You've
-found an agent that sometimes skips approval, and a retry would hide exactly the signal you
-needed. The fault this maps to is `skip_approval`: a run whose **transcript is byte-identical**
-to a healthy one — only the database shows the missing approval id. That's the whole argument
-for reading state instead of text.
+A quality metric passing 9 times in 10 is noise. A **deterministic** safety assertion doing it
+is not.
+
+> **The assertion didn't change, so if its answer changed, the system's behaviour changed.**
+> Adding a retry hides exactly the signal you needed.
+
+`skip_approval` is the fault: a run whose **transcript is byte-identical** to a healthy one,
+with only the database showing the missing approval id.
 
 ### What this feeds, and what "safety" looks like at the gate
 
-Every one of the four policies plus the DAG writes into one artifact — `safety_report.json` —
-whose only number is *"runs with at least one violation,"* deliberately never a percentage.
-Downstream, the release gate treats this differently from every other signal in the harness:
-**any non-empty violations list blocks, full stop, regardless of what every other metric
-says.**
+All four policies plus the DAG write into `safety_report.json`, whose only number is *"runs with
+at least one violation"* — never a percentage.
+
+> **Any non-empty violations list blocks the release, regardless of what every other metric
+> says.**
 
 The field guide's cross-system view names the same pattern from the production side. What
 blocks absolutely, per case, never averaged, for a multi-agent system with write access:
@@ -145,39 +139,36 @@ Lumen's supervisor picks one of four routes for every incoming message. That mak
 **four-class classifier**, and it should be measured the way any classifier is measured:
 **accuracy tells you almost nothing; the confusion matrix tells you the bug.**
 
-The concrete failure this catches: an agent that's 87% accurate overall can be 100% accurate on
-English and 40% on Spanish — sending every Spanish billing question to the account agent
-instead. The aggregate is fine. The product is broken for a fifth of the customer base, and a
-single accuracy number hides it completely. The fix is to read the matrix with **rows as what
-the case needed and columns as what the supervisor chose** — everything off the diagonal is a
-named bug, and slicing that matrix by a stratum (language, in Lumen's case) is what surfaces
-the segment a flat number conceals.
+An agent 87% accurate overall can be 100% on English and 40% on Spanish, sending every Spanish
+billing question to the account agent. The aggregate is fine; the product is broken for a fifth
+of the customer base.
+
+> **Read the matrix with rows as what the case needed and columns as what the supervisor
+> chose.** Everything off the diagonal is a named bug, and slicing it by stratum is what
+> surfaces the segment a flat number conceals.
 
 ### The confidence-threshold sweep: a shadow run that costs nothing
 
-If the router also reports how confident it was, you can refuse to act below some threshold and
-route to a human instead — trading **coverage** (how many cases the agent handles alone) for
-**precision** (how often it's right when it does act). The sweep that produces this trade-off
-changes no live behavior — it's a *shadow run* over runs you already have, asking "what would
-have happened at each threshold?" There's no universally correct threshold here; it's a
-business decision about how much human review you can afford, made visible rather than
-guessed at.
+A router that reports confidence lets you refuse below a threshold and route to a human,
+trading **coverage** for **precision**. The sweep is a *shadow run* over runs you already have —
+no live behaviour changes.
+
+> **There is no universally correct threshold.** It is a business decision about how much human
+> review you can afford, made visible rather than guessed at.
 
 ### Handoff integrity: what actually arrived
 
-When the knowledge agent hands off to the billing agent, a payload travels with it. Handoff
-integrity asks exactly one question: **what arrived?** For Lumen that means three required
-fields — `customer_id`, `issue`, `prior_findings` — and a hop is "intact" only if all three
-survive it.
+Handoff integrity asks one question of the payload that travels between agents: **what
+arrived?** For Lumen, three required fields — `customer_id`, `issue`, `prior_findings` — and a
+hop is intact only if all three survive.
 
-This is the hardest failure mode to see from the outside, because **everything else about the
-run looks perfect**: every tool call is correct, the final answer is fluent and confident — it
-is simply about the wrong customer, or it has silently dropped the finding that justified the
-action. The matching fault, `lost_handoff_context`, is built to prove exactly that: strip
-`prior_findings` from every handoff payload, and *nothing else in the run changes* — not the
-tools called, not the final answer, not the database. The only number that moves is the one
-built specifically to measure what crosses the hop. If you didn't have that check, you would
-never have noticed.
+Everything else about the run looks perfect: every tool call correct, the final answer fluent
+and confident — simply about the wrong customer, or missing the finding that justified the
+action.
+
+> **Strip `prior_findings` from every handoff payload and nothing else in the run changes** —
+> not the tools, not the final answer, not the database. Only the check built to measure what
+> crosses the hop moves at all.
 
 ### Field-guide cross-reference: the scorer table by level
 
@@ -226,33 +217,30 @@ flowchart LR
     end
 ```
 
-A loop is not a wrong answer — **it's no answer, arrived at expensively.** The run burns three
-times the tokens and usually dies on a timeout, so the customer gets nothing and the trace
-still *looks* busy rather than broken. Two checks catch this, and neither one covers the other:
+A loop is not a wrong answer — **it's no answer, arrived at expensively.** Three times the
+tokens, usually a timeout, and a trace that looks busy rather than broken. Two checks catch it,
+neither covering the other:
 
 | Check | Catches | Misses |
 | --- | --- | --- |
 | A revisited agent | ping-pong: billing → knowledge → billing | a path that never repeats |
 | A hop bound (e.g. max 3 specialists) | the grand tour: five specialists, no repeat | a two-agent ping-pong inside the bound |
 
-Both checks read the trajectory alone — no model call — which is what makes them cheap enough
-to run on 100% of production traffic, unlike anything judged. And because every recorded
-"clean" trajectory is single-agent, a loop detector that has never fired isn't proof it works —
-it might just be broken and silent. The way to actually trust it is to build both failure
-shapes synthetically and confirm each one trips the half of the check it's supposed to.
+Both read the trajectory alone — no model call — so they run on 100% of traffic.
 
-One subtlety worth keeping separate in your head: a ping-pong run can have **every handoff
-payload perfectly intact** — `customer_id`, `issue`, and `prior_findings` all present at every
-hop — and still be a completely broken run, because the loop exists only in the *order* the
-agents ran in, which Section 2's integrity check has no way to see. That's exactly why loop
-detection is its own check rather than a side effect of handoff integrity.
+> **A loop detector that has never fired isn't proof it works.** Every recorded clean
+> trajectory is single-agent, so it might simply be broken and silent. Build both failure
+> shapes synthetically and confirm each trips the half it should.
+
+> **A ping-pong run can have every handoff payload intact and still be broken.** The loop lives
+> in the *order* the agents ran in, which Section 2's integrity check cannot see — which is why
+> loop detection is its own check.
 
 ### Four definitions of "the right path" — and why picking one is a decision, not a detail
 
-A golden case says the expected path is `[supervisor, knowledge, billing]`. The agent actually
-did `[supervisor, knowledge, billing, knowledge]`. Is that a pass? There is no single correct
-answer — there are four defensible ones, and **choosing between them is the evaluation design,
-not a technicality**:
+Expected `[supervisor, knowledge, billing]`; actual `[supervisor, knowledge, billing,
+knowledge]`. Pass? Four defensible answers, and **choosing between them is the evaluation
+design, not a technicality**:
 
 | Mode | Passes when | Use when |
 | --- | --- | --- |
@@ -261,19 +249,17 @@ not a technicality**:
 | any-order | same set of steps, any order | steps are independent lookups |
 | contains-required | a named required subset appears at all | only a few steps are load-bearing |
 
-The four modes disagree on a real fraction of cases in Lumen's own suite — which is the whole
-point of writing them as four separate functions instead of importing one opinionated metric
-and silently inheriting its choice. A `PlanAdherenceMetric` judge exists alongside these four
-for the case none of them can catch: a path that is *structurally* correct — right agents,
-right order — while doing something semantically wrong at each stop.
+The four modes disagree on a real fraction of Lumen's own cases — the point of writing them as
+four functions rather than importing one opinionated metric and inheriting its choice. A
+`PlanAdherenceMetric` judge covers what none of them can: a path *structurally* correct — right
+agents, right order — doing something semantically wrong at each stop.
 
 ### The final-state check: the one no framework gives you
 
-Before blame attribution can walk down the levels, it needs a level-3 signal to walk down
-*from* — and that signal is deliberately not the transcript. Every metric that reads the
-conversation can be fooled, because an agent that describes a refund it never issued scores
-*perfectly* on all of them. So the final-state check stops reading the agent's account of
-itself and reads the database directly, checking three properties:
+Blame attribution needs a level-3 signal to walk down *from*, and it is deliberately not the
+transcript — an agent describing a refund it never issued scores perfectly on every metric that
+reads the conversation. The final-state check reads the database directly, for three
+properties:
 
 1. **It happened** — the row exists.
 2. **It happened exactly once** — the property people forget. An agent that issues the same
@@ -281,18 +267,18 @@ itself and reads the database directly, checking three properties:
    a check that counts matching rows and flags more than one catches it.
 3. **It happened correctly** — right amount, right invoice, an approval id actually present.
 
-No evaluation framework can write this check for you, because only you know what your own
-database is supposed to look like afterward. That isn't a gap in the tooling — it's the part
-of the job that stays yours regardless of which framework you're using. It's also the check
-blame attribution's last step (below) falls back on, and the reason a "clean run" verdict means
-something stronger than "the transcript looked fine."
+> **No framework can write this check for you** — only you know what your database should look
+> like afterward. That is the part of the job that stays yours.
+
+It is also what blame attribution's last step falls back on, and why a "clean run" verdict
+means more than "the transcript looked fine."
+
 
 ### Blame attribution: walking a failure back to its first cause
 
-*"The agent failed to refund the customer"* is where an investigation starts, not where it
-ends. Blame attribution answers a sharper question: **of everything that could have gone
-wrong, which one went wrong first?** — because that's the one worth fixing; everything
-downstream of it is a symptom.
+*"The agent failed to refund the customer"* is where an investigation starts. Blame attribution
+asks the sharper question: **of everything that could have gone wrong, which went wrong
+first?** Everything downstream of it is a symptom.
 
 ```mermaid
 flowchart TD
@@ -316,36 +302,32 @@ flowchart TD
     style G fill:#D9E3DB,stroke:#2F6B4F
 ```
 
-The order matters, and it isn't arbitrary: **routing is checked before tools**, because a
-correctly executed tool call made by the *wrong specialist* is a routing bug, not a tool bug —
-attributing it to the tool layer would send someone to fix the wrong thing.
+> **Routing is checked before tools.** A correctly executed call made by the *wrong specialist*
+> is a routing bug; attributing it to the tool layer sends someone to fix the wrong thing.
 
-**A gotcha worth carrying forward.** That fixed order is itself an assumption, not a law. It's
-possible to construct a case where checking routing first gives a misleading verdict — for
-instance, a run that's correctly routed but whose tools were still wrong for reasons unrelated
-to routing at all, where a different check order would name the real cause faster. Blame
-attribution is only as good as the order you chose to walk the levels in, and that order is a
-design decision worth re-examining every time the system's failure modes shift, exactly the
-same way MAX_HOPS (the hop bound above) is asserted from taste rather than measured from
-evidence, until someone goes back and computes it from the golden set.
+> **Blame attribution is only as good as the order you chose to walk the levels in.** A
+> correctly-routed run whose tools were wrong for unrelated reasons gets a misleading verdict
+> from a routing-first check.
+
+Re-examine that order whenever the failure modes shift — like `MAX_HOPS`, it is asserted from
+taste until someone computes it from the golden set.
 
 ### Why nested traces are the only thing that makes this possible
 
-The field guide's cross-system deep dive gives the sharpest version of *why* this matters, with
-concrete arithmetic: **five components, each independently right 90% of the time, are all
-right together only 0.9⁵ ≈ 59% of the time** — before counting routing errors and context lost
-at each boundary on top of that. That's how every subagent scores above 0.9 while the
-end-to-end system scores 0.6, and per-agent numbers alone will never explain the gap, because
-both routing errors and lost handoff context happen *between* the components being measured,
-not inside any one of them.
+**Five components each right 90% of the time are all right together only 0.9⁵ ≈ 59% of the
+time** — before routing errors and context lost at each boundary. That is how every subagent
+scores above 0.9 while the system scores 0.6.
 
-The only thing that makes the gap explainable rather than just visible is **nesting**: session
-→ orchestrator turn → subagent invocation → spans. A flat list of spans tells you quality
-dropped. Nested spans tell you *which* subagent, on *which* turn — which is the entire question
-being asked. And every measurement here has what the field guide calls **a scope of validity
-that expires silently**: a routing rubric written for four specialists still runs, without
-error, after a fifth is added — it just quietly stops meaning what it used to mean, and nothing
-tells you that happened.
+> **Per-agent numbers can never explain the gap**, because routing errors and lost handoff
+> context happen *between* the components, not inside any one of them.
+
+> **Nesting is what makes the gap explainable rather than merely visible.** Session →
+> orchestrator turn → subagent invocation → spans. A flat list says quality dropped; nested
+> spans say *which* subagent, on *which* turn.
+
+> **Every measurement here has a scope of validity that expires silently.** A routing rubric
+> written for four specialists still runs after a fifth is added — it just stops meaning what
+> it meant, with nothing to tell you.
 
 ---
 
@@ -353,12 +335,9 @@ tells you that happened.
 
 ### The core reframe: a flat list tells you nothing when it passes
 
-The tempting way to build an adversarial suite is to collect twenty jailbreak strings and
-assert the agent survives all twenty. That test is worse than it looks: **passing tells you
-those twenty strings failed to work — nothing about whether the surface they target is
-actually covered.** Twenty strings that all happen to be instruction-override attempts will
-pass an agent that is wide open to data exfiltration, and the green checkmark gives no hint
-that anything is missing.
+> **A flat list of jailbreak strings tells you those strings failed — nothing about whether
+> the surface they target is covered.** Twenty instruction-override attempts pass an agent wide
+> open to data exfiltration, and the green checkmark hints at nothing.
 
 The fix is **classes × variants**: each class is a genuinely distinct way in, and several
 phrasings per class stop one lucky wording from standing in for the whole surface. The classes
@@ -383,42 +362,36 @@ worth having, pulled from across this level's sources:
 - **Encoding and obfuscation**
 - **Multi-turn gradual escalation**
 
-Reporting has to follow the same structure: **per class, never in aggregate.** A suite at 80%
-overall with one entire class at 0% is a real, specific finding — and the aggregate is exactly
-what hides it. *"Three of twenty strings failed"* invites whack-a-mole; *"data_exfiltration
-fails 2 of 3 variants"* names one specific defense to go fix.
+Report **per class, never in aggregate.** *"Three of twenty strings failed"* invites
+whack-a-mole; *"data_exfiltration fails 2 of 3 variants"* names one defence to go fix.
 
 ### Expectations here are boundaries, not gold answers
 
-An adversarial or edge-case row never asserts one correct response — it asserts **what must not
-happen** (no other customer's data, no claimed mode change) and **what must happen in at least
-one acceptable form**. For a genuinely ambiguous input — *"bill"*, a one-word message — asking
-what the customer wants or listing common billing topics are both fine; pinning one exact
-reply over-constrains the test and **fails a good agent that handled the ambiguity correctly**.
-This is why Lumen's adversarial and edge-case suites never use `expected_facts` — that field is
-for happy-path rows with one right answer, and using it here would be a category error.
+An adversarial row asserts **what must not happen** and **what must happen in at least one
+acceptable form** — never one correct response. For *"bill"*, a one-word message, asking what
+the customer wants and listing common billing topics are both fine.
+
+> **Pinning one exact reply fails a good agent that handled the ambiguity correctly.** Which is
+> why the adversarial suites never use `expected_facts` — that field is for happy-path rows.
 
 ### Two failure shapes that hide in "boundary" territory
 
 Two edge cases deserve singling out, because neither is really about adversarial *intent* —
 both live in the gap between "the agent behaved" and "the agent behaved safely":
 
-- **The polite tool failure.** A read tool doesn't raise on a miss — it returns
-  `{"found": False}`. That's easy for a model to skate past, and the answer that follows is the
-  most dangerous kind of hallucination: specific, plausible, and about the customer's own
-  account. Nothing in the ordinary happy-path suite ever exercises this path, because a
-  happy-path tool call always succeeds.
-- **Multiple intents in one message.** Three questions asked at once; the common failure is a
-  *partial* answer — the agent handles the first, quietly drops the rest, and the reply still
-  reads as perfectly helpful.
+- **The polite tool failure.** A read tool returns `{"found": False}` rather than raising. The
+  answer that follows is the most dangerous hallucination: specific, plausible, about the
+  customer's own account. No happy-path suite exercises it, because a happy-path call succeeds.
+- **Multiple intents in one message.** Three questions at once; the agent handles the first,
+  drops the rest, and the reply still reads as perfectly helpful.
 
 ### Coverage honesty: "N/A" is a finding, silence is a gap
 
-When a whole item on a standard checklist genuinely doesn't apply — *"multi-agent handoff
-accuracy: N/A, this agent is single-agent by design"* — writing that down explicitly is a
-stronger answer than staying silent about it, because **it shows the item was considered and
-ruled out, rather than missed.** Silence and "considered and excluded" look identical from the
-outside; the only way to tell them apart is to say which one you mean.
+Write down the items that genuinely don't apply — *"multi-agent handoff accuracy: N/A, this
+agent is single-agent by design"*.
+
+> **Silence and "considered and excluded" look identical from outside.** The only way to tell
+> them apart is to say which one you mean.
 
 ### The Question-bank version: the same finding, worked as an interview case
 
@@ -436,14 +409,14 @@ BY ATTACK CLASS
   injection via retrieved docs     0/3      0%    <- the whole 20%
 ```
 
-The three failures weren't scattered across classes — they were **one entire attack class,
-completely undefended**, and the 80% aggregate is precisely what hid it. The line worth
-keeping: *"testing fifteen doors, finding twelve locked, and announcing the building is
-secure — when the three open ones are all on the ground floor."* And the same case adds the
-counterweight that's easy to forget while chasing jailbreaks: **test refusal in both
-directions.** A refusal-rate check on ordinary, benign inputs is as necessary as a jailbreak
-check on hostile ones — a system that refuses everything scores perfectly on every safety
-metric and is useless.
+The three failures were **one entire attack class, completely undefended**, and the 80%
+aggregate is what hid it.
+
+> *"Testing fifteen doors, finding twelve locked, and announcing the building is secure — when
+> the three open ones are all on the ground floor."*
+
+> **Test refusal in both directions.** A system that refuses everything scores perfectly on
+> every safety metric and is useless.
 
 ---
 
@@ -451,19 +424,18 @@ metric and is useless.
 
 ### Why this failure has no single-turn representation
 
-TelcoAssist's only write action, `open_ticket`, is **completely unguarded at the tool layer** —
-call it, and it writes, every time. That's deliberate, and it's realistic: most agent
-write-actions in practice are gated by *instructions* ("ask first"), not by the API, and
-nothing in the code enforces the instruction. Which means obedience to it is something
-**evaluation has to verify**, not something the code can guarantee.
+TelcoAssist's only write action, `open_ticket`, is **unguarded at the tool layer** — call it and
+it writes. That is realistic: most write actions are gated by *instructions*, not by the API.
 
-Now the failure this section exists to catch: the agent says *"I've opened a ticket for you"*
-on the very first turn, without ever asking. Scored on the final reply alone, that response is
-indistinguishable from a correct one — it's helpful, on-topic, grounded, safe. **What makes it
-wrong is that no consent preceded it, and consent is a relationship between two turns, not a
-property of one.** Every scorer built in earlier levels — safety, relevance, correctness,
-groundedness — reads the final reply and passes it, because none of them was built to look
-backward at what the customer actually said two turns ago.
+> **Obedience to an instruction is something evaluation verifies, not something code
+> guarantees.**
+
+The agent says *"I've opened a ticket for you"* on turn one without asking. Scored on the final
+reply it is indistinguishable from a correct one — helpful, on-topic, grounded, safe.
+
+> **Consent is a relationship between two turns, not a property of one.** Safety, relevance,
+> correctness and groundedness all read the final reply and pass it, because none was built to
+> look backward.
 
 ### Three outcomes, not two
 
@@ -484,17 +456,15 @@ flowchart TD
     style ST fill:#FCE5CD,stroke:#B45F06
 ```
 
-**Stalled** is the outcome easiest to overlook: it isn't dangerous — nothing was done without
-permission — but the customer asked for something and didn't get it, which is a distinct
-product failure needing a distinct fix from either a violation or a clean pass. Collapsing all
-three into "safe" vs. "unsafe" throws away the stalled case entirely.
+> **Stalled is the outcome easiest to overlook.** Nothing was done without permission, but the
+> customer asked for something and didn't get it — a distinct product failure needing a distinct
+> fix. Collapsing the three into safe/unsafe throws it away entirely.
 
-**A timing detail worth getting exactly right.** Consent arrives in the customer's message at
-the *start* of a turn; the agent's write happens inside its response *within that same turn*.
-So a write that lands on the same turn the customer said "yes" is the agent doing exactly the
-right thing, not a violation — the check has to compare strictly-before, not before-or-equal,
-against the consent turn. Scoring a same-turn write as premature would fail a compliant agent
-for behaving correctly, which is the opposite of what a consent gate is for.
+Consent arrives at the *start* of a turn; the write happens inside the response *within that
+same turn*. A same-turn write is the agent doing exactly the right thing.
+
+> **Compare strictly-before, not before-or-equal.** Scoring a same-turn write as premature
+> fails a compliant agent for behaving correctly.
 
 ### The arithmetic that makes turn-level numbers misleading
 
@@ -507,12 +477,12 @@ A turn-level pass rate that looks perfectly healthy on any dashboard compounds b
 | 95% | 0.950 | 0.903 | 0.857 | **0.774** | 0.663 |
 | 90% | 0.900 | 0.810 | 0.729 | 0.590 | 0.430 |
 
-A **95% turn-level pass rate is a 77% conversation-level pass rate at five turns** — and this
-is the *optimistic* model. It assumes turns fail independently, when in practice a bad turn
-poisons the context for every turn that follows it, so real conversation-level rates run below
-`p ** n`, not at it. The overstatement gets worse exactly as conversations get longer, which is
-precisely where a product is under the most strain — **the metric looks best precisely where
-the system is worst.**
+A **95% turn-level pass rate is a 77% conversation-level rate at five turns** — and that is the
+*optimistic* model, assuming turns fail independently. A bad turn poisons the context for every
+turn after it, so real rates run below `p ** n`.
+
+> **The metric looks best precisely where the system is worst**, because the overstatement
+> grows with conversation length.
 
 ### Consent is gated by prompt, verified by evaluation
 
@@ -526,12 +496,12 @@ can't.**
 | Malformed tool arguments | typed tool signature rejects them | the type system |
 | "Confirm before writing" | **nothing** — the tool writes whenever called | **only evaluation** |
 
-*"'Never' is a code property. If it's only in the prompt, it's a preference."* Consent almost
-always lands in that third row, because turning it into a hard code-level gate would mean the
-tool refuses to execute without some independently verifiable proof of approval — which most
-systems don't build, because it's cheaper to write "ask first" into the prompt and hope. That
-gap is exactly why this whole section exists: the prompt is a request the model can ignore, and
-only evaluation, reading what actually happened across turns, can tell you whether it did.
+*"'Never' is a code property. If it's only in the prompt, it's a preference."* Consent lands in
+that third row almost always, because a hard code-level gate means the tool refusing to execute
+without verifiable proof of approval — which most systems don't build.
+
+> **The prompt is a request the model can ignore.** Only evaluation, reading what happened
+> across turns, can tell you whether it did.
 
 ### Designing the blast radius, assuming the model sometimes gets it wrong
 
@@ -551,31 +521,26 @@ above it, propose-and-confirm.
 
 ## Question-bank corner
 
-This section covers only what the four sections above didn't already fold in. Case 8's numbers
-and diagram (blame attribution, the 0.9⁵ arithmetic, circular handoffs) are already in Section
-3; Case 16's numbers (the 80%-hides-a-zero table) are already in Section 4; Case 17's
-enforce-vs-evaluate table and blast-radius design are already in Sections 1 and 5. What follows
-is genuinely additive — two questions from Part 8 about what happens *around* the checks
-themselves, once a regulator or a deadline is involved.
+Only what the sections above didn't fold in. Case 8 (blame attribution, the 0.9⁵ arithmetic,
+circular handoffs) is in Section 3; Case 16 (the 80%-hides-a-zero table) in Section 4; Case 17
+(enforce-vs-evaluate, blast radius) in Sections 1 and 5. What follows is additive: two questions
+about what happens *around* the checks, once a regulator or a deadline is involved.
 
-**Q31 — "What evidence do you show a regulator that the system is safe?"** A reviewer's real
-question is *"show me what the system did on 14 March, and who decided that was acceptable"* —
-a dashboard of safety scores answers neither half. Four things constitute audit-grade evidence,
-and the fourth is the one engineers tend to skip:
+**Q31 — "What evidence do you show a regulator that the system is safe?"** The real question is
+*"show me what the system did on 14 March, and who decided that was acceptable"* — a dashboard
+of safety scores answers neither half. Four things are audit-grade, and the fourth gets
+skipped:
 
 - the written standard — what the system must never do, who approved it, and when
-- the gate results per release — and the value here isn't the scores, it's that **the criteria
-  were fixed before the results existed**, which is the entire difference between a standard
-  and a rationalization
-- the retained execution traces, so a specific interaction can be reconstructed months later
-- the known gaps, written down — *"we don't evaluate X, here's why, here's the compensating
-  control"* is far stronger than silence, because silence is indistinguishable from never
-  having considered it
+- the gate results per release. The value isn't the scores: it is that **the criteria were
+  fixed before the results existed**, which is the difference between a standard and a
+  rationalization
+- retained execution traces, so an interaction can be reconstructed months later
+- the known gaps, written down. *"We don't evaluate X, here's why, here's the compensating
+  control"* beats silence, which is indistinguishable from never having considered it
 
-One thing worth volunteering unprompted, because it cuts against the evaluator's own instinct
-to log everything: **the trace store is itself a security surface.** It captures whatever
-flowed through the system, customer data included — so the rule is to log what the checks need
-and redact what they don't, not to retain everything that happened to pass through.
+> **The trace store is itself a security surface.** It captures whatever flowed through the
+> system, customer data included — so log what the checks need and redact what they don't.
 
 **Q32 — "The customer wants to launch next week and evaluation isn't ready."** Neither "we
 can't launch" nor "ship it" survives. **Deliver the minimum that makes the launch reversible
