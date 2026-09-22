@@ -1,211 +1,189 @@
-# Level 3 Explainer: Ground truth
+# Ground Truth: Where Cases and Labels Come From
 
-*A plain-language walkthrough of everything Level 3 covers, pulled together from the two
-notebooks, the field guide, and the interview question bank — with nothing repeated twice.*
+*Collect inputs from real traffic but never labels from the system under test, because a dataset
+built from its own answers can only agree with itself.*
 
-> **Who this is for.** You don't need to know DeepEval, RAGAS, or MLflow to follow this.
-> Every technical term is defined in plain words the first time it shows up. If you haven't
-> read the Level 0 Explainer yet, the five-layer taxonomy it introduces (retrieval,
-> generation, tool mechanics, trajectory, outcome) is assumed background here — this level is
-> about where the *test cases and correct answers* for checking those layers actually come
-> from.
+◷ 19 min · Level 3 · [Level 0](00-orientation.md)'s five-layer taxonomy is assumed background.
+This level is about where the test cases and correct answers for checking those layers come
+from.
 
----
+Every metric in this roadmap needs two things to run: a question, and a correct answer to
+compare against. This level is entirely about the second thing — the file holding the questions
+and the answers, and the two ways it can quietly lie.
 
-## Why this level exists
+> **Who this is for.** No library knowledge is assumed. Every technical term is defined in plain
+> words the first time it appears.
 
-Every metric from every other level in this roadmap needs two things to run: a question, and
-a correct answer to compare against. Level 3 is entirely about that second thing — the file
-that holds the questions and the answers, and the two different ways it can quietly lie to
-you.
-
-Two fictional support agents carry the examples in this level, borrowed unchanged from their
-source notebooks:
-
-- **Lumen Cloud** (`courses/03-agentic-eval-harness/03_the_golden_set.ipynb`) — a cloud
-  hosting company's support agent that answers knowledge questions, issues refunds, changes
-  account plans, and escalates to a human. Its 40 hand-written test cases are this level's
-  main worked example.
-- **TelcoAssist** (`courses/02-databricks-mlflow-evals/04_eval_datasets_from_traces.ipynb`) —
-  a telecom support agent whose 12-row hand-written dataset is mined against real traffic to
-  find what it never tested.
-
-The goal, in the roadmap's own words: **know where cases and labels come from on day one and
-by month three, and the two ways a dataset lies to you.** Everything below builds up to
-exactly that.
+Two fictional support agents carry the examples, borrowed unchanged from their source notebooks.
+**Lumen Cloud** is a cloud host's support agent that answers knowledge questions, issues refunds,
+changes plans and escalates to a human. Its 40 hand-written cases are the main worked example.
+**TelcoAssist** is a telecom agent whose 12-row hand-written dataset gets mined against real
+traffic to find what it never tested.
 
 ---
 
-## 1. Case anatomy — six expectations, not one
+## 1. Pin Six Expectations, Not One
 
-A plain question-answering test case needs a question and an expected answer. An **agentic**
-test case needs six things, because an agent can go wrong in six different places, and a case
-that only checks the final sentence can miss five of them.
+A plain question-answering case needs a question and an expected answer. An **agentic** case
+needs six things. An agent can go wrong in six places, and a case checking only the final
+sentence misses five of them.
 
-Take one Lumen Cloud case: *"I was double charged, and what's your refund policy?"* Here is
-everything that has to be nailed down before that case is worth anything:
+Take one Lumen Cloud case: *"I was double charged, and what's your refund policy?"* Everything
+below has to be nailed down before that case is worth anything.
 
 | # | Field | What it pins down | Which later level scores it |
 |---|---|---|---|
-| 1 | `expected_route` | Which specialist should handle this (billing? knowledge? both?) | Trajectory (Level 2) |
-| 2 | `expected_tools` | Which tools get called, in order, with which arguments — e.g. `get_invoice(customer_id="CUS-101")` then `issue_refund(invoice_id="INV-2041", amount=49.0)` | Tool-use (Level 2) |
-| 3 | `expected_path` | The full node sequence: `supervisor → knowledge → billing → approval` | Trajectory (Level 2) |
-| 4 | `expected_final_state` | The real database effect — exactly one refund row, $49.00, approved | Outcome verification (Level 2) |
-| 5 | `expected_answer` (via `must_cite` / `must_contain`) | The answer must cite the right knowledge-base article and mention the right number | Generation (Level 0/1) |
-| 6 | `strata` | Tags — language, intent, RAG type, turn count — that later group the results | Stratified reporting (Level 5) |
+| 1 | Expected route | Which specialist should handle this (billing? knowledge? both?) | Trajectory (Level 2) |
+| 2 | Expected tools | Which tools get called, in order, with which arguments — fetch the invoice, then issue a $49.00 refund against it | Tool-use (Level 2) |
+| 3 | Expected path | The full node sequence: `supervisor → knowledge → billing → approval` | Trajectory (Level 2) |
+| 4 | Expected final state | The real database effect — exactly one refund row, $49.00, approved | Outcome verification (Level 2) |
+| 5 | Expected answer | The answer must cite the right knowledge-base article and mention the right number | Generation (Level 0/1) |
+| 6 | Strata | Tags — language, intent, question type, turn count — that later group the results | Stratified reporting (Level 5) |
 
-**A sixth of the anatomy is worth a second look: `expected_final_state` can correctly be
-empty even when the case's `expected_behaviour` is "answer."** Lumen Cloud's `GC-016` asks for
-a refund on a June invoice that sits outside the 30-day window — the right behaviour is to
-*answer* (not refuse), but the right answer is a clear "no," so `final_state={"refunds": []}`
-is the correct expectation, not a bug in the case. Six expectations means a case can pass on
-behaviour and still fail on final state if the agent issues a refund anyway.
+**Expected final state can correctly be empty even when the expected behaviour is "answer".**
+One Lumen Cloud case asks for a refund on a June invoice outside the 30-day window. The right
+behaviour is to answer rather than refuse, and the right answer is a clear "no". So an empty
+refund list is the correct expectation, not a broken case. Six expectations means a case can
+pass on behaviour and still fail on final state if the agent issues a refund anyway.
 
-**Why this matters: a case with only an expected answer can only catch one class of bug.**
-The agent can reach the right *sentence* through the wrong tool, on the wrong customer's
-data, without approval — and an answer-only check passes all three. Six expectations catch
-six different failures; one expectation catches one.
+**A case with only an expected answer can only catch one class of bug.** The agent can reach the
+right *sentence* through the wrong tool, on the wrong customer's data, without approval. An
+answer-only check passes all three.
 
-The notebook enforces this with a case-writing rule worth naming explicitly: **every field
-you don't fill in is a check you have silently opted out of**, so a case constructor's
-defaults should be the *weakest possible claim* (an empty tool list, an empty final state),
-never a guess dressed up as a pass.
+There is a case-writing rule worth naming. **Every field left unfilled is a check silently opted
+out of.** So a case constructor's defaults should be the *weakest possible claim* — an empty tool
+list, an empty final state — never a guess dressed up as a pass.
 
 ```mermaid
 flowchart LR
-    IN["Input:<br/>'I was double charged, and<br/>what's your refund policy?'"] --> A["1 · expected_route<br/>billing"]
-    IN --> B["2 · expected_tools<br/>get_invoice → issue_refund"]
-    IN --> C["3 · expected_path<br/>supervisor→knowledge→billing→approval"]
-    IN --> D["4 · expected_final_state<br/>refunds: 1 row, $49.00, approved"]
-    IN --> E["5 · expected_answer<br/>cites KB-002, mentions $49"]
+    IN["Input:<br/>'I was double charged, and<br/>what's your refund policy?'"] --> A["1 · expected route<br/>billing"]
+    IN --> B["2 · expected tools<br/>get invoice → issue refund"]
+    IN --> C["3 · expected path<br/>supervisor→knowledge→billing→approval"]
+    IN --> D["4 · expected final state<br/>refunds: 1 row, $49.00, approved"]
+    IN --> E["5 · expected answer<br/>cites KB-002, mentions $49"]
     IN --> F["6 · strata<br/>lang=en intent=multi-intent<br/>rag=multi-hop turns=single"]
     style D fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
 ```
 
-One case list loads into both frameworks: Lumen Cloud's 40 cases become a DeepEval
-`EvaluationDataset` (all 40) and a RAGAS one (only cases with a `rag_type`, since billing,
-account and escalation cases never retrieve documents), from one plain JSON file neither
-framework owns.
+One case list should load into whichever scoring library is in use. Lumen Cloud's 40 cases feed
+two different ones — all 40 to a general suite, and only the retrieval-bearing cases to a
+RAG-specific one, since billing, account and escalation cases never retrieve documents. Both
+read from one plain JSON file that neither library owns.
 
-> **A golden set kept as plain JSON survives a framework renaming its own classes.** RAGAS 0.4
-> moved metrics to `ragas.metrics.collections`; DeepEval 4.x renamed `LLMTestCaseParams` to
-> `SingleTurnParams` — both in minor releases. A set stored in a framework's object model
-> would have needed migrating twice.
+> **A golden set kept as plain JSON survives a library renaming its own classes.** Two of the
+> libraries used in this repo renamed core classes in *minor* releases. A set stored inside a
+> library's object model would have needed migrating twice.
 
 ---
 
-## 2. Stratification and the refusal quota
+## 2. Stratify Before Writing, and Keep a Refusal Quota
 
-**Strata are decided *before* the cases are written, not after.** Lumen Cloud's 40 cases are
-tagged, from the start, along four independent dimensions: `lang` (en/es/hi), `intent`
-(knowledge/billing/account/escalation/multi-intent), `rag_type`
-(factual/multi_hop/contradictory/absent/adversarial), and `turns` (single/multi). Tagging
-retroactively means you tag whatever you happened to write — which, left to itself, is mostly
+**Strata are decided before the cases are written, not after.** Lumen Cloud's 40 cases are
+tagged from the start along four independent dimensions: language (en/es/hi), intent
+(knowledge/billing/account/escalation/multi-intent), question type
+(factual/multi-hop/contradictory/absent/adversarial), and turns (single/multi). **Tagging
+retroactively means tagging whatever happened to get written**, which, left to itself, is mostly
 easy English.
 
-**Report every dimension separately; never cross-tabulate them.** With 40 cases, crossing
-language × intent × question type produces a grid of mostly-empty cells and a handful of
-ones, where a "50% drop" in a cell of size 2 is one single case flipping.
+**Report every dimension separately. Never cross-tabulate them.** With 40 cases, crossing
+language × intent × question type produces a grid of mostly-empty cells. A "50% drop" in a cell
+of size 2 is one case flipping.
 
-Lumen Cloud's traffic is roughly 85% English; the golden set holds 22 English cases against 10
-Spanish and 8 Hindi. Weight a 20-case sample to match the real 85/11/4 split instead and Hindi
-shrinks until its score can only land on 0%, 100%, or nothing between — the documentation gap
-becomes statistically invisible, not because the metric is wrong but because the sample cannot
+Lumen Cloud's traffic is roughly 85% English. The golden set holds 22 English cases against 10
+Spanish and 8 Hindi. Weight a 20-case sample to match the real 85/11/4 split instead, and Hindi
+shrinks until its score can only land on 0%, 100%, or nothing between. The documentation gap
+becomes statistically invisible — not because the metric is wrong, but because the sample cannot
 see it.
 
-> **You sample for detection, not for representativeness.**
+> **Sample for detection, not for representativeness.**
 
-**The refusal quota: how much of the set rewards doing nothing?** If a golden set contains no
-cases where refusing, or escalating, or saying "I don't know" is the *correct* answer, then a
-system that always answers scores perfectly — and your metric is now silently rewarding
-confident invention. Lumen Cloud enforces a floor of at least a fifth of the set (an
-explicit `assert` fails the notebook if the count drops below 20%) split across "absent"
-knowledge questions (no article covers it), a genuinely ambiguous case where two articles
-contradict each other, an adversarial prompt-injection attempt, and escalation cases (legal
-threats, GDPR requests, outages) that must route to a human rather than being answered at
-all.
+**The refusal quota asks how much of the set rewards doing nothing.** If no case has refusing,
+escalating or saying "I don't know" as the *correct* answer, then a system that always answers
+scores perfectly. The metric is now silently rewarding confident invention.
 
-**How small is too small to gate a release on?** The `hi` stratum has 8 cases. One case
-flipping moves that stratum's score by 12.5 points, so a release gate set to "no worse than 5
-points below baseline" would block releases at random whenever it looked at that stratum
-alone. The fix used here is a floor, `MIN_CASES_TO_GATE = 8`: every stratum is *reported*, but
-only strata at or above that size are allowed to *block* a release — smaller ones are
-`report_only`. (Level 5 derives where a number like this actually comes from, from the
-sample-size arithmetic; here it is simply applied.)
+Lumen Cloud enforces a floor of at least a fifth of the set, with an assertion that fails the
+build if the count drops below 20%. It splits across absent knowledge questions where no article
+covers it, a genuinely ambiguous case where two articles contradict, an adversarial
+prompt-injection attempt, and escalation cases — legal threats, GDPR requests, outages — that
+must route to a human rather than being answered.
+
+**How small is too small to gate a release on?** The Hindi stratum has 8 cases. One case flipping
+moves that stratum by 12.5 points. A gate set to "no worse than 5 points below baseline" would
+block releases at random. The fix is a floor: every stratum is *reported*, but only strata at or
+above a minimum size may *block* a release. Smaller ones are report-only. Level 5 derives where
+that number comes from; here it is simply applied.
 
 ---
 
-## 3. Dataset datasheets
+## 3. Ship a Datasheet With the Dataset
 
-**A dataset without a datasheet is a number with no provenance.** Six months from now, the
-only question that matters about a score drop is *"did the system get worse, or did the test
-change?"* — and only a version number and a changelog can answer that.
+**A dataset without a datasheet is a number with no provenance.** Six months on, the only
+question that matters about a score drop is whether the system got worse or the test changed.
+Only a version number and a changelog answer it.
 
-Lumen Cloud's datasheet, saved alongside the 40 cases in `golden_set.json`, holds:
+Lumen Cloud's datasheet sits alongside the 40 cases in the same file.
 
 | Field | Purpose | Example value from this level |
 |---|---|---|
-| `version` | Bumped on *any* change to the cases | `1.0.0` |
-| `content_hash` | A hash over the cases only, so a change to the cases without a version bump is *visible instead of silent* | first 12 hex characters of a SHA-256 over the case list |
-| `provenance` | Where the cases came from | "Hand-written against the fictional corpus... No production data, no PII." |
-| `strata` | The stratum counts from Section 2, captured at this version | counts by `lang`, `intent`, `rag_type`, `turns` |
-| `refusal_share` | The refusal-quota number from Section 2, captured at this version | rounded fraction of passive cases |
-| `known_gaps` | Named, honest limitations | *"No stratum is large enough to detect a change smaller than ~15 points"; "Multi-turn is represented by a single case (GC-040)"; "Adversarial coverage is one prompt-injection case; a real suite needs a dedicated red-team set"; "hi/security has one thin source article, inherited from notebook 01's corpus"* |
-| `changelog` | One entry per version, with what changed | `{"version": "1.0.0", "change": "Initial 40 cases."}` |
+| Version | Bumped on *any* change to the cases | `1.0.0` |
+| Content hash | A hash over the cases only, so a change without a version bump is *visible instead of silent* | first 12 hex characters of a SHA-256 over the case list |
+| Provenance | Where the cases came from | "Hand-written against the fictional corpus... No production data, no PII." |
+| Strata | The stratum counts from Section 2, captured at this version | counts by language, intent, question type, turns |
+| Refusal share | The refusal-quota number from Section 2, captured at this version | rounded fraction of passive cases |
+| Known gaps | Named, honest limitations | *"No stratum is large enough to detect a change smaller than ~15 points"; "Multi-turn is represented by a single case"; "Adversarial coverage is one prompt-injection case; a real suite needs a dedicated red-team set"* |
+| Changelog | One entry per version, with what changed | `{"version": "1.0.0", "change": "Initial 40 cases."}` |
 
-The `known_gaps` field is doing real work here, not filling space: it is the dataset
-admitting, in writing, exactly what it cannot yet detect — which is the same honesty this
-level's "you are done when you can" checklist asks for directly.
+The known-gaps field does real work. It is the dataset admitting in writing exactly what it
+cannot yet detect.
 
 ---
 
-## 4. Mining production traces into eval datasets
+## 4. Mine Traffic for Inputs, Never for Labels
 
-Everything in Sections 1–3 describes a set someone sat down and wrote. That has one
-structural flaw, whatever care went into it: **it can only contain the questions its author
-thought of.** TelcoAssist's curated set has 12 rows, written by the same person who built the
-agent — which means it tests the agent against that person's model of what users want, not
-against what users actually do.
+Sections 1–3 describe a set someone sat down and wrote. That has one structural flaw, whatever
+care went into it. **It can only contain the questions its author thought of.** TelcoAssist's
+curated set has 12 rows, written by the person who built the agent. It tests the agent against
+that person's model of what users want, not against what users do.
 
-### The trap to name before touching production data: circular ground truth
+### Circular ground truth, the trap to name first
 
-Once real traces exist, there is an appealing shortcut: use the agent's own recorded
-responses as the expected answers. Every trace already has an input *and* an output, so it
-looks like a free labelled dataset.
+Once real traces exist, an appealing shortcut appears: use the agent's own recorded responses as
+the expected answers. Every trace already has an input *and* an output, so it looks like a free
+labelled dataset.
 
-**It isn't.** A trace records what the agent *did*, not what it *should have done*. Build
-expectations from the agent's own outputs and the resulting dataset passes by construction —
-it can only ever agree with itself. Worse, today's behaviour, bugs included, is now frozen as
-the definition of correct: any future change away from current behaviour reads as a
-*failure*, and any bug present today reads as *correct*. Regression detection becomes
-structurally impossible.
+**It isn't. A trace records what the agent did, not what it should have done.** Build
+expectations from the agent's own outputs and the dataset passes by construction. It can only
+ever agree with itself. Worse, today's behaviour is frozen as the definition of correct. Any
+future change away from current behaviour reads as a *failure*, and any bug present today reads
+as *correct*. Regression detection becomes structurally impossible.
 
-> **The honest summary of trace mining:** it gives you realistic *inputs* for free.
-> Expectations remain manual work. What you get for free is the *distribution* — which
-> questions actually arrive, and in what proportion — and that is the expensive half to
-> guess and the free half to collect.
+> **The honest summary of trace mining:** it gives realistic *inputs* for free. Expectations
+> remain manual work. What comes free is the *distribution* — which questions actually arrive,
+> and in what proportion — and that is the expensive half to guess.
 
 ### Sampling strategy is the whole game
 
-Real support traffic is heavily skewed: a handful of questions carry most of the volume, and
-everything interesting lives in the long tail. That shape is why *how* you sample from traces
-matters more than how many you pull.
+Real support traffic is heavily skewed. A handful of questions carry most of the volume, and
+everything interesting lives in the long tail. That shape is why *how* traces get sampled
+matters more than how many.
 
-- **Random sampling reproduces the distribution**, which hands back the head the curated set
-  already covers. TelcoAssist's random sample of 8 traces returns mostly-already-tested
-  questions — the strategy working as designed, and teaching nothing.
-- **Targeted sampling by novelty goes after the tail.** Score each query by token overlap with
-  the curated set (`0.0` identical, `1.0` nothing like it) and keep what clears a threshold —
-  no LLM call. At `NOVELTY_THRESHOLD = 0.40` the survivors are an out-of-scope question, a
-  non-English request, a rambling multi-part message and a billing dispute, none of them in
-  the curated 12 rows.
-- **Select by threshold, not a fixed count.** "Top 10" pads the selection once genuinely novel
-  material runs out, and the tail runs out fast. A threshold returns fewer rows on a quiet day
-  and more after a real traffic shift.
+**Random sampling reproduces the distribution**, which hands back the head that the curated set
+already covers. TelcoAssist's random sample of 8 traces returns mostly-already-tested questions.
+The strategy is working as designed, and teaching nothing.
+
+**Targeted sampling by novelty goes after the tail.** Score each query by token overlap with the
+curated set — 0.0 identical, 1.0 nothing like it — and keep what clears a threshold. No judge
+call needed. At a threshold of 0.40 the survivors are an out-of-scope question, a non-English
+request, a rambling multi-part message and a billing dispute. None of them appear in the curated
+12 rows.
+
+**Select by threshold, not a fixed count.** "Top 10" pads the selection once genuinely novel
+material runs out, and the tail runs out fast. A threshold returns fewer rows on a quiet day and
+more after a real traffic shift.
 
 ```mermaid
 flowchart TD
-    T["Production traffic<br/>(skewed: a few questions<br/>carry most of the volume)"] --> S["mlflow.search_traces()<br/>pull recent traces"]
+    T["Production traffic<br/>(skewed: a few questions<br/>carry most of the volume)"] --> S["pull recent traces<br/>from the trace store"]
     S --> R["Random sample"]
     S --> N["Novelty sample<br/>(token overlap vs. curated set)"]
     R --> RC["Mostly already-tested<br/>questions — teaches nothing"]
@@ -217,73 +195,63 @@ flowchart TD
     style HUM fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
 ```
 
-**Tag the selection, don't just save a list of IDs.** A tag such as
-`eval_candidate=novel_query` records *why* a trace was picked, so the selection becomes a
+**Tag the selection rather than saving a list of IDs.** A tag such as
+`eval_candidate=novel_query` records *why* a trace was picked. The selection becomes a
 reproducible query later, not a list only its author can explain.
 
-Mining TelcoAssist's traffic this way surfaced a genuine gap: the curated dataset has twelve
-rows and not one of them asks a question the knowledge base cannot answer — so nobody knew
-whether the agent said "I don't have that" or confidently invented a family-plan price. That
-gap wasn't found by thinking harder about the agent; it was found by looking at what real
-users actually asked. Closing it needed a scorer (`abstains_when_unsupported`) that didn't
-exist before mining revealed the need for it.
+Mining TelcoAssist's traffic surfaced a genuine gap. The curated dataset has twelve rows, and
+not one asks a question the knowledge base cannot answer. Nobody knew whether the agent said "I
+don't have that" or confidently invented a family-plan price. That gap was not found by thinking
+harder about the agent. It was found by looking at what real users asked. Closing it needed a
+new scorer for abstention that did not exist until mining revealed the need.
 
-> **Managed evaluation datasets need a SQL-backed MLflow tracking store** (SQLite, Postgres,
-> MySQL, MSSQL) — the same requirement as the Prompt Registry, and another reason `file://`
-> doesn't get you far.
-
-`create_dataset` has two forms: `create_dataset(name=..., experiment_id=[...])` for OSS/local,
-needing only that SQL store, and `create_dataset(uc_table_name="catalog.schema.table")` on
-Databricks, which backs it with a Unity Catalog table and needs a Spark session. Either way a
-managed dataset is versioned, attached to an experiment, and queryable by tags.
+Whatever stores these datasets needs to be queryable and versioned rather than a pile of files.
+A managed dataset is attached to an experiment, versioned, and searchable by tag — which is what
+makes "re-run last month's selection" a query rather than an archaeology project.
 
 ---
 
-## 5. Provenance and merge-by-input-hash
+## 5. Record Who Decided, and Merge by Input
 
-Mined traces have inputs and they have the agent's own outputs — but per Section 4, they have
-no usable ground truth. Someone has to decide what each one *should* have produced, and that
+Mined traces have inputs, and they have the agent's own outputs. Per Section 4, they have no
+usable ground truth. Someone has to decide what each one *should* have produced, and that
 judgement needs to carry a record of who made it.
 
-**`AssessmentSource` records who decided.** When a human labels a mined trace — for example,
-deciding that a "do you offer family plans" question should be met with "I don't have that,
-let me connect you with someone who does," never an invented plan name — that expectation is
-attached with `AssessmentSource(source_type=AssessmentSourceType.HUMAN, source_id=...)`. This
-is not bureaucracy: six months later, "is this expectation a domain expert's considered
-judgement, or something a script inferred?" determines how much weight a failure against it
-deserves, and whether it is safe to use for aligning a judge (Level 4) or optimizing a prompt.
+**Record the source of every expectation.** When a human labels a mined trace — deciding that a
+"do you offer family plans" question should be met with "I don't have that, let me connect you
+with someone who does", never an invented plan name — that expectation is stored with the
+labeller's identity attached. This is not bureaucracy. Six months later, whether an expectation
+is a domain expert's considered judgement or something a script inferred decides how much weight
+a failure against it deserves. It also decides whether the label is safe to use for aligning a
+judge (Level 4) or optimizing a prompt.
 
-**The honest accounting, stated directly in the source notebook:** mining surfaced eight
-interesting traces in seconds; turning them into *tests* took a person deciding what each one
-should do, and most of them were still waiting for that decision. Mining finds candidates. It
-does not label them.
+**The honest accounting:** mining surfaced eight interesting traces in seconds. Turning them into
+*tests* took a person deciding what each should do, and most were still waiting for that
+decision. **Mining finds candidates. It does not label them.**
 
-**`merge_records` deduplicates by input hash, not by trace ID.** Re-mine overlapping traffic
-tomorrow and a query you've already added doesn't create a duplicate row — the same input
-hash matches the existing record, and any *new* expectation you attach merges into what's
-already there rather than overwriting it. Practically: label `{"expects_tool_call": false}`
-today, mine the same query again next week and add `{"must_offer_human": true}`, and the
-record ends up with both, still as one row. This is what makes continuous re-mining safe
-instead of something that piles up copies over time.
+**Deduplicate by input hash, not by trace ID.** Re-mine overlapping traffic tomorrow and a query
+already added does not create a duplicate row. The same input hash matches the existing record,
+and any *new* expectation merges into what is there rather than overwriting it. Label "expects no
+tool call" today, mine the same query next week and add "must offer a human", and the record
+carries both as one row. That is what makes continuous re-mining safe instead of something that
+piles up copies.
 
 ---
 
-## 6. Synthesized vs. hand-authored cases
+## 6. Run a Curated Set and a Mined Set With Opposite Policies
 
-This level's sources give three genuinely different answers to "where should a test case
-come from," and the honest position is that you need more than one of them, for different
-reasons:
+Three sources answer "where should a case come from", and more than one is needed.
 
-| | Hand-authored (Lumen Cloud, Section 1) | Synthesized from documents (field guide §1.8) | Mined from traffic (Section 4) |
+| | Hand-authored (Section 1) | Synthesized from documents | Mined from traffic (Section 4) |
 |---|---|---|---|
-| Gives you | Full six-field cases, deliberately including the hard ones (contradictions, refusals, injections) | Question/answer pairs generated from your own source documents, along dimensions you choose (multi-step reasoning, multi-chunk) | Real inputs, in their real proportions |
-| Blind to | Anything the author didn't imagine | Whatever the generation process itself is weak at — **spot-check them, generated questions are only as good as the process that made them** | Nothing on the input side — but carries no labels at all |
-| A gotcha specific to this method | Structurally can't cover what you didn't think of | Building each case's context from the *source* documents (rather than by actually running the retriever on the generated question) tests whether the generator works given *perfect* context — which nothing in production ever has | Circular ground truth (Section 4) if you take the shortcut of using the agent's own outputs as the answer key |
+| Gives you | Full six-field cases, deliberately including the hard ones — contradictions, refusals, injections | Question/answer pairs generated from your own documents, along chosen dimensions | Real inputs, in their real proportions |
+| Blind to | Anything the author didn't imagine | Whatever the generation process is weak at — **spot-check them** | Nothing on the input side, but carries no labels at all |
+| A gotcha specific to this method | Structurally can't cover what nobody thought of | Building each case's context from the *source* documents rather than by running the retriever tests the generator against *perfect* context, which production never has | Circular ground truth, if the agent's own outputs become the answer key |
 
-Hand-writing a set doesn't scale past a handful of examples, so document-grounded synthesis is
-the practical way to get volume — provided every generated case is spot-checked and its
-retrieval context comes from actually running the retriever, not from the source passage the
-question was generated from.
+Hand-writing does not scale past a handful of examples, so document-grounded synthesis is the
+practical way to get volume. Two conditions apply. Spot-check every generated case, and build its
+retrieval context by actually running the retriever rather than reusing the source passage the
+question came from.
 
 **The lifecycle view, day one versus month three:**
 
@@ -292,133 +260,167 @@ day one      no traffic exists   →  the set is imagined (hand-written / synthe
 month three  traffic exists      →  the imagined set is now the known-weak part
 ```
 
-On day one, hand-written is the only option, because nothing else exists yet — build it from
-the client's own material (ticket categories, top request types, cases their support leads
-argue about), not from guesswork, and say plainly that it only contains what you thought of.
-By month three, real traffic is the asset: it gives you the *distribution*, which is the
-expensive half to guess and the free half to collect — but, as Section 4 covers, it still
-gives you no labels.
+On day one, hand-written is the only option, because nothing else exists. Build it from the
+client's own material — ticket categories, top request types, the cases their support leads argue
+about — not from guesswork, and say plainly that it only contains what someone thought of. By
+month three real traffic is the asset. It gives the *distribution*, which is the expensive half
+to guess. It still gives no labels.
 
-**Curated and mined are not competing options — they are complements with opposite
-policies**, and running only one of them fails differently:
+**Curated and mined are not competing options. They are complements with opposite policies**, and
+running only one fails differently.
 
 | | Curated regression set | Mined production set |
 |---|---|---|
 | Policy | Frozen; changes only by a deliberate, announced update | Refreshed continuously |
 | Used to | **Gate releases** | **Find problems** |
-| If you break the policy | A score drop becomes unreadable — was the agent worse, or was the test harder? | It goes stale and finds nothing new |
+| If you break the policy | A score drop becomes unreadable — worse agent, or harder test? | It goes stale and finds nothing new |
 
-**The bridge between them is what closes the loop:** every production failure found by mining
-gets promoted into the gated, curated set once it has a human-authored expectation — added as
-rows to the curated dataset, as a new scorer if one didn't already exist, and, critically, **as
-an entry in `QUALITY_GATES`**, since a scorer with no gate entry blocks nothing (the same
-lesson Level 6's release gate teaches from the other direction). *Online discovers; offline
-prevents it recurring.* A finding that stays in the mined set only ever helps once.
-
----
-
-## 7. The two ways a dataset lies to you
-
-This level's goal statement promises "the two ways a dataset lies to you." Having covered
-every topic above, they are now nameable directly, and they are different failures with
-different fixes:
-
-1. **Circular ground truth (Section 4).** The dataset lies by *agreeing with the system it's
-   supposed to be checking* — expectations built from the agent's own past outputs pass by
-   construction and freeze today's bugs as correct. The fix: expectations always come from a
-   human (or from documents, per Section 6), never from the thing being measured.
-2. **Unrepresentative or drifted sampling (Sections 2, 4, 6).** The dataset lies by *looking
-   healthy while it has gone blind* — either because it was sampled to match production
-   traffic and quietly erased a small-but-important segment (the Hindi example in Section 2),
-   or because it was left frozen for gating (correctly) but never refreshed by mining
-   (incorrectly), so it stops resembling what users actually do. The fix: stratify and
-   over-sample for detection rather than representativeness, and keep a *second*, continuously
-   mined dataset whose job is specifically to notice drift, promoting real findings into the
-   frozen set rather than changing the frozen set directly.
-
-A curated set that never gets mined against will confidently keep reporting the same score
-while the real world moves past it. A mined set used to gate releases will make every score
-history meaningless. Level 3's whole discipline is running both, and never letting one do the
-other's job.
+**The bridge between them closes the loop.** Every production failure found by mining gets
+promoted into the gated set once it has a human-authored expectation: new rows in the curated
+dataset, a new scorer if one did not exist, and an entry in the gate itself. **A scorer with no
+gate entry blocks nothing** — the same lesson Level 6 teaches from the other direction. *Online
+discovers; offline prevents it recurring.* A finding that stays in the mined set only ever helps
+once.
 
 ---
 
-## Question-bank corner — ground truth and datasets
+## 7. Name the Two Ways a Dataset Lies
 
-*(From `QUESTION_BANK.md`, Part 3 — Q10 through Q13. No other part of the question bank
-belongs to this level.)*
+Both are now nameable directly. They are different failures with different fixes.
 
-This section deliberately does not re-explain the underlying mechanics (case anatomy,
-stratification, mining, provenance) — those are Sections 1–6 above. What follows is the
-interview-specific framing: the analogy, the weak answer, and the follow-up push for each
-question, since that framing is what a live round actually tests.
+**Circular ground truth.** The dataset lies by *agreeing with the system it is supposed to be
+checking*. Expectations built from the agent's own past outputs pass by construction and freeze
+today's bugs as correct. The fix: expectations always come from a human or from documents, never
+from the thing being measured.
 
-| Q | Question | The core idea, in one line | The analogy that lands it |
-|---|---|---|---|
-| **Q10** | Where does your evaluation data come from on day one, and how does that change by month three? | Day one: hand-written and honestly limited. Month three: traffic gives the distribution, never the labels. Never let the agent grade itself. | Setting an exam from your own lecture notes, then marking it against the notes — full marks, and you've learned nothing about whether the material was right. |
-| **Q11** | Your eval set and production traffic have diverged. How do you keep both honest? | Run two datasets with two opposite policies (Section 6) rather than one set trying to do both jobs. | A bathroom scale you recalibrate every morning — you'll always weigh roughly the same, and you'll never know whether you lost weight. |
-| **Q12** | How big does the evaluation set need to be? | Size is set by the smallest regression you must be able to detect, not a round number — composition (covering every category and must-never-happen class) beats raw count, and a judge's own run-to-run noise puts a floor under what any size can resolve. | A kitchen scale that reads to the nearest 100g — fine for flour, useless for telling whether you lost 20g, and weighing yourself more often doesn't fix that. |
-| **Q13** | Who actually writes the labels, and how do you get their time? | Expert attention, not tooling, is the real constraint. Spend it only on ambiguous/contested cases, ask for ratings not documents, and record provenance (Section 5) on every label. If pushed on "they'll give you two hours a month, total," the answer is to spend all of it on the contested cases that calibrate a judge, not on confirming easy cases are easy. | A consultant surgeon doesn't take the blood samples — not because it's beneath them, but because that isn't where their scarce hours change the outcome. |
+**Unrepresentative or drifted sampling.** The dataset lies by *looking healthy while it has gone
+blind*. Either it was sampled to match production traffic and quietly erased a small-but-important
+segment — Section 2's Hindi case — or it was frozen for gating, correctly, and never refreshed by
+mining, incorrectly, so it stopped resembling what users do. The fix: stratify and over-sample
+for detection, and keep a *second*, continuously mined dataset whose job is noticing drift.
+Promote real findings into the frozen set rather than editing the frozen set directly.
 
-The follow-up each question pushes on, with the verdict to have ready:
+A curated set that never gets mined against will confidently report the same score while the real
+world moves past it. A mined set used to gate releases makes every score history meaningless.
+**The whole discipline is running both, and never letting one do the other's job.**
 
-- **Q10 — *how* do you choose traces to promote?** **Novelty-targeted, against a quality bar,
-  never a fixed count.**
-- **Q11 — *when* do you update the frozen set?** **On a scope change or a repeating production
-  gap — and run both versions side by side once to record the offset, so history stays
-  interpretable.**
-- **Q12 — how many cases?** **Enough to cover every category and must-never-happen class with
-  more than one phrasing — in practice dozens — then grow it from traffic.**
-- **Q13 — two hours a month, total?** **Spend all of it on contested cases; that is what
-  calibrates a judge for the other thousand.**
+---
+
+## 8. Rehearse the Ground-Truth Questions
+
+Four questions test this level directly. Each has an analogy that lands it faster than an
+explanation.
+
+**"Where does your evaluation data come from on day one, and how does that change by month
+three?"**
+
+Day one: hand-written and honestly limited. Month three: traffic gives the distribution, never
+the labels. Never let the agent grade itself. *The analogy:* setting an exam from your own lecture
+notes, then marking it against those notes. Full marks, and nothing learned about whether the
+material was right. **The follow-up is how traces get chosen for promotion** — novelty-targeted,
+against a quality bar, never a fixed count.
+
+**"Your eval set and production traffic have diverged. How do you keep both honest?"**
+
+Run two datasets with two opposite policies rather than one set doing both jobs. *The analogy:* a
+bathroom scale recalibrated every morning. It always reads roughly the same, and it can never
+tell you whether you lost weight. **The follow-up is when the frozen set gets updated** — on a
+scope change or a repeating production gap, and run both versions side by side once to record the
+offset, so history stays interpretable.
+
+**"How big does the evaluation set need to be?"**
+
+Size is set by the smallest regression that must be detectable, not by a round number.
+Composition beats raw count: cover every category and every must-never-happen class. A judge's
+own run-to-run noise puts a floor under what any size can resolve. *The analogy:* a kitchen scale
+reading to the nearest 100g. Fine for flour, useless for detecting a 20g loss, and weighing more
+often does not fix it. **The follow-up is a number** — enough to cover every category and
+must-never-happen class with more than one phrasing, in practice dozens, then grown from traffic.
+
+**"Who actually writes the labels, and how do you get their time?"**
+
+Expert attention, not tooling, is the real constraint. Spend it only on ambiguous and contested
+cases, ask for ratings rather than documents, and record provenance on every label. *The
+analogy:* a consultant surgeon does not take the blood samples. Not because it is beneath them,
+but because that is not where their scarce hours change the outcome. **The follow-up is the hard
+version: two hours a month, total.** Spend all of it on contested cases, because that is what
+calibrates a judge for the other thousand.
+
+---
+
+## Key Takeaways
+
+- An agentic case pins six expectations, and every field left unfilled is a check silently
+  opted out of.
+- Strata are chosen before cases are written, reported separately, and never cross-tabulated.
+- A set with no refusal quota silently rewards confident invention.
+- A datasheet with a version, a content hash and named known gaps is what makes a score drop
+  readable six months later.
+- Mining traffic gives inputs and the distribution for free; it never gives labels, and taking
+  the agent's own output as the label makes regression detection impossible.
+- Record who decided each expectation, and deduplicate by input hash so re-mining merges rather
+  than duplicates.
+- Curated and mined sets have opposite policies — one gates releases, one finds problems — and
+  neither can do the other's job.
+- A dataset lies by agreeing with the system it checks, or by looking healthy while it has gone
+  blind.
+
+## Check Yourself
+
+1. A case records only the expected answer, and it passes. Name three failures that still could
+   have happened. **Wrong tool, wrong customer's data, no approval step. All three reach the
+   right sentence.**
+2. A refund case expects the behaviour "answer" and an empty refund list. Is the case broken?
+   **No. The invoice is outside the window, so the right answer is a clear "no" and the right
+   final state is no refund at all.**
+3. Your golden set is weighted to match production's 85/11/4 language split. What did that cost?
+   **Detection. The smallest stratum shrinks until its score can only be 0% or 100%, so its gap
+   becomes statistically invisible.**
+4. A stratum has 8 cases and the gate blocks on a 5-point drop. What goes wrong? **One case
+   flipping moves it 12.5 points, so the gate blocks at random. Report every stratum; let only
+   large enough ones block.**
+5. Why can a dataset built from the agent's own recorded outputs never detect a regression? **It
+   agrees with itself by construction. Today's bugs are frozen as correct, so any change away
+   from current behaviour reads as the failure.**
+6. Random sampling of production traces returns mostly questions already covered. Is the sampler
+   broken? **No — it is reproducing the real distribution, which is the head you already test.
+   Sample by novelty to reach the tail.**
+7. Mining surfaced eight interesting traces in seconds. How many new tests is that? **Zero until
+   a person decides what each should have done. Mining finds candidates, it does not label
+   them.**
+8. A team refreshes its release-gating dataset every week with fresh production traffic. What
+   breaks? **Score history. A drop can no longer be read as a worse agent or a harder test.**
 
 ---
 
 ## References
 
 All content above was drawn only from material already in this repository. Nothing here was
-invented, and no external source was consulted.
+invented, and no external source was consulted. This page is the restyled edition of
+`org/03-ground-truth.md`; its content is the same, with platform API surface replaced by what each
+mechanism does.
 
 **Notebook:**
 
-- `courses/03-agentic-eval-harness/03_the_golden_set.ipynb` — case anatomy (the six
-  expectations and the case constructor's weakest-default rule), the 40 Lumen Cloud cases,
-  per-dimension stratum counts, the refusal-quota assertion, the `MIN_CASES_TO_GATE` /
-  gateable-vs-report-only policy, the traffic-weighted-sample break-it exercise (the Hindi
-  example), the datasheet fields, and the one-file/two-frameworks loading of the same cases
-  into DeepEval and RAGAS.
-- `courses/02-databricks-mlflow-evals/04_eval_datasets_from_traces.ipynb` — the circular
-  ground-truth trap, the TelcoAssist traffic shape and simulated traffic, `search_traces`
-  mining, random vs. novelty-targeted sampling (including the exact threshold and the
-  reasoning for selecting by threshold rather than fixed count), trace tagging, the
-  SQL-backed-tracking-store requirement and the two `create_dataset` forms (OSS/local vs.
-  Unity Catalog), managed dataset creation, `AssessmentSource` and human-authored
-  expectations, `merge_records` dedup-by-input-hash semantics, the scorer the mined data
-  motivated (`abstains_when_unsupported`), the `QUALITY_GATES` close-the-loop step, and the
-  curated-vs-mined complementary-policies takeaway.
+- `courses/03-agentic-eval-harness/03_the_golden_set.ipynb` — the Lumen Cloud 40-case set, the
+  six-field case anatomy, stratification and the refusal quota, the minimum-size gating floor,
+  and the datasheet.
+- `courses/02-databricks-mlflow-evals/04_eval_datasets_from_traces.ipynb` — TelcoAssist, trace
+  mining, random versus novelty sampling, the tagging pattern, label provenance, and
+  merge-by-input-hash.
 
 **Docs:**
 
-- [Field guide §1.8](../../docs/concepts/rag-agent-tool-evaluation.md) — golden datasets: why
-  hand-writing doesn't scale, generating from your own documents along chosen dimensions,
-  spot-checking generated questions, and building context by running the retriever rather
-  than from the source passage.
-- `docs/interview-prep/QUESTION_BANK.md`, Part 3 (Q10–Q13) — the day-one/month-three
-  lifecycle, the curated-vs-mined dual-policy answer, the sample-size-from-decision
-  reasoning, and the expert-time-as-the-real-constraint framing (all summarized, not
-  re-derived, in the Question-bank corner above — the underlying mechanics live in Sections
-  1–6 and are not repeated there).
-- `docs/study-guide/evaluation-roadmap.md` — Level 3's topic list and goal statement, used to
-  scope what this file needed to cover.
-- `docs/study-guide/evaluation-topic-notebook-mapping.md` — Level 3's resource table and the
-  cost-key definitions (none / key) used above.
+- `docs/concepts/rag-agent-tool-evaluation.md`, §1.8 — document-grounded synthesis and its
+  perfect-context gotcha.
+- `docs/concepts/databricks-mlflow-evals.md` — the managed-dataset model and the curated-versus-
+  mined policy split.
+- `docs/interview-prep/QUESTION_BANK.md`, Part 3 (Q10–Q13) — the four questions and their
+  analogies, reproduced in full in Section 8 rather than pointed at.
+- `docs/study-guide/evaluation-roadmap.md` — Level 3's topic list and goal statement.
+- `docs/study-guide/evaluation-topic-notebook-mapping.md` — Level 3's resource table.
 
-**Limitations.** This file was written by reading the repository's own material, not by
-running any notebook or calling any API — no cost was incurred producing it, consistent with
-this project's rule against executing anything that spends money without being asked. Per-case
-and per-stratum counts quoted here (e.g. 22 English / 10 Spanish / 8 Hindi cases) were derived
-by reading the case list directly from the notebook's source, not by running it; the `hi = 8`
-figure is additionally stated verbatim in the notebook's own markdown, which corroborates the
-count. This file does not independently verify DeepEval's, RAGAS's, or MLflow's own
-documentation; descriptions of those tools above are this repository's characterization of
-them, not a review of the vendors' docs.
+**Limitations.** This file was written by reading the repository's own material, not by running
+any notebook or calling any API — no cost was incurred producing it, consistent with this
+project's rule against executing anything that spends money without being asked. It does not
+independently verify any vendor's documentation.

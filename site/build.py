@@ -80,82 +80,36 @@ RENDER = {
     "Roadmap explainers": [
         ("roadmap-explainers/00-orientation.md", "00-orientation",
          "Level 0 &middot; Orientation",
-         "Draw the five-layer taxonomy from memory and choose between a deterministic "
-         "scorer and a judge without hesitating."),
-        ("roadmap-explainers/00-orientation-v2.md", "00-orientation-v2",
-         "Level 0 &middot; Orientation: What There Is to Evaluate (restyled)",
          "Decompose the system before measuring it, because one quality score cannot say which stage broke."),
         ("roadmap-explainers/01-rag-retrieval-and-generation.md", "01-rag-retrieval-and-generation",
          "Level 1 &middot; RAG: retrieval &amp; generation",
-         "Separate a retrieval failure from a generation failure with numbers, and know "
-         "the one failure no referenceless metric can see."),
-        ("roadmap-explainers/01-rag-retrieval-and-generation-v2.md", "01-rag-retrieval-and-generation-v2",
-         "Level 1 &middot; RAG (restyled draft)",
-         "The same Level 1 material in the restyled house format &mdash; trade-off "
-         "tagline, imperative headings, takeaways and a self-check, with no framework "
-         "tour. Side-by-side draft; compare against the Level 1 page above."),
+         "Evaluate retrieval and generation as two separate systems, because a generator cannot be judged on evidence it never received."),
         ("roadmap-explainers/02-agents-tools-conversations-trajectories-outcomes.md", "02-agents-tools-conversations-trajectories-outcomes",
          "Level 2 &middot; Agents, tools, trajectories &amp; outcomes",
-         "Hold three things apart &mdash; mechanics, process, outcome &mdash; and reach "
-         "for the system of record before any judge."),
-        ("roadmap-explainers/02-agents-tools-conversations-trajectories-outcomes-v2.md", "02-agents-tools-conversations-trajectories-outcomes-v2",
-         "Level 2 &middot; Agents: Tools, Conversations, Trajectories, Outcomes (restyled)",
          "Score mechanics, process and outcome separately, because passing any one of the three says nothing about the other two."),
         ("roadmap-explainers/03-ground-truth.md", "03-ground-truth",
          "Level 3 &middot; Ground truth",
-         "Know where cases and labels come from on day one and by month three, and the "
-         "two ways a dataset lies to you."),
-        ("roadmap-explainers/03-ground-truth-v2.md", "03-ground-truth-v2",
-         "Level 3 &middot; Ground Truth: Where Cases and Labels Come From (restyled)",
          "Collect inputs from real traffic but never labels from the system under test, because a dataset built from its own answers can only agree with itself."),
         ("roadmap-explainers/04-judges-and-the-humans-who-validate-them.md", "04-judges-and-the-humans-who-validate-them",
          "Level 4 &middot; Judges &amp; the humans who validate them",
-         "Build a judge three ways, catch it lying three ways, and know the only thing "
-         "that licenses trusting it."),
-        ("roadmap-explainers/04-judges-and-the-humans-who-validate-them-v2.md", "04-judges-and-the-humans-who-validate-them-v2",
-         "Level 4 &middot; Judges, and the Humans Who Validate Them (restyled)",
          "A judge is the only way to score open-ended text at scale, and it cannot be trusted until it is measured against the people who do not scale."),
         ("roadmap-explainers/05-statistics-and-stratified-reporting.md", "05-statistics-and-stratified-reporting",
          "Level 5 &middot; Statistics &amp; stratified reporting",
-         "Refuse to act on a number you cannot resolve, and never report an average "
-         "that buries a segment."),
-        ("roadmap-explainers/05-statistics-and-stratified-reporting-v2.md", "05-statistics-and-stratified-reporting-v2",
-         "Level 5 &middot; Statistics and Stratified Reporting (restyled)",
          "Gate on the worst slice rather than the average, because a group is only as loud in the mean as it is big."),
         ("roadmap-explainers/06-the-release-gate-and-ci.md", "06-the-release-gate-and-ci",
          "Level 6 &middot; The release gate &amp; CI",
-         "Turn metrics into a decision that can refuse a deploy, and put the cost of "
-         "loosening it on a named line."),
-        ("roadmap-explainers/06-the-release-gate-and-ci-v2.md", "06-the-release-gate-and-ci-v2",
-         "Level 6 &middot; The Release Gate and CI (restyled)",
          "Gate against what is live, not against a fixed bar, because a system can lose seven points without any single release ever failing."),
         ("roadmap-explainers/07-online-evaluation-and-the-loop.md", "07-online-evaluation-and-the-loop",
          "Level 7 &middot; Online evaluation &amp; the loop",
-         "Measure without an answer key, alert only on what you can resolve, and carry "
-         "every finding back into a gated test."),
-        ("roadmap-explainers/07-online-evaluation-and-the-loop-v2.md", "07-online-evaluation-and-the-loop-v2",
-         "Level 7 &middot; Online Evaluation and the Loop (restyled)",
          "Every check that needs an answer key dies at deployment, and it dies silently &mdash; reporting &quot;skipped&quot; rather than failing."),
         ("roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution.md", "08-safety-adversarial-and-multi-agent-attribution",
          "Level 8 &middot; Safety, adversarial &amp; multi-agent attribution",
-         "Separate what must never happen from what should usually happen, test by "
-         "attack surface, and say which agent broke a multi-agent run."),
-        ("roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution-v2.md", "08-safety-adversarial-and-multi-agent-attribution-v2",
-         "Level 8 &middot; Safety, Adversarial Testing, and Multi-Agent Attribution (restyled)",
          "Report safety as a list of case IDs rather than a percentage, because a percentage cannot be opened and read."),
         ("roadmap-explainers/09-the-harness-as-a-product.md", "09-the-harness-as-a-product",
          "Level 9 &middot; The harness as a product",
-         "Keep the evaluation system itself trustworthy and affordable &mdash; the "
-         "layer above the metrics."),
-        ("roadmap-explainers/09-the-harness-as-a-product-v2.md", "09-the-harness-as-a-product-v2",
-         "Level 9 &middot; The Harness as a Product (restyled)",
          "A harness that only computes numbers is not yet a product, because nobody has agreed what the numbers must reach or who signs off on them."),
         ("roadmap-explainers/10-the-enterprise-harness-end-to-end.md", "10-the-enterprise-harness-end-to-end",
          "Level 10 &middot; The whole harness, end to end",
-         "The cram sheet: the six-stage loop the ten levels add up to, from contract "
-         "to gate to production to human labels, with every trap in one table."),
-        ("roadmap-explainers/10-the-enterprise-harness-end-to-end-v2.md", "10-the-enterprise-harness-end-to-end-v2",
-         "Level 10 &middot; The Enterprise Harness, End to End (restyled)",
          "Every stage produces the artifact the next one consumes, so a skipped stage does not fail &mdash; it keeps reporting green while measuring nothing."),
     ],
 }
@@ -206,6 +160,50 @@ COPY = {
 
 # Deliberate omissions. Printed on every build so nothing disappears quietly.
 SKIP = [
+    ("roadmap-explainers/org/00-orientation.md",
+     "The original edition of Level 0. The restyled edition at "
+     "roadmap-explainers/00-orientation.md carries the same content and ships instead; "
+     "the original is kept for comparison, not published twice."),
+    ("roadmap-explainers/org/01-rag-retrieval-and-generation.md",
+     "The original edition of Level 1. The restyled edition at "
+     "roadmap-explainers/01-rag-retrieval-and-generation.md carries the same content and ships instead; "
+     "the original is kept for comparison, not published twice."),
+    ("roadmap-explainers/org/02-agents-tools-conversations-trajectories-outcomes.md",
+     "The original edition of Level 2. The restyled edition at "
+     "roadmap-explainers/02-agents-tools-conversations-trajectories-outcomes.md carries the same content and ships instead; "
+     "the original is kept for comparison, not published twice."),
+    ("roadmap-explainers/org/03-ground-truth.md",
+     "The original edition of Level 3. The restyled edition at "
+     "roadmap-explainers/03-ground-truth.md carries the same content and ships instead; "
+     "the original is kept for comparison, not published twice."),
+    ("roadmap-explainers/org/04-judges-and-the-humans-who-validate-them.md",
+     "The original edition of Level 4. The restyled edition at "
+     "roadmap-explainers/04-judges-and-the-humans-who-validate-them.md carries the same content and ships instead; "
+     "the original is kept for comparison, not published twice."),
+    ("roadmap-explainers/org/05-statistics-and-stratified-reporting.md",
+     "The original edition of Level 5. The restyled edition at "
+     "roadmap-explainers/05-statistics-and-stratified-reporting.md carries the same content and ships instead; "
+     "the original is kept for comparison, not published twice."),
+    ("roadmap-explainers/org/06-the-release-gate-and-ci.md",
+     "The original edition of Level 6. The restyled edition at "
+     "roadmap-explainers/06-the-release-gate-and-ci.md carries the same content and ships instead; "
+     "the original is kept for comparison, not published twice."),
+    ("roadmap-explainers/org/07-online-evaluation-and-the-loop.md",
+     "The original edition of Level 7. The restyled edition at "
+     "roadmap-explainers/07-online-evaluation-and-the-loop.md carries the same content and ships instead; "
+     "the original is kept for comparison, not published twice."),
+    ("roadmap-explainers/org/08-safety-adversarial-and-multi-agent-attribution.md",
+     "The original edition of Level 8. The restyled edition at "
+     "roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution.md carries the same content and ships instead; "
+     "the original is kept for comparison, not published twice."),
+    ("roadmap-explainers/org/09-the-harness-as-a-product.md",
+     "The original edition of Level 9. The restyled edition at "
+     "roadmap-explainers/09-the-harness-as-a-product.md carries the same content and ships instead; "
+     "the original is kept for comparison, not published twice."),
+    ("roadmap-explainers/org/10-the-enterprise-harness-end-to-end.md",
+     "The original edition of Level 10. The restyled edition at "
+     "roadmap-explainers/10-the-enterprise-harness-end-to-end.md carries the same content and ships instead; "
+     "the original is kept for comparison, not published twice."),
     ("guide-audits/openai-eval-guide-tutorial.md",
      "87.7% identical to its own .html, which ships instead. The repo's rule is "
      "that the Markdown is canonical and the page is not a second source -- so "

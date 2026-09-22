@@ -1,136 +1,111 @@
-# Level 4: Judges, and the Humans Who Validate Them
+# Judges, and the Humans Who Validate Them
 
-> **Who this is for.** No prior tool knowledge is assumed. Every technical term is defined in
-> plain language the first time it appears. If you have just finished Level 3 (ground truth),
-> this level answers the question that leaves open: once you have a reference answer, or even
-> when you don't, *who decides whether a reply is actually good?*
+*A judge is the only way to score open-ended text at scale, and it cannot be trusted until it is
+measured against the people who do not scale.*
 
----
+◷ 25 min · Level 4 · [Level 3](03-ground-truth.md) covered where reference answers come from.
+This level answers what that leaves open: who decides whether a reply is actually good?
 
-## Why this level exists
+A customer asks, the agent answers, and somebody has to decide whether that was a good reply. A
+person can read a handful. Thousands a day do not scale, so teams use another model to grade the
+replies. That grading model is a **judge**.
 
-A customer asks, the agent answers, and somebody has to decide whether that was a good reply.
-A person can read a handful; thousands a day don't scale. So teams use another large language
-model to grade the replies. That grading model is a **judge**.
+> **Who this is for.** No library knowledge is assumed. Every technical term is defined in plain
+> words the first time it appears.
 
 If a judge is just another model, why believe its number? It can be fooled by fluent, wrong
-text, prefer whichever answer it sees first, and go easy on writing that reads like its own.
+text. It can prefer whichever answer it saw first. It can go easy on writing that reads like its
+own.
 
 > **A judge is an instrument, not an oracle**, and every instrument is calibrated against
 > something more trustworthy: a person.
 
-Uncalibrated it is still internally consistent, so it detects **that something changed** — it
-just cannot yet assert **that either version is good**. Earning that is the rest of this
-level.
-
-This level covers three things that all sit on top of that one idea:
-
-1. **How to build a judge** — three different shapes, each with its own trade-off between
-   flexibility and reproducibility.
-2. **How a judge lies, and how to catch it** — the specific, testable ways a judge's verdict
-   can be about something other than quality.
-3. **The only thing that licenses trusting a judge** — comparing it against real human
-   judgement, measured honestly, and using that comparison to make the judge better.
-
-The running example is a **customer-support reply** — sometimes a telecom customer
-(`TelcoAssist`), sometimes a ticket involving a refund. What matters is that a reply can be
-graded on whether it answers the question, whether its claims are grounded, and whether it says
-what happens next.
+**Uncalibrated, a judge is still internally consistent, so it detects that something changed. It
+cannot yet assert that either version is good.** Earning that is the rest of this level. The
+running example is a customer-support reply, graded on whether it answers the question, whether
+its claims are grounded, and whether it says what happens next.
 
 ---
 
-## 1. Building a judge, three ways
+## 1. Build the Judge in One of Three Shapes
 
-There is more than one way to turn "is this reply good?" into a number. Each of the three
-common approaches makes a different trade between how expressive it is and how easy it is to
-defend.
+There is more than one way to turn "is this reply good?" into a number. Each shape trades
+expressiveness against how easy the result is to defend.
 
-| | `GEval` | `DAGMetric` | Rubric scoring |
+| | Prose criteria (`GEval`) | Decision tree | Fixed rubric levels |
 |---|---|---|---|
-| You write | criteria in prose (or explicit steps) | an explicit decision tree | fixed level descriptions |
+| You write | criteria in prose, or explicit steps | an explicit branching tree | fixed level descriptions |
 | Reproducibility | lowest | **highest** | high |
 | Expresses nuance | **best** | only what you branched for | blunt at boundaries |
 | "Why did this score X?" | a paragraph | **a path through the tree** | a level description |
 | Cost to change | re-word and re-run | add a branch | re-word a level |
 | Good for | exploration, fuzzy quality | compliance, auditability | stable regression scoring |
 
-**`GEval`** takes criteria as prose or explicit steps and lets the judge work out how to apply
-them — fastest to write, hardest to debug, because a wrong score has no branch to point at,
-only a paragraph to re-word. An optional *rubric* of named score ranges ("0–3: wrong, or
-confidently unsupported") reduces how much verdicts drift between runs.
+**Prose criteria** let the judge work out how to apply them. Fastest to write, hardest to debug:
+a wrong score has no branch to point at, only a paragraph to re-word. Naming score ranges
+("0–3: wrong, or confidently unsupported") reduces how much verdicts drift between runs.
 
-**`DAGMetric`** asks the same question as a decision tree: *did the reply answer the question?
-If yes, was every policy claim cited? If yes, did it say what happens next?* Every path ends at
-a fixed score, so runs taking the same branches land on the same number. The trade-off: a tree
-can't express a nuance you never anticipated, and adding one means adding a branch by hand.
+**A decision tree** asks the same question as branches. Did the reply answer the question? If
+yes, was every policy claim cited? If yes, did it say what happens next? Every path ends at a
+fixed score, so runs taking the same branches land on the same number. The trade is that a tree
+cannot express a nuance nobody anticipated, and adding one means adding a branch by hand.
 
-**Rubric scoring** fixes a small number of levels (for example, three levels: bad, weak,
-good) and writes a plain description of what separates them. It is stable across runs and
-blunt exactly at the boundaries between levels — a reply that is "almost good" scores the same
-as one that is "barely good."
+**Fixed rubric levels** set a small number of bands — bad, weak, good — and describe what
+separates them. Stable across runs, and blunt exactly at the boundaries. A reply that is "almost
+good" scores the same as one that is "barely good".
 
-### Reference-based versus reference-free — the split that decides what survives deployment
+### Reference-based versus reference-free
 
-A rubric-based judge can be built two ways: one version is given the golden set's reference
-answer to compare against (**reference-based**), and one version is given only the question
-and the reply, with no answer key (**reference-free**).
+A judge can be built two ways. One version gets the golden set's reference answer to compare
+against. The other gets only the question and the reply.
 
-**Only the reference-free kind runs in production**, because production traffic has no answer
-key. Measuring the **reference gap** — both versions on the same replies — says how much signal
-disappears when a judge runs without ground truth.
+**Only the reference-free kind runs in production, because production traffic has no answer
+key.** Running both versions over the same replies measures the **reference gap** — how much
+signal disappears when a judge works without ground truth.
 
 > **That gap is not zero, and it is the honest answer to "how much of my offline evaluation
 > still applies once this ships?"**
 
-### The cost ladder for a judged check
+### Know which rung a judged check stands on
 
-Building any of the three judges above is only worth it once you know a judged check is the
-right rung to stand on in the first place. The failure modes below (§0.3 of this repo's field
-guide) make this explicit:
+Building any of the three is only worth it once a judged check is the right rung at all. The
+failure modes are specific.
 
-- **Not an oracle.** It decides whether text *sounds* right — what a fluent, confident, wrong
-  answer exploits.
-- **A weaker judge produces noisier scores.** It should be at least as capable as the task it
-  grades.
-- **Two runs on the same input can disagree**, especially near a threshold. Never gate a
-  release on one row.
-- **A vague rubric produces a judge that disagrees with itself.** The specificity you write
-  down is the specificity you get back.
-- **Cost compounds.** Five judged dimensions over 500 cases is 2,500+ model calls.
-- **Score direction is not a convention.** A hallucination score of 0.9 means a lot of
-  hallucination. Check before wiring a threshold.
+A judge decides whether text *sounds* right, which is exactly what a fluent, confident, wrong
+answer exploits. A weaker judge produces noisier scores, so it should be at least as capable as
+the task it grades. Two runs on the same input can disagree, especially near a threshold, so no
+release should be gated on one row. **A vague rubric produces a judge that disagrees with
+itself** — the specificity written down is the specificity that comes back. Cost compounds: five
+judged dimensions over 500 cases is 2,500+ model calls. And score direction is not a convention,
+so a hallucination score of 0.9 means a lot of hallucination.
 
-Going from an off-the-shelf judged check to a **custom rubric** changes the standard applied,
-not the mechanism or the cost — climb it only because the generic "good" isn't specific to your
-task. Going further, to a **trace-based judge** that reads the whole run, changes what evidence
-the judge can see.
+Going from an off-the-shelf judged check to a custom rubric changes the standard applied, not
+the mechanism or the cost. Going further, to a trace-based judge that reads the whole run,
+changes what evidence the judge can see.
 
 > **That second step is the expensive one**, worth making only when the answer genuinely is not
 > present in the final output text.
 
-### A judge doesn't have to return pass/fail — or even a number
+### Let the judge return a category, not only a number
 
-A reply that leaves the customer with a partial answer is a different outcome from a failure,
-not a lower score on the same scale. A **categorical** judge — named outcomes like
-`fully_resolved`, `partially_resolved`, `unresolved` — preserves that instead of flattening it.
+A reply leaving the customer with a partial answer is a different outcome from a failure, not a
+lower score on the same scale. A **categorical** judge — named outcomes like `fully_resolved`,
+`partially_resolved`, `unresolved` — preserves that instead of flattening it.
 
 > **Say explicitly that a correct refusal or escalation counts as `fully_resolved`**, or the
 > judge punishes an agent for following a policy it was told to follow.
 
-### Iterating on a rubric cheaply, before spending on a full run
-
-Re-running a full evaluation to find out whether one guideline is worded well is slow and
-wasteful. A judge's decision logic can be called directly on a single example, so drafting a
-rubric costs one model call and answers immediately.
+Iterating is cheap if done right. Re-running a full evaluation to find out whether one guideline
+is worded well is slow and wasteful. Call the judge's decision logic directly on a single
+example instead: drafting a rubric then costs one model call and answers immediately.
 
 ---
 
-## 2. Custom scorers: spend judgement where judgement is actually needed
+## 2. Spend Judgement Only Where Judgement Is Needed
 
-Not every question about a reply needs a model to answer it. Some questions have a definite,
-checkable answer — "was a specific tool called?", "how many words is this reply?", "does a
-customer ID that isn't the requester's own appear in the text?" — and a judge is the wrong,
-expensive way to answer them.
+Not every question about a reply needs a model to answer it. Some have a definite, checkable
+answer — was a specific tool called, how many words is this reply, does a customer ID that isn't
+the requester's own appear in the text. **A judge is the wrong, expensive way to answer those.**
 
 ```mermaid
 flowchart TD
@@ -141,8 +116,6 @@ flowchart TD
     J -->|"a person's opinion"| HUMAN["Human label<br/>slow, expensive — the calibration source"]
     JUDGE -.->|"must be checked against"| HUMAN
 ```
-
-The same three-way choice, with rough cost and coverage attached to each:
 
 | | Code | Model judge | Human |
 |---|---|---|---|
@@ -159,303 +132,270 @@ The same three-way choice, with rough cost and coverage attached to each:
 
 | Kind | Cost per row | Deterministic? | Use it when |
 |---|---|---|---|
-| **Deterministic scorer** (plain code) | free, instant | yes — same input, same verdict | The rule has a definite answer: was a tool called, how many words, does a regex match |
-| **Class-based scorer** | free, instant | yes | The same deterministic check, but needed at several different settings at once |
-| **Wrapped judge** (a judge call embedded inside a custom scorer) | one model call | no | A judge is genuinely needed, but with extra context it can't extract on its own |
-| **Custom LLM judge** | one model call | no | The question needs real judgement: quality, tone, whether a resolution actually happened |
-| **Trace-based judge** | one model call, large prompt | no | Judging *how* the agent worked, not just what it finally said |
+| **Deterministic scorer** (plain code) | free, instant | yes — same input, same verdict | The rule has a definite answer: was a tool called, how many words, does a pattern match |
+| **Configurable scorer** | free, instant | yes | The same deterministic check, needed at several settings at once |
+| **Wrapped judge** (a judge call inside a custom scorer) | one model call | no | A judge is genuinely needed, but with extra context it can't extract alone |
+| **Custom judge** | one model call | no | The question needs real judgement: quality, tone, whether a resolution happened |
+| **Trace-based judge** | one model call, large prompt | no | Judging *how* the agent worked, not just what it said |
 
-- **Deterministic scorers are free**, so they run on every row; judged checks get rationed.
-- **Deterministic scorers are reproducible in a way judges are not.** A deterministic metric
-  moving means the system changed; a judged one moving might be the judge having a different
-  day.
+Deterministic scorers are free, so they run on every row while judged checks get rationed. They
+are also reproducible in a way judges are not. **A deterministic metric moving means the system
+changed. A judged one moving might be the judge having a different day.**
 
-> **A custom scorer gets exactly what the agent's answer function returned — nothing
-> normalises the shape first.** A scorer expecting a dictionary breaks on an agent returning a
-> plain string. Check what your own agent returns before copying someone else's example.
+> **A custom scorer gets exactly what the agent's answer function returned — nothing normalises
+> the shape first.** A scorer expecting a dictionary breaks on an agent returning a plain string.
 
-### Why an *unexpected* tool call has to count as a failure too
+### An unexpected tool call has to count as a failure too
 
-A common published pattern for "did the agent call the right tools?" checks only which
-*expected* tools were missing — and ignores which unexpected ones were called. Under that
-rule, an agent that calls every tool available to it on every single request scores 100%: it
-never misses an expected call, because it never misses *any* call.
+A common pattern for "did the agent call the right tools?" checks only which *expected* tools
+were missing, and ignores which unexpected ones were called. **Under that rule, an agent that
+calls every tool available on every request scores 100%.** It never misses an expected call,
+because it never misses any call.
 
 | Expected a tool call? | Actually called one? | Verdict | What it means |
 |---|---|---|---|
 | yes | yes | pass | — |
 | no | no | pass | — |
 | yes | **no** | fail | Answered an account question without looking up the account — it made the answer up |
-| no | **yes** | fail | Pulled customer data with no reason to — a privacy problem, not just an efficiency one |
+| no | **yes** | fail | Pulled customer data with no reason to — a privacy problem, not just efficiency |
 
-That last row matters beyond tidiness: an agent that reflexively fetches account data on every
-question is one prompt-injection attack away from putting that data somewhere it shouldn't go.
-A correct tool-call scorer has to fail on *both* directions, not just the first.
+That last row matters beyond tidiness. An agent reflexively fetching account data on every
+question is one prompt-injection attack away from putting that data somewhere it should not go.
 
-### Deterministic and judged, on the same question, is not redundant
+### Deterministic and judged on the same question is not redundant
 
-A privacy check like "did this reply disclose an account ID that isn't the requester's own?"
-can be checked two ways at once, on purpose:
+Take a privacy check: did this reply disclose an account ID that isn't the requester's own? A
+pattern-matching rule catches a literal ID like `CUST-1003` every single time, for free. It
+cannot catch a paraphrase like *"the other account owes $152.90"*, which contains no ID at all.
+A judge catches the paraphrase, but only probabilistically, and it costs a call every time.
 
-- A **regex** (a pattern-matching rule) catches a literal account ID like `CUST-1003`
-  appearing in the text, every single time, for free — but it cannot catch a paraphrase like
-  *"the other account owes $152.90"*, which contains no ID and slips straight through.
-- A **judge** catches the paraphrase, but only probabilistically, and it costs a model call
-  every time.
+Cheap-and-certain plus expensive-and-general beats either alone. **Knowing exactly what the
+deterministic check does not cover is the whole value of having one** — its blind spot is
+documented rather than hidden.
 
-Cheap-and-certain plus expensive-and-general is a stronger combination than either alone, and
-knowing exactly what a deterministic check does and doesn't cover is the whole value of having
-one — its blind spot is documented, not hidden.
+### Report the tail, not just the mean
 
-### Numeric scorers, and the aggregation that actually matters
+Not every scorer returns pass/fail. A count aggregates across a run, and there are six valid
+aggregations: min, max, mean, median, variance, p90.
 
-Not every scorer returns pass/fail; a count aggregates across a run. There are exactly six
-valid aggregations: **min, max, mean, median, variance, p90**.
+> **The mean is the one people report and the p90 is the one worth watching.** A healthy average
+> hides the tail of rambling replies that users actually complain about.
 
-> **The mean is the one people report and the p90 is the one worth watching.** A healthy
-> average hides the tail of rambling replies that users actually complain about.
+A scorer that hardcodes its own threshold can only run once. A configurable one takes its
+settings as fields, so identical logic runs twice in one evaluation at two settings — a strict
+80-word limit and a loose 250-word limit, reported as two named metrics.
 
-### Class-based scorers: the same check, several settings at once
-
-A function-based scorer hardcodes its own threshold. A class-based scorer takes its settings
-as configurable fields instead, so the identical logic can run twice in one evaluation at two
-different settings — for example, a strict 80-word limit and a loose 250-word limit, reported
-as two separate named metrics in the same run.
-
-### Trace-based judges: judging *how*, not just *what*
-
-A **trace-based judge** gets the whole execution trace — every step, every tool call, the order
-— and judges the *path*, not the destination.
+A **trace-based judge** gets the whole execution trace and judges the path, not the destination.
 
 > **Two agents can produce the identical correct reply, one in two steps and one in nine.** Only
 > a trace-based judge tells those runs apart.
 
 ---
 
-## 3. Judge bias: the three specific ways a judge lies
+## 3. Test the Three Ways a Judge Lies
 
-A judge is a model, so it inherits the weaknesses of the thing it grades — including biases
-that have nothing to do with the quality of the answer.
+A judge is a model, so it inherits the weaknesses of the thing it grades — including biases with
+nothing to do with the quality of the answer.
 
 | Bias | What it is | The test |
 |---|---|---|
-| **Position bias** | The judge prefers whichever answer it saw first (or second) | Score the same pair in both orders (A,B) and (B,A) — the verdict should not flip |
-| **Verbosity bias** | The judge prefers the longer answer, independent of whether it's actually better | Pad the *worse* answer until it's the longer one, and judge again |
-| **Same-model bias** | A judge from the same model family as the one being graded rates that family's output generously | Score with a judge from a different model family and compare the *ranking*, not the raw numbers |
+| **Position bias** | The judge prefers whichever answer it saw first (or second) | Score the same pair in both orders and check the verdict does not flip |
+| **Verbosity bias** | The judge prefers the longer answer, independent of quality | Pad the *worse* answer until it's longer, and judge again |
+| **Same-model bias** | A judge from the same model family rates that family's output generously | Score with a judge from a different family and compare the *ranking*, not the raw numbers |
 
 ### Position bias
 
 Ask a pairwise judge to choose between A and B, then ask again with the order swapped. **The
 verdict should not change.** When it does, the judge is scoring which side of the screen an
-answer appeared on — and every pairwise number it ever produced, including a rollback canary,
-becomes suspect.
+answer appeared on, and every pairwise number it ever produced becomes suspect.
 
-The analogy that makes this concrete: two wine judges, one of whom always prefers whichever
-glass is handed over first, the other of whom always prefers whichever glass is fuller.
-Neither one is actually tasting the wine.
+The analogy: two wine judges, one always preferring whichever glass is handed over first, the
+other always preferring whichever glass is fuller. Neither is tasting the wine.
 
-### Verbosity bias — and why "no position bias" is not the same as "trustworthy"
+### Verbosity bias
 
-> **Clearing a judge of position bias is necessary and not sufficient.** If the "worse" answer
-> is also the shorter one, *"the better answer won"* and *"the longer answer won"* describe the
-> same result, and swapping order can never tell them apart.
+> **Clearing a judge of position bias is necessary and not sufficient.** If the worse answer is
+> also the shorter one, *"the better answer won"* and *"the longer answer won"* describe the same
+> result, and swapping order can never tell them apart.
 
-Two steps separate the two explanations:
+Two steps separate the explanations. **The length audit** is free, because it re-reads verdicts
+that already exist. It puts the length distribution next to the win rate. In one run the
+stronger reply won 12 of 12, winners averaging 25.2 words against 18.7 — 35% longer, every time.
+That alone cannot separate quality from word count. **The length-controlled probe** costs model
+calls. Pad the worse reply with filler until it is the longer one, then judge again. If the
+better reply still wins, length was not doing the work. If the padded reply wins, the judge
+measures word count, and every pairwise number it produced is suspect.
 
-1. **The length audit** (free — re-reads verdicts you already have) puts the length
-   distribution next to the win rate. In one run the stronger reply won 12 of 12, winners
-   averaging 25.2 words against 18.7 — 35% longer, every time. That alone cannot separate
-   quality from word count.
-2. **The length-controlled probe** (costs model calls) pads the *worse* reply with filler until
-   it is the longer one, then judges again. Better reply still wins: length wasn't doing the
-   work. Padded reply wins: the judge measures word count, and every pairwise number it
-   produced — including any canary win rate gating a rollout — is suspect.
-
-The practical takeaway: **a win rate published without the length distribution beside it is
-partly a word count.**
+> **A win rate published without the length distribution beside it is partly a word count.**
 
 ### Same-model bias
 
 A judge tends to recognise its own family's habits — phrasing, structure, hedging — and reads
-that familiarity as quality. The test is to re-score the same replies with a judge from a
-genuinely *different* model family (not just a bigger model in the same family) and compare.
+that familiarity as quality. The test is to re-score with a judge from a genuinely different
+family, not just a bigger model in the same one.
 
 Two judges rarely give the same score. The number that matters is **whether the ranking
-survives**, measured by rank correlation.
-
-- **High rank correlation, positive mean difference** — benign. One judge is more generous;
-  they agree which reply is better, so a gate comparing two builds still works.
-- **Low rank correlation** — serious. They don't agree which build is better, and neither can
-  gate a release alone.
+survives**, measured by rank correlation. High rank correlation with a positive mean difference
+is benign: one judge is more generous, they agree which reply is better, and a gate comparing
+two builds still works. Low rank correlation is serious: they do not agree which build is
+better, and neither can gate a release alone.
 
 Bias can also live in a **stratum** rather than overall. One language scoring lower across
-*every* judge means the agent is genuinely worse there; dropping for only *one* judge is a
-property of the judge — commonly, scoring fluency in its own strongest language.
+*every* judge means the agent is genuinely worse there. Dropping for only *one* judge is a
+property of that judge — commonly, scoring fluency in its own strongest language.
 
-### A fourth failure mode, underneath all three: a rubric with room to improvise
+### The fourth failure mode, underneath all three
 
-Those three biases are failures of a judge given a *clear* question. Underneath them sits a
-simpler one: an ambiguous question. A rubric whose levels overlap — "fairly good" against
-"good," with no line between — leaves room to improvise, and improvisation does not reproduce.
+Those three are failures of a judge given a clear question. Underneath sits a simpler one: an
+ambiguous question. A rubric whose levels overlap — "fairly good" against "good", with no line
+between — leaves room to improvise, and improvisation does not reproduce.
 
 > **The test is not "does the rubric sound reasonable" but "can two careful people apply it
-> independently and agree"** — which is what Section 5's Cohen's kappa measures.
+> independently and agree"** — which is what Section 5's kappa measures.
 
-This is the most common way a working judge quietly stops working: somebody "clarifies" the
+This is the most common way a working judge quietly stops working. Somebody "clarifies" the
 wording and removes the specificity that made it reproducible.
 
 ---
 
-## 4. Human feedback: three kinds, and only one can calibrate a judge
+## 4. Collect the One Kind of Human Feedback That Calibrates
 
-The phrase "human feedback" gets used for three genuinely different things, and treating them
-as interchangeable is why many feedback efforts produce nothing useful.
+"Human feedback" names three genuinely different things. Treating them as interchangeable is why
+many feedback efforts produce nothing useful.
 
 | Kind | Where | Volume | Biased? | Can calibrate a judge? |
 |---|---|---|---|---|
-| **Runtime approval** | Inside the agent, blocking a pending action | Low | N/A — it's a decision, not a rating | **No** |
-| **End-user feedback** (thumbs) | In production, voluntary | High | Severely — only the angriest and the most delighted respond | **No** — a signal, never a label |
+| **Runtime approval** | Inside the agent, blocking a pending action | Low | N/A — a decision, not a rating | **No** |
+| **End-user feedback** (thumbs) | In production, voluntary | High | Severely — only the angriest and most delighted respond | **No** — a signal, never a label |
 | **Expert annotation** | Offline, on a deliberately sampled set | Low | Only by your sampling choice | **Yes — the only one** |
 
-A **runtime approval** is a single blocking decision about one specific pending action (should
-this refund actually go out?). It isn't a rating of quality at all, so it cannot calibrate
-anything — though the approval process itself needs to be evaluated, which Section 6 below covers.
+A **runtime approval** is one blocking decision about one pending action. Should this refund go
+out? It is not a rating of quality, so it cannot calibrate anything — though the approval process
+itself needs evaluating, which Section 8 covers.
 
-**End-user thumbs** are abundant but self-selected: the people who click are disproportionately
-the angriest and the most delighted, which is not a representative sample of how the system is
-actually doing. Thumbs are a useful *signal* — something worth looking into — never a *label*
-you can calibrate a judge against.
+**End-user thumbs** are abundant and self-selected. The people who click are disproportionately
+the angriest and the most delighted, which is not how the system is actually doing. Thumbs are a
+useful *signal*, never a *label*.
 
-**Expert annotation**, a domain expert rating a deliberately sampled set of replies offline, is
-the only one of the three that is both labelled and representative enough to calibrate a
-judge, because the sampling choice is under your control.
+**Expert annotation** is a domain expert rating a deliberately sampled set offline. It is the
+only one both labelled and representative enough to calibrate a judge, because the sampling
+choice is under your control.
 
 ### Choosing which cases to send a human
 
-You cannot label everything, so the choice of *what* to send a human is the highest-leverage
-decision in this step — "a random sample" is rarely the best answer.
+Labelling everything is impossible, so choosing *what* to send is the highest-leverage decision
+in this step. "A random sample" is rarely the best answer.
 
 | Strategy | What it gets you | What it costs you |
 |---|---|---|
 | Random | An unbiased estimate of overall quality | Mostly easy cases — little calibration signal |
 | **Judge disagreement** | The cases where your judges are least reliable | A biased sample — never use it alone to estimate overall quality |
-| Low judge score | Confirmation of known failures | Nothing about false negatives (things the judge wrongly passed) |
+| Low judge score | Confirmation of known failures | Nothing about false negatives |
 | Safety-adjacent | The cases most likely to hurt someone | A tiny, unrepresentative slice |
 
-A practical default is **disagreement-first with a random tail**: the cases multiple judges
-couldn't agree on, plus a smaller random sample so the labels still estimate overall agreement.
+A practical default is **disagreement-first with a random tail**: the cases multiple judges could
+not agree on, plus a smaller random sample so the labels still estimate overall agreement.
 
 > **Tag the two groups separately.** Estimating overall agreement from the disagreement group
-> alone understates the judge badly — you picked its worst cases on purpose.
+> alone understates the judge badly — those are its worst cases, picked on purpose.
 
-The label schema itself matters as much as any tool used to collect it: a human's verdict
-should be recorded on the **same scale** the judge uses (so the two are directly comparable
-without inventing a mapping), and the time a reviewer took to decide is worth recording too —
-it becomes the input to Section 6's rubber-stamp check.
+Record a human's verdict on the **same scale** the judge uses, so the two compare directly
+without inventing a mapping. Record how long the reviewer took to decide, too. That becomes the
+input to Section 8's rubber-stamp check.
 
 ---
 
-## 5. Calibration: agreement, and agreement above chance
+## 5. Measure Agreement Above Chance, Not Raw Agreement
 
 Once a judge score and a human score exist for the same cases, calibration asks how often they
-agree — and then the harder, more honest question: **how often would they have agreed purely
-by luck?**
+agree. Then it asks the harder question: **how often would they have agreed purely by luck?**
 
-|  | Human: good | Human: bad |
+| | Human: good | Human: bad |
 |---|---|---|
 | **Judge: good** | *a* | *b* |
 | **Judge: bad** | *c* | *d* |
 
-- **Observed agreement** = (*a* + *d*) / total
-- **Expected agreement by chance** = P(both happen to say "good") + P(both happen to say "bad")
-- **Cohen's kappa** = (observed − expected) / (1 − expected)
+Observed agreement is (*a* + *d*) / total. Expected agreement by chance is the probability both
+happen to say "good" plus the probability both happen to say "bad". **Cohen's kappa** is
+(observed − expected) / (1 − expected).
 
 > **Raw agreement flatters on a skewed dataset.** If 90% of replies are fine, a judge saying
 > "good" on every row agrees 90% of the time and has learned nothing.
 
-Kappa corrects for exactly this: that do-nothing judge scores **0**.
+Kappa corrects for exactly this. That do-nothing judge scores **0**.
 
-### When plain kappa still isn't enough: quadratic weighted kappa
+### When plain kappa is not enough
 
-On a 1–5 scale, plain Cohen's kappa treats *every* disagreement as equally bad — one point off
-scores the same as wildly off. That is the wrong penalty for an ordinal scale, where one point
-away is a near-miss and four points away is a different opinion.
+On a 1–5 scale, plain kappa treats every disagreement as equally bad. One point off scores the
+same as wildly off. That is the wrong penalty for an ordinal scale, where one point away is a
+near-miss and four points away is a different opinion.
 
 **Quadratic weighted kappa** penalises a disagreement by the *square* of its distance. Against
-the same ten human ratings, a judge **one point too generous** and a judge **uncorrelated with
-the human** score identically on the first two measures — 0.00 exact agreement, −0.25 plain
-kappa — and are worlds apart on the third: **+0.71** against **−0.82**.
+the same ten human ratings, a judge one point too generous and a judge uncorrelated with the
+human score identically on the first two measures — 0.00 exact agreement, −0.25 plain kappa —
+and are worlds apart on the third: **+0.71** against **−0.82**.
 
-> **Only the off-by-one judge is cheaply fixable.** Shift its scale; the uncorrelated one has
-> to be rebuilt.
+> **Only the off-by-one judge is cheaply fixable.** Shift its scale. The uncorrelated one has to
+> be rebuilt.
 
-### Using labels to *set* a threshold, instead of guessing one
+### Set the threshold from labels instead of guessing it
 
-A pass/fail cutoff — *"score ≥ 0.7 counts as passing"* — starts as a guess. Once human labels
-exist it needn't stay one: sweep
-candidate thresholds, compute kappa at each, and take the one that maximises agreement with the
-people whose judgement is meant to matter. A couple of hundred labels won't train anything, but
-they will tell you the pass mark is 0.62 rather than 0.70.
+A pass/fail cutoff starts as a guess. Once human labels exist it need not stay one. Sweep
+candidate thresholds, compute kappa at each, and take the one maximising agreement with the
+people whose judgement is meant to matter. A couple of hundred labels will not train anything.
+They will tell you the pass mark is 0.62 rather than 0.70.
 
 > **Maximising kappa treats a false pass and a false block as equally costly, and they rarely
-> are.** A false pass on a refund agent ships a broken release; a false block annoys an
-> engineer. Weight the two before committing to a threshold.
+> are.** A false pass on a refund agent ships a broken release. A false block annoys an engineer.
 
 ### Direction matters more than rate
 
-When a judge and a human disagree, *which way* they disagree is more informative than how
-often:
+When a judge and a human disagree, *which way* is more informative than how often. **Too
+generous** — judge passes, human fails — is the direction that ships bad releases. **Too harsh**
+— judge fails, human passes — blocks good releases and gets the judge switched off by a
+frustrated team.
 
-- **Too generous** (judge passes, human fails it) — this is the direction that ships bad
-  releases.
-- **Too harsh** (judge fails, human passes it) — this is the direction that blocks good
-  releases and gets the judge switched off by a frustrated team.
-
-A kappa that is high overall but collapses within one stratum — say, high in English and near
-zero in Hindi — is not "a judge with a Hindi problem" so much as it is a judge you simply
-cannot use for a per-stratum release gate (covered in Level 5) in that language at all.
+A kappa high overall but collapsing within one stratum, say near zero in Hindi, is not a judge
+with a Hindi problem. It is a judge that cannot be used for a per-stratum release gate in that
+language at all.
 
 ---
 
-## 6. Judge alignment: turning expert disagreement into a better judge
+## 6. Align the Judge on Expert Disagreement
 
-Calibration (Section 5) tells you *whether* a judge agrees with your experts. **Alignment** is the
-next step: using the pattern in where they disagreed to actually improve the judge.
+Calibration tells you *whether* a judge agrees with your experts. **Alignment** uses the pattern
+in where they disagreed to improve the judge.
 
-One specific technique for this, referenced in this repo as **MemAlign**, reads a set of
-traces that have both a judge score and an expert rating (with the expert's written comment,
-not just a number), distils the pattern in the disagreements into explicit written guidelines,
-and adds those guidelines into the judge's own instructions.
+The technique reads traces carrying both a judge score and an expert rating — with the expert's
+written comment, not just a number — distils the pattern in the disagreements into explicit
+written guidelines, and adds those guidelines to the judge's own instructions.
 
-Three details make or break this process:
+Three details make or break it. **The label name must exactly match the judge's name**, because
+that is how ratings pair with scores; get it wrong and alignment does not error, it finds no
+pairs and hands back the judge you started with. **Comments are not optional**, because
+alignment distils expert *reasoning* into guidelines, not expert *numbers* — a bare "2" says the
+judge was wrong, and the comment becomes the guideline. **Set the embedding model explicitly**,
+since alignment embeds every labelled trace and a default can silently send that traffic, and
+its bill, somewhere unintended.
 
-- **The label schema's name must exactly match the judge's name** — that is how ratings pair
-  with scores. Get it wrong and alignment doesn't error; it finds no pairs and hands back the
-  judge you started with.
-- **Comments are not optional.** Alignment distils expert *reasoning* into guidelines, not
-  expert *numbers*. A bare "2" says the judge was wrong; the comment becomes the guideline.
-- **Set the retrieval embedding model explicitly.** Alignment embeds every labelled trace, and
-  a default can silently send that traffic, and its bill, off-platform.
+### Read the result the right way up
 
-### The result you should expect — and how to read it correctly
+Here is the counter-intuitive part. **Alignment usually makes the judge's average score go down,
+and that is the success condition, not a regression.**
 
-Here is the counter-intuitive part, worth stating plainly because it's the single most common
-way this result gets misread: **alignment usually makes the judge's average score go down, and
-that is the success condition, not a regression.**
-
-The unaligned judge was grading against generic best practice and inflating scores. The
-aligned judge applies the stricter standard your own experts actually hold. The agent being
-graded has not changed at all between the two runs — only the measurement has become honest.
+The unaligned judge was grading against generic best practice and inflating scores. The aligned
+judge applies the stricter standard the experts actually hold. **The agent has not changed
+between the two runs. Only the measurement has become honest.**
 
 Mean score fell 1.4 points between the unaligned and aligned judge while *every* agreement
 measure rose: exact agreement 0.08 → 0.92, weighted kappa 0.29 → 0.96.
 
-> **Read that table from the bottom up.** The unaligned judge rated this agent 4.3 out of 5
-> while domain experts rated the same replies 2.8 — so every green light in an earlier gate was
-> given on a number wrong by a point and a half.
+> **Read that from the bottom up.** The unaligned judge rated this agent 4.3 out of 5 while
+> domain experts rated the same replies 2.8 — so every green light in an earlier gate was given
+> on a number wrong by a point and a half.
 
-That is the argument for this whole level: alignment does not improve the agent. It makes
-every *other* number produced about that agent mean something.
+That is the argument for the whole level. Alignment does not improve the agent. It makes every
+*other* number produced about that agent mean something.
 
 An aligned judge replaces the unaligned one everywhere: the release gate (Level 6), the sampled
 production monitor (Level 7), and the reward signal for prompt optimisation.
@@ -465,33 +405,32 @@ production monitor (Level 7), and the reward signal for prompt optimisation.
 
 ---
 
-## 7. Blinded preference testing, and why it needs a second rater
+## 7. Blind the Preference Test, and Use Two Raters
 
-Everything in Sections 5 and 6 scores one reply at a time. A **preference test** asks a different
-kind of question: shown two replies to the same request, which one do people actually pick?
-It is the human counterpart to the pairwise judge covered in Section 3, and it is the thing a
-production canary comparison is usually standing in for.
+Sections 5 and 6 score one reply at a time. A **preference test** asks a different question:
+shown two replies to the same request, which one do people actually pick? It is the human
+counterpart to the pairwise judge, and it is what a production canary comparison usually stands
+in for.
 
-Three rules make a preference test worth running, and dropping any single one of them quietly
-invalidates the result:
+Three rules make a preference test worth running. Dropping any one quietly invalidates the
+result.
 
 | Rule | Why it matters | What breaks without it |
 |---|---|---|
 | **Blind the arms** | The rater must not know which reply is the new build | People favour whatever they were told is "the improvement" |
-| **Randomise the side** | Left and right must be coin-flipped per case, not fixed | Raters learn "the new one is always on the right" and start guessing the pattern instead of judging |
-| **Use two raters** | One rater's taste is not a measurement | Agreement becomes unmeasurable — and Cohen's kappa needs two raters by definition |
+| **Randomise the side** | Left and right coin-flipped per case, not fixed | Raters learn "the new one is always on the right" and guess the pattern instead of judging |
+| **Use two raters** | One rater's taste is not a measurement | Agreement becomes unmeasurable — kappa needs two raters by definition |
 
-Section 5's kappa measures agreement **between a judge and a human**. The same statistic
-**between two humans** asks whether the rubric is *teachable* at all.
+Kappa between a judge and a human measures calibration. The same statistic **between two humans**
+asks whether the rubric is *teachable* at all.
 
 > **A judge disagreeing with a human is a judge problem. Two humans disagreeing with each other
 > is a rubric problem** — no amount of judge tuning fixes it, because there is no single target
 > to tune toward.
 
-A blinding check is a cheap sanity test worth running alongside any preference panel: tally how
-often the winning reply landed on the left side of the screen. It should come out close to 50%;
-a number far from that means the randomisation itself is broken, independent of anything about
-quality.
+A blinding check is a cheap sanity test. Tally how often the winning reply landed on the left of
+the screen. It should come out near 50%. A number far from that means the randomisation itself
+is broken, independent of anything about quality.
 
 > **A small panel's kappa swings on which cases happened to be sampled.** The same two raters,
 > identically reliable, can produce kappa anywhere from roughly 0.15 to 0.60 across different
@@ -499,16 +438,15 @@ quality.
 
 ---
 
-## 8. The rubber-stamp signal: evaluating the human, not just the record
+## 8. Check the Approver, Not Just the Approval
 
-A runtime approval step is easy to check for *existence* — does every refund carry an approval
-ID? — and that check passes completely while the approval step does nothing at all.
+A runtime approval step is easy to check for *existence*. Does every refund carry an approval ID?
+**That check passes completely while the approval step does nothing at all.**
 
 > **It is the part of an evaluation system most likely to be quietly broken and least likely to
 > be checked.**
 
-Three signals, all computable from an approvals log, tell the difference between a real
-control and a rubber stamp:
+Three signals, all computable from an approvals log, separate a real control from a rubber stamp.
 
 | Signal | Healthy | Broken |
 |---|---|---|
@@ -516,112 +454,126 @@ control and a rubber stamp:
 | Median decision time | Long enough to actually read the case | A second or two |
 | Queue depth / age | Stable | Growing, or items quietly aging out unresolved |
 
-> **A 99.8% approval rate with a 1.2-second median decision time is not a safety control — it
-> is a latency cost with a compliance story attached.**
+> **A 99.8% approval rate with a 1.2-second median decision time is not a safety control — it is
+> a latency cost with a compliance story attached.**
 
-A genuine approver (≈86% approval, decisions in tens of seconds to minutes) and a
-rubber-stamping one (≈99.9%, one to two seconds) both pass a check that verifies "every refund
-has an approval ID attached" — because both do. A crude two-threshold rule catches it: approval
-rate above ~98% **and** median decision time under ~5 seconds. The failure is not subtle, and a
-subtler detector would only invite an argument about the cutoff.
+A genuine approver (≈86% approval, decisions in tens of seconds to minutes) and a rubber-stamping
+one (≈99.9%, one to two seconds) both pass a check verifying that every refund has an approval ID
+attached, because both do. A crude two-threshold rule catches it: approval rate above ~98% **and**
+median decision time under ~5 seconds. The failure is not subtle, and a subtler detector would
+only invite an argument about the cutoff.
 
-**Judge drift** is the related danger. A judge drifting toward passing everything barely moves
-raw agreement — most replies really were fine — while kappa collapses toward zero, because a
+**Judge drift is the related danger.** A judge drifting toward passing everything barely moves
+raw agreement, because most replies really were fine. Kappa collapses toward zero, because a
 judge with one opinion carries no information.
 
 > **Kappa, not raw agreement, belongs on a production dashboard.**
 
 ---
 
-## Question-bank corner
+## 9. Rehearse the Judge Questions
 
-This section deliberately does **not** re-draw the judge-comparison table from Section 1, the
-bias-testing table from Section 3, or the three-kinds-of-feedback table from Section 4 — see those sections
-for the underlying mechanics. What follows is how those same ideas get asked, and answered, in
-an interview setting (Question Bank Part 4, Q14–Q17).
+**"You're using an LLM to grade another LLM. Why should anyone believe the number?"**
 
-- **Q14 — "You're using an LLM to grade another LLM. Why should anyone believe the number?"**
-  **They shouldn't, until it has been checked against a human and *agreement* — not average
-  score — has been measured.** Expect the score to drop, and say so before it happens.
+They shouldn't, until it has been checked against a human and *agreement* — not average score —
+has been measured. Expect the score to drop, and say so before it happens.
 
-- **Q15 — "Your judge and your domain expert disagree on 20% of cases. What do you do?"**
-  **Find out *which* 20% before touching anything.** Scattered across the range is an unreliable
-  judge; bunched at the threshold is borderline cases and matters far less than the headline.
-  Then check whether your experts agree with *each other* — if two disagree 15% of the time,
-  20% is near the human ceiling and the work is deciding an open policy question, not tuning a
-  model.
+**"Your judge and your domain expert disagree on 20% of cases. What do you do?"**
 
-- **Q16 — "When would you not use an LLM judge?"** **Four situations:** code can decide the
-  question outright (Section 2); the judge is what an optimiser is tuned against, so it cannot
-  certify its own result; the humans haven't agreed the standard yet (Section 7); or volume is
-  high enough that the judged-call bill exceeds the cost of serving the traffic.
+Find out *which* 20% before touching anything. Scattered across the range means an unreliable
+judge. Bunched at the threshold means borderline cases, and matters far less than the headline.
+Then check whether the experts agree with *each other*. If two disagree 15% of the time, 20% is
+near the human ceiling, and the work is deciding an open policy question rather than tuning a
+model.
 
-- **Q17 — "The judge scores 0.9 and the customer says it's terrible. Who's wrong?"** **Usually
-  neither — get three examples the customer calls bad, run them, read the traces.** All four
-  likely explanations (the metric doesn't cover what they care about; the aggregate hides their
-  slice; the judge was never calibrated; the golden set never had their kind of question) have
-  the same fix. Either the metric scores them badly too, or it scores them well and you have
-  found a dimension nobody measured. Both are progress; arguing from the dashboard is not.
+**"When would you not use an LLM judge?"**
+
+Four situations. Code can decide the question outright. The judge is what an optimiser is tuned
+against, so it cannot certify its own result. The humans have not agreed the standard yet.
+Or volume is high enough that the judged-call bill exceeds the cost of serving the traffic.
+
+**"The judge scores 0.9 and the customer says it's terrible. Who's wrong?"**
+
+Usually neither. Get three examples the customer calls bad, run them, read the traces. All four
+likely explanations — the metric does not cover what they care about, the aggregate hides their
+slice, the judge was never calibrated, the golden set never had their kind of question — have the
+same fix. Either the metric scores them badly too, or it scores them well and a dimension nobody
+measured has been found. Both are progress. Arguing from the dashboard is not.
+
+---
+
+## Key Takeaways
+
+- A judge is an instrument, not an oracle: uncalibrated it detects that something changed, and
+  cannot assert that either version is good.
+- Three judge shapes trade nuance against reproducibility, and only the reference-free kind
+  survives deployment.
+- Code runs on everything, a judge on a slice, a human on a deliberately chosen sample — and a
+  tool-call check must fail in both directions.
+- Position, verbosity and same-model bias are each testable, and clearing one says nothing about
+  the others.
+- Only expert annotation can calibrate a judge; thumbs are a signal and a runtime approval is a
+  decision.
+- Kappa, not raw agreement, is the measure — a do-nothing judge scores 90% agreement and zero
+  kappa.
+- Alignment lowers the average score and raises every agreement measure, because the measurement
+  became honest rather than the agent getting worse.
+- A preference test needs blinding, side randomisation and two raters; two humans disagreeing is
+  a rubric problem, not a judge problem.
+- An approval step that never rejects is a latency cost with a compliance story attached.
+
+## Check Yourself
+
+1. A judge has never been compared to a human. What is it still good for? **Detecting that
+   something changed. It cannot yet assert either version is good.**
+2. Your pairwise judge gives the same verdict in both orders. Is it trustworthy? **Not yet. If
+   the worse answer is also shorter, "better won" and "longer won" are the same result. Pad the
+   worse reply and re-judge.**
+3. A tool-call scorer passes an agent that calls every available tool on every request. What is
+   missing? **The unexpected-call direction. Coverage-only checks never see a privacy problem.**
+4. 90% of replies are fine and your judge agrees with humans 90% of the time. How good is it?
+   **Unknown — a judge saying "good" every time scores exactly that. Kappa corrects for it and
+   gives that judge 0.**
+5. Two judges score the same replies differently but rank the builds identically. Is that a
+   problem? **No. High rank correlation with a mean offset still gates releases correctly. Low
+   rank correlation is the serious case.**
+6. Alignment drops the mean judge score by 1.4 points. Did the agent get worse? **No. The agent
+   is unchanged; the measurement became honest. Every agreement measure rose.**
+7. Your two human raters disagree 15% of the time. What does that tell you about your judge
+   target? **There isn't a single one. That is a rubric problem, and no judge tuning fixes it.**
+8. Every refund carries an approval ID, approval rate is 99.8%, median decision time 1.2
+   seconds. What do you have? **A rubber stamp. The existence check passes completely while the
+   control does nothing.**
 
 ---
 
 ## References
 
 All content above was drawn only from material already in this repository. Nothing here was
-invented, and no external source was consulted.
+invented, and no external source was consulted. This page is the restyled edition of
+`org/04-judges-and-the-humans-who-validate-them.md`; its content is the same, with library class
+names replaced by what each judge shape does.
 
 **Notebook:**
 
-- `courses/03-agentic-eval-harness/08_building_custom_judges.ipynb` — the three judge shapes
-  (`GEval`, `DAGMetric`, RAGAS rubrics), reference-based vs. reference-free scoring and the
-  reference gap, the position-bias probe, the length audit and length-controlled verbosity
-  probe, and the same-model-bias rank-correlation test.
-- `courses/03-agentic-eval-harness/09_human_feedback_and_calibration.ipynb` — the three kinds
-  of human feedback, the disagreement-first sampling strategy, Cohen's kappa derived by hand,
-  using labels to set a threshold, blinded preference testing and inter-rater kappa, and the
-  rubber-stamp detector for the approval gate.
-- `courses/02-databricks-mlflow-evals/03_custom_scorers_and_judges.ipynb` — the cost hierarchy
-  of scorers, the outputs-shape trap, the tool-call-correctness scorer and why an unexpected
-  call must count as a failure, deterministic-plus-judge coverage for account-leak detection,
-  numeric scorers and their six valid aggregations, class-based scorers, the categorical
-  (not just numeric) judge output and why a correct refusal must count as fully resolved, the
-  low-level judges API for cheaply testing one guideline before a full run, and trace-based
-  `make_judge`.
-- `courses/02-databricks-mlflow-evals/07_judge_alignment_memalign.ipynb` (plus its
-  `alignment.py` module, read directly for the exact agreement/kappa/weighted-kappa figures
-  quoted in Section 5) — why average score is the wrong metric for judge quality, the three agreement
-  measures compared side by side, MemAlign alignment mechanics, and the before/after alignment
-  result.
+- `courses/03-agentic-eval-harness/08_building_custom_judges.ipynb` — the three judge shapes, the
+  reference-based/reference-free split and the reference gap, categorical judges, and cheap
+  rubric iteration.
+- `courses/02-databricks-mlflow-evals/` — the custom-scorer hierarchy, the tool-call scorer's
+  two failure directions, the deterministic-plus-judged pairing, aggregation choices, judge
+  alignment, and the rubber-stamp signals.
 
 **Docs:**
 
-- `docs/concepts/rag-agent-tool-evaluation.md`, §0.3 — the LLM-as-judge failure modes list
-  (judge capability, non-determinism, rubric sensitivity, cost, "nobody validates the
-  validator" and the change-vs-quality distinction, agreement vs. average, fluent-but-wrong,
-  score direction) used throughout Section 1. §0.4 (the cost ladder) was read for context but is not
-  quoted directly, since the notebook-mapping for this level cites only §0.3.
-- `docs/guide-audits/openai-eval-guide-tutorial.md`, §4 (§4.1–§4.6) — the code-vs-judge-vs-human
-  decision flowchart adapted into this file's Mermaid diagram in Section 2, the accompanying
-  cost/reproducibility/coverage table also in Section 2, the three-bias framing and wine-judge analogy
-  in Section 3, the 12-of-12 / 25.2-vs-18.7-words verbosity figures, and the "humans are the
-  calibration source, not the throughput" framing plus the blinded-preference-testing rules in
-  Sections 4 and 7.
-- `docs/interview-prep/QUESTION_BANK.md`, Part 4 (Q14–Q17) — used for the Question-bank corner
-  above; this is the exact range the roadmap's own "Rehearsal" pointer names for Level 4, so no
-  other part of that file was drawn on for this level.
-- `docs/study-guide/evaluation-roadmap.md` — used to scope this level's topic list and its
-  "you are done when you can" checks, not quoted directly (that checklist already lives in this
-  level's own `README.md` and is deliberately not duplicated here).
-- `docs/study-guide/evaluation-topic-notebook-mapping.md` — used for the source list above and
-  each source's cost tag, not quoted directly.
+- `docs/concepts/rag-agent-tool-evaluation.md`, §0.3 — the judge failure modes used in Section 1.
+- `docs/concepts/databricks-mlflow-evals.md` — scorer cost hierarchy, bias tests, the
+  human-feedback taxonomy, kappa and weighted kappa, alignment, and preference testing.
+- `docs/interview-prep/QUESTION_BANK.md`, Part 4 (Q14–Q17) — the four questions reproduced in
+  full in Section 9 rather than pointed at.
+- `docs/study-guide/evaluation-roadmap.md` — Level 4's topic list and goal statement.
+- `docs/study-guide/evaluation-topic-notebook-mapping.md` — Level 4's resource table.
 
-**Limitations.** This file was written by reading the repository's own material, not by
-running any notebook or calling any API — no cost was incurred producing it, consistent with
-this project's rule against executing anything that spends money without being asked. The
-figures quoted for Cohen's kappa, quadratic weighted kappa, and exact agreement in Section 5 were
-independently recomputed from the `off_by_one` / `uncorrelated` example already present in
-`courses/02-databricks-mlflow-evals/alignment.py`, using that same module's own functions —
-this is arithmetic on numbers already fixed in the repository, not a new judge call or any
-paid API usage. This file does not independently verify any third-party tool's own
-documentation (RAGAS, DeepEval, MLflow, MemAlign); descriptions of those tools are this
-repository's own characterization, not a review of the vendors' docs.
+**Limitations.** This file was written by reading the repository's own material, not by running
+any notebook or calling any API — no cost was incurred producing it, consistent with this
+project's rule against executing anything that spends money without being asked. It does not
+independently verify any vendor's documentation.

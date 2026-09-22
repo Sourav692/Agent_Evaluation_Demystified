@@ -1,94 +1,75 @@
-# Level 6 Explainer: The Release Gate and CI
+# The Release Gate and CI
 
-*A plain-language walkthrough of everything Level 6 covers, pulled together from the release-
-gate notebook, the CI script and workflow, two Databricks prompt-lifecycle notebooks, the
-concept page, and the interview question bank — with nothing repeated twice.*
+*Gate against what is live, not against a fixed bar, because a system can lose seven points
+without any single release ever failing.*
 
-> **Who this is for.** You don't need to know MLflow, DeepEval, GitHub Actions, or GEPA to
-> follow this. Every technical term is defined in plain words the first time it shows up.
+◷ 22 min · Level 6 · Every earlier level produced a number. This one asks the question that
+comes straight after: does this number mean the build is safe to put in front of real users?
 
----
+Answering it well separates *"we compute a lot of metrics"* from *"we control what ships"*. The
+running example is the refund-issuing support agent from earlier levels, plus a telecom support
+prompt for the prompt-specific parts.
 
-## Why this level exists
-
-Every earlier level in this roadmap produced a **number**: a faithfulness score, a resolution
-rate, a per-stratum breakdown. This level asks the question that comes right after you have
-the number: *does this number mean the build is safe to put in front of real users?*
-
-Answering it well is what separates *"we compute a lot of metrics"* from *"we control what
-ships."* The running example is the refund-issuing support agent from earlier levels, plus
-TelcoAssist for the prompt-specific parts.
+> **Who this is for.** No library or CI-platform knowledge is assumed. Every technical term is
+> defined in plain words the first time it appears.
 
 ---
 
-## 1. A gate is not another metric
+## 1. Separate the Gate From the Metric
 
-This is the distinction the whole level rests on, so it comes first.
+This distinction carries the whole level, so it comes first.
 
-An **evaluation metric** is a measurement: 84% resolved, $0.021 per conversation, faithfulness
-0.87. It's descriptive — it tells you where you are, and a person still has to look at it and
-decide, subjectively, whether "84%, down from 85% yesterday" is fine to ship.
+An **evaluation metric** is a measurement. 84% resolved. $0.021 per conversation. Faithfulness
+0.87. It is descriptive. It says where things are, and a person still decides whether "84%,
+down from 85% yesterday" is fine to ship.
 
-A **release gate** (also called a launch gate) sits on top of those same numbers and answers a
-completely different question: *does this specific number, right now, mean the build is safe
-to expose to real users?* — and it answers that question the same way every single time,
-without anyone eyeballing a dashboard.
+A **release gate** sits on top of those same numbers and answers a different question. Does this
+specific number, right now, mean the build is safe to expose to real users? **It answers the same
+way every time, without anyone eyeballing a dashboard.**
 
 | | Evaluation metric | Release gate |
 | --- | --- | --- |
-| **What it produces** | A number | A decision: `allowed` or blocked, plus reasons |
+| **What it produces** | A number | A decision: allowed or blocked, plus reasons |
 | **Reported as** | An aggregate across the whole test set | Broken into strata — the worst segment, not just the mean |
 | **Character** | Descriptive — tells you where you are | Prescriptive — a failing check has a hard consequence |
 | **Who acts on it** | A person, using judgment | Nothing — it's wired into CI/CD and fires automatically |
 | **When it runs** | Whenever someone remembers to | On every candidate build, against frozen, versioned fixtures |
-| **Compared against** | Nothing built in — a snapshot in isolation | The baseline currently live — "regressed vs. what's live," never "good in a vacuum" |
+| **Compared against** | Nothing built in — a snapshot in isolation | The baseline currently live — "regressed vs. what's live", never "good in a vacuum" |
 
-Put differently: your eval suite gives you *signal*. The gate gives that signal *teeth*. Most
-teams stop at the first half — they compute a metric, and a human glances at a dashboard
-before deploying. That works right up until the aggregate looks fine and something underneath
-it isn't (Section 2 below is exactly that case) — because nothing was *enforcing* a rule on
+An eval suite gives *signal*. The gate gives that signal *teeth*. Most teams stop at the first
+half. They compute a metric and glance at a dashboard before deploying. That works right until
+the aggregate looks fine and something underneath it is not. Nothing was enforcing a rule on
 top of the number.
 
-Three things turn a metric into a gate:
+Three things turn a metric into a gate. **A threshold with a consequence**, not just a number:
+"success rate 84%" is a metric, and "block if success rate < 85%, or if any tenant drops more
+than 3 points" is a gate. **Stratification**, computing every metric per segment and gating on
+the worst rather than the mean. And **wiring rather than reporting** — the output has to be read
+by something that can refuse to deploy.
 
-1. **A threshold with a consequence**, not just a number. "Success rate: 84%" is a metric.
-   "Block if success rate < 85%, or if any tenant drops more than 3 points" is a gate — the
-   same computation, plus a rule that actually stops the merge.
-2. **Stratification** — computing every metric per segment (per language, per intent, per
-   tenant), not only in aggregate, and gating on the *worst* segment rather than the mean.
-3. **Wiring, not reporting** — the output has to be read by something that can refuse to
-   deploy (a CI check, a merge block), not just written to a dashboard someone might check.
+A gate is deliberately narrow. Catching everything an agent could do wrong is Level 7's job.
+Its remit is what a frozen offline suite can detect *before any real user is exposed*. That
+means known policy violations, quality regressions against what is live, silent harm to one
+segment, and cost blowups.
 
-A gate is deliberately narrow — catching everything an agent could do wrong is Level 7's job.
-Its remit is what a frozen offline suite can detect *before any real user is exposed*: known
-policy violations, quality regressions against what's live, silent harm to one segment, and
-cost blowups.
+### Why agentic systems need this specifically
 
-### Why agentic systems specifically need this
+In a single-turn feature, a quality regression is usually visible in the aggregate. Three
+properties of an agentic system make an aggregate actively misleading instead.
 
-In a single-turn LLM feature, a quality regression is usually visible directly in the
-aggregate metric. Three properties of an *agentic* system make an aggregate metric actively
-misleading instead, which is why this level matters more here than it would for a simple
-Q&A bot:
-
-- **Trajectories, not answers.** An agent's output is a sequence of tool calls and decisions,
-  not one response — so "quality" has to include whether it called the right tools, in the
-  right order, and refused when it should have, not just whether the final text reads well.
-- **Irreversible side effects.** An agent with write access — filing a ticket, issuing a
-  refund, editing a record — can do real damage on a single bad run. A policy violation here
-  isn't a UX complaint, it's an incident, which is exactly why Section 2's safety check is an
-  absolute veto rather than a weighted input.
-- **Segment-hiding aggregates.** A change can raise the overall success rate while quietly
-  collapsing one tenant, one intent class, or one language — precisely the case Section 2
-  works through in detail.
+**Trajectories, not answers.** An agent's output is a sequence of tool calls and decisions, so
+quality has to include whether it called the right tools, in the right order, and refused when
+it should have. **Irreversible side effects.** An agent with write access can do real damage on
+a single bad run, so a policy violation is an incident rather than a UX complaint. **Segment-
+hiding aggregates.** A change can raise overall success while quietly collapsing one tenant,
+intent class or language.
 
 ---
 
-## 2. The four checks, in order
+## 2. Run Four Checks, and Block on Any One
 
-A release gate for an agentic system runs several independent checks and blocks if **any one**
-of them fails — a single "quality went up" signal is exactly what lets dangerous regressions
-through, which is the whole reason a composite gate exists.
+A release gate runs several independent checks and blocks if **any one** fails. A single
+"quality went up" signal is exactly what lets dangerous regressions through.
 
 ```mermaid
 flowchart TD
@@ -112,47 +93,44 @@ flowchart TD
     style SHIP fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
 ```
 
-A real gate implementation runs every check and collects *every* failure — an engineer who
-fixes one problem and immediately hits the next on the rerun stops trusting the gate. The
-diagram above shows the logical order of severity (safety is checked first because nothing can
-buy it back), not "stop at the first failure."
+A real gate runs every check and collects *every* failure. An engineer who fixes one problem
+and hits the next on the rerun stops trusting the gate. The diagram shows the order of
+severity. It is not "stop at the first failure".
 
 | # | Check | Compares against | Blocks on its own? |
 | --- | --- | --- | --- |
-| 1 | **Safety** | An absolute: zero violations allowed | **Yes, always — an absolute veto, not a weighted input** |
-| 2 | **Aggregate floor** | The baseline currently live, paired — not a fixed target in isolation | Yes, if the drop exceeds the tolerance |
-| 3 | **Per-stratum floor** | A floor set per segment, only where that segment has enough cases to gate on | **Yes — this is the check the whole level exists to justify** |
+| 1 | **Safety** | An absolute: zero violations allowed | **Yes, always — a veto, not a weighted input** |
+| 2 | **Aggregate floor** | The baseline currently live, paired — not a fixed target | Yes, if the drop exceeds the tolerance |
+| 3 | **Per-stratum floor** | A floor per segment, only where that segment has enough cases | **Yes — the check this level exists to justify** |
 | 4 | **Cost ceiling** | A dollar limit per *resolved* conversation | Yes |
 
-**Check 1 — safety is a veto, not a weighted input.** Checked first, and no quality improvement
-trades against it. A candidate with resolution 0.97, faithfulness 0.96 and every stratum at
-0.95 — the best numbers in the material — is blocked outright by one unapproved refund.
+**Safety is a veto, not a weighted input.** No quality improvement trades against it. A candidate
+with resolution 0.97, faithfulness 0.96 and every stratum at 0.95 — the best numbers in the
+material — is blocked outright by one unapproved refund.
 
 > **Blocked by one row in a database despite record-high quality everywhere else.**
 
-**Check 2 — paired against a baseline, not an absolute floor.** "Faithfulness ≥ 0.85" goes
-stale the moment the underlying corpus changes; "no worse than the last release by more than
-0.03" does not. A concrete threshold from the source material: `max_aggregate_drop = 0.03`
-across `resolution_rate` and `faithfulness`.
+**The aggregate check is paired against a baseline, not an absolute floor.** "Faithfulness ≥
+0.85" goes stale the moment the corpus changes. "No worse than the last release by more than
+0.03" does not. One is a fixed bar. The other is a comparison.
 
-**Check 3 — the reason this course exists.** The aggregate can rise while one segment
-collapses, and that segment is 100% of some customers' experience. Overall resolution rises 4
-points while the Hindi stratum collapses to 0.35, against strata otherwise near 0.92. Check 2 passes and would have
-shipped it; Check 3 blocks, because each stratum has its own floor (`en: 0.75, es: 0.70,
-hi: 0.70` for language; `billing: 0.75, account: 0.75, knowledge: 0.70, escalation: 0.80,
-multi_intent: 0.70` for intent).
+**The per-stratum check is the reason this level exists.** The aggregate can rise while one
+segment collapses, and that segment is 100% of some customers' experience. Overall resolution
+rises 4 points while the Hindi stratum collapses to 0.35, against strata otherwise near 0.92.
+Check 2 passes and would have shipped it. Check 3 blocks, because each stratum carries its own
+floor — `en: 0.75, es: 0.70, hi: 0.70` by language, `billing: 0.75, account: 0.75, knowledge:
+0.70, escalation: 0.80, multi_intent: 0.70` by intent.
 
-> **Small strata are reported, never gated**, below `min_cases_to_gate = 8`. In a stratum of
-> six, one case is worth 16.7 points — a floor there blocks releases at random, which trains
-> people to override the gate.
+> **Small strata are reported, never gated**, below a minimum of 8 cases. In a stratum of six,
+> one case is worth 16.7 points — a floor there blocks releases at random, which trains people
+> to override the gate.
 
-**Check 4 — cost per *resolved* conversation, not per conversation.** The denominator matters:
-per-conversation cost rewards an agent that gives up early. A "verbose_prompt" candidate leaves
-every quality number untouched while the bill triples, $0.012 to $0.058 per resolved
-conversation against a $0.02 ceiling. Check 4 alone catches it.
+**Cost is measured per *resolved* conversation, not per conversation.** The denominator
+matters. Per-conversation cost rewards an agent that gives up early. A verbose-prompt candidate
+leaves every quality number untouched while the bill triples, $0.012 to $0.058 per resolved
+conversation against a $0.02 ceiling. Only check 4 catches it.
 
 **Each fault is caught by exactly one check, and the other three report everything as fine.**
-Laid out side by side:
 
 | Scenario | Safety | Aggregate | Per-stratum | Cost | Verdict |
 | --- | --- | --- | --- | --- | --- |
@@ -161,19 +139,18 @@ Laid out side by side:
 | 3 — one unapproved refund, every other number record-high | 🚫 BLOCK | pass | pass | pass | ❌ block |
 | 4 — cost triples, zero quality change | pass | pass | pass | 🚫 BLOCK | ❌ block |
 
-A single composite "quality score" would have missed all three failures in rows 2–4. This is
-the practical argument for a *composite* gate over any one blended number.
+A single composite "quality score" would have missed all three failures in rows 2–4. That is the
+practical argument for a composite gate over any one blended number.
 
 ---
 
-## 3. Why a threshold alone is not enough — the erosion problem
+## 3. Check Both the Threshold and the Regression
 
-Section 2 showed check 2 (aggregate) and check 3 (per-stratum) as separate checks. There is a
-second, independent reason a gate needs more than "is the score above the bar": a
+There is a second, independent reason a gate needs more than "is the score above the bar". **A
 threshold-only gate lets a system decay release by release, with no single release ever
-failing.
+failing.**
 
-Concretely: set the ship rule as "score ≥ 0.90."
+Set the ship rule as "score ≥ 0.90".
 
 ```
 v1   0.98   ship
@@ -182,122 +159,108 @@ v3   0.92   ship
 v4   0.91   ship          ← the bar was 0.90 the whole time
 ```
 
-Every release passed, nothing failed a rule, and the system lost 7 points end to end with no
+Every release passed. Nothing failed a rule. The system lost 7 points end to end with no
 individual release to point at.
 
-> **A school pass mark of 90: a pupil scoring 98, 95, 92, 91 passes every term.** The report
-> card was never wrong — it just never compared this term to last term.
+> **A school pass mark of 90: a pupil scoring 98, 95, 92, 91 passes every term.** The report card
+> was never wrong. It just never compared this term to last term.
 
-The fix is two conditions, checked together, and a candidate must clear **both**:
-
-1. **Absolute** — every blocking check still clears its own threshold (Section 2).
-2. **No regression** — no blocking metric has dropped, beyond its tolerance, versus the
-   version currently serving production traffic.
+The fix is two conditions, checked together, and a candidate must clear both. **Absolute** —
+every blocking check still clears its own threshold. **No regression** — no blocking metric has
+dropped, beyond its tolerance, versus the version currently serving production traffic.
 
 | Checking only... | ...permits |
 | --- | --- |
 | **The absolute threshold** | The erosion above: four passes, steadily worse, nobody to blame |
-| **No regression vs. what's live** | A candidate that's an improvement on an already-bad baseline — it ships while still being bad |
+| **No regression vs. what's live** | A candidate that improves on an already-bad baseline — it ships while still being bad |
 
-Neither condition alone is sufficient; both together close each other's gap.
+Neither condition alone is sufficient. Together they close each other's gap.
 
 ---
 
-## 4. Tolerance has to be set per metric type
+## 4. Set Tolerance by Metric Type
 
-"No regression beyond its tolerance" raises an immediate question: how much movement actually
-counts as a regression? The answer depends on *why* the number could move at all, and that
-splits cleanly into two kinds of check.
+How much movement counts as a regression? It depends on *why* the number could move at all, and
+that splits cleanly in two.
 
-| Metric kind | Behavior on a re-run with nothing changed | Tolerance |
+| Metric kind | Behaviour on a re-run with nothing changed | Tolerance |
 | --- | --- | --- |
-| **Deterministic** (e.g. a schema check, a regex, an exact-match tool argument) | Identical every time — there is no noise to absorb | **0.00** — any movement is real behavior change |
-| **Judged** (an LLM scores the output against a rubric) | Can score the exact same input differently on two runs | **A small budget** (0.02 in the source material) |
+| **Deterministic** (a schema check, a pattern match, an exact-match tool argument) | Identical every time — there is no noise to absorb | **0.00** — any movement is real behaviour change |
+| **Judged** (a model scores the output against a rubric) | Can score the same input differently on two runs | **A small budget** (0.02 in the source material) |
 
 One blanket tolerance fails in one direction or the other. **Too tight**, and a judged metric's
 ordinary wobble blocks releases for no reason — and a gate people override is worse than none,
 keeping the ceremony and losing the protection. **Too loose**, and a real regression in a
 deterministic check, which has no excuse to move, slides through.
 
-*Judged metrics are non-deterministic — how do you gate on them without a flaky pipeline?* Four
-things together:
+Gating on judged metrics without a flaky pipeline takes four things together. Fix the judge model
+and version, since upgrading the judge is a change needing its own review. Set temperature to
+zero where the model supports it. Size the tolerance band from a measured run-to-run variance
+study rather than a guess. And keep a rerun policy for cases landing on the boundary.
 
-- A fixed judge model and version — upgrading the judge is a change needing its own review.
-- Temperature zero where the model supports it.
-- A tolerance band sized from a measured run-to-run variance study, not a guess.
-- A rerun policy for cases landing on the boundary.
-
-> **And never gate a release on a single row.**
+> **Never gate a release on a single row.**
 
 ---
 
-## 5. Free CI gate vs. paid evaluation job
+## 5. Decide Free on Every Push, Score on Demand
 
-The gate has to run somewhere, and where it runs is itself a design decision with a cost
-consequence. The source material's CI workflow splits the work into two separate jobs:
+The gate has to run somewhere, and where is itself a design decision with a cost consequence.
+The CI workflow splits the work into two jobs.
 
 | Job | Trigger | Cost | Can it block a merge? |
 | --- | --- | --- | --- |
-| **`evaluate`** | Manual dispatch only, never automatic on a push | **Paid** — runs the actual LLM judges | No |
-| **`gate`** | Every push and pull request that touches the relevant course folder | Free, standard-library only | **Yes** |
+| **Scoring** | Manual dispatch only, never automatic on a push | **Paid** — runs the actual judges | No |
+| **Gating** | Every push and pull request touching the relevant folder | Free, standard-library only | **Yes** |
 
-The `gate` job installs nothing beyond a bare interpreter, and `apply_gate.py` is
-standard-library only by design — the ship/no-ship decision cannot change because a dependency
-resolved differently today. It computes and judges nothing: it reads a report a separate scoring
-step produced and applies thresholds.
+The gating job installs nothing beyond a bare interpreter. Its script is standard-library only
+by design. **The ship/no-ship decision cannot change because a dependency resolved
+differently today.** It computes and judges nothing. It reads a report a separate scoring step
+produced and applies thresholds.
 
 > **A cheap deterministic decision layer reading an expensive non-deterministic scoring layer**
 > is what lets the decision run on every push for free.
 
-**Why the paid job is deliberately not on the merge path.** Judge calls cost money, are slow,
-and are non-deterministic. Putting them on every push means every contributor pays for every
-typo fix, and a single flaky judge call can block completely unrelated work. The design
-principle: *score on demand, decide on every push.* Nobody pays for a judge model just to
-merge a docs typo.
+**The paid job is deliberately off the merge path.** Judge calls cost money, are slow, and are
+non-deterministic. Putting them on every push means every contributor pays for every typo fix,
+and one flaky judge call can block unrelated work. *Score on demand, decide on every push.*
 
-### The artifact problem: a gate that has nothing to read looks exactly like a gate that passed
+### A gate with nothing to read looks exactly like a gate that passed
 
-There is a sharp trap hiding in this split, and it is the same failure named directly in the
-question bank's "how do you keep a green dashboard from being wrong" material (Section 8
-below expands the rest of that list): **a gate with no input to check and a gate that checked
-everything and found it fine produce the identical result — exit code 0, "release allowed."**
+There is a sharp trap hiding in this split. **A gate with no input to check and a gate that
+checked everything and found it fine produce the identical result — exit code 0, "release
+allowed".**
 
-On a fresh checkout the report is a run artifact, correctly excluded from version control, so
-the gate script finds nothing, prints "nothing to gate," and exits 0 — the same code a passing
+On a fresh checkout the report is a run artifact, correctly excluded from version control. The
+gate script finds nothing. It prints "nothing to gate" and exits 0 — the same code a passing
 run produces.
 
 > **The gate passes because it has nothing to judge, and that is indistinguishable from a gate
 > that judged everything and approved it.**
 
-There are three honest ways to close this gap, each with a real cost:
+Three honest ways close the gap, each with a real cost.
 
 | Option | How | Cost |
 | --- | --- | --- |
-| **Commit the baseline report** | Track the report as a file, regenerated deliberately when a new baseline is accepted | A reviewable diff every time quality moves — arguably a feature, not a downside |
-| **Fetch the artifact** | The `gate` job downloads the result of the last successful `evaluate` run | More CI configuration, and the gate can go stale between fetches |
-| **Store it outside version control entirely** | An external store — object storage, a metrics service | Real infrastructure, and the numbers leave the repository |
+| **Commit the baseline report** | Track the report as a file, regenerated deliberately when a new baseline is accepted | A reviewable diff every time quality moves — arguably a feature |
+| **Fetch the artifact** | The gating job downloads the result of the last successful scoring run | More CI configuration, and the gate can go stale between fetches |
+| **Store it outside version control** | An external store — object storage, a metrics service | Real infrastructure, and the numbers leave the repository |
 
-The state to avoid is a gate exiting 0 because it found nothing to check, indistinguishable
-from one exiting 0 because everything passed. Make the *absence* of input its own failure mode:
-block outright when there is nothing to gate, with a narrow `bootstrap` flag for the genuinely
-first run.
+Make the *absence* of input its own failure mode. Block outright when there is nothing to gate,
+with a narrow bootstrap flag for the genuinely first run.
 
 > **"Missing" and "passing" must never look the same from outside.** That is how a CI gate goes
 > green for months while measuring nothing.
 
 ---
 
-## 6. Prompt registry and production aliasing
+## 6. Register a Prompt Without Deploying It
 
-Everything so far treats "the candidate" as a black box being scored. This section and the
-next two are about one specific, very common kind of candidate: a changed system prompt, and
-the specific machinery — the Prompt Registry, in the source material's Databricks-track
-notebooks — for making that change reviewable, measurable, and reversible before it reaches
-production.
+Everything so far treats the candidate as a black box being scored. The next three sections cover
+one very common kind of candidate: a changed system prompt, and the machinery that makes such a
+change reviewable, measurable and reversible before it reaches production.
 
-**Why a registry, when the prompt is already tracked in git?** Git versions the prompt as
-*source code*. A registry versions it as a *runtime artifact*, and the difference shows up in
-four concrete places:
+**Why a registry, when the prompt is already in git?** Git versions the prompt as *source code*.
+A registry versions it as a *runtime artifact*, and the difference shows up in four places.
 
 | | Git alone | Prompt registry |
 | --- | --- | --- |
@@ -306,58 +269,52 @@ four concrete places:
 | "Which prompt produced this score?" | Infer from commit timestamps | The evaluation run is tagged with the exact version |
 | Who can change it | Anyone with repository write access | Governed separately from code access |
 
-A pointer — `@production` — sits between *"this version exists, registered and evaluated"* and
-*"this version is serving real traffic."*
+A pointer — call it `@production` — sits between *"this version exists, registered and
+evaluated"* and *"this version is serving real traffic"*.
 
 > **Registering a prompt does not deploy it.**
 
-In the worked example a new version is registered, evaluated against the full scorer set, and
-the alias is found untouched afterward: scored, never seen by a customer, because registering
-and pointing the alias are separate actions by design.
+In the worked example a new version is registered, evaluated against the full scorer set, and the
+alias is found untouched afterward. Scored, never seen by a customer, because registering and
+pointing the alias are separate actions by design.
 
-Undoing a release is pointing the alias back, not reverting code. The alias is a sticker
-reading *"this is the live one"* — deploying moves it, every older version still sits untouched
-underneath, and rolling back is moving it back. Seconds, not a fire drill.
+Undoing a release means pointing the alias back, not reverting code. The alias is a sticker
+reading *"this is the live one"*. Deploying moves it. Every older version still sits untouched
+underneath. Rolling back is moving it back — seconds, not a fire drill.
 
 > **A version that was rolled back from stays registered.** It is evidence of what was tried and
-> why it didn't work; deleting it destroys that record.
+> why it did not work. Deleting it destroys that record.
 
 ---
 
-## 7. The two-condition promotion gate, worked through a real prompt edit
+## 7. Promote Only What Clears Both Conditions
 
-Section 3 stated the two-condition rule (absolute threshold *and* no regression) in the
-abstract. Here is the same rule worked through a concrete, realistic prompt change, using the
-source material's TelcoAssist support-prompt example.
+Here is Section 3's two-condition rule worked through a concrete prompt change.
 
-**The setup.** Support leadership reports two complaints about the live prompt (call it v1):
-answers are too long, and the agent refuses to help too readily. A new candidate, v2, responds
-to exactly that feedback:
+**The setup.** Support leadership reports two complaints about the live prompt, v1. Answers are
+too long, and the agent refuses to help too readily. A candidate, v2, responds to exactly that.
 
 | v1 clause | v2's edit | Predicted effect |
 | --- | --- | --- |
-| "Answer using ONLY the support articles" | "...together with your general knowledge" | Groundedness falls — the model may now answer from memory instead of the source |
-| "Call the account-lookup tool ONLY when [specific condition]" | "...whenever it might help" | Tool-call correctness falls — account data gets fetched when it isn't needed |
-| "Refunds/changes/cancellations must be escalated" | "resolve it yourself rather than sending them elsewhere" | Escalation behavior weakens |
+| "Answer using ONLY the support articles" | "...together with your general knowledge" | Groundedness falls — the model may answer from memory |
+| "Call the account-lookup tool ONLY when [specific condition]" | "...whenever it might help" | Tool-call correctness falls — account data gets fetched needlessly |
+| "Refunds/changes/cancellations must be escalated" | "resolve it yourself rather than sending them elsewhere" | Escalation behaviour weakens |
 | (no length rule at all) | "Keep every answer to two or three sentences" | Conciseness **improves** |
 
-**Notice what's true about v2 before any number comes back: nothing about it looks
-reckless.** Each individual edit has an obvious, defensible business justification. That is
-precisely what makes this the realistic case, not a strawman — *the dangerous prompt change is
-rarely the one that looks dangerous.*
+**Nothing about v2 looks reckless before any number comes back.** Each edit has an obvious,
+defensible business justification. That is what makes it the realistic case rather than a
+strawman. *The dangerous prompt change is rarely the one that looks dangerous.*
 
-**Held fixed across the comparison:** the same evaluation dataset and the identical set of
-scorers for both v1 and v2. Comparing two prompt versions against two different datasets, or
-two different scorer lists, measures nothing — any difference could be explained by the change
-in what was measured rather than a change in the prompt.
+**Hold the comparison fixed.** Same evaluation dataset, identical scorers, both versions.
+Comparing two prompt versions against two different datasets measures nothing. Any difference
+could be explained by the change in what was measured.
 
-v2 improves exactly the metric leadership asked about (conciseness) and regresses the ones
-nobody watched (groundedness, tool-call correctness, escalation). It clears the conciseness bar,
-fails the no-regression condition, and is **not promoted** — the alias stays on v1.
+v2 improves exactly the metric leadership asked about. It regresses the ones nobody watched. It
+clears the conciseness bar, fails the no-regression condition, and is **not promoted**. The
+alias stays on v1.
 
 > **v3 keeps v2's length limit and restores v1's three constraints** — a targeted fix, not a
 > revert, possible only because the report named which clause caused each drop.
-
 
 > **A scorer with no gate entry blocks nothing.** Two account-protection and escalation checks
 > were computed correctly and displayed for a whole window while enforcing exactly nothing.
@@ -365,9 +322,9 @@ fails the no-regression condition, and is **not promoted** — the alias stays o
 **Adding a scorer does not add a gate.** Every scorer is informational by default, and the one
 release where that matters is the one where it regresses.
 
-A word-count figure goes *down* between versions, and a rule checking "did the number move"
-flags a regression — when a shorter answer was the goal. The gate survives only because that
-number was never wired to a blocking check, not because the logic understood the intent.
+A word-count figure goes *down* between versions, and a rule checking "did the number move" flags
+a regression — when a shorter answer was the goal. The gate survives only because that number was
+never wired to a blocking check, not because the logic understood the intent.
 
 > **A raw numeric scorer carries no information about which direction is better.** To gate on
 > one, wrap it in something returning a verdict — "too long: fail" — rather than gating on the
@@ -375,53 +332,44 @@ number was never wired to a blocking check, not because the logic understood the
 
 ---
 
-## 8. Optimizer scores vs. the same gate
+## 8. Put Machine-Written Prompts Through the Same Gate
 
-The prompt changes in Section 7 were written by a person. This section covers what changes,
-and what deliberately does not change, when the prompt is written by an automated optimizer
-instead — the source material's example is the GEPA optimizer paired with a judge that was
-calibrated against expert human labels (that calibration step itself belongs to Level 4).
+Section 7's prompt changes were written by a person. This section covers what changes, and what
+deliberately does not, when an automated optimizer writes the prompt instead.
 
-> **The optimization dataset is not the evaluation dataset, and the difference is not
-> cosmetic.** Evaluation rows may leave `expectations` off; optimization needs them on **every
-> row**.
+> **The optimization dataset is not the evaluation dataset, and the difference is not cosmetic.**
+> Evaluation rows may leave expectations off. Optimization needs them on **every row**.
 
-Each one describes *what the agent should have done* — "state the $15 late fee, note the 5-day
-threshold, mention the annual waiver" — not a gold answer to match word for word. The optimizer
-compares actual against intended during a reflection step to reason about *why* the prompt
-underperforms. Without it, it sees a low score, cannot diagnose it, and proposes guesses. This
-is the most common cause of a disappointing run.
+Each expectation describes *what the agent should have done* — "state the $15 late fee, note the
+5-day threshold, mention the annual waiver" — not a gold answer to match word for word. The
+optimizer compares actual against intended during a reflection step to reason about *why* the
+prompt underperforms. Without it, it sees a low score, cannot diagnose it, and proposes guesses.
+That is the most common cause of a disappointing run.
 
-The optimizer proposes prompt candidates, scores each against a chosen judge, and keeps what
-that judge rewards.
+The optimizer proposes candidates. It scores each against a chosen judge. It keeps what that
+judge rewards.
 
-> **So the judge *is* the objective.** It will tune toward whatever the judge rewards, faster
-> and more thoroughly than a human could.
+> **So the judge *is* the objective.** It will tune toward whatever the judge rewards, faster and
+> more thoroughly than a human could.
 
-Point it at an unchecked judge and the result isn't merely unreliable — the agent gets
-efficiently tuned toward a standard nobody holds, confidently wrong rather than obviously
-unfinished. Which is why judge alignment (Level 4) comes *before* the optimizer, never after.
+Point it at an unchecked judge and the result is not merely unreliable. The agent gets
+efficiently tuned toward a standard nobody holds. Confidently wrong, rather than obviously
+unfinished. That is why judge alignment comes *before* the optimizer, never after.
 
 > **A higher optimizer score is the most overfit number available, and it is not permission to
-> ship.** It reports performance against the exact objective it was tuned to maximise — how well
-> the optimizer did its job, not evidence the result is better.
+> ship.** It reports performance against the exact objective it was tuned to maximise.
 
-Goodhart's law in its most literal form: an automated process pushing on one metric is the most
-efficient way to overfit it. One free diagnostic — reading *what the optimizer changed* audits
-the judge. Clauses that look like hedging nobody asked for mean the judge rewards the wrong
-thing, and the finding is about the judge (Level 4), not the optimizer.
+That is Goodhart's law in its most literal form. One free diagnostic helps: reading *what the
+optimizer changed* audits the judge. Clauses that look like hedging nobody asked for mean the
+judge rewards the wrong thing, and the finding is about the judge, not the optimizer.
 
-> **A machine-written prompt goes through the identical gate, on the full scorer set** — not
-> just the one judge the optimizer was pointed at. Nothing about being machine-generated earns
-> a shortcut.
+> **A machine-written prompt goes through the identical gate, on the full scorer set** — not just
+> the one judge the optimizer was pointed at.
 
-If anything it deserves more scrutiny, because it was tuned against a metric living *inside*
-that gate. When the optimizer's objective score and the gate's verdict disagree, the gate wins.
-The full-suite re-check is what exposes overfitting a rising single-judge score cannot show — a
+If anything it deserves more scrutiny, because it was tuned against a metric living *inside* that
+gate. When the optimizer's objective score and the gate's verdict disagree, the gate wins. The
+full-suite re-check is what exposes overfitting that a rising single-judge score cannot show. A
 prompt tuned hard for factual correctness may have quietly got worse at knowing when to refuse.
-
-The closed loop, once every earlier piece (production monitoring, mining production traces,
-judge alignment, and this level's own promotion gate) is in place, looks like this:
 
 ```mermaid
 flowchart LR
@@ -433,8 +381,8 @@ flowchart LR
     style E fill:#EDE3CE,stroke:#9A6A12,color:#0E2226
 ```
 
-> **The gate is the only thing in the loop allowed to deploy.** Human-written and
-> machine-written prompts take the identical check; nothing is exempt for where it came from.
+> **The gate is the only thing in the loop allowed to deploy.** Human-written and machine-written
+> prompts take the identical check. Nothing is exempt for where it came from.
 
 > **Each stage's output is the next stage's input, so quality flows downhill as easily as up.**
 > An unaligned judge produces a misdirected optimizer, which produces a bad prompt that a weak
@@ -442,137 +390,149 @@ flowchart LR
 
 ---
 
-## 9. What a gate is not
+## 9. Know What a Gate Is Not
 
-Three explicit boundaries are worth stating plainly, because each one is a way this level's
-material gets over-trusted if left unsaid:
+Three boundaries are worth stating plainly, because each is a way this material gets
+over-trusted.
 
-- **Not a substitute for production monitoring.** A few hundred cases catch large regressions,
-  not small ones. A slow regression is Level 7's job.
-- **Not static.** A suite built at launch describes launch-time traffic. Without a drift check
-  against production it stays green while measuring a reality that no longer exists.
-- **Not a place for flaky tests.** An intermittently failing safety assertion gets deleted
-  within a quarter, so every fixture underneath must be frozen. **Determinism here is a safety
-  property, not a convenience** — it is what makes the gate trustworthy enough to block
-  automatically.
+**Not a substitute for production monitoring.** A few hundred cases catch large regressions, not
+small ones. A slow regression is Level 7's job.
+
+**Not static.** A suite built at launch describes launch-time traffic. Without a drift check
+against production it stays green while measuring a reality that no longer exists.
+
+**Not a place for flaky tests.** An intermittently failing safety assertion gets deleted within a
+quarter, so every fixture underneath must be frozen. **Determinism here is a safety property, not
+a convenience.** It is what makes the gate trustworthy enough to block automatically.
 
 ---
 
-## Question-bank corner — what this level's interview material adds
+## 10. Rehearse the Gate Questions
 
-*(From `QUESTION_BANK.md`, Part 6 — Q22 through Q25 — plus Case 13 and Case 14. This section
-covers what those add beyond the mechanics already worked through above; it does not repeat
-the four-check breakdown, the two-condition rule, or the tolerance-by-metric-type material,
-all of which are Sections 2–4 and already covered once.)*
+**"How far should a single gate check be trusted?"**
 
-**How far a single gate check should be trusted (Q22, Case 13).** Both point at Section 3's
-two-condition rule, and add three things worth having ready:
+Three things beyond the two-condition rule. **A gate people learn to override is worse than no
+gate** — set its tolerance tighter than a judge's natural run-to-run noise and you keep the
+ceremony without the protection. **The gate needs two datasets with opposite failure modes**: the
+curated regression set must stay fixed or before/after comparison stops being valid, and a mined
+set must stay fresh or it stops discovering anything. **How long should it take? Whatever keeps
+it inside the merge path.** A forty-minute gate gets bypassed by a team in a hurry, so tier it —
+deterministic scorers every commit, the judged suite on merge to main.
 
-- **A gate people learn to override is worse than no gate.** Set its tolerance tighter than a
-  judge's natural run-to-run noise and you keep the ceremony without the protection.
-- **The gate needs two datasets with opposite failure modes.** The curated regression set must
-  stay fixed or before/after comparison stops being valid; a mined set must stay fresh or it
-  stops discovering anything.
-- **How long should the gate take? Whatever keeps it inside the merge path.** A forty-minute
-  gate gets bypassed by a team in a hurry. Tier it: deterministic scorers every commit, the
-  judged suite on merge to main.
+**"A gate missed something. What is the post-mortem?"**
 
-**The post-mortem discipline when a gate misses something (Q25).** Fixing the input that
-leaked is the *smaller* half. Three questions matter more:
+Fixing the input that leaked is the *smaller* half. Three questions matter more. Which check
+should have caught this — and was it never measured, measured but not gated, or gated but the
+dataset had nothing resembling this case? Was it measurable in principle at all, given that some
+failures only exist across turns or in a real system's end state? And what is the *class* of
+failure, since patching the exact string that leaked protects against that string and nothing
+else.
 
-1. **Which check should have caught this** — and was it *never measured*, *measured but not
-   gated*, or *gated but the dataset had nothing resembling this case*?
-2. **Was it measurable in principle at all?** Some failures only exist across turns or in a
-   real system's end state; no new rule fixes that, only instrumentation.
-3. **What is the *class* of failure?** Patching the exact string that leaked protects against
-   that string and nothing else.
+> **Then ask whether this had been happening silently before anyone noticed.** "We can't tell" is
+> itself the finding — retention or slicing was not good enough to answer a basic question about
+> the system's own behaviour.
 
-> **Then ask: had this been happening silently before anyone noticed?** "We can't tell" is
-> itself the finding — retention or slicing wasn't good enough to answer a basic question
-> about the system's own behaviour.
+**"How does a dashboard read healthy while measuring nothing?"**
 
-**The green-dashboard failure catalogue (Q24).** Four ways a dashboard reads healthy while
-measuring nothing:
+Four ways. **Computed but never gated** — Section 7's trap at the dashboard level. **Configured
+but never started**, or silently erroring on every row and dropping out, so its absence reads as
+the absence of a problem. **A mistyped metric name**, which looks up nothing and renders as a zero
+or a pass depending on the surrounding code. And **a dimension nobody wrote a check for** — the
+most common, and the only one with no mechanical fix.
 
-- **Computed but never gated** — Section 7's trap at the dashboard level.
-- **Configured but never started**, or silently erroring on every row and dropping out, so its
-  absence reads as the absence of a problem.
-- **A mistyped metric name** — looks up nothing, renders as a zero or a pass depending on how
-  the surrounding code handles a missing key.
-- **A dimension nobody wrote a check for.** The most common, and the only one with no
-  mechanical fix.
+> **None of the four is a bug in the agent. Every one is a bug in the measurement**, which is what
+> makes them dangerous. From outside they look exactly like health.
 
-> **None of the four is a bug in the agent. Every one is a bug in the measurement**, which is
-> what makes them dangerous — from outside they look exactly like health.
+The countermeasures: an unmatched or never-run gate reports an explicit **"not measured"** state,
+visually distinct from pass and fail, and the gate gets fire-alarm tested by deliberately shipping
+something that should fail. **A gate that has never blocked a release is unproven, not safe.**
 
-The countermeasures: an unmatched or never-run gate reports an explicit **"not measured"**
-state, visually distinct from pass and fail; and the gate gets fire-alarm tested by
-deliberately shipping something that should fail. **A gate that has never blocked a release is
-unproven, not safe.**
+**"We optimized exactly what we were asked to. How did that go wrong?"**
 
-**How "we optimized exactly what we were asked to" goes wrong (Case 14).** Asked for shorter
-answers, a release delivers conciseness 0.61 → 0.88 — the one metric anyone was reading — while
-groundedness falls 0.93 → 0.67 (citations cut to save words), escalation-appropriateness 0.90 →
-0.71 (no room left to hedge or decline), and completeness 0.88 → 0.62.
+Asked for shorter answers, a release delivers conciseness 0.61 → 0.88 — the one metric anyone was
+reading — while groundedness falls 0.93 → 0.67 as citations get cut to save words,
+escalation-appropriateness 0.90 → 0.71 with no room left to hedge or decline, and completeness
+0.88 → 0.62.
 
 > **Nobody cheated and no check was gamed.** The cost was paid entirely by three dimensions
 > nobody had gated.
 
 > **A mean hides both tails at once, in opposite directions.** The 90th percentile is where
-> rambling answers live; the 10th is where answers got truncated past usefulness.
+> rambling answers live. The 10th is where answers got truncated past usefulness.
+
+---
+
+## Key Takeaways
+
+- A metric describes; a gate decides, compares against what is live, and is wired to something
+  that can refuse to deploy.
+- Four checks run independently and any one blocks: safety as an absolute veto, an aggregate
+  floor, a per-stratum floor, and a cost ceiling per *resolved* conversation.
+- Each of the four catches a fault the other three report as fine, which is the argument against
+  one blended score.
+- A threshold alone permits erosion — 0.98 to 0.91 with every release passing — so absolute and
+  no-regression conditions are checked together.
+- Tolerance is zero for deterministic checks and a measured band for judged ones; one blanket
+  number fails in one direction or the other.
+- Decide free on every push and score on demand, and make missing input its own failure mode so
+  "missing" never looks like "passing".
+- Registering a prompt does not deploy it; the alias is what deploys, and rolling back is moving
+  it back.
+- A scorer with no gate entry blocks nothing, and a machine-written prompt earns no shortcut
+  through the same gate.
+
+## Check Yourself
+
+1. Overall resolution rises 4 points and one stratum collapses to 0.35. Which check blocks it,
+   and which would have shipped it? **The per-stratum floor blocks. The aggregate check passes.**
+2. A candidate posts the best quality numbers in the suite and issues one unapproved refund.
+   What happens? **Blocked. Safety is a veto; no quality improvement trades against it.**
+3. Releases score 0.98, 0.95, 0.92, 0.91 against a bar of 0.90. What did the gate miss? **Seven
+   points of erosion. A threshold never compares this release to the last one.**
+4. Why can't one tolerance cover both a schema check and a judged rubric? **The schema check has
+   no noise, so any movement is real. The judge wobbles on identical input. One number either
+   blocks on noise or lets a real regression through.**
+5. A gate on a fresh checkout prints "nothing to gate" and exits 0. What is wrong? **That is
+   identical to passing. Absence of input has to be its own failure mode.**
+6. Why is the scoring job kept off the merge path? **Judge calls cost money, are slow, and are
+   non-deterministic — every contributor would pay for every typo fix, and one flaky call blocks
+   unrelated work.**
+7. Two scorers were computed and displayed for a whole window and enforced nothing. Why? **They
+   had no gate entry. Every scorer is informational by default.**
+8. An optimizer reports a higher score than the live prompt. Is that permission to ship? **No. It
+   is the most overfit number available — performance against the exact objective it was tuned
+   to maximise. The full gate still decides.**
 
 ---
 
 ## References
 
 All content above was drawn only from material already in this repository. Nothing here was
-invented, and no external source was consulted.
+invented, and no external source was consulted. This page is the restyled edition of
+`org/06-the-release-gate-and-ci.md`; its content is the same, with platform and optimizer product
+names replaced by what each mechanism does.
 
-**Notebook:**
+**Notebook and scripts:**
 
-- `courses/03-agentic-eval-harness/11_the_release_gate_and_ci.ipynb` — the four-check gate
-  function and its ordering; the gate-config thresholds (safety veto, 0.03 aggregate
-  tolerance, per-stratum floors, 8-case gating minimum, $0.02 cost ceiling); all four worked
-  scenarios (clean release, Hindi-stratum collapse, unapproved refund, cost blowup) and the
-  "which check caught which fault" table; the DeepEval test-suite/CI split; the artifact
-  problem (a gate with nothing to read exiting 0) and its `gate_with_input_check` fix.
-- `courses/02-databricks-mlflow-evals/05_prompt_versioning_and_regression.ipynb` — the
-  git-vs-registry comparison, the alias mechanism, the full v1 → v2 → v3 TelcoAssist worked
-  example, the deterministic-vs-judged tolerance split, the scorer-with-no-gate-entry trap,
-  the numeric-metric-has-no-direction subtlety, and the rollback-as-alias-move drill.
-- `courses/02-databricks-mlflow-evals/08_automated_improvement_gepa.ipynb` — the GEPA
-  optimization workflow, the judge-is-the-objective argument, the Goodhart's-law framing, the
-  full closed-loop diagram across production monitoring / trace mining / judge alignment /
-  optimization / the promotion gate, and the "read the diff as an audit of the judge" point.
+- `courses/03-agentic-eval-harness/11_release_gate_and_ci.ipynb` — the four checks, the four
+  scenarios, the per-stratum floors, the minimum gating size, and the cost-per-resolved figure.
+- `courses/03-agentic-eval-harness/` gate script and `.github/workflows/release-gate.yml` — the
+  free/paid job split and the standard-library-only decision layer.
+- `courses/02-databricks-mlflow-evals/` prompt-lifecycle notebooks — the registry and alias
+  model, the v1/v2/v3 prompt comparison, the scorer-with-no-gate-entry trap, and the optimizer
+  material.
 
 **Docs:**
 
-- `courses/03-agentic-eval-harness/ci/apply_gate.py` and
-  `.github/workflows/release-gate.yml` — the actual free/paid CI job split, why the paid
-  `evaluate` job runs only on manual dispatch, and why the free `gate` job installs nothing.
-- `docs/concepts/launch-gate.html` — the evaluation-metric-vs-launch-gate comparison table
-  reused in Section 1; the "not a substitute for production monitoring / not static / not a
-  place for flaky tests" framing (the latter is the same "gate people override" point already
-  covered via Q22/Case 13, so it is not repeated as a separate section); the segment-collapse
-  worked example on a document Q&A system (79%→81% aggregate, one tenant 82%→67% at ~4% of the
-  golden set) — used to corroborate the notebook's own Hindi-stratum scenario in Section 2
-  rather than as a second, separately-covered example.
-- `docs/interview-prep/QUESTION_BANK.md`, Part 6 (Q22–Q25) and Tier E (Case 13, Case 14) — the
-  post-mortem discipline, the green-dashboard failure catalogue, and the conciseness-regression
-  worked numbers in the question-bank corner section; the two-condition rule and erosion
-  example they share with the notebooks is not repeated a second time.
-- `docs/study-guide/evaluation-roadmap.md` — Level 6's topic list and goal statement, used to
-  scope what this file needed to cover.
-- `docs/study-guide/evaluation-topic-notebook-mapping.md` — Level 6's resource table, confirming
-  the complete source set (no interactive lab exists for this level).
+- `docs/concepts/databricks-mlflow-evals.md` — the metric-versus-gate distinction, tolerance by
+  metric type, and the closed loop.
+- `docs/interview-prep/QUESTION_BANK.md`, Part 6 (Q22–Q25) and Cases 13–14 — the four questions
+  and the optimized-for-the-wrong-thing case, reproduced in full in Section 10 rather than
+  pointed at.
+- `docs/study-guide/evaluation-roadmap.md` — Level 6's topic list and goal statement.
+- `docs/study-guide/evaluation-topic-notebook-mapping.md` — Level 6's resource table.
 
-**Limitations.** This file was written by reading the repository's own material, not by
-running any notebook, calling any judge model, or executing the GitHub Actions workflow — no
-cost was incurred producing it, consistent with this project's rule against executing anything
-that spends money without being asked. It does not independently verify MLflow's, DeepEval's,
-GEPA's, or GitHub Actions' own documentation; descriptions of each tool above are this
-repository's characterization of them, not a review of the vendors' docs. Runnable code (the
-gate function, `apply_gate.py`, the GEPA optimizer call) is described here rather than
-reproduced verbatim, consistent with this Explainer being a conceptual, non-executable
-companion rather than a copy of the notebooks; the source files above are the place to read the
-actual code.
+**Limitations.** This file was written by reading the repository's own material, not by running
+any notebook or calling any API — no cost was incurred producing it, consistent with this
+project's rule against executing anything that spends money without being asked. It does not
+independently verify any vendor's documentation.
