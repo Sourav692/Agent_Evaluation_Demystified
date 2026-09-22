@@ -287,11 +287,25 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this level exists · 1. The five things you can actually evaluate · 2. The one question that splits every metric in two: does it need an answer key? · 3. LLM-as-judge: powerful, but not an oracle · 4. The decision you'll make constantly: code, or a judge? · 5. The cost ladder for building a check (which rung do you actually need?) · 6. The other cost ladder: what it costs in real dollars to *run* a notebook or check · 7. The tooling landscape: four frameworks, two shapes · 8. Offline vs. online: the two questions that decide where a check can run · Question-bank corner — what a decomposition round pushes on · References |
 
+### `docs/roadmap-explainers/00-orientation-v2.md` — Level 0 restyled, Orientation: What There Is to Evaluate (4,033 words)
+
+| | Covers |
+|---|---|
+| **Sections** | 1. Separate the Five Things You Can Evaluate · 2. Ask Whether the Check Needs an Answer Key · 3. Treat the Judge as an Instrument, Not an Oracle · 4. Reach for Code Before Reaching for a Judge · 5. Climb the Scorer Ladder Only When Forced · 6. Decide Where a Check Can Run Before Building It · 7. Rehearse the Decomposition Round · Key Takeaways · Check Yourself · References |
+| **Note** | Decompose the system before measuring it, because one quality score cannot say which stage broke. Restyled to the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. Kept alongside the original for comparison. |
+
 ### `docs/roadmap-explainers/01-rag-retrieval-and-generation.md` — Level 1, Beginner (7,000 words)
 
 | | Covers |
 |---|---|
 | **Sections** | Why this level exists · 1. The RAG pipeline, and why you evaluate its two halves separately · 2. Deterministic retrieval metrics: four numbers that are supposed to disagree · 3. LLM-judged retrieval metrics: three metrics because there are three failures · 4. Generation without a reference: three ways "the answer is wrong" can happen · 5. Generation against a reference: Answer Correctness and Semantic Similarity · 6. Writing a rubric that doesn't produce a vague judge · 7. Evaluation as pipeline gates, not just after-the-fact scoring · 8. RAGAS as a second opinion, and the pytest/CI batch pattern · 9. Building a RAG system and synthesizing a golden set · 10. Reading the results · Question-bank corner — retrieval and generation numbers, live on a dashboard · References |
+
+### `docs/roadmap-explainers/01-rag-retrieval-and-generation-v2.md` — Level 1 restyled draft, Beginner (5,800 words)
+
+| | Covers |
+|---|---|
+| **Sections** | 1. Evaluate the Two Halves Separately · 2. Count What the Retriever Found, Before Any Judge · 3. Ask a Judge Three Questions, Not One · 4. Score the Answer With No Reference, and Know What That Cannot See · 5. Check Correctness Against a Reference · 6. Write the Rubric, or the Judge Writes It for You · 7. Gate the Pipeline, Don't Only Score It Afterwards · 8. Build the System and Synthesize Its Golden Set · 9. Read the Table by Pattern, Not by Headline · 10. Rehearse the Decomposition Questions · Key Takeaways · Check Yourself · References |
+| **Note** | The same Level 1 content as the page above, restyled: trade-off tagline, reading time, imperative headings, argument-carrying prose in place of bullet runs, plus takeaways and a 10-question self-check. No framework tours: field and metric vocabulary is kept and glossed, but library class inventories and API mechanics are out, and the practice questions are reproduced in full rather than pointing at the question bank. Kept alongside the original for comparison. |
 
 ### `docs/roadmap-explainers/02-agents-tools-conversations-trajectories-outcomes.md` — Level 2, Intermediate (5,800 words)
 
@@ -299,11 +313,25 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this level exists · 1. Multi-turn conversational evaluation · 2. Tool-use metrics: the mechanics layer · 3. Task completion and outcome verification · 4. Agent trajectory evaluation: the nine trace-level checks · Question-bank corner — the design-round follow-ups this level answers · References |
 
+### `docs/roadmap-explainers/02-agents-tools-conversations-trajectories-outcomes-v2.md` — Level 2 restyled, Agents: Tools, Conversations, Trajectories, Outcomes (5,195 words)
+
+| | Covers |
+|---|---|
+| **Sections** | 1. Score the Conversation, Not Just the Turn · 2. Check the Mechanics: Right Tool, Right Arguments · 3. Verify the Outcome, Not the Sentence · 4. Judge the Path, Not Only Where It Ended · 5. Rehearse the Design-Round Follow-Ups · Key Takeaways · Check Yourself · References |
+| **Note** | Score mechanics, process and outcome separately, because passing any one of the three says nothing about the other two. Restyled to the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. Kept alongside the original for comparison. |
+
 ### `docs/roadmap-explainers/03-ground-truth.md` — Level 3, Intermediate (4,500 words)
 
 | | Covers |
 |---|---|
 | **Sections** | Why this level exists · 1. Case anatomy — six expectations, not one · 2. Stratification and the refusal quota · 3. Dataset datasheets · 4. Mining production traces into eval datasets · 5. Provenance and merge-by-input-hash · 6. Synthesized vs. hand-authored cases · 7. The two ways a dataset lies to you · Question-bank corner — ground truth and datasets · References |
+
+### `docs/roadmap-explainers/03-ground-truth-v2.md` — Level 3 restyled, Ground Truth: Where Cases and Labels Come From (4,062 words)
+
+| | Covers |
+|---|---|
+| **Sections** | 1. Pin Six Expectations, Not One · 2. Stratify Before Writing, and Keep a Refusal Quota · 3. Ship a Datasheet With the Dataset · 4. Mine Traffic for Inputs, Never for Labels · 5. Record Who Decided, and Merge by Input · 6. Run a Curated Set and a Mined Set With Opposite Policies · 7. Name the Two Ways a Dataset Lies · 8. Rehearse the Ground-Truth Questions · Key Takeaways · Check Yourself · References |
+| **Note** | Collect inputs from real traffic but never labels from the system under test, because a dataset built from its own answers can only agree with itself. Restyled to the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. Kept alongside the original for comparison. |
 
 ### `docs/roadmap-explainers/04-judges-and-the-humans-who-validate-them.md` — Level 4, Intermediate (7,200 words)
 
@@ -311,11 +339,25 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this level exists · 1. Building a judge, three ways · 2. Custom scorers: spend judgement where judgement is actually needed · 3. Judge bias: the three specific ways a judge lies · 4. Human feedback: three kinds, and only one can calibrate a judge · 5. Calibration: agreement, and agreement above chance · 6. Judge alignment: turning expert disagreement into a better judge · 7. Blinded preference testing, and why it needs a second rater · 8. The rubber-stamp signal: evaluating the human, not just the record · Question-bank corner · References |
 
+### `docs/roadmap-explainers/04-judges-and-the-humans-who-validate-them-v2.md` — Level 4 restyled, Judges, and the Humans Who Validate Them (5,362 words)
+
+| | Covers |
+|---|---|
+| **Sections** | 1. Build the Judge in One of Three Shapes · 2. Spend Judgement Only Where Judgement Is Needed · 3. Test the Three Ways a Judge Lies · 4. Collect the One Kind of Human Feedback That Calibrates · 5. Measure Agreement Above Chance, Not Raw Agreement · 6. Align the Judge on Expert Disagreement · 7. Blind the Preference Test, and Use Two Raters · 8. Check the Approver, Not Just the Approval · 9. Rehearse the Judge Questions · Key Takeaways · Check Yourself · References |
+| **Note** | A judge is the only way to score open-ended text at scale, and it cannot be trusted until it is measured against the people who do not scale. Restyled to the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. Kept alongside the original for comparison. |
+
 ### `docs/roadmap-explainers/05-statistics-and-stratified-reporting.md` — Level 5, Advanced (4,300 words)
 
 | | Covers |
 |---|---|
 | **Sections** | Why this level exists · 1. Stratified reporting: score each slice, not the whole · 2. Sample size: could your suite even see the change? · 3. The small-stratum rule: when a group is too small to gate on · 4. Paired comparison and McNemar's test · 5. Confidence intervals: bootstrap and Wilson · 6. The same problem in production: the sampling-resolution problem · 7. Simpson's paradox: when every stratum improves and the total falls · 8. Putting it together · Question-bank corner — the two rounds this level prepares you for · References |
+
+### `docs/roadmap-explainers/05-statistics-and-stratified-reporting-v2.md` — Level 5 restyled, Statistics and Stratified Reporting (3,734 words)
+
+| | Covers |
+|---|---|
+| **Sections** | 1. Score Each Slice, Not the Whole · 2. Ask Whether the Suite Could See the Change · 3. Report a Small Stratum Without Gating on It · 4. Compare the Same Cases, Not Two Samples · 5. Put an Interval Around Every Number · 6. Buy the Sample Rate That Can See the Regression · 7. Watch for Every Stratum Improving While the Total Falls · 8. Combine the Four Tools · 9. Rehearse the Reporting Questions · Key Takeaways · Check Yourself · References |
+| **Note** | Gate on the worst slice rather than the average, because a group is only as loud in the mean as it is big. Restyled to the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. Kept alongside the original for comparison. |
 
 ### `docs/roadmap-explainers/06-the-release-gate-and-ci.md` — Level 6, Advanced (6,700 words)
 
@@ -323,11 +365,25 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this level exists · 1. A gate is not another metric · 2. The four checks, in order · 3. Why a threshold alone is not enough — the erosion problem · 4. Tolerance has to be set per metric type · 5. Free CI gate vs. paid evaluation job · 6. Prompt registry and production aliasing · 7. The two-condition promotion gate, worked through a real prompt edit · 8. Optimizer scores vs. the same gate · 9. What a gate is not · Question-bank corner — what this level's interview material adds · References |
 
+### `docs/roadmap-explainers/06-the-release-gate-and-ci-v2.md` — Level 6 restyled, The Release Gate and CI (4,914 words)
+
+| | Covers |
+|---|---|
+| **Sections** | 1. Separate the Gate From the Metric · 2. Run Four Checks, and Block on Any One · 3. Check Both the Threshold and the Regression · 4. Set Tolerance by Metric Type · 5. Decide Free on Every Push, Score on Demand · 6. Register a Prompt Without Deploying It · 7. Promote Only What Clears Both Conditions · 8. Put Machine-Written Prompts Through the Same Gate · 9. Know What a Gate Is Not · 10. Rehearse the Gate Questions · Key Takeaways · Check Yourself · References |
+| **Note** | Gate against what is live, not against a fixed bar, because a system can lose seven points without any single release ever failing. Restyled to the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. Kept alongside the original for comparison. |
+
 ### `docs/roadmap-explainers/07-online-evaluation-and-the-loop.md` — Level 7, Advanced (5,300 words)
 
 | | Covers |
 |---|---|
 | **Sections** | Why this level exists · 1. The fact that decides everything: production has no ground truth · 2. Reference-free production metrics: three techniques, no answer key · 3. Sampling: cheap checks on everything, judges see a slice · 4. The five standard alerts · 5. Incident drills: proving which alert catches what · 6. The canary: the only online question that's properly answerable · 7. Closing the loop · 8. Live tracing in Phoenix, and two genuinely new ideas · Question-bank corner — offline → online · References |
+
+### `docs/roadmap-explainers/07-online-evaluation-and-the-loop-v2.md` — Level 7 restyled, Online Evaluation and the Loop (4,352 words)
+
+| | Covers |
+|---|---|
+| **Sections** | 1. Accept That Production Has No Ground Truth · 2. Score Consistency and Shape Instead of Correctness · 3. Sample the Judges, Never the Free Checks · 4. Alert on Shape, Not on Quality · 5. Drill the Alerts to Learn What They Miss · 6. Ask Whether the New Build Beats the Old One · 7. Turn Every Finding Into a Permanent Test · 8. Trace Live, and Judge the Tool's Own Output · 9. Rehearse the Online Questions · Key Takeaways · Check Yourself · References |
+| **Note** | Every check that needs an answer key dies at deployment, and it dies silently — reporting "skipped" rather than failing. Restyled to the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. Kept alongside the original for comparison. |
 
 ### `docs/roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution.md` — Level 8, Expert (6,200 words)
 
@@ -335,17 +391,38 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this level exists · 1. Safety assertions that never get averaged · 2. Routing confusion matrices and handoff integrity · 3. Circular-handoff detection and blame attribution · 4. Adversarial design by attack surface · 5. Consent and approval gating between turns · Question-bank corner · Key checks to carry forward · References |
 
+### `docs/roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution-v2.md` — Level 8 restyled, Safety, Adversarial Testing, and Multi-Agent Attribution (4,614 words)
+
+| | Covers |
+|---|---|
+| **Sections** | 1. Report Safety as a List, Never a Rate · 2. Read the Routing Matrix, Not the Accuracy · 3. Detect Loops and Attribute Blame · 4. Design Adversarial Tests by Attack Surface · 5. Gate Consent Between Turns · 6. Rehearse the Safety Questions · Key Takeaways · Check Yourself · References |
+| **Note** | Report safety as a list of case IDs rather than a percentage, because a percentage cannot be opened and read. Restyled to the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. Kept alongside the original for comparison. |
+
 ### `docs/roadmap-explainers/09-the-harness-as-a-product.md` — Level 9, Expert (6,600 words)
 
 | | Covers |
 |---|---|
 | **Sections** | Why this level exists · 1. Keeping the measuring instrument honest · 2. Repo conventions that keep every number traceable · 3. Eval-driven development — deciding "good" before the code exists · 4. What the harness still doesn't do — the open gaps · Question-bank corner — cost, ownership, decay, and building a platform · References |
 
+### `docs/roadmap-explainers/09-the-harness-as-a-product-v2.md` — Level 9 restyled, The Harness as a Product (5,434 words)
+
+| | Covers |
+|---|---|
+| **Sections** | 1. Keep the Measuring Instrument Honest · 2. Choose Conventions That Keep Every Number Traceable · 3. Decide "Good" Before the Code Exists · 4. Name What the Harness Still Doesn't Do · 5. Rehearse the Cost, Ownership and Decay Questions · Key Takeaways · Check Yourself · References |
+| **Note** | A harness that only computes numbers is not yet a product, because nobody has agreed what the numbers must reach or who signs off on them. Restyled to the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. Kept alongside the original for comparison. |
+
 ### `docs/roadmap-explainers/10-the-enterprise-harness-end-to-end.md` — Level 10, Cram sheet (5,200 words)
 
 | | Covers |
 |---|---|
 | **Sections** | Why this page exists · 1. Stage ① — The contract: decide "good" before the code exists · 2. Stage ② — Ground truth: the golden set · 3. Stage ③ — Offline evaluation: score every layer separately · 4. Stage ③b — Who does the scoring, and reading the numbers honestly · 5. Stage ④ — The release gate and CI · 6. Stage ⑤ — Production and online evaluation · 7. Stage ⑥ — Human feedback, and closing the loop · 8. The layer above: is the harness itself still working? · 9. The traps, in one table · 10. Build order — what to do first · 11. The one-page card · References |
+
+### `docs/roadmap-explainers/10-the-enterprise-harness-end-to-end-v2.md` — Level 10 restyled, The Enterprise Harness, End to End (4,958 words)
+
+| | Covers |
+|---|---|
+| **Sections** | 1. Write the Contract Before Any Code Exists (Stage ①) · 2. Build the Golden Set, and Know How It Lies (Stage ②) · 3. Score Every Layer Separately (Stage ③) · 4. Choose the Scorer, and Read the Numbers Honestly (Stage ③b) · 5. Wire the Gate Into CI (Stage ④) · 6. Measure Production Without an Answer Key (Stage ⑤) · 7. Close the Loop With Human Labels (Stage ⑥) · 8. Check That the Harness Itself Still Works · 9. Scan the Traps · 10. Build in This Order · 11. Keep the One-Page Card · Key Takeaways · Check Yourself · References |
+| **Note** | Every stage produces the artifact the next one consumes, so a skipped stage does not fail — it keeps reporting green while measuring nothing. Restyled to the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. Kept alongside the original for comparison. |
 
 ### Folder indexes
 
