@@ -1154,49 +1154,21 @@ flowchart TD
 
 ---
 
-# 24. Deterministic vs Non-Deterministic Checks --- Final View
+# 24. Deterministic vs Non-Deterministic Checks — Final View
 
----
-
-  Stage                   Deterministic           Non-Deterministic
-
----
-
-  Tenant                  Tenant ID, ACL,         Usually none
-                          isolation, auth
-
-  Router                  Valid agent, expected   Routing quality
-                          route, allowed route
-
-  Delegation              Allowed transition, hop Was delegation
-                          limit, loop detection   sensible?
-
-  Tool Selection          Expected/allowed tool,  Was it the best tool?
-                          call count
-
-  Tool Arguments          Schema, types, IDs,     Do arguments represent
-                          permissions             intent?
-
-  RAG Retrieval           Recall@K, Hit@K, tenant Context relevance
-                          filter, ACL
-
-  RAG Answer              Citation validity,      Groundedness,
-                          document existence      correctness
-
-  Trajectory              Steps, loops, forbidden Efficiency and
-                          transitions, cost       reasoning quality
-
-  Action                  Permission, limits,     Usually recommendation
-                          eligibility,            quality
-                          idempotency
-
-  Final Answer            Format, action-result   Correctness,
-                          consistency             completeness,
-                                                  helpfulness
-
-Production              Errors, latency, cost,  Sampled quality judging
-                          violations
-------------------------------------
+| Stage           | Deterministic Checks                                         | Non-Deterministic Checks                  |
+|-----------------|--------------------------------------------------------------|--------------------------------------------|
+| **Tenant**      | Tenant ID, ACL, isolation, auth                              | Usually none                               |
+| **Router**      | Valid agent, expected route, allowed route                    | Routing quality                            |
+| **Delegation**  | Allowed transition, hop limit, loop detection                | Was delegation sensible?                   |
+| **Tool Selection** | Expected/allowed tool, call count                         | Was it the best tool?                      |
+| **Tool Arguments** | Schema, types, IDs, permissions                           | Do arguments represent intent?             |
+| **RAG Retrieval**  | Recall@K, Hit@K, tenant filter, ACL                       | Context relevance                          |
+| **RAG Answer**     | Citation validity, document existence                      | Groundedness, correctness                  |
+| **Trajectory**     | Steps, loops, forbidden transitions, cost                  | Efficiency and reasoning quality           |
+| **Action**         | Permission, limits, eligibility, idempotency               | Usually recommendation quality             |
+| **Final Answer**   | Format, action-result consistency                          | Correctness, completeness, helpfulness     |
+| **Production**     | Errors, latency, cost, violations                          | Sampled quality judging                    |
 
 ---
 
