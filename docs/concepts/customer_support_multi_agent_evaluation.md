@@ -743,24 +743,22 @@ BLOCK
 
 A release candidate might produce:
 
-  Area         Metric                        Result
-
----
-
-  Routing      Routing accuracy               98.2%
-  Agent        Delegation accuracy            97.1%
-  Tools        Tool selection accuracy        97.6%
-  Tools        Argument schema validity       99.9%
-  RAG          Recall@5                       95.3%
-  RAG          Hit@5                          97.8%
-  RAG          Context relevance            4.7 / 5
-  Answer       Groundedness                 4.8 / 5
-  Answer       Correctness                  4.7 / 5
-  Trajectory   Trajectory quality           4.6 / 5
-  Safety       Cross-tenant leaks                 0
-  Actions      Unauthorized actions               0
-  System       P95 latency                  4.3 sec
-  Cost         Average request cost         \$0.021
+| Area       | Metric                   | Result  |
+| ---------- | ------------------------ | ------- |
+| Routing    | Routing accuracy         | 98.2%   |
+| Agent      | Delegation accuracy      | 97.1%   |
+| Tools      | Tool selection accuracy  | 97.6%   |
+| Tools      | Argument schema validity | 99.9%   |
+| RAG        | Recall@5                 | 95.3%   |
+| RAG        | Hit@5                    | 97.8%   |
+| RAG        | Context relevance        | 4.7 / 5 |
+| Answer     | Groundedness             | 4.8 / 5 |
+| Answer     | Correctness              | 4.7 / 5 |
+| Trajectory | Trajectory quality       | 4.6 / 5 |
+| Safety     | Cross-tenant leaks       | 0       |
+| Actions    | Unauthorized actions     | 0       |
+| System     | P95 latency              | 4.3 sec |
+| Cost       | Average request cost     | \$0.021 |
 
 Some of these measurements are deterministic.
 
@@ -774,18 +772,16 @@ Do not evaluate the candidate in isolation.
 
 Compare it with the currently deployed system.
 
-  Metric                 Production   Candidate
-
----
-
-  Routing accuracy            97.8%       98.2%
-  Tool accuracy               97.1%       97.6%
-  Recall@5                    94.5%       95.3%
-  Groundedness                  4.6         4.8
-  Trajectory quality            4.5         4.6
-  Cross-tenant leaks              0           0
-  P95 latency               4.0 sec     4.3 sec
-  Cost/request              \$0.019     \$0.021
+| Metric             | Production | Candidate |
+| ------------------ | ---------- | --------- |
+| Routing accuracy   | 97.8%      | 98.2%     |
+| Tool accuracy      | 97.1%      | 97.6%     |
+| Recall@5           | 94.5%      | 95.3%     |
+| Groundedness       | 4.6        | 4.8       |
+| Trajectory quality | 4.5        | 4.6       |
+| Cross-tenant leaks | 0          | 0         |
+| P95 latency        | 4.0 sec    | 4.3 sec   |
+| Cost/request       | \$0.019    | \$0.021   |
 
 Now we can detect both **quality improvement** and **regression**.
 
@@ -1156,19 +1152,19 @@ flowchart TD
 
 # 24. Deterministic vs Non-Deterministic Checks — Final View
 
-| Stage           | Deterministic Checks                                         | Non-Deterministic Checks                  |
-|-----------------|--------------------------------------------------------------|--------------------------------------------|
-| **Tenant**      | Tenant ID, ACL, isolation, auth                              | Usually none                               |
-| **Router**      | Valid agent, expected route, allowed route                    | Routing quality                            |
-| **Delegation**  | Allowed transition, hop limit, loop detection                | Was delegation sensible?                   |
-| **Tool Selection** | Expected/allowed tool, call count                         | Was it the best tool?                      |
-| **Tool Arguments** | Schema, types, IDs, permissions                           | Do arguments represent intent?             |
-| **RAG Retrieval**  | Recall@K, Hit@K, tenant filter, ACL                       | Context relevance                          |
-| **RAG Answer**     | Citation validity, document existence                      | Groundedness, correctness                  |
-| **Trajectory**     | Steps, loops, forbidden transitions, cost                  | Efficiency and reasoning quality           |
-| **Action**         | Permission, limits, eligibility, idempotency               | Usually recommendation quality             |
-| **Final Answer**   | Format, action-result consistency                          | Correctness, completeness, helpfulness     |
-| **Production**     | Errors, latency, cost, violations                          | Sampled quality judging                    |
+| Stage                    | Deterministic Checks                          | Non-Deterministic Checks               |
+| ------------------------ | --------------------------------------------- | -------------------------------------- |
+| **Tenant**         | Tenant ID, ACL, isolation, auth               | Usually none                           |
+| **Router**         | Valid agent, expected route, allowed route    | Routing quality                        |
+| **Delegation**     | Allowed transition, hop limit, loop detection | Was delegation sensible?               |
+| **Tool Selection** | Expected/allowed tool, call count             | Was it the best tool?                  |
+| **Tool Arguments** | Schema, types, IDs, permissions               | Do arguments represent intent?         |
+| **RAG Retrieval**  | Recall@K, Hit@K, tenant filter, ACL           | Context relevance                      |
+| **RAG Answer**     | Citation validity, document existence         | Groundedness, correctness              |
+| **Trajectory**     | Steps, loops, forbidden transitions, cost     | Efficiency and reasoning quality       |
+| **Action**         | Permission, limits, eligibility, idempotency  | Usually recommendation quality         |
+| **Final Answer**   | Format, action-result consistency             | Correctness, completeness, helpfulness |
+| **Production**     | Errors, latency, cost, violations             | Sampled quality judging                |
 
 ---
 
