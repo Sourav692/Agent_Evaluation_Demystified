@@ -526,6 +526,7 @@ when you want the unabridged version. Each folder has its own `README.md`.
 | `rag-evaluation/` | DeepEval metric drills, RAGAS scripts, a FastAPI RAG bot, Streamlit demos |
 | `agent-evaluation/arize-phoenix-labs/` | DeepLearning.AI × Arize — 5 progressive tracing/eval labs. Third-party, kept verbatim |
 | `agent-evaluation/crewai-travel-planner/` | A real 3-agent CrewAI app used as an evaluation target |
+| `agent-evaluation/multi-agent-eval-demo/` | A deliberately tiny LangGraph supervisor + two specialists, scored by checkable metrics and an LLM judge, served by FastAPI with a Streamlit scorecard |
 | `langgraph-agent-rag-eval/` | 9-metric trace-level suite, interview-prep framing |
 | `multiturn-and-tool-eval/` | Multi-turn + tool metrics, DeepEval vs MLflow side by side. **Its own uv project** — `uv sync` inside it |
 | `llm-as-judge/` | G-Eval smoke test |

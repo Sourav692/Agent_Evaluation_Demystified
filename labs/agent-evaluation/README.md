@@ -1,12 +1,13 @@
 # Agent Evaluation
 
 Evaluating agent *behaviour* — task success, routing, trajectories — rather than agent
-building. Two independent bodies of material.
+building. Three independent bodies of material.
 
 | Path | What it is | Needs |
 |---|---|---|
 | [`arize-phoenix-labs/`](arize-phoenix-labs/) | The DeepLearning.AI × Arize course, kept whole as 5 progressive labs: build the agent under test → instrument it with Phoenix tracing → router & skill LLM-judge evals → trajectory evals via Phoenix experiments → structured evals comparing prompt versions | `pip install -e '.[phoenix]'` and `PHOENIX_COLLECTOR_ENDPOINT` in `.env` |
 | [`crewai-travel-planner/`](crewai-travel-planner/) | A real 3-agent CrewAI travel planner behind FastAPI, with a pytest `TaskCompletionMetric` suite that reads cases from `trip_questions.xlsx` and scores the live backend | `pip install -e '.[crewai]'`, `SERPER_API_KEY`, and the API server running |
+| [`multi-agent-eval-demo/`](multi-agent-eval-demo/) | The smallest end-to-end version of the idea: a LangGraph supervisor routing between two specialists, a 4-case dataset recording which agents should work and what the answer must mention, three checkable scores (routing, content, efficiency) plus an LLM-judge quality score, served by FastAPI with a Streamlit scorecard. Moved here from `AI-ENGINEERING-DEMYSTIFIED` 2026-09-28 | `uv pip install -r multi-agent-eval-demo/requirements.txt`, `OPENAI_API_KEY` |
 
 **Distilled into:** course 01 modules 4 and 5
 ([`../../courses/01-rag-agent-tool-evaluation/`](../../courses/01-rag-agent-tool-evaluation/)).

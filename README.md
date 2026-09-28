@@ -55,6 +55,7 @@ labs/        Raw source material. Runnable, but not a curriculum — reach for t
   agent-evaluation/
     arize-phoenix-labs/           DeepLearning.AI × Arize: 5 progressive tracing/eval labs
     crewai-travel-planner/        A real 3-agent CrewAI app used as an evaluation target
+    multi-agent-eval-demo/        Tiny LangGraph supervisor team + scorecard, behind FastAPI/Streamlit
   langgraph-agent-rag-eval/       Interview-prep notebooks: 9-metric trace-level suite
   multiturn-and-tool-eval/        Multi-turn + tool metrics, DeepEval vs MLflow side by side
   llm-as-judge/                   G-Eval smoke test
