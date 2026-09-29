@@ -524,6 +524,7 @@ when you want the unabridged version. Each folder has its own `README.md`.
 | Folder | What's in it |
 |---|---|
 | `rag-evaluation/` | DeepEval metric drills, RAGAS scripts, a FastAPI RAG bot, Streamlit demos |
+| `rag-evaluation-techniques/` | Five standalone RAG-evaluation notebooks (LangChain evaluators, RAGAS, DeepEval, GroUSE, Open-RAG-Eval) from Nir Diamant's *RAG_Techniques*. Third-party, non-commercial licence kept alongside |
 | `agent-evaluation/arize-phoenix-labs/` | DeepLearning.AI × Arize — 5 progressive tracing/eval labs. Third-party, kept verbatim |
 | `agent-evaluation/crewai-travel-planner/` | A real 3-agent CrewAI app used as an evaluation target |
 | `agent-evaluation/multi-agent-eval-demo/` | A deliberately tiny LangGraph supervisor + two specialists, scored by checkable metrics and an LLM judge, served by FastAPI with a Streamlit scorecard |

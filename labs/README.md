@@ -10,6 +10,7 @@ version of something a course condensed.
 | Lab | Contents | Needs |
 |---|---|---|
 | [`rag-evaluation/`](rag-evaluation/) | DeepEval metric drills (Contextual Precision/Recall/Relevancy), RAGAS scripts including a pytest-CI pattern, a build-a-RAG-pipeline notebook, a FastAPI RAG bot + Streamlit front end | `OPENAI_API_KEY`; `.[apps]` for Streamlit |
+| [`rag-evaluation-techniques/`](rag-evaluation-techniques/) | Five standalone RAG-evaluation notebooks from Nir Diamant's *RAG_Techniques* anthology, one per tool: LangChain evaluators, RAGAS, DeepEval, GroUSE, Open-RAG-Eval (non-commercial licence, kept alongside) | `OPENAI_API_KEY`; GroUSE needs its own env |
 | [`agent-evaluation/arize-phoenix-labs/`](agent-evaluation/arize-phoenix-labs/) | DeepLearning.AI × Arize, 5 progressive labs: build an agent → trace it → router/skill judges → trajectory experiments → structured evaluation | `.[phoenix]`, `PHOENIX_COLLECTOR_ENDPOINT` |
 | [`agent-evaluation/crewai-travel-planner/`](agent-evaluation/crewai-travel-planner/) | A real 3-agent CrewAI app behind FastAPI, with a pytest `TaskCompletionMetric` suite driven from Excel | `.[crewai]`, `SERPER_API_KEY` |
 | [`agent-evaluation/multi-agent-eval-demo/`](agent-evaluation/multi-agent-eval-demo/) | A tiny LangGraph supervisor team (calculator + writer) with a case dataset, checkable scores and an LLM judge, behind FastAPI and a Streamlit scorecard | its own `requirements.txt`, `OPENAI_API_KEY` |
