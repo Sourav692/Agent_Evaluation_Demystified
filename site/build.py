@@ -76,6 +76,10 @@ RENDER = {
          "The roadmap",
          "The complete path, basic to expert: ten levels with exit checks, then "
          "what an OpenAI round pushes on and the Databricks track as its own ladder."),
+        ("study-guide/evaluation-topic-notebook-mapping.md", "topic-notebook-mapping",
+         "Topic &amp; notebook mapping",
+         "The roadmap's resource index: for every level, which notebook, explainer, "
+         "lab or question teaches each topic, and what running it costs."),
     ],
     "Roadmap explainers": [
         ("roadmap-explainers/00-orientation.md", "00-orientation",
@@ -1077,7 +1081,44 @@ def top_nav(active_section):
     return "".join(out)
 
 
+# Flip to True once every straggler below is registered or moved (repo-structure
+# plan, Phase 7). Until then a straggler is printed, not fatal, so a push still deploys.
+STRICT_COMPLETENESS = False
+
+
+def docs_sources():
+    """Every .md and .html under docs/ -- tracked files if git is available."""
+    import subprocess
+    try:
+        out = subprocess.run(["git", "ls-files", "docs"], cwd=ROOT, check=True,
+                             capture_output=True, text=True).stdout.split()
+        files = [f[len("docs/"):] for f in out]
+    except (OSError, subprocess.CalledProcessError):
+        files = [os.path.relpath(os.path.join(d, f), DOCS)
+                 for d, _, fs in os.walk(DOCS) for f in fs]
+    return sorted(f for f in files if f.endswith((".md", ".html")))
+
+
+def check_completeness():
+    """Fail (or warn) on a docs/ page that is in none of RENDER, COPY, SKIP.
+
+    Without this, a new page under docs/ is silently never published.
+    """
+    known = ({s for g in RENDER.values() for s, *_ in g}
+             | {s for g in COPY.values() for s, *_ in g}
+             | {s for s, _ in SKIP})
+    missing = [f for f in docs_sources() if f not in known]
+    if not missing:
+        return
+    msg = ("%d file(s) under docs/ are in none of RENDER, COPY or SKIP:\n   %s"
+           % (len(missing), "\n   ".join(missing)))
+    if STRICT_COMPLETENESS:
+        raise SystemExit(msg)
+    print("WARNING: " + msg + "\n")
+
+
 def build():
+    check_completeness()
     if os.path.isdir(DIST):
         shutil.rmtree(DIST)
     os.makedirs(os.path.join(DIST, "assets"))
