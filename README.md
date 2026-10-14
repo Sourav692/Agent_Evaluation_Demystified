@@ -67,7 +67,7 @@ labs/        Raw source material. Runnable, but not a curriculum — reach for t
 docs/        Prose only. Nothing executes. See INDEX.md for a section-level lookup.
   concepts/                       One theory companion per course, plus online vs. offline
   interactive-labs/               6 standalone HTML labs
-  interview-prep/                 One question bank (35 questions + 25 metric questions
+  interview-prep/                 One question bank (35 questions + 30 metric questions
                                   + 19 cases), plus a self-quiz drill as standalone HTML
   study-guide/                    The staged study plan through that question bank,
                                   as standalone HTML

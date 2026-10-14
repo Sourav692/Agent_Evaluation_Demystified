@@ -26,6 +26,11 @@ truth.
 **Every generation metric is bounded by retrieval.** Measure the generator while retrieval is
 broken and the number describes retrieval, not the generator. Score the two halves apart first.
 
+**And retrieval is bounded by ingestion.** A document that never reached the index — dropped by
+the loader, mangled by the parser or OCR, or embedded with a different model than the query —
+shows up as a retrieval failure that no retriever change can fix. Count, checksum and spot-check
+the index before tuning anything ([field guide §1.0](../concepts/rag-agent-tool-evaluation.md#10-upstream-of-retrieval-did-the-evidence-ever-reach-the-index)).
+
 ```mermaid
 flowchart LR
     Q["Query"] --> R["Retriever<br/>fetches chunks from a document store"]
@@ -58,25 +63,13 @@ Did the retriever find the right chunks, and put them near the top? This is pure
 order, and the IDs a human wrote down once as *actually* relevant. No judge, no key, no cost.
 It caps everything measured downstream.
 
-**The four metrics:**
-
-| Metric | Question it answers | Penalizes | Reach for it when |
-| --- | --- | --- | --- |
-| **Precision@K** | Of the K chunks retrieved, how many are relevant? | Noise in the retrieved set | Context windows are expensive and clutter is diluting the prompt |
-| **Recall@K** | Of all the relevant chunks that exist, how many made the top K? | Missing evidence | You want to know the hard ceiling everything downstream is capped by |
-| **MRR** (Mean Reciprocal Rank) | 1 / the rank of the *first* relevant hit | Burying the best chunk under noise | There's typically one best chunk and you care how early it lands |
-| **nDCG@K** (normalized Discounted Cumulative Gain) | Is the ranking good once relevance is a matter of *degree*, not just yes/no? | Bad ordering among several relevant-but-unequal chunks | Relevance is graded (0–3) and more than one relevant chunk can coexist |
-
-The formulas, in plain terms:
-
-    Precision@K = (relevant chunks in top K) / K
-    Recall@K    = (relevant chunks in top K) / (total relevant chunks that exist)
-    MRR         = 1 / (rank of the FIRST relevant chunk)
-    nDCG@K      = DCG@K / IDCG@K,   where DCG = Σ grade_i / log2(i + 2)
-
-One detail is worth sitting with. **IDCG is computed over the ideal ranking of every relevant
-chunk that exists — including ones the retriever never returned.** So nDCG stays capped below
-1.0 no matter how the retrieved chunks are reordered.
+**The four metrics** — Precision@K (noise), Recall@K (missing evidence), MRR (Mean Reciprocal
+Rank: how early the first relevant hit lands) and nDCG@K (normalized Discounted Cumulative Gain:
+ranking quality when relevance is graded 0–3). Definitions and formulas are in the
+[field guide §1.1](../concepts/rag-agent-tool-evaluation.md#11-retrieval-with-labels-deterministic)
+and [§6.1](../concepts/rag-agent-tool-evaluation.md#61-deterministic-retrieval-metrics-four-numbers-that-are-supposed-to-disagree).
+One detail to carry into the example: **nDCG's ideal ranking includes relevant chunks the
+retriever never returned**, so it stays capped below 1.0 however the retrieved chunks are reordered.
 
 ### The worked example
 
@@ -151,30 +144,25 @@ hand-labelled IDs that don't scale to production traffic. Ask it three separate 
 three ship rather than one blended number. Never average them: precision can halve while the
 average barely moves, and nobody investigates.
 
-| Metric | Question | Needs `expected_output`? | Cares about order? | Catches |
-| --- | --- | --- | --- | --- |
-| **Contextual Precision** | Are relevant chunks ranked *above* irrelevant ones? | Yes | Yes | A good chunk buried under noise |
-| **Contextual Recall** | Does the context, as a whole, cover everything the expected answer needs? | Yes | No | Missing information — retrieval found *something*, not *enough* |
-| **Contextual Relevancy** | Of everything retrieved, how much is actually on-topic? | No | No | Noise diluting the context, independent of ranking or completeness |
+Precision cares about **order** (are relevant chunks ranked above noise?). Recall cares about
+**coverage** (does the context hold everything the expected answer needs?). Relevancy cares
+about **signal-to-noise** (how much of what came back is on-topic?). Only Relevancy runs without
+`expected_output`. Definitions are in the
+[field guide §1.2](../concepts/rag-agent-tool-evaluation.md#12-retrieval-without-labels-judged);
+the formulas are in [§6.2](../concepts/rag-agent-tool-evaluation.md#62-llm-judged-retrieval-three-metrics-because-there-are-three-failures).
 
-Precision cares about **order**. Recall cares about **coverage**. Relevancy cares about
-**signal-to-noise**.
-
-Two naming traps sit here. Contextual Relevancy is *exactly* Section 2's Precision@K formula
-under another name — unweighted and order-blind. Contextual Precision is rank-weighted, and
-that weighting is the whole difference. A relevant chunk near the top counts for more, so
-reordering chunks moves Precision while leaving Relevancy untouched.
+Two naming traps sit here. Contextual Precision is rank-weighted: a relevant chunk near the top
+counts for more, so reordering chunks moves Precision while leaving Relevancy untouched.
+Contextual Relevancy is unweighted like Section 2's Precision@K, but it is judged **per statement
+inside each chunk**, not per chunk — so a verbose chunk holding one relevant sentence drags it
+down, and the chunker moves the score as much as the retriever does.
 
 **One easy-to-miss detail about context recall:** it checks the retrieved context against `expected_output` — the reference answer — **not** against what the generator actually said (`actual_output`). It asks "was enough fetched to *support* the full expected answer?",
 regardless of whether the generator used all of it. That trips people up constantly.
 
 ### The judge produces verdicts; arithmetic does the scoring
 
-    Contextual Precision = Σ (precision@i, for each position i holding a relevant chunk) / (number of relevant chunks)
-    Context recall    = (claims in expected_output supported by the context) / (total claims)
-    Contextual Relevancy = (relevant chunks) / (total chunks retrieved)
-
-The judge's only job is to label each chunk relevant/irrelevant, or each claim
+The judge's only job is to label each chunk (or statement) relevant/irrelevant, or each claim
 supported/unsupported. Everything after that is deterministic math. The same verdicts always
 produce the same score. Two judge runs can still disagree, because the *verdicts themselves*
 are non-deterministic (Level 0, Section 3).
@@ -242,11 +230,10 @@ cases is 1,500+ judge calls, before generation is measured at all.
 Given whatever *was* retrieved, is the answer any good — with no human-written reference for the
 query being scored? These are the checks that can run against live production traffic.
 
-| Metric | Question | Compares against |
-| --- | --- | --- |
-| **Answer relevancy** | Does the answer actually address the question that was asked? | `input` only |
-| **Faithfulness** | Is the answer grounded in what was retrieved, with no invented claims? | `retrieval_context` |
-| **Hallucination** | Does the answer align with a separately-supplied, trusted `context`, regardless of what retrieval fetched? | a curated `context`, not `retrieval_context` |
+Three checks, three reference points: **Answer relevancy** compares the answer to the `input`,
+**Faithfulness** to the `retrieval_context`, and **Hallucination** to a separately supplied,
+trusted `context`. Definitions are in the
+[field guide §1.3](../concepts/rag-agent-tool-evaluation.md#13-generation-without-a-reference).
 
 > **"Referenceless" does not mean "compares against nothing."** A reference is a correct answer
 > a person wrote *before* the system ran. `retrieval_context` is not that — the pipeline
@@ -257,15 +244,10 @@ Hallucination is the partial exception. Its trusted source is human-curated, so 
 maintained corpus — no *per-query* answer key, but not free either. Source material says what
 is *true*, not what this answer *should have said*.
 
-The judge doesn't score the answer as one blob. It decomposes first, and the three metrics use
-**different decompositions of the same text**:
-
-    Faithfulness     = (claims supported by retrieval_context) / (total claims)
-    Answer relevancy = (statements that address the input) / (total statements)
-    Hallucination    = (claims contradicting the trusted source) / (total claims)
-
-An answer can have three grounded *claims* and only one on-topic *statement* — Faithfulness and
-Answer Relevancy are not two takes on the same slicing of the text.
+The judge doesn't score the answer as one blob. It decomposes first — Faithfulness and
+Hallucination into *claims*, Answer Relevancy into *statements* — and the score is a ratio over
+those verdicts (formulas in [§6.3](../concepts/rag-agent-tool-evaluation.md#63-generator-metrics-faithful-relevant-and-completely-wrong)).
+An answer can have three grounded *claims* and only one on-topic *statement*.
 
 **A gotcha worth memorizing: Hallucination's score runs backwards.** A *higher* score means
 *more* hallucination, the opposite convention from Faithfulness and Answer Relevancy. Always
@@ -297,19 +279,13 @@ flowchart TD
     style AC fill:#DADCD6,stroke:#3C4E51
 ```
 
-**Faithfulness vs. Hallucination — the distinction people get wrong:**
-
-| | Faithfulness | Hallucination |
-| --- | --- | --- |
-| Compares against | the retrieved context — whatever *this* query's retriever fetched | a separate curated corpus, independent of retrieval |
-| Score direction | Higher is better | **Higher is worse** |
-| Changes per query? | Yes — the baseline moves with retrieval | No — the baseline is fixed |
-| Catches | A generator inventing beyond what it was given | An answer contradicting known truth, however it got there |
-| Blind to | Retrieved context that was itself wrong | Anything outside the curated context |
-| Runs on live traffic | Yes, nothing extra needed | Only where you maintain a trusted corpus |
-
-Use Faithfulness to police the generator. Use Hallucination against an independent trusted
-source, regardless of what retrieval returned.
+**Faithfulness vs. Hallucination** is the distinction people get wrong: Faithfulness's baseline
+moves with every query's retrieval, Hallucination's is a fixed curated corpus. Use Faithfulness
+to police the generator; use Hallucination against an independent trusted source, regardless of
+what retrieval returned. The side-by-side table is in
+[field guide §1.3](../concepts/rag-agent-tool-evaluation.md#13-generation-without-a-reference),
+along with the four-way split of "hallucination" (unsupported, contradicted, stale,
+inaccessible) that tells you which team owns a failing claim.
 
 ### When to use it, and when not to
 
@@ -342,7 +318,7 @@ place:
 **Is the answer actually correct**, against a known-good reference? Section 4's metrics never
 ask, and this is the only place in Level 1 that catches "faithful to bad context."
 
-Answer correctness has no single off-the-shelf definition. "Factually right" is task-specific, so the pattern is a `GEval`-style rubric you write (Section 6), not a metric you import. Answer Semantic
+Answer correctness has no single off-the-shelf definition ([field guide §1.4](../concepts/rag-agent-tool-evaluation.md#14-generation-against-a-reference)). "Factually right" is task-specific, so the pattern is a `GEval`-style rubric you write (Section 6), not a metric you import. Answer Semantic
 Similarity is not LLM-judged at all — it is plain embedding cosine similarity. That makes it
 cheap, fast, and weak on a subtly wrong fact: two answers sit close in embedding space while
 disagreeing on the one number that matters. Both need `expected_output`. That is the cost side of Level 0's tradeoff — exact, but only as
@@ -517,9 +493,42 @@ concluding the system is fine.
 
 ---
 
-## 10. Rehearse the Decomposition Questions
+## 10. Run Retrieval as an Operation, Not a One-Off Score
 
-Sections 1–9 answered the conceptual questions. These are the follow-ups that arrive once an
+Sections 2–9 score a retriever at one moment. In production the corpus changes underneath it
+every day, and a retriever that passed last month can fail today with no code change at all.
+Three habits keep the numbers honest over time.
+
+**Freshness is measurable, not a policy statement.** Section 4's "faithful to bad context" is
+most often *stale* context, and staleness has three tests:
+
+| Test | What it measures | Fails when |
+| --- | --- | --- |
+| **Time-to-index** | Time from a source document changing to the new version being retrievable from the serving index | It exceeds the freshness target set per corpus — a pricing page and an archive need different ones |
+| **Effective-date cases** | Golden cases whose right answer depends on which version of a document was in force on a given date | The answer cites the superseded version, or blends old and new |
+| **Stale-source refusal** | Cases where the only matching source is expired or archived | The system answers from it without saying it is out of date |
+
+**Version the retriever like a model.** Record the chunking strategy, embedding model, index
+build, reranker and access-filter version with every eval run and every production trace.
+Without that record a score change cannot be attributed — the same reason a prompt version gets
+pinned, applied to the half of the system that changes most often.
+
+**Watch retrieval-health metrics beside the quality scores.** They are cheap, mostly
+deterministic, and each one points at a single component:
+
+| Metric | What it tells you |
+| --- | --- |
+| **Access-filter pass rate** | Share of retrievals whose results all sit inside the user's permissions. Anything under 100% is a security defect, not a quality dip |
+| **Embedding freshness** | Share of indexed vectors built from the current version of their document. Falls when re-embedding lags behind edits |
+| **Duplicate-chunk rate** | How often near-identical chunks take several top-K slots and crowd out distinct evidence — usually an ingestion bug |
+| **Query-rewrite impact** | Recall@K for the rewritten query against the user's original. A rewrite that lowers recall is changing the user's intent |
+| **Reranker delta** | Rank of the relevant chunk (or MRR) before and after reranking. A negative delta means the reranker is optimising the wrong signal |
+
+---
+
+## 11. Rehearse the Decomposition Questions
+
+Sections 1–10 answered the conceptual questions. These are the follow-ups that arrive once an
 interviewer has a score table on screen. Each is a decomposition problem in a dashboard's
 clothing: name the layer that failed, then name the evidence that would prove it.
 
@@ -568,6 +577,8 @@ the index is.
   from live retrieval, not the source document.
 - Read the score table by pattern and slice it before concluding; an average hides a category
   sitting at zero.
+- A retrieval score is only good until the corpus changes: test freshness, version the
+  retriever, and watch the health metrics that point at one component each.
 
 ## Check Yourself
 
@@ -621,17 +632,20 @@ invented, and no external source was consulted. This page is the restyled editio
 - `courses/01-rag-agent-tool-evaluation/05_RAG_Eval_Inside_the_Pipeline.ipynb` — evaluation wired
   directly into a LangGraph pipeline as gates, mocked and then live (Section 7).
 - `courses/01-rag-agent-tool-evaluation/06_RAGAS_in_Practice.ipynb` — the batch pattern folded
-  into Section 8. This page does not cover the notebook's second-framework comparison, which is
-  library mechanics rather than decomposition.
+  into Section 8. The notebook's second-framework comparison is library mechanics rather than
+  decomposition, so it lives in the field guide §1.7 instead.
 - `courses/01-rag-agent-tool-evaluation/07_RAG_Capstone_Build_and_Evaluate.ipynb` — building a
   real RAG system, synthesizing a golden dataset, and running the full metric suite end to end
   (Section 8).
 
 **Docs:**
 
-- `docs/concepts/rag-agent-tool-evaluation.md`, Part 1 (§1.1–§1.9) — the compressed reference
-  version of every section above, plus §1.5 (writing a rubric) and §1.9 (reading results), which
-  have no notebook of their own.
+- `docs/concepts/rag-agent-tool-evaluation.md`, Part 1 (§1.0–§1.9) — the compressed reference
+  version of every section above and the canonical metric definitions this page links to, plus
+  §1.0 (upstream ingestion failures), §1.2b (context construction), §1.5 (writing a rubric) and
+  §1.9 (reading results), which have no notebook of their own.
+- `archive/AI_Engineer_Interview_Kit_RAG_Agents_Production_Failure_Scenarios_FINAL.pdf` — the
+  ingestion failures behind Section 1's upstream note and the freshness tests in Section 10.
 - `docs/concepts/rag-agent-tool-evaluation.md`, Part 6 (§6.1–§6.3) — the slow narrative version of
   Sections 2–5, walked against the same numbers used above, including the triage tables and the
   "when to use it / when not to" guidance reused directly in this file.

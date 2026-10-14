@@ -21,7 +21,7 @@ question bank `question-bank.html`, the roadmap `roadmap.html`, the drill
 | Short name | Is this file | What it is |
 |---|---|---|
 | **Field guide** | [`docs/concepts/rag-agent-tool-evaluation.md`](docs/concepts/rag-agent-tool-evaluation.md) | Course 01 theory. Tool-agnostic: what each check catches and misses, no framework APIs |
-| **Question bank** | [`docs/interview-prep/QUESTION_BANK.md`](docs/interview-prep/QUESTION_BANK.md) | 35 questions + 25 metric questions + 19 cases + appendices |
+| **Question bank** | [`docs/interview-prep/QUESTION_BANK.md`](docs/interview-prep/QUESTION_BANK.md) | 35 questions + 30 metric questions + 19 cases + appendices |
 | **Databricks ref** | [`docs/concepts/databricks-mlflow-evals.md`](docs/concepts/databricks-mlflow-evals.md) | Course 02 theory. Framework-specific: MLflow scorers, gotchas, the numbers |
 | **Drill page** | [`docs/interview-prep/evaluation-round-drill.html`](docs/interview-prep/evaluation-round-drill.html) | The self-quiz. Open in a browser |
 | **Online/offline** | [`docs/concepts/online_vs_offline_evaluation.md`](docs/concepts/online_vs_offline_evaluation.md) | The two regimes, what flows between them, and the sampling-resolution argument |
@@ -96,7 +96,7 @@ its section 6.1. Jump to the section rather than scrolling. `lab 0N-…` means
 | The complete basic → expert path — ten levels with exit checks, plus OpenAI-round and Databricks sections | `docs/study-guide/evaluation-roadmap.md` |
 | Self-quiz with hidden answers and per-item scoring | `evaluation-round-drill.html` |
 | 35 situational questions | Question bank **Parts 1–9** |
-| 25 metric-level questions | Question bank **Part 10** |
+| 30 metric-level questions | Question bank **Part 10** |
 | 19 long-form cases | Question bank **Tiers A–H** |
 | The Decomposition Spine (8 steps) | Question bank **§0.2** |
 
@@ -152,9 +152,9 @@ Everything for the evaluation thread of a system-design round, in one file.
 |---|---|
 | **Part 0** | What the round measures (five scoring axes) · the Decomposition Spine · the evaluation taxonomy |
 | **Parts 1–9** | 35 questions. Each: the issue underneath, what they're checking, a strong answer, a weak answer *with why it reads badly*, and the follow-up to expect |
-| **Part 10** | 25 metric-level questions, grouped by evaluation surface — the ones asked with your dashboard on screen |
+| **Part 10** | 30 metric-level questions, grouped by evaluation surface — the ones asked with your dashboard on screen |
 | **Tiers A–H** | 19 cases, 30–45 minutes each: strategy from zero · diagnosing production · trajectory and multi-agent · judges and calibration · gating and CI · monitoring · adversarial · platform |
-| **Appendices A–E** | Silent-failure catalogue · misreadings that sound like insight · company-specific flavour · rapid-fire drill · closing notes |
+| **Appendices A–G** | Silent-failure catalogue · misreadings that sound like insight · company-specific flavour · rapid-fire drill · closing notes · interview scorecard · production scenarios |
 
 ### `docs/guide-audits/openai-eval-guide-coverage-gaps.md` — OpenAI guide repo coverage (3,500 words)
 

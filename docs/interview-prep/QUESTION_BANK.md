@@ -1,7 +1,7 @@
 # Evaluation Question Bank — Agentic System Design & Decomposition
 
 Everything for the evaluation thread of an agentic system-design / decomposition round, in
-one place: **35 questions**, **19 case studies**, the framing that sits under both, and four
+one place: **35 questions**, **19 case studies**, the framing that sits under both, and seven
 appendices. Not coding exercises, not metric derivations — judgement under a constraint: what
 to measure, why that and not something else, what it costs, and what you do when the number
 disagrees with the stakeholder.
@@ -62,7 +62,7 @@ shallow, which is harder to notice in yourself.
 | **Part 7** | Multi-turn, tools and agency | Q26–29 |
 | **Part 8** | Adversarial, safety and governance | Q30–32 |
 | **Part 9** | Cost, ownership and rollout | Q33–35 |
-| **Part 10** | Metric-level questions, by evaluation surface | 25 questions |
+| **Part 10** | Metric-level questions, by evaluation surface | 30 questions |
 | **Tier A** | Building an evaluation strategy from zero | Cases 1–3 |
 | **Tier B** | Diagnosing a failing system in production | Cases 4–6 |
 | **Tier C** | Trajectory and multi-agent evaluation | Cases 7–9 |
@@ -71,7 +71,7 @@ shallow, which is harder to notice in yourself.
 | **Tier F** | Online monitoring and statistics | Case 15 |
 | **Tier G** | Adversarial and edge-case evaluation | Cases 16–17 |
 | **Tier H** | Harness and platform engineering | Cases 18–19 |
-| **Appendices** | Silent failures · misreadings · company flavour · rapid-fire drill · closing notes | A–E |
+| **Appendices** | Silent failures · misreadings · company flavour · rapid-fire drill · closing notes · interview scorecard · production scenarios | A–G |
 
 ---
 
@@ -563,6 +563,10 @@ Three ways that sentence gets produced:
 perfectly supported by its source. The source is wrong. That is not a model problem — it is a
 freshness policy on the knowledge base.
 
+**And a freshness policy is testable:** measure the time from a source update to the new version
+being retrievable, keep effective-date cases whose right answer depends on which version was in
+force, and check that the system refuses or flags a source past its expiry.
+
 **So you need three separate checks, not one:**
 
 - **On the context** — did the needed facts arrive at all? *(no answer key required)*
@@ -589,6 +593,11 @@ the model learning to paper over bad context.
 **If they push**
 *"Which would you build first?"* — "Groundedness. It needs no ground truth so it's cheap, and for a
 retrieval system an ungrounded answer is the most likely real failure."
+
+*"How do you prove it's retrieval and not the generator?"* — "Swap in the gold context. I'd re-run
+the failing cases with the labelled correct chunks in place of what the retriever returned. Right
+with gold and wrong with retrieved means retrieval or context assembly is the bottleneck; wrong
+with both means the generator. One controlled run instead of an argument."
 
 ---
 
@@ -1081,6 +1090,10 @@ you do update it, re-baseline rather than compare across the boundary.
 **And then the bridge, which is the part worth saying:** every production failure gets promoted
 into the gated set. **Online discovers; offline prevents it coming back.** A finding that never
 becomes a permanent test only helps you once.
+
+**Pick what to promote for novelty, not at random.** Random sampling re-collects the head you
+already cover; ranking candidates by embedding distance from the cases already in the set
+surfaces the tail.
 
 **The analogy.** A bathroom scale you re-calibrate every morning. You will always weigh roughly
 the same, and you will never know whether you lost weight.
@@ -2741,6 +2754,9 @@ pass, the team concludes it's safe, which is the worst possible outcome of a pas
 coverage as classes covered rather than as a pass rate, and pair it with red-teaming by people who
 didn't design the system."
 
+**Go deeper:** the cross-customer class has its own method — a role × region × sensitivity test
+matrix, reported per boundary — in [explainer 08, Access-boundary evaluation](../roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution.md#access-boundary-evaluation).
+
 ---
 
 ## Q31 — "Regulated industry — legal asks what evidence you have that the system is safe. What do you show them?"
@@ -2814,6 +2830,15 @@ without the standard, the approval and the retained record are unauditable.
 **If they push**
 *"They want to see the failures too."* — "Good, I'd show them. A record that includes blocked
 releases is far more credible than one where everything always passed."
+
+**Anchors a reviewer will recognise.** Map the controls you show onto the
+[OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
+(prompt injection, sensitive-information disclosure, excessive agency) and the
+[NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework) with
+its Generative AI Profile (NIST AI 600-1, 2024). Against any claim that a long context window
+makes retrieval misses harmless, the evidence is Liu et al.,
+[*Lost in the Middle: How Language Models Use Long Contexts*](https://arxiv.org/abs/2307.03172)
+(TACL, 2024).
 
 ---
 
@@ -3127,11 +3152,13 @@ decay that nothing else catches."
 
 # Part 10 — Metric-level questions from the labs
 
-Narrower than Parts 1–9: these start from a *number* rather than a situation, and are the ones asked when an interviewer has your metrics dashboard on screen. Grouped by evaluation surface. Each is answered in a minute or two — the fuller treatment of the metric itself is in [`rag-agent-tool-evaluation.md`](../concepts/rag-agent-tool-evaluation.md) Part 6.
+Narrower than Parts 1–9: these start from a *number* rather than a situation, and are the ones asked when an interviewer has your metrics dashboard on screen. Grouped by evaluation surface. Each is answered in a minute or two. This part asks; it does not re-teach — the metric itself, its mechanism and its worked numbers are in [`rag-agent-tool-evaluation.md`](../concepts/rag-agent-tool-evaluation.md) Part 6, and each section below links to its counterpart.
 
 ## 10.1 Deterministic retrieval metrics: four numbers that are supposed to disagree
 
 *Production, real-time framing — the kind asked at OpenAI-, Anthropic-, and Google-caliber interviews.*
+
+*The metric, taught in full: [field guide §6.1](../concepts/rag-agent-tool-evaluation.md#61-deterministic-retrieval-metrics-four-numbers-that-are-supposed-to-disagree).*
 
 #### Q1 — Your support RAG serves 30k queries/day. Leadership asks for "one number" for retrieval quality on the exec dashboard. What do you put there, and what do you say about the request?
 
@@ -3184,6 +3211,8 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 
 *Production, real-time framing — the kind asked at OpenAI-, Anthropic-, and Google-caliber interviews.*
 
+*The metric, taught in full: [field guide §6.2](../concepts/rag-agent-tool-evaluation.md#62-llm-judged-retrieval-three-metrics-because-there-are-three-failures).*
+
 #### Q1 — You're standing up retrieval evaluation for a customer-facing KB assistant with no labelled data and a launch in three days. Which of the three contextual metrics do you ship, and what do you tell the team you can't see?
 
 **What a strong answer covers:**
@@ -3224,11 +3253,30 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Alternatively reports pass rates per metric against thresholds, which is more interpretable than an averaged score
 - Keeps the three sub-scores one click away, since the fix depends entirely on *which* one failed
 
+#### Q6 — Recall@5 is 0.95 on the failing cases and the right chunk is in every retrieved set, yet the answers still miss the fact. What happened between retrieval and generation, and how do you test it?
+
+**What a strong answer covers:**
+- Separates *retrieved* from *seen*: scores the final prompt, not the retriever's output — chunk-inclusion rate and truncation events against the token budget
+- Tests position sensitivity directly: the same case with the gold chunk first, in the middle and last, so a lost-in-the-middle effect shows up as accuracy by position
+- Checks any compression or summarising step for dropped qualifiers, dates and units, by re-running the failures with it switched off
+- Looks for conflicting sources in the same context — an old and a new policy — then asks which precedence rule (source authority, effective date) the system is meant to apply, and tests that rule ([field guide §1.2b](../concepts/rag-agent-tool-evaluation.md#12b-context-construction-retrieved-is-not-the-same-as-seen))
+
+#### Q7 — The assistant launches in German and Japanese alongside English. How do you evaluate retrieval across languages?
+
+**What a strong answer covers:**
+- Reports recall per language, never pooled — an English-heavy average hides a language sitting at half the recall
+- Builds both parallel test sets (the same questions translated) and natively written ones: parallel isolates the language effect, native catches phrasing no translation produces
+- Tests cross-lingual retrieval explicitly — a query in one language whose only answer lives in a document written in another
+- Checks the language-sensitive parts of the pipeline: query rewriting, tokenisation, the embedding model's coverage of each language, parsing of non-Latin scripts
+- Puts native-speaking reviewers on high-risk domains, because a judge model's competence in a language is itself unvalidated
+
 ---
 
 ## 10.3 Generator metrics: faithful, relevant, and completely wrong
 
 *Production, real-time framing — the kind asked at OpenAI-, Anthropic-, and Google-caliber interviews.*
+
+*The metric, taught in full: [field guide §6.3](../concepts/rag-agent-tool-evaluation.md#63-generator-metrics-faithful-relevant-and-completely-wrong).*
 
 #### Q1 — Your production RAG monitors Faithfulness and Answer Relevancy on live traffic. Both sit above 0.95 for a month. Then a customer proves the assistant has been giving wrong compliance guidance the whole time. How is that possible, and what do you add?
 
@@ -3270,11 +3318,29 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Suggests guarding against it operationally: name dashboard panels with the direction, or normalise all metrics to higher-is-better before display
 - Then actually investigates the regression: what changed in the trusted context, the retriever, or the generator to quadruple contradictions
 
+#### Q6 — The dashboard reports a 4% hallucination rate and a VP asks what is driving it. What do you need that the single number doesn't give you?
+
+**What a strong answer covers:**
+- Extracts the answers' claims and labels every failing one as **unsupported**, **contradicted**, **stale** or **inaccessible** — four failures, not one
+- Maps each label to an owner: unsupported and contradicted to the generator and its grounding prompt, stale to index freshness, inaccessible to access filtering — handled as a security incident, not a quality dip
+- Notes that stale and inaccessible claims pass faithfulness because they *are* grounded, so a faithfulness-derived rate under-counts exactly those two
+- Slices the split by domain, source type, language and prompt/model version before answering what is driving it ([field guide §1.3](../concepts/rag-agent-tool-evaluation.md#13-generation-without-a-reference))
+
+#### Q7 — Users say the assistant gives different answers to what is obviously the same question, phrased differently. How do you measure that, and what do you look at first?
+
+**What a strong answer covers:**
+- Builds paraphrase sets — several phrasings per intent — and scores agreement across them (of the answer, and of the retrieved chunks), not only each phrasing's correctness
+- Separates the sources of variance: the same phrasing re-run at fixed settings measures sampling noise; different phrasings measure retrieval and query-rewrite instability
+- Diffs the traces across phrasings — the rewritten query or the retrieved set usually diverges first, before the generator does
+- Gates on consistency for high-stakes intents, because two plausible but different answers to one policy question is a defect even when each looks fine alone
+
 ---
 
 ## 10.4 Tool use: the metric is only as strict as its constructor
 
 *Production, real-time framing — the kind asked at OpenAI-, Anthropic-, and Google-caliber interviews.*
+
+*The metric, taught in full: [field guide §6.4](../concepts/rag-agent-tool-evaluation.md#64-tool-use-the-metric-is-only-as-strict-as-its-constructor).*
 
 #### Q1 — Your travel agent reports 0.92 tool correctness in CI. A customer's flight was booked for the wrong date and the test suite was green. Explain how, and what you change.
 
@@ -3316,11 +3382,22 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Argues for idempotency keys at the tool boundary as the real fix, since evaluation catches it after the fact and the money has already moved
 - Adds end-state verification against the payment system of record, because the agent's own summary will report one charge either way
 
+#### Q6 — An agent calls a text-to-SQL tool to answer analytics questions. How do you evaluate whether the SQL it generated is correct?
+
+**What a strong answer covers:**
+- Compares result sets, not SQL strings — two different queries can be equally right, and string matching fails in both directions
+- Runs the cheap deterministic checks first: does it parse, does it execute, does it touch only governed views and allowed tables, does it return within budget
+- With a reference query, executes both against a fixed data snapshot and compares rows — order-insensitive unless the question asks for an order, with a tolerance on floating-point values
+- Without one, falls back to referenceless signals: a judge reading the question, schema and SQL together; sanity bounds on the result (non-empty, plausible ranges); agreement across regenerations
+- Names it as skill-output evaluation: the tool was chosen and called correctly, and the SQL can still be quietly wrong ([field guide §4.4](../concepts/rag-agent-tool-evaluation.md#44-two-ideas-that-are-genuinely-new))
+
 ---
 
 ## 10.5 Agent trajectory: task success is not enough
 
 *Production, real-time framing — the kind asked at OpenAI-, Anthropic-, and Google-caliber interviews.*
+
+*The metric, taught in full: [field guide §6.5](../concepts/rag-agent-tool-evaluation.md#65-agent-trajectory-task-success-is-not-enough).*
 
 #### Q1 — Your refund agent reports 99.2% task success and per-request cost has tripled in six weeks. Quality complaints are flat. Where do you look?
 
@@ -4603,6 +4680,10 @@ CODE RULE         retrieve(query, filter=f"customer_id = {session.customer_id}")
 
 **Killer follow-up:** *"The agent wants to issue a refund. Should it be allowed to do so automatically?"* → "Under a value threshold, with a reversal window, an idempotency key, a daily cap and 100% end-state verification — yes. Above it, propose-and-confirm. The question is never 'autonomous or not', it's 'autonomous within what bounded, reversible envelope'."
 
+**Go deeper:** testing the boundary itself — a role × region × sensitivity matrix, deny-by-default
+for unseen combinations, cross-tenant leakage cases — is in
+[explainer 08, Access-boundary evaluation](../roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution.md#access-boundary-evaluation).
+
 ---
 
 # Tier H — Harness and Platform Engineering
@@ -4870,3 +4951,117 @@ Use these as spoken-answer drills. Target 60-90 seconds each.
 The throughline across all nineteen cases: **task success alone is never enough, and aggregates hide the thing you need to see.** A trace can reach the right final answer while being inefficient, unsafe, or lucky rather than reliable. A dashboard can be green while an entire attack class is at zero, an entire customer segment is failing, or the monitor itself stopped running three weeks ago.
 
 Say that out loud in the round, then show the decomposition that would have caught it.
+
+## Beyond evaluation
+
+This bank stays inside evaluation. Two neighbouring topics come up in the same loops and are
+deliberately left out: agent *design* prompts (25 of them, with what a strong design covers) and
+the fine-tuning-versus-RAG decision. Both are in the archived
+[interview kit](../../archive/AI_Engineer_Interview_Kit_RAG_Agents_Production_Failure_Scenarios_FINAL.pdf).
+
+---
+
+# Appendix F — Interview scorecard
+
+Score a mock answer — yours or a partner's — from 1 to 5 on each competency. The anchors are the
+same for every row; only the subject changes.
+
+| Score | What the answer shows |
+| --- | --- |
+| **1 — Poor** | Generic; reaches for a better model or prompt; misses production constraints |
+| **2 — Basic** | Names the components but can't tie them to concrete failure modes or evidence |
+| **3 — Good** | A reasonable plan or debugging path with some metrics; misses edge cases or trade-offs |
+| **4 — Strong** | Structured; names risks, metrics, logs and mitigations, and why each step matters |
+| **5 — Excellent** | Prioritises, sizes the blast radius, plans the rollback, and covers evaluation, security, observability and customer impact |
+
+| # | Competency | A 5 sounds like |
+| --- | --- | --- |
+| 1 | RAG troubleshooting | Walks the pipeline stage by stage — ingestion, retrieval, context, generation — with the evidence that clears each |
+| 2 | RAG architecture design | Chooses chunking, retrieval and context budget from the failure modes they prevent |
+| 3 | Agent system design | Tool boundaries, permissions, approval gates and idempotency before the planner |
+| 4 | Production debugging | Reproduces, classifies, isolates the stage, mitigates safely, then adds the regression test |
+| 5 | Evaluation framework design | Segmented metrics, a ground-truth source, gates and monitoring as one system |
+| 6 | Security and prompt injection | Attack classes, access boundaries, and retrieved content treated as data, never as instruction |
+| 7 | Observability and monitoring | Traces that answer "why", and alerts that can resolve the change you would act on |
+| 8 | Customer problem-solving | Turns a vague complaint into a measurable claim and a plan the customer can follow |
+| 9 | Trade-off communication | Quality against latency, cost and risk, stated with numbers and ending in a recommendation |
+| 10 | Senior engineering judgement | States assumptions, says what it would not do yet, and knows when to stop |
+
+**Hiring signal by level.**
+
+| Level | Signal |
+| --- | --- |
+| **Junior** | Explains RAG and agent concepts; needs guidance to debug a production failure; reaches for the model or the prompt first |
+| **Mid-level** | Builds the common features and debugs obvious failures from logs; tends to miss evaluation, security and edge cases |
+| **Senior** | Diagnoses pipeline failures alone, designs safe agent workflows, communicates trade-offs, and builds the evaluation and observability loop |
+| **Staff** | Sets the standards others build to: risk controls, org-wide evaluation strategy, incident response, cost governance, customer-facing rollout plans |
+
+**Read the profile, not the average.** A 2 on security and a 2 on trade-off communication are
+different hires with the same mean.
+
+---
+
+# Appendix G — Production scenarios
+
+Shorter than the cases, and all one shape: the likely causes, the evidence that separates them,
+the fix that also prevents a repeat — and the step most candidates skip, what you tell the
+customer.
+
+## G1 — "It passed in staging and fails in production"
+
+- **Likely causes:** a different index or index alias, different permissions or secrets, a
+  different model or prompt version, or production data the staging set never resembled.
+- **What separates them:** diff the configuration first — model and prompt versions, index alias,
+  filter expressions, feature flags. Then compare production traffic (length, language, tenant,
+  document type) against the staging eval set.
+- **Fix and prevent:** record environment configuration with every eval run, and run a
+  production-shaped canary set against the production configuration before traffic moves.
+- **Tell the customer:** "Staging was testing a different system from the one you run. The gate
+  now runs against production configuration."
+
+## G2 — "The answer is correct, and the customer still doesn't trust it"
+
+- **Likely causes:** citations that point at a whole document rather than the supporting sentence;
+  no visible source or date; a confident tone when the evidence is thin; different answers to the
+  same question phrased two ways.
+- **What separates them:** score citations at span level (does the cited sentence support the
+  claim?), measure paraphrase consistency (§10.3 Q7), and read sessions where users re-asked or
+  escalated after a correct answer.
+- **Fix and prevent:** sentence-level citations, the source and its effective date on screen, an
+  explicit "not sure" path — and trust signals such as re-ask and escalate-after-correct rates in
+  monitoring.
+- **Tell the customer:** "Right isn't enough if you can't check it. We're now measuring whether an
+  answer is verifiable, not only whether it's correct."
+
+## G3 — "Support tickets went up after we automated"
+
+- **Likely causes:** the agent handles the easy head and mishandles edge cases it should have
+  escalated; escalation thresholds tuned for deflection; an action completed in the reply but not
+  in the system.
+- **What separates them:** segment the new tickets by task type and by whether the agent touched
+  them; read the failed traces; measure escalation precision *and* recall, and the human-override
+  rate.
+- **Fix and prevent:** escalate the failing segments until they pass; verify the end state of
+  every action; report ticket reopen rate beside deflection.
+- **Tell the customer:** "Deflection rose and resolution didn't. We're optimising for resolved,
+  and those case types go back to people until they pass."
+
+## G4 — "We made it faster, or cheaper, and quality dropped"
+
+- **Likely causes:** a smaller model, a lower top-K, a removed reranker, aggressive trimming or
+  summarising of the context — each able to remove the one piece of evidence a hard case needed.
+- **What separates them:** compare traces between versions for evidence coverage (was the needed
+  chunk still in the prompt?); score recall@K and groundedness per version; slice by difficulty,
+  because the easy majority hides the damage.
+- **Fix and prevent:** route — a fast path for easy cases, the full path for hard ones; put
+  latency and cost in the same gate as quality, with a per-segment floor; report cost per
+  *successful* task, not per call.
+- **Tell the customer:** "Here is the latency we can reach without losing quality on your critical
+  workflows, and here is what the last change cost."
+
+## The customer-message step
+
+Every scenario above ends the same way, and it is the step candidates skip. A complete answer
+runs **diagnosis → fix → prevention → message**: one or two plain sentences saying what failed,
+what changed, and what stops it recurring — without blaming the model, and without promising it
+can never happen again. In customer-facing rounds the interviewer is listening for it.

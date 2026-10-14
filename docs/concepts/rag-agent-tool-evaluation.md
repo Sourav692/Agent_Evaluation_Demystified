@@ -2,7 +2,7 @@
 
 Companion to the 14 notebooks in [course 01](../../courses/01-rag-agent-tool-evaluation/). The notebooks show how to express each idea in a framework; this covers the idea.
 
-- **Tool-agnostic on purpose.** No class names, no constructor arguments. Framework APIs churn; the questions don't.
+- **Tool-agnostic on purpose.** Parts 1–5 avoid class names and constructor arguments. Framework APIs churn; the questions don't. The exceptions are deliberate: §0.5 maps names across the four frameworks, §1.7 sets RAGAS beside DeepEval, and Part 6 walks the labs in their own API.
 - **Built for recall under pressure.** Bullets and tables over prose. Each check is framed the same way — what it catches, what it misses, what it needs, when to reach for it.
 - **Read Part 0 first.** It's the map. After that, jump to whatever you're working through.
 
@@ -173,9 +173,37 @@ Several evaluation frameworks appear across the notebooks. The only durable fact
 
 Every concept here exists in all of them under some name. None of them lets you skip deciding which question you're asking.
 
+**The four used in this repo, side by side** — a lookup for moving between notebooks, not a recommendation. Names checked against DeepEval 4.2.3, RAGAS 0.4.3 and MLflow 3.16.
+
+| <br> | DeepEval | RAGAS | MLflow 3 GenAI | Arize Phoenix |
+| --- | --- | --- | --- | --- |
+| **Shape** | Metric library | Metric library, RAG-first | Platform with primitives, plus built-in scorers | Platform: tracing + experiments |
+| **Really for** | Broad catalogue (retrieval, generation, tools, task, conversation) plus custom rubrics; runs under pytest | A second opinion on RAG (§1.7); the common default in the RAG ecosystem | Evaluation inside experiment tracking: every run versioned, logged, comparable | Instrument a live system, capture every span, run evaluators over the captured traces |
+| **Unit of evaluation** | `LLMTestCase`; `ConversationalTestCase` for dialogues | `SingleTurnSample` (`user_input`, `response`, `retrieved_contexts`, `reference`) | A dataset row (`inputs` / `outputs` / `expectations`) plus the `Trace` captured for it | A captured span, or an experiment of dataset + task + evaluators |
+| **Sync vs async** | `metric.measure()` sync, `a_measure()` async; `evaluate()` runs cases concurrently by default | Async-first: `await metric.ascore(...)`; `score()` is a sync wrapper that refuses to run inside an event loop | `mlflow.genai.evaluate()`, one blocking call | Tracing is continuous; experiments run as jobs |
+| **The judge** | A `model=` string or model object | An explicit object: `llm_factory(model, client=...)` | Built into each scorer, or your own via `make_judge()` | Whatever model your evaluator calls |
+| **Named classes** | Dozens — `ContextualPrecisionMetric`, `FaithfulnessMetric`, `ToolCorrectnessMetric`, `TaskCompletionMetric`; `GEval` for rubrics, its fields named by `SingleTurnParams` | `ragas.metrics.collections`: `ContextPrecisionWithoutReference`, `ContextRecall`, `Faithfulness`, `AnswerRelevancy`, `FactualCorrectness`, … | Built-in scorers (`RetrievalGroundedness`, `RetrievalRelevance`, `RetrievalSufficiency`, `Correctness`, `Guidelines`, `ToolCallCorrectness`), custom `@scorer` functions, `make_judge()` | Some ready-made judge templates; the centre of gravity is evaluators you run over captured spans |
+
+**In one line each:** DeepEval and RAGAS answer *"is this output good?"*; MLflow answers it as part of an experiment history; Phoenix answers it with the full trace of how the output was produced.
+
 ---
 
 # Part 1 — RAG Evaluation
+
+## 1.0 Upstream of retrieval — did the evidence ever reach the index?
+
+Every retrieval metric below assumes the right document is in the index, parsed correctly, and embedded the same way the query is. When that assumption breaks, retrieval metrics report a *retrieval* failure for a bug that happened in a batch job days earlier — and no reranker will fix it.
+
+| Failure | What it looks like | How to check it (no judge needed) |
+| --- | --- | --- |
+| **Incomplete ingestion** | New or updated documents never show up in answers; one tenant or file type fails more than the rest | Count documents in the source system against the serving index; watch the ingestion dead-letter queue and parse-error rate; checksum each document so a changed source behind an unchanged index entry shows up |
+| **Parsing, OCR, table extraction** | The citation points at the right page, but the number, date or table cell the answer needed isn't in the chunk | Sample parsed text beside the original page; track empty-page rate and OCR confidence; keep parser regression cases for tables, scans and multi-column layouts |
+| **Embedding mismatch or drift** | Similarity scores cluster oddly; rare terms or one language regress after a deploy | Confirm query and document vectors come from the same model, dimension, normalisation and preprocessing; compare score distributions before and after any change |
+| **Regression after re-embedding** | The migration "succeeded" and recall fell | Run the labelled retrieval set (1.1) against old and new index *before* switching traffic; switch atomically so a half-built index never serves |
+| **Index never promoted** | Ingestion reports done; production still serves old chunks; staging looks fine | Query the serving index directly for the new document's ID |
+
+- **These are rung-1 checks (0.4)** — counts, checksums, timestamps. Run them on every ingestion, not only at eval time.
+- **The shortcut:** if a manual search of the source finds the answer and the index can't, stop tuning retrieval and go look at the pipeline that feeds it.
 
 ## 1.1 Retrieval, with labels (deterministic)
 
@@ -208,6 +236,23 @@ Same question as 1.1, judged instead of labeled. Three checks, three different f
 
 - **Precision cares about order. Recall cares about coverage. Relevancy cares about signal-to-noise.** A retriever can fail one and pass the other two.
 - **Note:** contextual recall checks against the *expected* answer, not the generated one — did retrieval fetch enough to support a full answer, regardless of what the generator used.
+- **Relevancy is judged per statement inside each chunk, not per chunk.** So chunk size moves it: one relevant sentence in a ten-sentence chunk scores far lower than the same sentence in a two-sentence chunk (6.2).
+
+## 1.2b Context construction — retrieved is not the same as seen
+
+Between the retriever and the generator sits a step most suites never score: building the prompt. The right chunk can be retrieved and still not be *seen*.
+
+| Failure | Mechanism | How to test it |
+| --- | --- | --- |
+| **Lost in the middle** | Models use evidence at the start and end of a long context more reliably than evidence in the middle | The same case with the gold chunk placed first, middle and last; compare accuracy by position |
+| **Chunk ordering** | Merge logic orders by score, time or source and buries the decisive chunk | Log the final order; test order sensitivity on known cases |
+| **Token-budget truncation** | Context overflows the budget and the cut lands on the evidence | Track truncation events and chunk-inclusion rate (retrieved vs actually in the prompt); slice quality by context length |
+| **Compression** | A summarising step drops a qualifier, exception, date or unit before the generator sees it | Score the compressed context for faithfulness to the original chunks; rerun failures with compression off |
+| **Conflicting sources** | Two retrieved documents disagree — old and new policy, general rule and exception — and the model blends them or silently picks one | Seed cases with deliberate conflicts. Pass = the answer applies the written precedence rule (source authority, effective date) or surfaces the conflict; a quiet compromise fails |
+
+- **Score the final prompt, not the retrieval result.** Every check in 1.1–1.2 reads what the retriever returned; none reads what the generator received.
+- **Compression is itself a generation step.** It can hallucinate before the answer is written, so it needs its own faithfulness check.
+- **Conflict handling is a behaviour to specify**, like refusal: write down which source wins, then test that rule.
 
 ## 1.3 Generation, without a reference
 
@@ -224,6 +269,18 @@ Given what was retrieved, is the answer any good — with no hand-written refere
 - **Faithful but irrelevant** — perfectly grounded, answers a different question.
 - **Relevant but unfaithful** — addresses the question, invents facts.
 - **Faithful to bad context** — accurately reflects chunks that were themselves wrong. **Faithfulness cannot catch this.** Only 1.4 can.
+
+**Split "hallucination" four ways before you measure it.** Extract the answer's claims, check each one, and give every failing claim one label:
+
+| Label | The claim is… | Who fixes it | Checked against |
+| --- | --- | --- | --- |
+| **Unsupported** | In no retrieved or trusted source | The generator — it invented | The retrieved context |
+| **Contradicted** | Opposed by a source the system had | The generator, or conflict handling (1.2b) | The retrieved context or a trusted corpus |
+| **Stale** | Supported by a source that is no longer valid | Index freshness, not the model | The source's effective and expiry dates |
+| **Inaccessible** | Supported only by a source this user may not see | Access filtering — a security defect, not a quality one | The user's permissions |
+
+- **One "hallucination rate" hides four owners.** Report the split, sliced by domain, source type, language and prompt/model version.
+- **Stale and inaccessible claims pass faithfulness** — they are grounded. Only the label says which team owns the fix.
 
 **Faithfulness vs hallucination — the distinction people get wrong:**
 
@@ -278,6 +335,19 @@ One scored example teaches you what a check does. It says nothing about your sys
 - **It re-runs on demand** — the prerequisite for comparing a change against what's live.
 - **A standard test runner gets you this cheaply** — parametrize over rows and inherit batch execution, pass/fail reporting, and CI.
 
+**A second library as a second opinion.** Two independent implementations of "faithfulness" agreeing on a case is evidence; disagreeing is a judge question worth reading. [`06_RAGAS_in_Practice.ipynb`](../../courses/01-rag-agent-tool-evaluation/06_RAGAS_in_Practice.ipynb) scores the same ideas with RAGAS 0.4:
+
+| RAGAS (`ragas.metrics.collections`) | Mirrors | Note |
+| --- | --- | --- |
+| `ContextPrecisionWithoutReference` | Contextual precision (1.2) | Judges each chunk against the *response* instead of an answer key; `ContextPrecisionWithReference` is the reference-based sibling. The 0.2 split sits in the class name |
+| `ContextRecall` | Contextual recall (1.2) | Reads `reference` — the answer key |
+| `Faithfulness` | Faithfulness (1.3) | Same claim-by-claim idea |
+
+- **Unit of evaluation.** `SingleTurnSample` (`user_input`, `response`, `retrieved_contexts`, `reference`) against DeepEval's `LLMTestCase` (`input`, `actual_output`, `retrieval_context`, `expected_output`). Same idea, different names. In 0.4 each metric's `ascore()` takes the fields it reads as keyword arguments; the sample is only a container.
+- **Async-first.** `await metric.ascore(...)` returns a `MetricResult` (read `.value`), against DeepEval's synchronous `metric.measure(case)`. The sync `score()` wrapper refuses to run inside an event loop, so a notebook cell uses `await` directly.
+- **The judge is an object, not a string.** `llm_factory("gpt-4o-mini", client=AsyncOpenAI())`, passed as `llm=`; its `provider=` argument swaps in other vendors. The 0.3 shape (`LangchainLLMWrapper`, `single_turn_ascore`, imports from `ragas.metrics`) is deprecated — older tutorials still show it.
+- **One noise chunk splits precision from recall.** The notebook ranks one irrelevant chunk above the correct one, and Context Precision comes back below Context Recall. Precision is penalised by noise sitting in the ranking; recall only asks whether the reference's claims are covered, and they are. It is 6.2's bad-ranking signature, read in a second library's vocabulary.
+
 ## 1.8 Golden datasets
 
 - **Hand-writing references doesn't scale** past a handful of examples.
@@ -305,10 +375,8 @@ A system can be fine turn-by-turn and fail as a conversation. The unit of evalua
 - **Knowledge retention** — does it remember what the user said three turns ago? The most visible multi-turn failure is re-asking for something already supplied.
 - **Whole-dialogue rubric** — your domain criterion applied across the arc, not one turn.
 
-**The arithmetic nobody does:**
+**The arithmetic nobody does:** turn pass rates multiply, so 95% per turn is about 77% at five turns (*p* to the power of the number of turns), and real conversations run below that because a bad turn poisons the ones after it. The full argument, with the table, is in [`09_multiturn_and_tool_selection.ipynb`](../../courses/02-databricks-mlflow-evals/09_multiturn_and_tool_selection.ipynb).
 
-- **Turn pass rates multiply.** If each turn independently passes 95% of the time, a 5-turn conversation passes 0.95 × 0.95 × 0.95 × 0.95 × 0.95 — that is, *p* to the power of the number of turns.
-- **So 95% per turn is 77% conversation success**, not 95%.
 - The overstatement grows with length — so the metric looks best exactly where the product is worst.
 - **If you report turn-level numbers, report the session-level number beside them.**
 
@@ -551,7 +619,7 @@ Before any judge model, any API key, or any cost, there is a layer of retrieval 
 
 **Source module:** `courses/01-rag-agent-tool-evaluation/01_Retrieval_Metrics_Deterministic.ipynb`
 
-> **Naming note:** Part 2 reuses "Precision" and "Recall" for its LLM-judged Contextual metrics, but the computations differ. Contextual Relevancy turns out to be the *same* unweighted `relevant/total` formula as Precision@K here; Contextual Precision is a different, rank-weighted metric. See Part 2's Core Mechanism section for the exact formulas.
+> **Naming note:** Part 2 reuses "Precision" and "Recall" for its LLM-judged Contextual metrics, but the computations differ. Contextual Relevancy is unweighted and order-blind like Precision@K, but it counts relevant *statements* inside the chunks rather than relevant chunks — the two agree only when every chunk is a single statement. Contextual Precision is a different, rank-weighted metric. See Part 2's Core Mechanism section for the exact formulas.
 
 ---
 
@@ -640,6 +708,7 @@ Three things worth noticing:
 | Good recall, falling precision      | K is too large for this query              | Dynamic K, or retrieve wide and rerank narrow             |
 | Good recall and MRR, low nDCG       | Ranking ignores degrees of usefulness      | Graded labels + a ranking-aware retriever                 |
 | Everything good, answer still wrong | Retrieval is fine — go look at generation | Part 3's faithfulness and correctness metrics             |
+| Answer wrong, unclear which half failed | Settle it with a gold-context swap: re-score the case with the labelled chunks in place of the retrieved ones | Right with gold, wrong with retrieved → retrieval or context (§1.2b); wrong with both → generation |
 
 ---
 
@@ -703,12 +772,13 @@ The judge's only job is to label. The scoring is deterministic:
 
     Contextual Precision = Σ (precision@i for each position i holding a relevant chunk) / (number of relevant chunks)
     Contextual Recall    = (claims in expected_output supported by the context) / (total claims)
-    Contextual Relevancy = (relevant chunks) / (total chunks retrieved)
+    Contextual Relevancy = (relevant statements) / (total statements, across every retrieved chunk)
 
 - **Precision is rank-weighted.** A relevant chunk at position 1 contributes `1/1`; the same chunk at position 3 contributes at most `1/3`. That weighting is the entire reason reordering changes the score.
 - **Recall compares context to `expected_output`, not `actual_output`.** It asks whether enough was *fetched to support* the full answer, independent of whether the generator used it. This trips people up constantly.
 - **Relevancy is the simplest and the only referenceless one.** No ground truth, no order sensitivity — just what fraction of what you retrieved was on topic.
-- **Relevancy's formula is identical to Part 1's Precision@K** (`relevant/total`, unweighted, order-blind) — same math, different name. What's genuinely new here is Contextual *Precision*, which is the rank-weighted version of that same idea, which is why it and Relevancy can diverge (see the "bad ranking" row below, where Relevancy doesn't move but Precision drops by a third).
+- **Relevancy is judged per statement, not per chunk.** The judge splits every retrieved chunk into statements and labels each one; the score pools all of them. So chunk granularity is part of the metric: a ten-sentence chunk holding one relevant sentence scores around 0.1, while a two-sentence chunk holding the same fact scores near 1.0 — same retriever, same fact, different chunker.
+- **It reduces to Part 1's Precision@K** (`relevant/total`, unweighted, order-blind) only when each chunk is a single statement, as in this lab's one-sentence chunks. What's genuinely new here is Contextual *Precision*, the rank-weighted version, which is why it and Relevancy can diverge (see the "bad ranking" row below, where Relevancy doesn't move but Precision drops by a third).
 
 ---
 
@@ -1270,7 +1340,9 @@ When someone says "the answers got worse," work the layers in order rather than 
 
 | If you're asking... | Reach for |
 | --- | --- |
+| Did the document ever reach the index intact? | Source-vs-index counts, checksums, parse and embedding checks (1.0) |
 | Retrieval quality, with labels | Precision@K, Recall@K, MRR, nDCG (1.1) |
+| Retrieved, but did the generator see it? | Position, truncation, compression and conflict tests on the final prompt (1.2b) |
 | Retrieval quality, without labels | Judged contextual precision / recall / relevancy (1.2) |
 | Is the answer grounded, no reference available? | Answer relevancy, faithfulness, trusted-context check (1.3) |
 | Is the answer *correct*? | A custom correctness rubric; similarity as a proxy (1.4) |

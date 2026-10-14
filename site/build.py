@@ -70,8 +70,8 @@ RENDER = {
     "Interview prep": [
         ("interview-prep/QUESTION_BANK.md", "question-bank",
          "The question bank",
-         "35 situational questions, 25 metric questions, 19 long-form cases and "
-         "five appendices. The readable reference; the drill is the quiz."),
+         "35 situational questions, 30 metric questions, 19 long-form cases and "
+         "seven appendices. The readable reference; the drill is the quiz."),
         ("study-guide/evaluation-roadmap.md", "roadmap",
          "The roadmap",
          "The complete path, basic to expert: ten levels with exit checks, then "
@@ -400,7 +400,7 @@ MERMAID_SCRIPT = """
 </script>"""
 
 
-# The question bank is 35,631 words: 35 questions, 19 cases and 25 metric
+# The question bank is 35,631 words: 35 questions, 19 cases and 30 metric
 # questions. Read straight through that is an enormous scroll, and finding one
 # question means passing every answer before it. Each question becomes a
 # <details>, closed by default, so the page opens as a browsable list and you

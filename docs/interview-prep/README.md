@@ -20,8 +20,9 @@ Both are standalone — no build step, no server. Open the file.
   (what the round measures, the Decomposition Spine, the taxonomy). Parts 1–9 are 35 questions,
   each with the issue underneath it, what they're checking, a strong answer, a weak answer *with
   why it reads badly*, and the follow-up to expect. Tiers A–H are 19 case studies answered out
-  loud in 30–45 minutes. Appendices A–E carry the silent-failure catalogue, the misreadings
-  that sound like insight, company-specific flavour, a rapid-fire drill set and the closing notes.
+  loud in 30–45 minutes. Appendices A–G carry the silent-failure catalogue, the misreadings
+  that sound like insight, company-specific flavour, a rapid-fire drill set, the closing notes,
+  an interview scorecard and production scenarios.
 
 The two HTML files above are built from `QUESTION_BANK.md`; the Markdown is the canonical text.
 Edit there, not in the HTML.
