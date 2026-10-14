@@ -10,6 +10,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Course 03's outputs are committed on purpose: its runs are paid, and readers
+# who don't run them still see the results. Owner decision (Q4, 2026-10-15):
+# keep them, with local paths scrubbed instead of the outputs stripped.
+KEEP_OUTPUTS = ("courses/03-agentic-eval-harness/",)
+
 
 def staged_notebooks(root: Path) -> list[Path]:
     out = subprocess.run(
@@ -68,6 +73,8 @@ def main() -> int:
     cleaned = []
     for nb in staged_notebooks(root):
         if not nb.exists():
+            continue
+        if nb.relative_to(root).as_posix().startswith(KEEP_OUTPUTS):
             continue
         if strip(nb):
             subprocess.run(["git", "add", "--", str(nb)], cwd=root, check=True)
