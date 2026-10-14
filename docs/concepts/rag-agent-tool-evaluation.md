@@ -941,7 +941,7 @@ Tool use is where agents actually fail. A travel bot that says *"Your flight is 
 
 ### TL;DR
 
-- **`ToolCorrectnessMetric` is deterministic, not judged** — it compares `tools_called` against `expected_tools`. Its strictness lives entirely in `evaluation_params` and `should_exact_match`.
+- **`ToolCorrectnessMetric` is deterministic, not judged** — it compares `tools_called` against `expected_tools`. Its strictness lives entirely in `evaluation_params` and `should_exact_match`. **One exception:** pass `available_tools=` and it also asks an LLM to score tool *selection*, and the final score becomes the `min` of the two (DeepEval 4.2.3). Leave `available_tools` unset to keep it free and reproducible.
 - With the **default name-only comparison**, an extra billed API call, a reversed sequence, a dropped output and a **wrong travel date** all score 1.00. Mean across six traces: **0.92**.
 - Adding `ToolCallParams.INPUT_PARAMETERS` catches the wrong date. Adding `OUTPUT` plus `should_exact_match=True` catches everything and turns the metric **binary** — mean collapses to **0.17**.
 - `ArgumentCorrectnessMetric` is the referenceless counterpart for production. `TaskCompletionMetric` asks the question none of them ask: **did the user actually get what they wanted?**
@@ -967,7 +967,7 @@ The final response sounds correct in all three cases. Only tool-level evaluation
 
 | Metric | Type | Needs | Best for |
 |---|---|---|---|
-| `ToolCorrectnessMetric` | Reference-based, **deterministic** | `expected_tools` | Regression and CI, where correct behaviour is known |
+| `ToolCorrectnessMetric` | Reference-based, **deterministic** (judged only if `available_tools` is set) | `expected_tools` | Regression and CI, where correct behaviour is known |
 | `ArgumentCorrectnessMetric` | Referenceless, **LLM-judged** | Tool descriptions only | Dynamic workflows, production monitoring |
 | `ToolUseMetric` | Multi-turn, LLM-judged | `available_tools` (required) | Conversational agents; final score is the **min** of the selection and argument sub-scores |
 | `TaskCompletionMetric` | Referenceless, outcome-level | `input` + `actual_output` | The question the mechanics never ask |
