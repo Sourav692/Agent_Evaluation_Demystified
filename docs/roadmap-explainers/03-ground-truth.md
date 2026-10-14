@@ -97,6 +97,11 @@ see it.
 
 > **Sample for detection, not for representativeness.**
 
+**Include hard negatives.** For retrieval cases, deliberately keep confusable documents in the
+corpus the case runs against — an outdated version of the right policy, a sibling product's page
+with near-identical wording. A set where the wrong documents are obviously wrong cannot catch the
+most common production failure: high similarity, wrong context.
+
 **The refusal quota asks how much of the set rewards doing nothing.** If no case has refusing,
 escalating or saying "I don't know" as the *correct* answer, then a system that always answers
 scores perfectly. The metric is now silently rewarding confident invention.

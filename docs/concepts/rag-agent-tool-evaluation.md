@@ -201,6 +201,7 @@ Every retrieval metric below assumes the right document is in the index, parsed 
 | **Embedding mismatch or drift** | Similarity scores cluster oddly; rare terms or one language regress after a deploy | Confirm query and document vectors come from the same model, dimension, normalisation and preprocessing; compare score distributions before and after any change |
 | **Regression after re-embedding** | The migration "succeeded" and recall fell | Run the labelled retrieval set (1.1) against old and new index *before* switching traffic; switch atomically so a half-built index never serves |
 | **Index never promoted** | Ingestion reports done; production still serves old chunks; staging looks fine | Query the serving index directly for the new document's ID |
+| **Missing or wrong metadata filters** | Right document exists, but a tenant, region or version filter drops it — or lets the wrong version through. Recall looks fine on unfiltered tests | Measure metadata coverage (null rate per field) against the source system; log the filter expression actually sent to the vector store; compare results with and without the filter; keep canary queries per tenant, region and version, and eval cases whose right answer depends on the filter |
 
 - **These are rung-1 checks (0.4)** — counts, checksums, timestamps. Run them on every ingestion, not only at eval time.
 - **The shortcut:** if a manual search of the source finds the answer and the index can't, stop tuning retrieval and go look at the pipeline that feeds it.
@@ -208,6 +209,8 @@ Every retrieval metric below assumes the right document is in the index, parsed 
 ## 1.1 Retrieval, with labels (deterministic)
 
 > **Worked lab:** §6.1 walks this against real numbers.
+
+> **Put hard negatives in the eval set.** Add near-duplicate, confusable documents for some queries — last year's policy beside this year's, a sibling product's manual. Without them the set only tests easy separations, and "high similarity, wrong context" never shows up as a failure.
 
 Needs a labeled eval set — query → relevant chunk IDs — and arithmetic. No judge, no API call. The right first move whenever you have labels.
 

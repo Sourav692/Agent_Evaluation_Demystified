@@ -44,7 +44,7 @@ workspace. Everything under `docs/` is free.
 | [`12_Agent_Trajectory_Evaluation.ipynb`](../../courses/01-rag-agent-tool-evaluation/12_Agent_Trajectory_Evaluation.ipynb) + [lab 05](../interactive-labs/05-agent-trajectory-evaluation.html) | The nine trace-level checks on a refund agent. Five of nine never move; task success passes on 40 % waste | none (Parts A–B), key (Part C) |
 | [Field guide Parts 2–3](../concepts/rag-agent-tool-evaluation.md) | §2.1 why per-turn rates multiply · §2.2 strict vs loose matching · §2.4 the polite tool failure · §3.2 the three trajectory traps | none |
 | [Databricks ref, Part 4 — `p ** n`](../concepts/databricks-mlflow-evals.md) | At 95 % per turn a conversation is more likely failed than not by turn 14 | none |
-| [`archive/labs-multiturn-and-tool-eval/`](../../archive/labs-multiturn-and-tool-eval/) *(optional)* | The same multi-turn and tool metrics twice — DeepEval and MLflow — side by side. Its own `uv` project | key |
+| [`11_Same_Evals_with_MLflow.ipynb`](../../courses/01-rag-agent-tool-evaluation/11_Same_Evals_with_MLflow.ipynb) *(optional)* | The same multi-turn and tool questions as notebooks 08–10, asked again in MLflow — the framework-portability lesson | key |
 
 ## Level 3 · Ground truth
 

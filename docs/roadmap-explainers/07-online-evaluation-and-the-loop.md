@@ -321,6 +321,21 @@ genuine differences are not resolvable yet, and the honest move is to let it kee
 than promote on a coin flip. Name the regression that cannot be missed, and do not call the race before the sample can call
 it.
 
+### A/B testing is a different instrument
+
+A paired canary asks *is the new build worse?* on the same inputs. An **A/B test** asks *which
+variant do users do better with?* on different cohorts, measured by outcomes — task completion,
+escalation, edits, return visits. Four rules keep it honest:
+
+- **Only A/B variants that already passed offline.** Never put a build that fails a safety
+  assertion in front of real users to see what happens.
+- **Split cohorts by the strata that matter** — role, workflow, tenant — and report per cohort,
+  for the same reason Level 5 reports per stratum.
+- **Wait out novelty.** Early lifts often fade as users get used to a change; fix the run length
+  before starting, not when the curve looks good.
+- **Know the traffic limit.** A low-traffic workflow may never reach a significant result; for
+  those, the paired canary and offline evaluation are the decision, not the A/B.
+
 ---
 
 ## 7. Turn Every Finding Into a Permanent Test

@@ -523,6 +523,7 @@ deterministic, and each one points at a single component:
 | **Duplicate-chunk rate** | How often near-identical chunks take several top-K slots and crowd out distinct evidence — usually an ingestion bug |
 | **Query-rewrite impact** | Recall@K for the rewritten query against the user's original. A rewrite that lowers recall is changing the user's intent |
 | **Reranker delta** | Rank of the relevant chunk (or MRR) before and after reranking. A negative delta means the reranker is optimising the wrong signal |
+| **Metadata-filter health** | Null rate of each filter field against the source system, and recall with versus without the tenant/region/version filter. A filter that silently drops the right document looks like a retrieval miss |
 
 ---
 

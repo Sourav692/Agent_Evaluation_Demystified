@@ -320,7 +320,7 @@ Two bridges connect back to the framework-agnostic material:
 
 **Bridge (course 01 → MLflow):** [course 01 nb 11](../../courses/01-rag-agent-tool-evaluation/11_Same_Evals_with_MLflow.ipynb) re-asks modules 2.1–2.2's questions through `mlflow.genai.evaluate()`.
 
-**Bridge (multi-turn labs):** [`archive/labs-multiturn-and-tool-eval/`](../../archive/labs-multiturn-and-tool-eval/) runs the same multi-turn and tool metrics in DeepEval and MLflow side by side.
+**Bridge (multi-turn and tool metrics in both frameworks):** course 01 notebooks [08](../../courses/01-rag-agent-tool-evaluation/08_MultiTurn_Conversational_Evaluation.ipynb)–[10](../../courses/01-rag-agent-tool-evaluation/10_Task_Completion_Evaluation.ipynb) in DeepEval, then [11](../../courses/01-rag-agent-tool-evaluation/11_Same_Evals_with_MLflow.ipynb) in MLflow, side by side.
 
 ---
 
