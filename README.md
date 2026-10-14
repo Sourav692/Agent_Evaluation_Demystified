@@ -79,38 +79,65 @@ Roughly 54 hours end to end. Alongside the levels:
 
 ## Repository map
 
-```
-courses/     Finished, sequential. Start here.
-  01-rag-agent-tool-evaluation/   RAG, tool-use and trajectory evaluation (15 notebooks)
-  02-databricks-mlflow-evals/     OPTIONAL. MLflow 3 GenAI, offline → online (11 notebooks + 10 modules)
-  03-agentic-eval-harness/        The harness and the release gate: RAGAS + DeepEval over a
-                                  LangGraph multi-agent system, stratified reporting, CI
-                                  (12 notebooks, complete)
+| Folder | Role | Start at |
+|---|---|---|
+| [`courses/`](courses/) | **The curriculum.** Numbered, sequential, runnable notebooks | [`courses/README.md`](courses/README.md) — the Core path |
+| [`docs/`](docs/) | **The theory.** Prose only, nothing executes; published as the website | [`docs/study-guide/evaluation-roadmap.md`](docs/study-guide/evaluation-roadmap.md) |
+| [`labs/`](labs/) | What no course teaches, or a running app a course evaluates | [`labs/README.md`](labs/README.md) |
+| [`archive/`](archive/) | Superseded material and retired labs. Every topic in it also lives above | [`archive/README.md`](archive/README.md) |
+| [`site/`](site/) | Builds `docs/` into the website | [`site/README.md`](site/README.md) |
+| [`shared/`](shared/) | Model-provider helpers. Intentionally unused — notebooks set up models inline | [`shared/README.md`](shared/README.md) |
+| [`.github/`](.github/) | CI: three free docs gates, and course 03's release gate | — |
 
-labs/        What no course teaches, or a running app a course evaluates. Runnable, not a
-             curriculum — reach for these when a course points at one.
-  rag-evaluation/                 A RAGAS pytest-CI script, a FastAPI RAG bot, Streamlit demos
-  rag-evaluation-techniques/      GroUSE, Open-RAG-Eval and end-to-end RAGAS notebooks
-  agent-evaluation/
-    crewai-travel-planner/        A real 3-agent CrewAI app used as an evaluation target
-    multi-agent-eval-demo/        Tiny LangGraph supervisor team + scorecard, behind FastAPI/Streamlit
-  langgraph-agent-rag-eval/       Interview-prep notebooks: 9-metric trace-level suite
-
-docs/        Prose only. Nothing executes. See INDEX.md for a section-level lookup.
-  roadmap-explainers/             One explainer per roadmap level (00–10)
-  concepts/                       Theory companions to courses 01 and 02, plus a support-system
-                                  case study and its cost-and-guardrails companion
-  interactive-labs/               6 standalone HTML labs
-  interview-prep/                 One question bank (35 questions + 30 metric questions
-                                  + 19 cases), plus a self-quiz drill as standalone HTML
-  study-guide/                    The roadmap (the Full path), its topic→notebook mapping,
-                                  evaluation templates, and the staged study plan (HTML)
-  guide-audits/                   This repo measured against OpenAI's evaluation guide, plus
-                                  the plain-language tutorial
-
-shared/      Small LLM/embedding provider helpers (OpenAI, Groq, Databricks)
-archive/     Superseded material and retired labs, kept for reference — see archive/README.md.
-             Every topic in it also lives in courses/, labs/ or docs/
+```text
+Agent_Evaluation_Demystified/
+├── courses/                              the curriculum, in order
+│   ├── 01-rag-agent-tool-evaluation/     CORE · 15 notebooks: retrieval → generation →
+│   │                                     multi-turn → tools → task completion → trajectory →
+│   │                                     Phoenix tracing → CrewAI capstone
+│   ├── 02-databricks-mlflow-evals/       OPTIONAL · 11 notebooks + 10 shared modules: the MLflow 3
+│   │                                     loop on one agent; phases 6–8 need a Databricks workspace
+│   └── 03-agentic-eval-harness/          CORE · 12 notebooks: golden set → RAG, tool and
+│                                         agent evals → safety → judges → humans →
+│                                         statistics → CI release gate → online
+│                                         (own .venv, kernel, requirements.txt)
+│
+├── docs/                                 the theory — also the website
+│   ├── study-guide/                      roadmap (the Full path), topic→notebook mapping,
+│   │                                     evaluation templates, study plan (HTML)
+│   ├── roadmap-explainers/               11 explainers, one per level (00–10)
+│   ├── concepts/                         field guide (course 01), Databricks/MLflow
+│   │                                     reference (course 02), support-system case
+│   │                                     study, cost and guardrails
+│   ├── interactive-labs/                 6 browser labs: move the numbers, watch the metrics react
+│   ├── interview-prep/                   question bank (35 + 30 questions, 19 cases)
+│   │                                     and a self-quiz drill
+│   └── guide-audits/                     this repo against OpenAI's evaluation guide,
+│                                         plus its plain-language tutorial
+│
+├── labs/                                 runnable extras a course points at
+│   ├── agent-evaluation/
+│   │   ├── crewai-travel-planner/        a live 3-agent CrewAI app — course 01 notebook 14's target
+│   │   └── multi-agent-eval-demo/        a tiny supervisor team scored behind FastAPI/Streamlit
+│   ├── langgraph-agent-rag-eval/         2 unabridged notebooks: the 9-metric trace-level suite
+│   ├── rag-evaluation/                   a FastAPI RAG bot + the RAGAS pytest-CI pattern
+│   │                                     (course 01 notebook 06)
+│   └── rag-evaluation-techniques/        3 notebooks: GroUSE, Open-RAG-Eval, end-to-end RAGAS
+│                                         (third-party, non-commercial licence)
+│
+├── archive/                              retired labs, earlier editions, merged docs — history only
+├── site/                                 build.py renders docs/ into site/dist/ (gitignored)
+├── shared/                               provider helpers (OpenAI, Groq, Databricks); not imported
+├── .github/                              workflows/ (docs-sync, release-gate) and
+│                                         scripts/ (the docs gates)
+│
+├── README.md                             you are here
+├── INDEX.md                              section-level lookup: every document, find-by-topic
+├── CLAUDE.md · AGENTS.md                 maintainer and coding-agent guidance
+├── pyproject.toml · uv.lock              the root environment (requirements.txt mirrors it for pip)
+├── vercel.json                           website build and redirects
+├── .env.example                          every environment variable the code reads
+└── LICENSE · LICENSE-docs · THIRD_PARTY.md
 ```
 
 ---
