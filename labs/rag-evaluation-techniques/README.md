@@ -11,7 +11,7 @@ into per-topic repositories — evaluation curricula live in this repository.
 
 | Notebook | Tool | What it evaluates |
 |---|---|---|
-| [`define_evaluation_metrics.ipynb`](define_evaluation_metrics.ipynb) | LangChain evaluators | Defining correctness, faithfulness and relevance criteria for RAG answers |
+| [`define_evaluation_metrics.ipynb`](define_evaluation_metrics.ipynb) | Hand-written LLM-judge prompts (LangChain `PromptTemplate` + `with_structured_output`) | Defining correctness, faithfulness and relevance criteria for RAG answers (it imports `load_evaluator` but never calls it) |
 | [`end-2-end_rag_evaluation.ipynb`](end-2-end_rag_evaluation.ipynb) | RAGAS | End-to-end RAG evaluation over a generated test set |
 | [`evaluation_deep_eval.ipynb`](evaluation_deep_eval.ipynb) | DeepEval | Correctness, faithfulness and contextual relevancy test cases |
 | [`evaluation_grouse.ipynb`](evaluation_grouse.ipynb) | GroUSE | Grounded-QA evaluation with GroUSE judge tests (diagram in `images/`) |

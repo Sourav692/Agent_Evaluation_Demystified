@@ -99,6 +99,9 @@ cp .env.example .env         # then fill in OPENAI_API_KEY
 | `apps` | `uv pip install -e '.[apps]'` | the Streamlit demos in `labs/rag-evaluation/` |
 | `agentic-eval` | `uv pip install -e '.[agentic-eval]'` | `courses/03-agentic-eval-harness/` — Chroma, ipywidgets |
 
+To route OpenAI calls through OpenRouter or another OpenAI-compatible gateway, also set `OPENAI_BASE_URL=https://openrouter.ai/api/v1`
+(the openai SDK reads it; no repo code does) and use provider-prefixed model names such as `openai/gpt-4o-2024-08-06`.
+
 `labs/multiturn-and-tool-eval/` has its own `uv` project and lockfile — run `uv sync`
 inside that directory rather than using the root environment.
 

@@ -1,10 +1,11 @@
 # Databricks AI Evals Tutorial
 
 A hands-on track for understanding **AI evaluation — offline and online** — using
-Databricks' MLflow 3 GenAI evaluation stack. Built to close specific gaps identified in
-`../OpenAI_Applied_AI_Engineer_Coverage_Gap_Analysis.md` against OpenAI's own
+Databricks' MLflow 3 GenAI evaluation stack. Built to close specific gaps that a coverage
+analysis found against OpenAI's own
 [Evaluation Best Practices](https://developers.openai.com/api/docs/guides/evaluation-best-practices?api-mode=responses)
-guide.
+guide. That original analysis stayed in the old monorepo; its maintained successor here is
+[`openai-eval-guide-coverage-gaps.md`](../../docs/guide-audits/openai-eval-guide-coverage-gaps.md).
 
 **Status: complete — all 11 phases built.**
 
@@ -31,12 +32,12 @@ by name throughout, not redefined):
 9. `courses/02-databricks-mlflow-evals/09_multiturn_and_tool_selection.ipynb` — conversation-level metrics, tool selection, approval gating
 10. `courses/02-databricks-mlflow-evals/10_capstone_edge_cases_and_crossref.ipynb` — adversarial design by attack surface, edge-case coverage map, full cross-reference
 
-### Theory & reference (`docs/concepts/databricks-mlflow-evals/`)
+### Theory & reference
 
 Companion material that does what a sequential notebook can't — random access. It does
 **not** repeat the notebooks' explanations (there are ~15,900 words of those already):
 
-`docs/concepts/databricks-mlflow-evals.md`, in four parts:
+[`docs/concepts/databricks-mlflow-evals.md`](../../docs/concepts/databricks-mlflow-evals.md), one file in four parts:
 
 - **Part 1 — the agent under test.** A high-level view of TelcoAssist itself: functionality,
   tools, the data it holds, models, trace shape, and its deliberate non-goals
@@ -62,7 +63,7 @@ Companion material that does what a sequential notebook can't — random access.
 
 ## Prerequisites
 
-- **Phases 0-5**: `mlflow[databricks]>=3.1.0`, `langgraph`, this repo's root `.venv`, and an
+- **Phases 0-5 and 9-10**: `mlflow[databricks]>=3.1.0`, `langgraph`, this repo's root `.venv`, and an
   LLM endpoint (Databricks-served by default, or set `TELCOASSIST_PROVIDER=openai`).
   Tracking runs locally against `sqlite:///mlflow.db` — **not** a `file://` store, since
   Phase 5's Prompt Registry requires a database-backed backend.
@@ -73,10 +74,10 @@ Companion material that does what a sequential notebook can't — random access.
 - **Phase 7** additionally needs a human willing to act as the domain-expert labeler
   (can be you).
 
-## Relationship to the rest of `17_OpenAI_Applied_Engineer_Preparation/`
+## Relationship to the rest of this repo
 
-- `../OpenAI_Applied_AI_Engineer_Coverage_Gap_Analysis.{md,html}` — the gap analysis this
-  track exists to close
-- `docs/interview-prep/` — interview case studies; this track's agent (Case #2) and its
+- [`docs/guide-audits/openai-eval-guide-coverage-gaps.md`](../../docs/guide-audits/openai-eval-guide-coverage-gaps.md)
+  — the coverage audit against OpenAI's guide that this track's gaps are tracked in
+- [`docs/interview-prep/`](../../docs/interview-prep/) — interview case studies; this track's agent (Case #2) and its
   entire premise (Case #11) are grounded in specific cases there, cross-referenced inline
   in Phase 0 and the capstone

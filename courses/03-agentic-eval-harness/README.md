@@ -274,13 +274,15 @@ notebooks.
 
 ---
 
-## One cell is left for you to write
+## Three cells are left for you to write
 
-It is a judgment call that encodes risk tolerance, not a fact:
+Each is a judgment call that encodes risk tolerance, not a fact. Each is marked `TODO (yours)`:
 
 | Notebook | Cell | The decision |
 |---|---|---|
 | 04 | `RUBRICS` | Where the boundaries sit between a wrong call, a defensible call and a right call when the corpus only *partly* covers a question |
+| 05 | `handles_result_correctly` | Whether a reply is honest about an `empty` or `unavailable` tool result — is a refusal correct, may a failed lookup fall back to the knowledge agent, and does one bad step fail the whole run |
+| 08 | `RUBRICS` | The three level descriptions that *are* the rubric judge — whether a correct refusal scores at the top, and whether a right but uncited reply is a 3 or a 1 |
 
 ---
 

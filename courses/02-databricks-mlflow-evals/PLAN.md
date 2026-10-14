@@ -1,14 +1,13 @@
 # Databricks AI Evals Tutorial — Build Plan
 
-**Status: COMPLETE — all 11 phases (0-10) built.** Phase 9 was added after Phase 8 and the capstone renumbered to 10; see "Scope revision" below. Phases 0-5 and 9-10 run locally against SQLite; Phases 6-8 require a Databricks workspace. Phases 6-8 require a Databricks workspace; 0-5 run locally against SQLite. This file is the persistent reference for the phased build;
-tick items off as each phase lands. See "Known Discrepancies" in `NOTEBOOK_INDEX.md` (origin monorepo, not carried into this repo) for
-how this repo tracks build history for other tracks — this file plays the same role for
-this one.
+**Status: COMPLETE — all 11 phases (0-10) built.** Phase 9 was added after Phase 8 and the capstone renumbered to 10; see "Scope revision" below. Phases 0-5 and 9-10 run locally against SQLite; Phases 6-8 require a Databricks workspace. This file is the persistent reference for the phased build;
+tick items off as each phase lands.
 
 ## Why this track exists
 
-Built in preparation for the OpenAI Applied AI Engineer Decomp round (see
-`../OpenAI_Applied_AI_Engineer_Coverage_Gap_Analysis.md`). That analysis found the repo's
+Built in preparation for the OpenAI Applied AI Engineer Decomp round, against a coverage-gap
+analysis that stayed in the old monorepo (its maintained successor here is
+`docs/guide-audits/openai-eval-guide-coverage-gaps.md`). That analysis found the repo's
 evaluation content strong on metrics and LLM-as-judge but with two specific gaps:
 **human-eval calibration** (blinded review, consensus voting) and the **eval → improvement
 flywheel** (using eval insight to drive systematic improvement). This track closes both,
@@ -242,6 +241,5 @@ Two bugs my own tests caught during this build, both semantic rather than syntac
 Phases 0-5 will be built and left runnable against a local/dev MLflow tracking URI first.
 Phases 6-8 need real Databricks workspace details (SQL warehouse ID, UC catalog/schema)
 plugged in before they can actually execute — they'll be written complete and correct
-against the API, but flagged inline as needing those values filled in, matching how other
-Databricks-backed notebooks in this repo (e.g. `03_Customer_Support_Router_RAG_Databricks_Alt.ipynb`)
-already handle this.
+against the API, but flagged inline as needing those values filled in, matching how
+Databricks-backed notebooks in the origin monorepo handled this.
