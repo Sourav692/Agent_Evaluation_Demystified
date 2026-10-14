@@ -118,6 +118,11 @@ most of what "useful" means for a support reply.
 | Business usefulness | Does it serve the workflow's goal, not just the literal question? | Answers the question asked, misses that the user is about to cancel |
 | Escalation quality | When it hands off, is that the right call, and does the handoff carry what the human needs? | Escalates without a case summary, or escalates what it could have answered |
 
+Two narrower judges are worth adding when the domain calls for them. An **entity-correctness**
+judge checks only that the names, IDs, dates and amounts in the reply match the source, and
+ignores style. A **clarity** judge asks only whether a non-expert could follow it. Both are
+easier to calibrate than a general quality judge, because each has one thing to look at.
+
 Score each dimension on its own scale, with level descriptions two people can apply and agree
 on. **Never average them into one number.** A friendly reply can be wrong and a terse one can
 be right, so style must not buy back a correctness failure. Decide per use case which dimensions

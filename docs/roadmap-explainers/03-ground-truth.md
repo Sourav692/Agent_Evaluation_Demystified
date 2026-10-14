@@ -290,6 +290,11 @@ practical way to get volume. Two conditions apply. Spot-check every generated ca
 retrieval context by actually running the retriever rather than reusing the source passage the
 question came from.
 
+**Keep a private holdout slice.** Anyone tuning prompts against the golden set will, over enough
+iterations, fit it. Hold back a slice — stratified like the rest, refreshed from the mined set —
+that only the release gate reads, never the people editing prompts. When the tuned set improves
+and the holdout does not, the improvement was fitting, not progress.
+
 ### Synthesise volume, author judgement
 
 A generator can write questions. It cannot decide what the business wants the agent to do. That

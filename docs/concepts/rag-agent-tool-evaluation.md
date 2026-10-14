@@ -204,6 +204,7 @@ Every retrieval metric below assumes the right document is in the index, parsed 
 | **Missing or wrong metadata filters** | Right document exists, but a tenant, region or version filter drops it — or lets the wrong version through. Recall looks fine on unfiltered tests | Measure metadata coverage (null rate per field) against the source system; log the filter expression actually sent to the vector store; compare results with and without the filter; keep canary queries per tenant, region and version, and eval cases whose right answer depends on the filter |
 
 - **These are rung-1 checks (0.4)** — counts, checksums, timestamps. Run them on every ingestion, not only at eval time.
+- **Tables and numbers need their own cases.** Write golden cases whose answer is one table cell or one figure, and check the value *and its unit* exactly — "5" from a column in thousands is a wrong answer that reads as right.
 - **The shortcut:** if a manual search of the source finds the answer and the index can't, stop tuning retrieval and go look at the pipeline that feeds it.
 
 ## 1.1 Retrieval, with labels (deterministic)
@@ -284,6 +285,8 @@ Given what was retrieved, is the answer any good — with no hand-written refere
 
 - **One "hallucination rate" hides four owners.** Report the split, sliced by domain, source type, language and prompt/model version.
 - **Stale and inaccessible claims pass faithfulness** — they are grounded. Only the label says which team owns the fix.
+
+**Score citations claim by claim, not document by document.** A citation is accurate only if the cited span supports *that exact claim* and was in the context the generator actually saw. A citation to the right document but the wrong passage, or to a document the reranker dropped, is a citation error. Count a document-level citation ("see Policy Manual") as unsupported: it lets the answer point vaguely at truth while asserting something the document never says. Report **citation accuracy** = supported citations ÷ all citations, beside faithfulness.
 
 **Faithfulness vs hallucination — the distinction people get wrong:**
 

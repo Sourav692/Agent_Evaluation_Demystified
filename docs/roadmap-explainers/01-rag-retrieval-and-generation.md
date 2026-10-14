@@ -240,6 +240,11 @@ trusted `context`. Definitions are in the
 > produced it while answering. The mechanical test: could this metric score a brand-new query
 > with zero human preparation?
 
+In production, report two of these as **rates** a dashboard can trend: the **unsupported-claim
+rate** (claims no retrieved source supports ÷ all claims) and the **contradiction rate** (claims a
+source the system had contradicts ÷ all claims). The first tracks the generator inventing; the
+second tracks conflict handling, and they move for different reasons.
+
 Hallucination is the partial exception. Its trusted source is human-curated, so it needs a
 maintained corpus — no *per-query* answer key, but not free either. Source material says what
 is *true*, not what this answer *should have said*.
@@ -508,6 +513,11 @@ most often *stale* context, and staleness has three tests:
 | **Effective-date cases** | Golden cases whose right answer depends on which version of a document was in force on a given date | The answer cites the superseded version, or blends old and new |
 | **Stale-source refusal** | Cases where the only matching source is expired or archived | The system answers from it without saying it is out of date |
 
+**Diff a document sync before promoting the index.** Compare the incoming batch with what is
+live: documents added, removed and changed, near-duplicates of existing chunks, and new pages
+that contradict old ones. Promote only after the diff is reviewed, so a bad sync is caught as a
+change rather than discovered later as a quality drop.
+
 **Version the retriever like a model.** Record the chunking strategy, embedding model, index
 build, reranker and access-filter version with every eval run and every production trace.
 Without that record a score change cannot be attributed — the same reason a prompt version gets
@@ -523,6 +533,8 @@ deterministic, and each one points at a single component:
 | **Duplicate-chunk rate** | How often near-identical chunks take several top-K slots and crowd out distinct evidence — usually an ingestion bug |
 | **Query-rewrite impact** | Recall@K for the rewritten query against the user's original. A rewrite that lowers recall is changing the user's intent |
 | **Reranker delta** | Rank of the relevant chunk (or MRR) before and after reranking. A negative delta means the reranker is optimising the wrong signal |
+| **Similarity-threshold drop rate and no-result rate** | How often a query loses candidates to the similarity cutoff, and how often it returns nothing. A rising no-result rate after a re-embed or threshold change is a retrieval outage that quality scores only see later |
+| **Retriever comparison per query class** | Recall@K for dense, lexical and hybrid retrieval, split by query class (codes and IDs, natural questions, multilingual). Lexical usually wins on exact identifiers; an average hides that |
 | **Metadata-filter health** | Null rate of each filter field against the source system, and recall with versus without the tenant/region/version filter. A filter that silently drops the right document looks like a retrieval miss |
 
 ---

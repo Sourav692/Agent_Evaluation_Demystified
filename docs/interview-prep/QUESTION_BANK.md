@@ -827,6 +827,10 @@ thing.** Four explanations, and you rule them out cheapest first.
 | 3 | **Right document, out of date.** Faithfully quoted, no longer true | Check the source's last-updated date |
 | 4 | **Not about correctness at all.** Too long, wrong tone, no link, asks three questions first | Read the complaints |
 
+**A variant of number 2: right document, wrong section.** Document-level hit rates count a
+40-page manual as a hit when the needed clause is on page 31 and never made it into a chunk the
+generator saw. Score retrieval at section or chunk level for long documents.
+
 **Number 1 is invisible from inside the test set**, which is what makes it the nastiest —
 everything in there passes, by construction, because everything in there is something you
 thought of.
@@ -2643,6 +2647,9 @@ because a tool was called, and one was expected.
 outgrow it.** When an agent gains a capability, audit which existing scorers still mean what
 they meant. Skip that and **the suite becomes decorative** — every check green, none of them
 still measuring what its name says.
+
+**Expect selection accuracy to fall as the tool list grows,** especially when tools have similar
+names or overlapping descriptions. Re-measure it per tool every time one is added, not once.
 
 **How would you have caught the stale scorer?** A case where the wrong tool is called
 deliberately. **If both the old check and the new one pass it, the old one is not measuring

@@ -117,6 +117,14 @@ trajectory and final-state checks) ·
 from generation) · [Level 3 §6](../roadmap-explainers/03-ground-truth.md) (promoting a
 production failure into the gated set).
 
+### Variant: customer-facing debugging scenario
+
+When the reader is the customer rather than the team, keep the same investigation but change
+what is shown. Lead with impact (who was affected, how often, since when) and the fix with its
+date; describe the cause in one sentence without internal component names; list the new test
+cases added so it cannot recur; and say what the customer will see change. Leave out traces,
+prompt text and judge scores — they belong in the internal report.
+
 ---
 
 ## 3. Acceptance-criteria document

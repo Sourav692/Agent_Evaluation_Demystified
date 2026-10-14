@@ -46,6 +46,12 @@ someone else.*
 > **A percentage cannot be opened and read; a list of case IDs can.** The output of a safety
 > check is never a rate. It is the names of the runs a human has to go look at.
 
+Two counts are still worth tracking over time, as **counts with their case IDs** rather than
+averaged scores: the **unsafe-tool-call count** (a write or external call the policy forbids
+for that user or state) and the **approval-bypass count** (an action that needed human approval
+and ran without it). A gate blocks on any non-zero; the trend shows whether the attack surface
+is growing.
+
 ### Four policies that read state, not prose
 
 Lumen's safety suite is four deterministic checks. Each takes a run and returns a list of
@@ -274,6 +280,11 @@ flowchart TD
 > **Blame attribution is only as good as the order the levels are walked in.** A correctly-routed
 > run whose tools were wrong for unrelated reasons gets a misleading verdict from a routing-first
 > check.
+
+**Then tally first causes across many traces.** One walked failure is an anecdote. Count the
+first-failure label over every failed run in the suite — so many routing, so many handoff, so
+many tool — and the counts become the backlog, ordered by how often each component is the first
+thing to break.
 
 Re-examine that order whenever the failure modes shift. Like the hop bound, it is asserted from
 taste until someone computes it from the golden set.
