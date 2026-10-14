@@ -11,7 +11,7 @@ load_dotenv(find_dotenv())
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
 # Set up the LLM
-llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0)
 evaluator_llm = LangchainLLMWrapper(llm)
 
 async def evaluate_context_metrics():

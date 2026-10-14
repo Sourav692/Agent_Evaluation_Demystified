@@ -18,7 +18,7 @@ EXCEL_FILE = "D:\\Blogs\\Eval\\Eval_LLM\\Ragas\\test_questions.xlsx"
 BACKEND_URL = "http://localhost:8000"
 
 # Load models
-llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0)
 evaluator_llm = LangchainLLMWrapper(llm)
 
 @pytest.mark.parametrize("row", pd.read_excel(EXCEL_FILE).iterrows())

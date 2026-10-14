@@ -11,7 +11,7 @@ import requests
 load_dotenv(find_dotenv())
 os.environ["OPENAI_API_KEY"]=os.getenv("OPENAI_API_KEY")
 
-llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0)
 evaluator_llm = LangchainLLMWrapper(llm)
 backend_url = "http://localhost:8000" 
 
