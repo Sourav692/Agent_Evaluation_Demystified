@@ -70,7 +70,7 @@ CASE_IDS = sorted(RUNS)
 # works in notebook 12, against production traffic that has no answer key.
 #
 # API note: DeepEval 4.x takes `SingleTurnParams` here. Tutorials written against
-# 3.x pass `LLMTestCaseParams`, which no longer exists.
+# 3.x pass `LLMTestCaseParams`, a deprecated alias that still resolves, with a warning.
 
 reply_quality = GEval(
     name="SupportReplyQuality",

@@ -106,8 +106,8 @@ versions. Two changes you will hit in any tutorial written a version ago:
 
 - RAGAS 0.4 moved its metrics to **`ragas.metrics.collections`**, with an async `ascore()`
   returning an object with `.value`. The old `ragas.metrics` path is removed in v1.0.
-- DeepEval 4.x takes **`SingleTurnParams`** in `GEval(evaluation_params=…)`, not
-  `LLMTestCaseParams`.
+- DeepEval 4.x takes **`SingleTurnParams`** in `GEval(evaluation_params=…)`.
+  `LLMTestCaseParams` is a deprecated alias that still resolves, with a warning.
 
 `langgraph` is pinned to `1.2.11`. Installing or resolving `ragas` or `mlflow` can pull it
 back to `1.0.x`, which drops `langgraph.runtime.ExecutionInfo` and breaks notebook 02. If a
