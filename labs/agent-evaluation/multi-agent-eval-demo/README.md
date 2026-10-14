@@ -1,5 +1,9 @@
 # A Small Team of Agents — and How to Tell If It Works
 
+**Unique:** an evaluation served behind an API and a UI. The concepts are taught canonically in
+[`courses/03-agentic-eval-harness/`](../../../courses/03-agentic-eval-harness/) notebooks `02`
+(the supervisor graph) and `06` (handoff and end-to-end evaluation); read those for the method.
+
 A deliberately tiny end-to-end demo. Four files of real code, each showing one idea:
 
 | Idea | File |

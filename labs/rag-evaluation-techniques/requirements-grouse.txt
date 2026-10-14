@@ -1,0 +1,4 @@
+# evaluation_grouse.ipynb — run in its own venv (Python 3.10–3.12; grouse requires <3.13).
+# Versions checked against PyPI metadata on 2026-10-15; the notebook has not been re-run on them.
+grouse==0.4.2
+nest-asyncio==1.6.0

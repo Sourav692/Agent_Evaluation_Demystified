@@ -1,5 +1,8 @@
 # RAG evaluation techniques
 
+**Unique:** judge meta-evaluation (GroUSE), nugget- and citation-level metrics (Open-RAG-Eval)
+and completeness. Course 01 covers the core metrics; these three notebooks go past them.
+
 Five standalone notebooks on evaluating a RAG system, each with a different tool. They are the
 evaluation section of Nir Diamant's *RAG_Techniques* anthology, moved here on 2026-09-29 from
 `AI-ENGINEERING-DEMYSTIFIED` (tag `pre-multirepo-split-2026-09`,
@@ -20,8 +23,11 @@ mean to spend credits.
 **Environment caveats (unchanged from the source):**
 - `define_evaluation_metrics` uses LangChain 0.x import paths (`langchain.evaluation`,
   `langchain_core.pydantic_v1`, …) that don't exist under LangChain 1.x.
-- `grouse` pins `numpy<1.26.4` and `openai<1.57`, so run `evaluation_grouse` in its own
-  environment.
+- `evaluation_grouse` and `open-rag-eval-example` each need their own environment; their pins are in
+  [`requirements-grouse.txt`](requirements-grouse.txt) and
+  [`requirements-open-rag-eval.txt`](requirements-open-rag-eval.txt).
+- `end-2-end_rag_evaluation` imports `ChatOpenAI` from `langchain.chat_models`, a LangChain 0.x path;
+  under LangChain 1.x use `from langchain_openai import ChatOpenAI` instead.
 - `open-rag-eval-example` writes `evaluation_results.csv` and `metrics_summary.png` next to itself.
 
 **Licence:** these notebooks stay under the anthology's own non-commercial licence — see

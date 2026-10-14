@@ -1,5 +1,9 @@
 # LangGraph Agent & RAG Evaluation
 
+**Canonical lesson:** course 01 notebooks `01`, `04`, `05` and `12`
+([`../../courses/01-rag-agent-tool-evaluation/`](../../courses/01-rag-agent-tool-evaluation/)).
+These notebooks are their unabridged sources, kept for the end-to-end version.
+
 Interview-prep notebooks that evaluate LangGraph-based RAG and agent systems. Where the
 courses teach one idea per notebook, these run the whole surface end to end.
 

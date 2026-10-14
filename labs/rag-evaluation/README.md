@@ -1,5 +1,10 @@
 # RAG Evaluation
 
+**Canonical lesson:** course 01 notebooks `02`–`04`, `06` and `07`
+([`../../courses/01-rag-agent-tool-evaluation/`](../../courses/01-rag-agent-tool-evaluation/)).
+This folder is the raw material they were distilled from. `ragas-scripts/Evaluate_RAG_PyTest.py`
+and `test_questions.xlsx` are driven by notebook `06`.
+
 The original RAG evaluation material — retriever metrics, generator metrics, custom
 LLM-as-judge rubrics, and a full build-then-evaluate pipeline, plus DeepEval metric drills
 and RAGAS scripts.
