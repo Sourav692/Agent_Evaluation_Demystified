@@ -95,6 +95,18 @@ delay, in a batch, never inline. That batch does two jobs. It measures how well 
 agrees with a human on the *same* case. And it becomes new golden cases, so the offline suite
 stops describing last quarter's traffic.
 
+**Some labels arrive on their own, later.** A delayed outcome is ground truth that production
+produces for free: was the ticket reopened, did the proposed fix resolve it, did the customer
+come back with the same question. And when a person reviews an output before it is used, their
+**accept, edit or reject** is a label with perfect provenance, collected as a side effect of the
+work. Log both from day one. They are the cheapest labels the system will ever get.
+
+**A causal claim needs checking against reality, not against text.** When an agent reports a
+root cause, self-consistency only says the claim agrees with what the run retrieved. It cannot
+say the stated cause produced the failure. Re-check the claim against a real record — does the
+failing row, log line or config actually show what the agent says? — before the report goes
+out. Until that check exists, the control is human review before anything acts on the claim.
+
 **Paired canary comparison is relative, not absolute.** For a rollout the question is not
 whether an answer is correct. It is whether the new build wins, loses or ties against the old
 one on the same live input. That needs no ground truth either, only two things to compare.
@@ -112,6 +124,15 @@ flowchart TD
 In short: production substitutes the logged context for a golden answer wherever it can. It
 falls back to rule-based assertions where no judgment is needed. It reaches for human labels
 only in small delayed samples. Never to score every request.
+
+Where the tools named across this roadmap genuinely help online:
+
+| Tool | What it is good at online |
+|---|---|
+| RAGAS | RAG-specific metrics; its with/without-reference split says plainly which side of Section 1's line each metric falls on |
+| DeepEval | Component-level metrics, `assert_test` in CI, tracing via `@observe` |
+| Langfuse | Trace storage, annotation queues and user-feedback scores — the human-label loop above |
+| MLflow / LangSmith | Experiment tracking and trace comparison across builds |
 
 **No off-the-shelf toolkit ships the two things this level depends on: the final-state check and
 the release gate.** Those stay in-house, because only the team running the system knows what its database should
@@ -209,6 +230,27 @@ refusals**.
 > **A rising refusal rate is a quality regression that most quality metrics score as a pass.**
 > The refusal is well-written and safe, so nothing looks wrong to a judge reading one turn.
 
+**Adoption is a quality signal, and often the earliest one.** When people quietly stop using an
+output, it is usually right but useless, or wrong often enough that checking it costs more than
+doing the work. Four measures read it without a single label.
+
+| Signal | What it reads |
+|---|---|
+| Acceptance rate | Share of outputs used as given |
+| Edit distance | How far the final text moved from the generated text |
+| Time-to-close, with vs. without the tool | Whether the tool actually saves work |
+| Quietly ignored outputs | Produced, never opened or acted on |
+
+**A falling acceptance rate under flat quality scores means the quality scores measure the wrong
+thing** — correctness, when users needed specificity. Instrument adoption from launch.
+Retrofitted, there is no "before" to compare against.
+
+**Watch the inputs, not just the outputs.** A router forced to choose among known routes picks
+one, confidently, even for a request it has never seen. A rising rate of low-confidence routing
+decisions is a drift warning that needs no labels. Give the router an explicit **no route /
+escalate to a human** outcome and score it as a *correct* answer in its own right, so honest
+uncertainty is not counted as a failure.
+
 And the one people miss entirely. **A monitor that was configured but never switched on looks
 exactly like a monitor reporting no problems.** Registering a scorer creates it. Starting it is
 what begins evaluating. Verifying the pipeline is genuinely running belongs on the launch
@@ -298,13 +340,22 @@ flowchart TD
 **What gets selected for labelling is deliberately not a random sample of healthy traffic.** That
 would be cheap to label and teach nothing the golden set does not already know. Selection targets
 where the suite is weakest: conversations from intents the golden set has zero examples of,
-answers with no citation, and conversations where a tool returned something other than `ok`.
+answers with no citation (the shape that tends to precede a hallucination), and conversations
+where a tool returned something other than `ok`.
 
 **A drift check keeps the gate honest about what it protects.** A golden set is a claim about
-what traffic looks like, and traffic moves. Comparing the golden set's stratum mix against
-production's actual mix says whether that claim still holds. When they have drifted apart, the
+what traffic looks like, and traffic moves. Compare the golden set's stratum mix, say by
+language, against production's actual mix using **total variation distance**: half the sum of
+the absolute differences between each stratum's share in the two. The course notebook flags
+anything above 0.15. When they have drifted apart, the
 per-stratum floors are tuned for a traffic mix that no longer exists. Either rebalance the suite,
 or accept that a shrinking segment is being over-protected at the expense of a growing one.
+
+**Watch the judge for drift too.** The delayed human labels from Section 2 give a running
+agreement score, kappa, between the judge and the reviewers. Kappa can collapse while raw
+agreement barely moves, so track kappa itself and alert when it falls below a floor. Decide in
+advance what that alert does on the days no labels have arrived yet. A drifted judge goes back
+through alignment before its scores are trusted again.
 
 **Every incident ends by adding a golden case.** An incident that does not change the suite will
 happen again, and the second time nobody will remember the first. **Online discovers; offline
@@ -434,14 +485,15 @@ worth refusing to miss.
 
 All content above was drawn only from material already in this repository. Nothing here was
 invented, and no external source was consulted. This page is the restyled edition of
-`org/07-online-evaluation-and-the-loop.md`; its content is the same, minus a table comparing named
-observability products, which described tooling rather than decomposition.
+`org/07-online-evaluation-and-the-loop.md`; its content is the same, including that edition's
+table of where each named tool helps online (Section 2) and its drift check by total variation
+distance (Section 7).
 
 **Notebook:**
 
-- `courses/03-agentic-eval-harness/12_online_evaluation.ipynb` — the eligibility test, the five
-  alerts, the incident drills and coverage matrix, the paired canary, and the loop back into the
-  golden set.
+- `courses/03-agentic-eval-harness/12_online_evaluation_and_the_loop.ipynb` — the eligibility
+  test, the five alerts, the incident drills and coverage matrix, the paired canary, the loop back
+  into the golden set, the 0.15 drift threshold, and the judge-drift (kappa) alert exercise.
 - `courses/02-databricks-mlflow-evals/` online-monitoring notebooks — sampling policy, the
   registered-but-never-started trap, and traces as queryable tables.
 - `labs/agent-evaluation/arize-phoenix-labs/` — live tracing, skill evaluation, and the
@@ -449,8 +501,10 @@ observability products, which described tooling rather than decomposition.
 
 **Docs:**
 
-- `docs/concepts/online_vs_offline_evaluation.md` — the three-way offline/both/online split, the
-  sampling-resolution table, and the soup analogy.
+- [`databricks-mlflow-evals.md`, Part 5](../concepts/databricks-mlflow-evals.md#part-5--online-vs-offline)
+  and [Explainer 05, Section 6](05-statistics-and-stratified-reporting.md#6-buy-the-sample-rate-that-can-see-the-regression)
+  — the offline/online split, the sampling-resolution table, and the soup analogy (merged there
+  from the retired online-versus-offline page).
 - `docs/concepts/rag-vs-support-eval-walkthrough.html` — the self-consistency framing for RAG
   against support agents.
 - `docs/interview-prep/QUESTION_BANK.md`, Part 5 (Q18–Q20) and Case 15 — the four questions

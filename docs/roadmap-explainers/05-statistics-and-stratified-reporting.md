@@ -41,12 +41,23 @@ reporting** means scoring each slice on its own and reading all of them.
 | Question type | simple lookup · multi-step · answer not in the docs | A bot that guesses instead of saying "I don't know" |
 | Turns | single message · a back-and-forth | Quality falling apart after turn three |
 
+**For a multilingual system, give language more than a pass rate.** Three things are worth
+separating. **Recall per language**:
+retrieval quality is usually uneven across languages, and a pooled recall figure is mostly the
+largest language's figure. **Cross-lingual retrieval**: a question asked in one language whose
+answer lives in a document written in another is its own stratum, and easily the weakest one.
+**Native-speaker review**: cases written natively in each language rather than only translated
+from English, and native-speaking reviewers labelling a sample per language, above all in
+high-risk domains. A judge's verdicts in a less-resourced language are checked against those
+labels before its per-language numbers are believed.
+
 *The analogy:* a school announces its average exam score went up. It did. The announcement does
 not mention that one class failed every subject, and the other classes improved enough to cover
 it. The number is true, and useless for the only decision that mattered.
 
 **Tag cases when they are created, not later. A test set cannot be split by a label it does not
-have.** This cuts both ways when a dashboard looks green and customers still complain. Split the
+have.** This cuts both ways when a dashboard looks green and customers still complain, which is
+usually an averaging problem before it is a quality problem. Split the
 results by segment, and also check whether the test set contains those customers' questions at
 all. A segment with zero test cases cannot show up as failing, so a coverage gap and a healthy
 segment look identical unless someone checks.
@@ -67,6 +78,9 @@ stratum — a stratum with 12 cases might have a faithfulness score for only 3.
 **Gate on the worst group, not the average.** A release passes when every group clears its
 floor, not when the mean clears a line. Reporting by group and then shipping on the average
 changes nothing. It is the same mistake with an extra step.
+
+> *"Overall quality improved, the release was blocked, and the reason was a segment that is 4% of
+> traffic and 100% of some customers' experience."*
 
 ```mermaid
 flowchart LR
@@ -128,10 +142,10 @@ This is the argument behind the release gate's minimum-cases setting, covered in
 per-stratum detection-limit table — `n`, what one case is worth, and the smallest detectable
 change — is what draws that line, not a round number picked in advance.
 
-**The three tools in this level agree with each other.** Take the smallest stratum, flip a single
-case, and check it three ways. The bootstrap confidence intervals before and after overlap
-almost completely. McNemar's test on the same pairing finds nothing significant. All three
-readings say a single flipped case is noise, which is exactly why the gate reports a small
+**The tools in this level agree with each other.** Take the smallest stratum, flip a single
+case, and check it two ways. The bootstrap confidence intervals before and after overlap
+almost completely. McNemar's test on the same pairing finds nothing significant. Both readings
+say a single flipped case is noise, which is exactly why the gate reports a small
 stratum instead of blocking on it.
 
 ---
@@ -230,6 +244,12 @@ Only WHICH 100 you happened to grade changed.
 That is a ±4.5-point wobble, the same number the Wilson table gives for n=100. Whether a real
 problem is visible depends entirely on its size relative to that wobble.
 
+| The drop you are hunting | Wobble from grading 100 | Can you see it? |
+|---|---|---|
+| 10 points (95% → 85%) | ±4.5 | Yes — far bigger than the wobble |
+| 5 points (95% → 90%) | ±4.5 | Probably |
+| **2 points (95% → 93%)** | ±4.5 | **No — smaller than the wobble** |
+
 ```mermaid
 flowchart TD
     FULL["2,000 traces/day"]
@@ -264,6 +284,8 @@ sample rate, not the 5% that felt affordable.
 > **If a delta cannot be resolved even at 100% sampling, the answer is not more sampling.** Move
 > the comparison offline, where every input is scored and the comparison is **paired**.
 
+More sampling cannot fix this because production is *different questions every day*. Monday's
+traffic is genuinely harder or easier than Tuesday's, and that difference never averages away.
 The same fixed questions asked of the old build and the new one removes *what customers happened
 to ask* as a confound. That is the paired idea behind McNemar, applied to production.
 
@@ -404,7 +426,11 @@ wrong.
 
 All content above was drawn only from material already in this repository. Nothing here was
 invented, and no external source was consulted. This page is the restyled edition of
-`org/05-statistics-and-stratified-reporting.md`; its content is the same.
+`org/05-statistics-and-stratified-reporting.md`; its content is the same. Two retired pages have
+since been merged into it: the plain-English stratified-reporting explainer from
+`docs/interview-prep/`, and the sampling-resolution section of the online-versus-offline
+concepts page (Section 6). The rest of that page now lives in
+[`databricks-mlflow-evals.md`, Part 5](../concepts/databricks-mlflow-evals.md#part-5--online-vs-offline).
 
 **Notebook:**
 
@@ -416,12 +442,17 @@ invented, and no external source was consulted. This page is the restyled editio
 
 **Docs:**
 
-- `docs/interview-prep/stratified-reporting-explained.html` — the English/Spanish/Hindi worked
-  example used as this file's running example, the definition of "stratum", the "why the average
-  lies" arithmetic, the four-way grouping table, the 12.5-points-per-case illustration, the
-  school-average analogy, and the "tag cases when you create them" point.
-- `docs/concepts/online_vs_offline_evaluation.md`, §5 — the production sampling-wobble example,
-  the 5%/30%/100% sample-rate table, the sampling-resolution flowchart, and the soup analogy.
+- The retired stratified-reporting explainer (`docs/interview-prep/`) — the English/Spanish/Hindi
+  worked example used as this file's running example, the definition of "stratum", the "why the
+  average lies" arithmetic, the four-way grouping table, the 12.5-points-per-case illustration,
+  the school-average analogy, the "tag cases when you create them" point, and the 4%-of-traffic
+  line.
+- The retired online-versus-offline page, §5 — the production sampling-wobble example, the
+  drop-you-are-hunting table, the sampling-resolution flowchart, the different-questions-every-day
+  argument, and the soup analogy.
+- `archive/AI_Engineer_Interview_Kit_RAG_Agents_Production_Failure_Scenarios_FINAL.pdf` —
+  multilingual evaluation as a slicing case (recall per language, cross-lingual retrieval,
+  native-speaker review).
 - `docs/concepts/databricks-mlflow-evals.md`, Part 4 — the Wilson-interval resolution table, the
   ~606-traces figure, and the four-step sample-rate decision procedure.
 - `docs/interview-prep/QUESTION_BANK.md`, Q4 and Q21 — the two questions reproduced in full in

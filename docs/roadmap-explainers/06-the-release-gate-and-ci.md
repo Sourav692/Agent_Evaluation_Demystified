@@ -3,7 +3,7 @@
 *Gate against what is live, not against a fixed bar, because a system can lose seven points
 without any single release ever failing.*
 
-◷ 22 min · Level 6 · Every earlier level produced a number. This one asks the question that
+◷ 25 min · Level 6 · Every earlier level produced a number. This one asks the question that
 comes straight after: does this number mean the build is safe to put in front of real users?
 
 Answering it well separates *"we compute a lot of metrics"* from *"we control what ships"*. The
@@ -104,7 +104,9 @@ severity. It is not "stop at the first failure".
 | 3 | **Per-stratum floor** | A floor per segment, only where that segment has enough cases | **Yes — the check this level exists to justify** |
 | 4 | **Cost ceiling** | A dollar limit per *resolved* conversation | Yes |
 
-**Safety is a veto, not a weighted input.** No quality improvement trades against it. A candidate
+**Safety is a veto, not a weighted input.** The check is a set of hard trajectory assertions —
+must not call this tool, must confirm before that action, must never skip the approval step —
+and they never expire. No quality improvement trades against them. A candidate
 with resolution 0.97, faithfulness 0.96 and every stratum at 0.95 — the best numbers in the
 material — is blocked outright by one unapproved refund.
 
@@ -130,6 +132,11 @@ matters. Per-conversation cost rewards an agent that gives up early. A verbose-p
 leaves every quality number untouched while the bill triples, $0.012 to $0.058 per resolved
 conversation against a $0.02 ceiling. Only check 4 catches it.
 
+**An over-ceiling build is blocked like any other failure.** A quality gain that is worth the
+extra spend can still ship, but only through a reviewed commit that raises
+`max_cost_per_resolved_conversation` in the gate's config. The higher bill becomes a decision on
+record rather than something that shipped quietly.
+
 **Each fault is caught by exactly one check, and the other three report everything as fine.**
 
 | Scenario | Safety | Aggregate | Per-stratum | Cost | Verdict |
@@ -141,6 +148,74 @@ conversation against a $0.02 ceiling. Only check 4 catches it.
 
 A single composite "quality score" would have missed all three failures in rows 2–4. That is the
 practical argument for a composite gate over any one blended number.
+
+### A second case: the tenant the aggregate could not see
+
+A document question-answering agent serves eleven enterprise tenants. A retrieval change shifts
+weight from exact keyword matching toward dense, embedding-based retrieval. On the full golden
+set it reads as a clean win.
+
+| | Before | After |
+| --- | --- | --- |
+| Aggregate | 79% | 81% |
+| One tenant, about 4% of the golden set | 82% | **67%** |
+
+That tenant's documents lean on heavy internal abbreviations, which is exactly what dense
+retrieval handles worse than keyword matching. At 4% of the cases, its 15-point collapse entered
+the aggregate as about 0.6 of a point and vanished inside a 2-point gain. It shipped, and the
+tenant escalated two weeks later.
+
+> **One rule would have blocked it: no tenant may drop more than 3 points, whatever the
+> aggregate does.**
+
+That rule is the per-stratum check written as a maximum *drop* against the baseline, where the
+Hindi case used an absolute floor (`hi: 0.70`). Both are check 3. Either form still needs the
+minimum case count before it may block.
+
+The four checks are only as good as the suite they read. It has to be stratified when it is
+built, with a minimum number of cases per tenant, intent and language so a small segment is not
+statistically invisible. And it has to include refusal, escalation and adversarial cases.
+Otherwise a build that simply answers more confidently reads as progress.
+
+### What the gate looks like in code
+
+The whole decision is a pure function over a report: no model calls, no dependencies, the same
+verdict for the same input. Condensed from `courses/03-agentic-eval-harness/ci/apply_gate.py`,
+keeping its real names and values (the intent floors are abridged):
+
+```python
+GATE_CONFIG = {
+    "safety_violations_allowed": 0,
+    "max_aggregate_drop": 0.03,                    # paired against the baseline
+    "aggregate_metrics": ["resolution_rate", "faithfulness"],
+    "stratum_floors": {"lang":   {"en": 0.75, "es": 0.70, "hi": 0.70},
+                       "intent": {"billing": 0.75, "escalation": 0.80}},
+    "min_cases_to_gate": 8,                        # smaller strata: report, never block
+    "max_cost_per_resolved_conversation": 0.02,    # USD
+}
+
+def gate(candidate, baseline):
+    failures = []
+    if len(candidate["safety_violations"]) > GATE_CONFIG["safety_violations_allowed"]:
+        failures.append("safety")
+    for m in GATE_CONFIG["aggregate_metrics"]:
+        if baseline["scores"][m] - candidate["scores"][m] > GATE_CONFIG["max_aggregate_drop"]:
+            failures.append(f"aggregate: {m}")
+    for dim, floors in GATE_CONFIG["stratum_floors"].items():
+        for name, floor in floors.items():
+            row = candidate["by_stratum"][dim][name]
+            if row["n"] >= GATE_CONFIG["min_cases_to_gate"] and row["resolution_rate"] < floor:
+                failures.append(f"stratum {dim}/{name}")
+    if candidate["cost_per_resolved_conversation"] > GATE_CONFIG["max_cost_per_resolved_conversation"]:
+        failures.append("cost")
+    return failures    # empty: allowed. Otherwise exit 1 and list every reason.
+```
+
+Every check runs and every failure is collected, as the diagram above promised. The real script
+also prints a line per check and skips any metric the report does not contain.
+
+> **The config dict is the whole policy, in one reviewable place.** Loosening the gate means
+> someone has to approve the diff that loosened it.
 
 ---
 
@@ -209,8 +284,12 @@ The CI workflow splits the work into two jobs.
 
 | Job | Trigger | Cost | Can it block a merge? |
 | --- | --- | --- | --- |
-| **Scoring** | Manual dispatch only, never automatic on a push | **Paid** — runs the actual judges | No |
-| **Gating** | Every push and pull request touching the relevant folder | Free, standard-library only | **Yes** |
+| **Scoring** (`evaluate`) | Manual dispatch only, never automatic on a push | **Paid** — runs the actual judges | No |
+| **Gating** (`gate`) | Every push and pull request touching the relevant folder | Free, standard-library only | **Yes** |
+
+In this repository they are the `evaluate` and `gate` jobs of `.github/workflows/release-gate.yml`.
+`evaluate` also skips itself when no API-key secret is configured, so a fork never spends anyone's
+money.
 
 The gating job installs nothing beyond a bare interpreter. Its script is standard-library only
 by design. **The ship/no-ship decision cannot change because a dependency resolved
@@ -392,11 +471,17 @@ flowchart LR
 
 ## 9. Know What a Gate Is Not
 
-Three boundaries are worth stating plainly, because each is a way this material gets
+Four boundaries are worth stating plainly, because each is a way this material gets
 over-trusted.
 
+**Not the last step before users.** A build that passes is *eligible for a canary*, not shipped.
+The gate is the last offline check. A canary on a small slice of real traffic is the first
+online one, and only it decides whether the build reaches everyone.
+
 **Not a substitute for production monitoring.** A few hundred cases catch large regressions, not
-small ones. A slow regression is Level 7's job.
+small ones. A small, slow regression is caught by live monitoring wired to an **automatic
+rollback trigger**: a monitored signal crosses its alert threshold and the alias moves back to the
+previous version (Section 6) without waiting for someone to notice. That is Level 7's job.
 
 **Not static.** A suite built at launch describes launch-time traffic. Without a drift check
 against production it stays green while measuring a reality that no longer exists.
@@ -467,7 +552,8 @@ escalation-appropriateness 0.90 → 0.71 with no room left to hedge or decline, 
 - A metric describes; a gate decides, compares against what is live, and is wired to something
   that can refuse to deploy.
 - Four checks run independently and any one blocks: safety as an absolute veto, an aggregate
-  floor, a per-stratum floor, and a cost ceiling per *resolved* conversation.
+  floor, a per-stratum floor, and a cost ceiling per *resolved* conversation. Raising that
+  ceiling is a reviewed config commit, never a quiet trade.
 - Each of the four catches a fault the other three report as fine, which is the argument against
   one blended score.
 - A threshold alone permits erosion — 0.98 to 0.91 with every release passing — so absolute and
@@ -478,6 +564,8 @@ escalation-appropriateness 0.90 → 0.71 with no room left to hedge or decline, 
   "missing" never looks like "passing".
 - Registering a prompt does not deploy it; the alias is what deploys, and rolling back is moving
   it back.
+- A passed build is eligible for a canary, not shipped; small regressions are left to live
+  monitoring and an automatic rollback trigger.
 - A scorer with no gate entry blocks nothing, and a machine-written prompt earns no shortcut
   through the same gate.
 
@@ -510,22 +598,26 @@ escalation-appropriateness 0.90 → 0.71 with no room left to hedge or decline, 
 All content above was drawn only from material already in this repository. Nothing here was
 invented, and no external source was consulted. This page is the restyled edition of
 `org/06-the-release-gate-and-ci.md`; its content is the same, with platform and optimizer product
-names replaced by what each mechanism does.
+names replaced by what each mechanism does. The retired launch-gate reference page has been
+merged into it: the metric-versus-gate table (Section 1), the trajectory-assertion framing of the
+safety check, the tenant-collapse case and the stratified-suite requirement (Section 2), and the
+canary and rollback boundaries (Section 9).
 
 **Notebook and scripts:**
 
-- `courses/03-agentic-eval-harness/11_release_gate_and_ci.ipynb` — the four checks, the four
+- `courses/03-agentic-eval-harness/11_the_release_gate_and_ci.ipynb` — the four checks, the four
   scenarios, the per-stratum floors, the minimum gating size, and the cost-per-resolved figure.
-- `courses/03-agentic-eval-harness/` gate script and `.github/workflows/release-gate.yml` — the
-  free/paid job split and the standard-library-only decision layer.
+- `courses/03-agentic-eval-harness/ci/apply_gate.py` and `.github/workflows/release-gate.yml` —
+  the `GATE_CONFIG` values and the code sketch in Section 2, the `evaluate`/`gate` job split, and
+  the standard-library-only decision layer.
 - `courses/02-databricks-mlflow-evals/` prompt-lifecycle notebooks — the registry and alias
   model, the v1/v2/v3 prompt comparison, the scorer-with-no-gate-entry trap, and the optimizer
   material.
 
 **Docs:**
 
-- `docs/concepts/databricks-mlflow-evals.md` — the metric-versus-gate distinction, tolerance by
-  metric type, and the closed loop.
+- `docs/concepts/databricks-mlflow-evals.md` — "scorer ≠ gate", tolerance by metric type, and
+  the closed loop.
 - `docs/interview-prep/QUESTION_BANK.md`, Part 6 (Q22–Q25) and Cases 13–14 — the four questions
   and the optimized-for-the-wrong-thing case, reproduced in full in Section 10 rather than
   pointed at.
