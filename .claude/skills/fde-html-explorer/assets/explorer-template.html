@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f5f8">
+  <meta name="description" content="A standalone FDE interview workbench. Explore architecture flows, understand components, and revise with concise interview cards.">
+  <title>FDE Architecture Explorer · Standalone HTML</title>
+  <style>:root{--bg:#f5f5f8;--surface:#fff;--ink:#242638;--muted:#797b8f;--line:#e8e9f0;--purple:#7760d2;--purple-dark:#624cb9;--purple-light:#f0ebff;--teal:#349b88;--orange:#b78545;--shadow:0 3px 14px #26223d04;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);font-synthesis:none}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-size:14px}button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button{color:inherit}button:disabled{cursor:default;opacity:.4}a{color:inherit}button:focus-visible,a:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid #a898ee;outline-offset:4px}button{border:0}svg{display:block}button svg{flex-shrink:0}.icon{width:18px;height:18px;display:inline-block;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.skip-link{position:fixed;top:-100px;left:20px;background:#fff;z-index:100;padding:12px}.skip-link:focus{top:10px}.shell{display:flex;min-height:100vh}.sidebar{width:244px;min-width:244px;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:30px 20px 22px;position:sticky;top:0;height:100vh}.brand{display:flex;align-items:center;gap:11px;font-size:19px;font-weight:730;text-decoration:none;margin:0 7px 35px;letter-spacing:-.5px}.brand-icon{display:grid;place-items:center;width:38px;height:38px;background:var(--purple);color:white;border-radius:11px;font-family:Georgia,serif;font-size:28px;font-style:italic;position:relative}.brand-icon span{position:absolute;bottom:5px;right:6px;font-size:15px;font-style:normal}.brand-second{font-weight:400;color:#838399;margin-left:5px}.workspace-badge{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:11px 10px;font-size:12px;font-weight:600}.avatar,.top-avatar{display:grid;place-items:center;background:#eae6f6;color:#6c599d;border-radius:50%;width:31px;height:31px;font-size:12px;font-weight:650}.workspace-badge small{display:block;color:var(--muted);font-size:10px;font-weight:400;margin-top:4px}.nav-heading{font-size:9px;font-weight:700;letter-spacing:1.45px;color:#8c8c9d;margin:31px 9px 14px;display:flex;justify-content:space-between}.nav-heading span{background:#f3f3f7;padding:2px 5px;border-radius:4px;font-size:9px;letter-spacing:0}.nav-item{display:flex;width:100%;align-items:center;text-align:left;padding:13px 12px;margin:5px 0;background:transparent;border-radius:8px;gap:10px;color:#747489;font-size:12px;font-weight:550;position:relative}.nav-item.active{background:var(--purple-light);color:var(--purple-dark)}.nav-item:hover{background:#f4f2fa}.nav-item .nav-check{margin-left:auto;font-size:12px;color:var(--teal)}.sidebar-guide{margin:46px 8px 20px;border-top:1px solid var(--line);padding-top:24px}.small-icon{width:27px;height:27px;display:grid;place-items:center;background:#f1eef8;color:#8f7acc;border-radius:7px;font-size:17px}.sidebar-guide h3{font-size:13px;font-weight:570;line-height:1.65;margin:12px 0 8px}.sidebar-guide p{font-size:11px;color:#9292a3;line-height:1.8;margin:0}.guide-dots{display:flex;gap:5px;margin:20px 0}.guide-dots span{height:4px;width:21px;border-radius:4px;background:#e8e2f6}.guide-dots span:first-child{background:#9e8adf}.sidebar-bottom{margin-top:auto;padding:10px 8px 0}.plain-button{background:none;display:flex;align-items:center;gap:9px;font-size:11px;color:#72748a;padding:0 0 19px}.plain-button .icon{width:16px;height:16px}.private-label{display:flex;align-items:center;gap:7px;border-top:1px solid var(--line);padding-top:18px;color:#9293a2;font-size:10px}.status-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#64ad94;margin-right:5px}.workspace{flex:1;min-width:0}.topbar{height:73px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 38px;background:#fafafd}.breadcrumb{font-size:11px;color:#9898a8}.breadcrumb span{margin:0 12px;color:#c1c0cb}.breadcrumb strong{color:#626276;font-weight:500}.top-actions{display:flex;align-items:center;gap:18px}.private-chip{display:flex;gap:5px;align-items:center;font-size:10px;color:#777c86;border:1px solid #e5e7eb;border-radius:6px;padding:5px 8px;background:#fff}.private-chip .icon{width:12px;height:12px}.icon-button{display:grid;place-items:center;background:transparent;color:#89899d;width:28px;height:28px;border:1px solid var(--line);border-radius:7px;font-size:15px}.icon-button:hover{background:#f1eff8}.top-avatar{width:29px;height:29px;font-size:11px}main{max-width:1480px;margin:auto;padding:35px 38px 25px}.page-eyebrow{display:flex;align-items:center;gap:7px;font-size:9px;font-weight:650;letter-spacing:1.75px;color:#a49eb4}.eyebrow-line{width:17px;height:2px;background:#b2a4df}.page-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:33px}h1{font-size:29px;line-height:1.3;letter-spacing:-.9px;font-weight:580;margin:12px 0 10px}.page-intro{font-size:12px;color:#8b899c;margin:0}.library-count{display:flex;align-items:center;gap:10px;margin-right:4px}.library-count strong{font-size:27px;line-height:1;color:#b6adc9;font-weight:450}.library-count span{font-size:10px;color:#9692a5;line-height:1.5}.system-header{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:23px 25px;border:1px solid var(--line);border-radius:12px;background:white;box-shadow:var(--shadow)}.system-meta{display:flex;align-items:center;gap:8px;font-size:8px;font-weight:650;letter-spacing:1px;color:#9995ab}.system-meta .tag{font-size:8px;padding:4px 6px;border-radius:4px;background:#eee9fb;color:#8b73c7;letter-spacing:.6px}.system-meta .tag.teal{background:#e6f4ef;color:#488c7d}.system-meta .tag.orange{background:#faf0df;color:#af8750}.system-meta .time{font-weight:400;letter-spacing:0;margin-left:2px}.system-meta .time .icon{width:11px;height:11px;margin-right:2px}h2{font-size:21px;letter-spacing:-.55px;font-weight:600;margin:11px 0 8px}.system-header p{font-size:12px;color:#7e7e91;line-height:1.7;margin:0;max-width:690px}.review-button{display:flex;align-items:center;gap:6px;background:#fbfafc;border:1px solid var(--line);border-radius:6px;white-space:nowrap;padding:9px 11px;font-size:10px;color:#7e7b8f}.review-button .icon{width:13px;height:13px}.review-button.reviewed{color:#348a73;background:#edf7f3;border-color:#d5ebe2}.toolbar{display:flex;align-items:center;justify-content:space-between;margin:23px 0 19px;gap:15px}.mode-tabs{display:flex;gap:5px;background:#ececf3;border-radius:8px;padding:4px}.mode-tabs button{display:flex;align-items:center;gap:7px;background:transparent;border-radius:6px;font-size:11px;color:#9590a6;padding:9px 14px;font-weight:500}.mode-tabs button[aria-selected="true"]{background:white;box-shadow:0 1px 4px #26223d09;color:#68528f}.mode-tabs .icon{width:14px;height:14px}.scenario-control{display:flex;gap:10px;align-items:center;color:#9593a3;font-size:10px}.scenario-control select{background:#fff;border:1px solid var(--line);border-radius:6px;font-size:11px;color:#676376;padding:9px 30px 9px 10px;max-width:220px}.request-strip{display:flex;align-items:center;gap:11px;border:1px solid #e8e3f1;border-radius:8px;background:#f0edf6;padding:13px 17px;margin-bottom:18px}.request-strip>span:first-child{width:32px;height:32px;border:1px solid #e3ddee;border-radius:8px;background:#faf8ff;display:grid;place-items:center;color:#8d75bd}.request-strip .icon{width:15px;height:15px}.micro-label{font-size:8px;letter-spacing:1.3px;color:#9f90b5;font-weight:650}.request-strip p{margin:5px 0 0;font-size:12px;color:#756780}.example-label{margin-left:auto;align-self:center;font-size:9px;color:#a89ab8;white-space:nowrap}.explorer-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(310px,1fr);gap:18px;align-items:stretch}.diagram-card,.stage-card{border:1px solid var(--line);border-radius:11px;background:white;box-shadow:var(--shadow);overflow:hidden}.diagram-card{display:flex;flex-direction:column;min-width:0}.card-header{padding:20px 22px 0;display:flex;justify-content:space-between;align-items:flex-start}.card-header h3{margin:0;font-size:13px;font-weight:600}.card-header p{font-size:10px;color:#a09baa;margin:7px 0}.card-header .icon-button{border:0}.diagram-canvas{background-image:radial-gradient(#e7e7ed .7px,transparent .7px);background-size:16px 16px;margin:10px 12px 0;min-height:326px;flex:1;display:flex;align-items:center}.architecture-svg{width:100%;height:auto;max-height:390px;overflow:visible}.diagram-node{cursor:pointer;outline:none}.diagram-node rect{fill:#fff;stroke:#e5e4ec;stroke-width:1.4;transition:fill .2s,stroke .2s}.diagram-node:hover rect,.diagram-node:focus-visible rect{stroke:#9b85da;fill:#faf8ff;stroke-width:2}.diagram-node.active rect{fill:#f0eaff;stroke:#9e88e0;stroke-width:2}.diagram-node.visited rect{fill:#f7f5fc;stroke:#d6cce9}.diagram-node text{pointer-events:none}.diagram-node .node-title{font-size:12px;font-weight:550;fill:#666174}.diagram-node .node-sub{font-size:9px;fill:#a19aaa}.diagram-node.active .node-title{fill:#7755b7}.diagram-node .node-badge{fill:#f1eff7;stroke:none}.diagram-node.active .node-badge{fill:#d9ccf6}.diagram-node.visited .node-badge{fill:#e6deef}.diagram-node .badge-number{font-size:9px;fill:#9a8caf;font-weight:600}.diagram-node.active .badge-number{fill:#7044ab}.diagram-edge{fill:none;stroke:#ddd9e8;stroke-width:1.5}.diagram-edge.completed{stroke:#bbaaDA}.diagram-edge.active-edge{stroke:#9475d0;stroke-width:2}.diagram-edge.branch-edge{stroke:#d6c9bc;stroke-dasharray:4 5}.diagram-edge.side-edge{stroke:#bdd8cd;stroke-dasharray:4 4}.edge-label{font-size:8px;fill:#b3a3ba}.side-node rect{fill:#f5faf7;stroke:#d8e9e1}.side-node .node-title{fill:#6f9282}.side-node .node-sub{fill:#9bb1a7}.branch-node rect{fill:#fbf8f2;stroke:#e8dece;stroke-dasharray:4 3}.branch-node .node-title{fill:#a18a68}.branch-node .node-sub{fill:#b7a58c}.branch-node.active rect{fill:#f6eee1;stroke:#bda174;stroke-dasharray:none}.branch-node.active .node-title{fill:#8e744f}.note-label{font-size:8px;fill:#b8b1c3}.diagram-legend{display:flex;justify-content:center;gap:18px;font-size:8px;color:#a39caf;padding:9px 8px 18px}.diagram-legend span{display:flex;align-items:center;gap:5px}.diagram-legend i{height:6px;width:6px;border:1px solid #b7a0e5;border-radius:2px}.legend-active{background:#dbcef5}.legend-done{background:#f3eef9}.diagram-legend .legend-alt{border:1px dashed #baa588;background:#fbf8f3}.flow-player{border-top:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:17px 21px;background:#fdfcfe}.play-button{background:#f0ebf9;border:1px solid #e2d9f0;color:#8f72be;display:flex;gap:6px;align-items:center;padding:8px 10px;border-radius:6px;font-size:10px;min-width:83px;white-space:nowrap}.play-button .icon{width:12px;height:12px}.player-progress{flex:1;min-width:0}.player-label{display:flex;justify-content:space-between;font-size:8px;color:#a29bad;margin-bottom:7px;gap:6px}.player-label span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.progress-track{height:3px;background:#eeeaf4;border-radius:3px}.progress-track div{height:3px;background:#a98ad9;border-radius:3px;transition:width .2s}.keyboard-hint{font-size:8px;color:#b3aebf;white-space:nowrap}.stage-card{padding:21px 23px 17px;display:flex;flex-direction:column;min-height:455px}.stage-top{display:flex;align-items:center;justify-content:space-between;font-size:8px;color:#b49cda;letter-spacing:1.45px;font-weight:650}.stage-number{display:grid;place-items:center;border:1px solid #e7dff3;background:#f8f4fd;border-radius:8px;width:28px;height:28px;color:#ab8dce;font-size:11px;letter-spacing:0}.stage-card>h3{font-size:21px;font-weight:580;letter-spacing:-.5px;line-height:1.3;margin:14px 0 9px}.component-label{font-size:9px;color:#a194b1;margin-bottom:21px}.detail-tabs{display:flex;gap:20px;border-bottom:1px solid var(--line);margin-bottom:18px}.detail-tabs button{background:none;padding:0 0 10px;color:#aaa3b5;font-size:10px;position:relative}.detail-tabs button[aria-selected="true"]{color:#8b68b9}.detail-tabs button[aria-selected="true"]:after{content:"";position:absolute;height:2px;left:0;right:0;bottom:-1px;background:#a58ace}.detail-block{margin-bottom:17px}.detail-label{font-size:9px;color:#7d678e;font-weight:650;display:flex;align-items:center;gap:6px}.detail-label .icon{width:12px;height:12px}.detail-block p{font-size:11px;color:#858093;line-height:1.8;margin:7px 0 0}.next-note{border-left:2px solid #d6c5e9;padding:2px 0 2px 10px;background:#fdfcfe}.next-note span{font-size:8px;font-weight:650;color:#a593b8;letter-spacing:.5px}.next-note p{font-size:10px;line-height:1.7;color:#91849b;margin:5px 0 0}.stage-navigation{border-top:1px solid var(--line);display:flex;justify-content:space-between;padding-top:14px;gap:10px;margin-top:auto}.previous-button,.next-button{display:flex;align-items:center;gap:5px;padding:8px 9px;font-size:10px;border-radius:6px;background:#f8f6fb;color:#a391b6}.next-button{background:#9a7ac9;color:#fff;padding:8px 13px}.stage-navigation .icon{width:12px;height:12px}.check-row{border:1px solid var(--line);border-radius:6px;padding:10px 11px;margin-bottom:9px}.check-kind{display:inline-block;font-size:8px;letter-spacing:.5px;color:#797196;background:#f0edf7;padding:3px 5px;border-radius:3px;font-weight:650}.check-kind.judge{background:#f9f0e5;color:#aa8b60}.check-row p{font-size:11px;color:#858093;line-height:1.7;margin:7px 0 0}.check-explanation{font-size:9px;line-height:1.7;color:#a19aa9;margin:11px 0}.example-block{margin-bottom:17px}.example-block>span{font-size:8px;letter-spacing:1px;font-weight:650;color:#9b8bad}.example-block pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f7f6fa;border:1px solid #edeaf2;border-radius:7px;padding:12px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:10px;line-height:1.9;color:#88749b}.example-note{font-size:9px;line-height:1.6;color:#aaa1b3}.stages-section{margin-top:25px}.section-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.section-row h3{font-size:12px;font-weight:550;margin:0;color:#6f6a80}.section-row>span{font-size:9px;color:#aaa3b4}.stage-list{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}.stage-step{background:#fff;border:1px solid var(--line);border-radius:7px;text-align:left;position:relative;padding:10px 10px 12px;min-height:85px;color:#898096}.stage-step.active{background:#f1eafa;border-color:#cdb7e7}.stage-step:hover{border-color:#cdb7e7}.step-number{font-size:8px;color:#bab1c6;font-weight:650;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.step-number .icon{width:10px;height:10px;color:#8d75b6}.stage-step.active .step-number{color:#aa8bc9}.step-title{display:block;font-size:10px;line-height:1.5;font-weight:500}.thinking-card{display:flex;align-items:center;gap:13px;border:1px solid #e7e2ef;border-radius:8px;background:#eeebf5;padding:16px 18px;margin-top:22px}.thinking-card>span{color:#9d83c3;display:grid;place-items:center;background:#f8f4fc;border:1px solid #e5dbef;border-radius:7px;width:31px;height:31px;flex-shrink:0}.thinking-card .icon{width:16px;height:16px}.thinking-card p{font-size:11px;color:#8b789a;margin:7px 0 0}.thinking-card button{margin-left:auto;background:none;white-space:nowrap;font-size:10px;color:#9a84b1}.thinking-card button span{margin-left:8px}footer{display:flex;justify-content:space-between;gap:15px;align-items:center;padding-top:25px;margin-top:5px;font-size:8px;color:#ada8b8}footer button{font-size:8px;color:#a897b8;background:none;padding:0}footer .status-dot{width:4px;height:4px}dialog{border:1px solid #e7e0f0;box-shadow:0 25px 100px #36254f26;border-radius:16px;padding:27px;max-width:590px;width:calc(100% - 32px);color:var(--ink);max-height:85vh;overflow:auto}dialog::backdrop{background:#29233650;backdrop-filter:blur(3px)}.dialog-header{display:flex;justify-content:space-between;align-items:center}.dialog-header h2{font-size:21px;margin:0}.dialog-intro,dialog>p{font-size:12px;line-height:1.8;color:#898096}.source-item{border:1px solid var(--line);border-radius:8px;padding:14px;margin:12px 0}.source-item h3{font-size:12px;font-weight:600;margin:0 0 7px}.source-item p{font-size:11px;line-height:1.7;color:#8b8298;margin:0 0 8px}.source-file{font-size:10px;overflow-wrap:anywhere;font-family:ui-monospace,monospace;color:#a48aBB}.source-date{font-size:9px;color:#b6abbf;margin-top:8px}.scope-note{background:#f4f0fa;padding:14px;border-radius:8px;margin-top:15px;font-size:11px;line-height:1.8;color:#8c779f}.scope-note strong{color:#76608c}.shortcut-list{display:grid;grid-template-columns:1fr auto;gap:18px;margin:25px 0;font-size:12px;color:#8e809d}kbd{font-family:inherit;border:1px solid #e5dfed;background:#f8f6fb;border-radius:5px;padding:3px 7px;font-size:10px}.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;transition:.2s;background:#4c3b68;color:white;font-size:12px;padding:12px 20px;border-radius:9px;z-index:50;pointer-events:none;max-width:calc(100% - 32px)}.toast.visible{transform:translateX(-50%) translateY(0);opacity:1}[hidden]{display:none!important}.revision-header{display:flex;justify-content:space-between;gap:15px;align-items:center;margin:22px 0 16px}.revision-header h3{font-weight:550;font-size:17px;margin:0}.revision-header p{color:#9990a8;font-size:11px;margin:6px 0}.revision-actions{display:flex;gap:8px}.revision-actions button{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:9px 11px;font-size:10px;color:#9479b1}.revision-actions .icon{width:13px;height:13px}.pitch-card{background:#f0eafb;border:1px solid #e0d3f0;border-radius:10px;padding:21px 23px;margin-bottom:17px}.pitch-card .micro-label{color:#a083c3}.pitch-card>p{font-size:14px;line-height:1.85;color:#7c6693;margin:11px 0 0}.revision-flow{background:white;border:1px solid var(--line);border-radius:8px;padding:16px 19px;margin:17px 0;color:#897197;font-size:12px;line-height:1.7}.revision-flow span{display:block;font-size:8px;letter-spacing:1px;color:#afa1ba;margin-bottom:8px}.revision-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.revision-card{border:1px solid var(--line);background:#fff;border-radius:9px;padding:19px 21px}.revision-card h4{font-size:12px;font-weight:550;margin:0 0 13px;color:#7b6b8c;display:flex;align-items:center;gap:7px}.revision-card h4 .icon{width:14px;height:14px;color:#a28bbb}.revision-card p,.revision-card li{font-size:11px;color:#93869e;line-height:1.9}.revision-card ul{padding-left:16px;margin:0}.revision-card li+li{margin-top:8px}.revision-card p{margin:0}.revision-card strong{font-weight:600;color:#857094}.requirements-row{display:grid;grid-template-columns:86px 1fr;gap:10px;font-size:11px;color:#94869f;line-height:1.8}.requirements-row+.requirements-row{margin-top:10px}.requirements-row>strong{font-size:10px}.revision-card.wide{grid-column:1/-1}.ops-grid{display:grid;grid-template-columns:1fr 1fr;gap:19px 30px}.ops-item strong{display:block;font-size:9px;color:#a58bb8;letter-spacing:.5px;margin-bottom:6px}.revision-remember{display:flex;align-items:center;justify-content:space-between;gap:15px;background:#eeebf6;border:1px solid #e1daeb;border-radius:8px;padding:17px 20px;margin-top:17px;color:#8b74a1}.revision-remember span{font-size:8px;letter-spacing:1px;color:#ab94bb}.revision-remember p{font-size:12px;margin:0}.print-only{display:none}
+/* Keep the small UI chrome quiet while retaining readable content contrast. */
+.system-header p,.detail-block p,.check-row p,.revision-card p,.revision-card li,.requirements-row{color:#6c6379}.component-label,.card-header p,.player-label,.section-row>span,.check-explanation,.example-note{color:#80748f}.page-intro{color:#7b718a}.detail-tabs button{color:#84758f}.diagram-node .node-title{fill:#5d536b}.diagram-node .node-sub{fill:#7e708d}.side-node .node-title{fill:#4d7865}.side-node .node-sub{fill:#688b79}.branch-node .node-title{fill:#8a724b}.branch-node .node-sub{fill:#927e62}.skipped-node{cursor:default;opacity:.65}.skipped-node rect{stroke-dasharray:4 4;fill:#fafafa}.note-label{fill:#8a7b98}.edge-label{fill:#927c9f}.example-label{color:#8d7b9e}.stage-step{color:#71617d}.step-number{color:#96819f}.thinking-card p{color:#746081}.diagram-legend{color:#81718f}.micro-label{color:#887094}
+.diagram-canvas{display:block;overflow-x:auto;min-height:365px;padding-top:12px;scrollbar-width:thin;scrollbar-color:#d7c7e9 transparent}.architecture-svg{min-width:740px;max-height:none}.diagram-node .node-title{font-size:15px}.diagram-node .node-sub{font-size:12px}.diagram-node .badge-number{font-size:10px}.edge-label,.note-label{font-size:11px}.detail-block p,.check-row p{font-size:12px;line-height:1.8}.detail-label{font-size:10px}.detail-tabs button{font-size:11px}.revision-card p,.revision-card li,.requirements-row{font-size:12px}.map-scroll-hint{font-size:9px;color:#8f7b9e;text-align:center;margin:4px 12px 12px}.component-label{font-size:10px}
+@media(min-width:1600px){main{padding-top:44px}.diagram-canvas{min-height:365px}.stage-card{min-height:490px}.stage-card>h3{font-size:23px}.detail-block p{font-size:12px}.stage-list{gap:10px}}
+@media(max-width:1180px){.sidebar{width:211px;min-width:211px;padding:27px 14px}.topbar{padding:0 25px}main{padding:29px 25px}.explorer-grid{grid-template-columns:minmax(0,1.4fr) minmax(290px,1fr);gap:13px}.stage-card{padding:19px 18px}.card-header{padding:19px 17px 0}.flow-player{padding:16px}.keyboard-hint{display:none}.system-header p{max-width:540px}.stage-step{padding:10px 8px}.stage-card>h3{font-size:19px}.diagram-canvas{min-height:290px}.sidebar-guide{margin-top:37px}}
+@media(max-width:980px){.sidebar{width:180px;min-width:180px;padding:25px 10px}.brand{font-size:16px;gap:8px}.brand-icon{width:31px;height:31px}.workspace-badge{font-size:10px}.avatar{width:24px;height:24px;flex-shrink:0}.workspace-badge small{font-size:9px}.nav-heading{font-size:8px;letter-spacing:1px}.nav-item{font-size:11px;gap:8px;padding:12px 10px}.nav-item .icon{width:15px}.sidebar-guide{margin-top:30px}.sidebar-guide h3{font-size:11px}.sidebar-guide p{font-size:10px}.explorer-grid{grid-template-columns:1fr}.stage-card{min-height:0}.detail-block p{font-size:12px}.stage-navigation{margin-top:18px}.diagram-canvas{min-height:0;max-height:410px}.architecture-svg{max-height:410px}.stage-list{grid-template-columns:repeat(4,minmax(0,1fr))}h1{font-size:26px}.library-count{display:none}.example-label{display:none}.system-header{padding:20px}.system-header .review-button{align-self:flex-start}.system-header p{max-width:100%}footer{flex-wrap:wrap}.revision-grid{gap:12px}}
+@media(max-width:720px){.shell{display:block}.sidebar{position:relative;height:auto;width:100%;min-width:0;padding:15px 18px;border-right:0;border-bottom:1px solid var(--line);display:block}.brand{margin:0 0 14px;font-size:18px}.brand-icon{width:32px;height:32px}.workspace-badge,.nav-heading,.sidebar-guide,.sidebar-bottom{display:none}#systems-nav{display:flex;gap:7px}.nav-item{margin:0;justify-content:center;padding:11px 5px;gap:6px;font-size:10px;border:1px solid var(--line);border-radius:7px}.nav-item.active{border-color:#e2d6f5}.nav-item .nav-check{display:none}.nav-item .icon{width:13px;height:13px}.topbar{height:53px;padding:0 19px}.breadcrumb{font-size:9px}.breadcrumb span{margin:0 6px}.top-actions{gap:11px}.top-avatar{display:none}.private-chip{font-size:9px}.icon-button{width:25px;height:25px}main{padding:25px 18px 20px}.page-title-row{margin-bottom:23px}h1{font-size:25px;max-width:340px;line-height:1.35;margin-top:10px}.page-intro{font-size:11px;line-height:1.7;max-width:310px}.page-eyebrow{font-size:8px}.system-header{display:block;padding:19px}h2{font-size:19px;line-height:1.4}.system-header p{font-size:11px}.review-button{margin-top:14px}.system-meta{font-size:7px;gap:6px}.system-meta .tag{font-size:7px}.system-meta .time{font-size:8px}.toolbar{flex-wrap:wrap;margin:20px 0 15px;gap:12px}.mode-tabs{flex:1}.mode-tabs button{font-size:10px;padding:9px 12px;flex:1;justify-content:center}.scenario-control{width:100%;justify-content:space-between}.scenario-control select{flex:1;max-width:none}.request-strip{padding:12px;align-items:flex-start}.request-strip p{font-size:11px;line-height:1.7}.request-strip>span:first-child{flex-shrink:0}.diagram-canvas{margin:10px 4px 0;min-height:0}.card-header{padding:18px 16px 0}.card-header h3{font-size:12px}.card-header p{font-size:9px}.diagram-legend{font-size:7px;gap:14px}.flow-player{padding:14px;gap:10px}.player-label{font-size:8px}.stage-card{padding:20px}.stage-card>h3{font-size:22px}.detail-block p,.check-row p{font-size:12px}.detail-label{font-size:10px}.detail-tabs button{font-size:11px}.stage-navigation{margin-top:20px}.previous-button,.next-button{font-size:11px;padding:10px 11px}.next-note p{font-size:11px}.section-row>span{font-size:8px}.stage-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stage-step{min-height:74px;padding:11px}.step-title{font-size:11px}.step-number{margin-bottom:7px}.thinking-card{align-items:flex-start;flex-wrap:wrap;padding:15px}.thinking-card>div{flex:1}.thinking-card p{font-size:11px;line-height:1.7}.thinking-card button{width:100%;text-align:right;margin-top:6px}.revision-header{align-items:flex-start}.revision-header h3{font-size:15px}.revision-header p{font-size:10px}.revision-actions{flex-direction:column;gap:5px}.revision-actions button{font-size:9px;padding:8px}.pitch-card{padding:18px}.pitch-card>p{font-size:12px;line-height:1.9}.revision-grid{grid-template-columns:1fr}.revision-card.wide{grid-column:auto}.revision-card{padding:18px}.ops-grid{grid-template-columns:1fr;gap:16px}.revision-remember{display:block}.revision-remember p{margin-top:8px;font-size:11px;line-height:1.8}footer{font-size:8px;line-height:1.6;gap:9px}footer>span:last-child{width:100%}.revision-flow{font-size:11px}.dialog-header h2{font-size:18px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+@media print{body{background:#fff;color:#222}.sidebar,.topbar,.page-eyebrow,.page-title-row,.review-button,.toolbar,#explore-view,footer,.revision-actions,.toast,dialog,.skip-link{display:none!important}.workspace{width:100%}main{padding:0;max-width:none}.system-header{box-shadow:none;border:0;padding:0 0 10px}.system-header h2{font-size:19px}.system-header p{font-size:10px}.system-meta{font-size:8px}#revision-view{display:block!important}.pitch-card{background:#fff;padding:11px 13px;margin-bottom:10px}.pitch-card>p{font-size:11px;line-height:1.6}.revision-header{margin:5px 0 10px}.revision-header h3{font-size:14px}.revision-flow{font-size:10px;padding:10px;margin:10px 0}.revision-grid{grid-template-columns:1fr 1fr;gap:9px}.revision-card{padding:11px 13px;break-inside:avoid}.revision-card h4{font-size:10px;margin-bottom:8px}.revision-card p,.revision-card li,.requirements-row{font-size:9px;line-height:1.55}.requirements-row{grid-template-columns:68px 1fr;gap:5px}.requirements-row>strong{font-size:9px}.ops-grid{gap:10px 15px}.ops-item strong{font-size:8px}.revision-remember{padding:10px;margin-top:10px}.revision-remember p{font-size:10px}.print-only{display:block;font-size:8px;color:#666;margin-top:10px}@page{size:A4;margin:14mm}}
+
+.stage-list{grid-template-columns:repeat(auto-fit,minmax(105px,1fr))}.diagram-node.observation-node rect{fill:#f4f7fa;stroke:#dbe2ea}.diagram-node.observation-node .node-title{fill:#647d91}.diagram-edge.observation-edge{stroke:#b5c4d5;stroke-dasharray:3 4}.map-node-label{font-size:14px}.map-node-sub{font-size:11px}.diagram-node.active rect{stroke:#9173cc;fill:#f0e8fb}.diagram-canvas{max-height:none}.architecture-svg{max-height:none}.local-file-note{color:#80738e;font-size:9px}
+</style>
+
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to explorer</a>
+  <div class="shell">
+    <aside class="sidebar" aria-label="Architecture library">
+      <a href="#rag" class="brand" aria-label="FDE Explorer home"><span class="brand-icon" aria-hidden="true">f<span>→</span></span><span>FDE<span class="brand-second">Explorer</span></span></a>
+      <div class="workspace-badge"><span class="avatar">F</span><div>Interview workspace<small>Interview preparation</small></div></div>
+      <div class="nav-heading">ARCHITECTURE LIBRARY <span id="nav-count"></span></div>
+      <nav id="systems-nav"></nav>
+      <div class="sidebar-guide"><div class="small-icon" aria-hidden="true">↗</div><h3>Understand the flow.<br>Explain it with confidence.</h3><p>One request. Every component.<br>The reason behind each decision.</p><div class="guide-dots"><span></span><span></span><span></span><span></span><span></span></div></div>
+      <div class="sidebar-bottom"><button id="sources-nav" class="plain-button"></button><div class="private-label"><span class="status-dot"></span>Standalone HTML</div></div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar"><div class="breadcrumb">Interview workbench <span>/</span> <strong>Architecture explorer</strong></div><div class="top-actions"><span class="private-chip" id="private-chip"></span><button class="icon-button" id="help-button" aria-label="Open keyboard shortcuts">?</button><span class="top-avatar">F</span></div></header>
+      <main id="main" tabindex="-1">
+        <div class="page-eyebrow"><span class="eyebrow-line"></span>SYSTEM DECOMPOSITION</div>
+        <div class="page-title-row"><div><h1>Architecture, one step at a time.</h1><p class="page-intro">Explore the request. Understand the decisions. Make it interview-ready.</p></div><div class="library-count"><strong id="pattern-count"></strong><span>curated<br>patterns</span></div></div>
+        <section class="system-header" aria-labelledby="system-title"><div><div class="system-meta" id="system-meta"></div><h2 id="system-title"></h2><p id="system-description"></p></div><button id="mark-reviewed" class="review-button"></button></section>
+        <div class="toolbar"><div class="mode-tabs" role="tablist" aria-label="Explorer view"><button id="explore-tab" role="tab" aria-controls="explore-view" aria-selected="true"></button><button id="revision-tab" role="tab" aria-controls="revision-view" aria-selected="false"></button></div><div class="scenario-control"><label for="scenario">Scenario</label><select id="scenario"></select></div></div>
+        <section id="explore-view" role="tabpanel" aria-labelledby="explore-tab">
+          <div class="request-strip"><span id="request-icon" aria-hidden="true"></span><div><span class="micro-label">THE REQUEST</span><p id="request-question"></p></div><span class="example-label">Illustrative walkthrough</span></div>
+          <div class="explorer-grid">
+            <section class="diagram-card" aria-labelledby="diagram-title"><div class="card-header"><div><h3 id="diagram-title">The architecture</h3><p>Click a component to follow its part of the story.</p></div><button id="reset-button" class="icon-button" aria-label="Reset walkthrough"></button></div><div class="diagram-canvas" id="diagram-container" tabindex="0" aria-label="Scrollable architecture map"></div><p class="map-scroll-hint">Scroll the map sideways or use the numbered stages below.</p><div class="diagram-legend"><span><i class="legend-active"></i>Current stage</span><span><i class="legend-done"></i>Visited</span><span><i class="legend-alt"></i>Alternative path</span></div><div class="flow-player"><button id="play-button" class="play-button"></button><div class="player-progress"><div class="player-label"><span id="player-count"></span><span id="player-outcome"></span></div><div class="progress-track"><div id="player-progress"></div></div></div><span class="keyboard-hint">← → to step</span></div></section>
+            <section class="stage-card" aria-labelledby="stage-title"><div class="stage-top"><span id="stage-eyebrow"></span><span class="stage-number" id="stage-number"></span></div><h3 id="stage-title"></h3><span class="component-label" id="stage-component"></span><div class="detail-tabs" role="tablist" aria-label="Stage details"><button id="story-tab" data-detail="story" role="tab" aria-selected="true" aria-controls="detail-content">What & why</button><button id="checks-tab" data-detail="checks" role="tab" aria-selected="false" aria-controls="detail-content">Checks</button><button id="example-tab" data-detail="example" role="tab" aria-selected="false" aria-controls="detail-content">Example</button></div><div id="detail-content" role="tabpanel" aria-labelledby="story-tab"></div><div class="stage-navigation"><button id="previous-button" class="previous-button"></button><button id="next-button" class="next-button"></button></div></section>
+          </div>
+          <section class="stages-section" aria-labelledby="stages-title"><div class="section-row"><h3 id="stages-title">The end-to-end story</h3><span>Choose any stage to jump in</span></div><div class="stage-list" id="stage-list"></div></section>
+          <div class="thinking-card"><span id="thinking-icon" aria-hidden="true"></span><div><span class="micro-label">THE INTERVIEW TAKEAWAY</span><p id="takeaway"></p></div><button id="revision-shortcut">Open revision <span aria-hidden="true">↗</span></button></div>
+        </section>
+        <section id="revision-view" role="tabpanel" aria-labelledby="revision-tab" hidden></section>
+        <footer><span><span class="status-dot"></span><span id="content-count"></span></span><button id="sources-footer">Content & sources ↗</button><span>Illustrative examples · no live model or tool calls</span></footer>
+      </main>
+    </div>
+  </div>
+  <dialog id="sources-dialog" aria-labelledby="sources-title"><div class="dialog-header"><h2 id="sources-title">Content & sources</h2><button class="icon-button" data-close="sources-dialog" aria-label="Close content and sources">×</button></div><p class="dialog-intro">Source material, illustrative choices, and the boundaries of this walkthrough.</p><div id="sources-content"></div></dialog>
+  <dialog id="help-dialog" aria-labelledby="help-title"><div class="dialog-header"><h2 id="help-title">A few useful shortcuts</h2><button class="icon-button" data-close="help-dialog" aria-label="Close keyboard shortcuts">×</button></div><div class="shortcut-list"><span>Previous / next stage</span><kbd>← / →</kbd><span>Interview revision</span><kbd>R</kbd><span>Explore flow</span><kbd>E</kbd><span>Close a dialog</span><kbd>Esc</kbd></div><p>“Reviewed” and your last position are saved in this browser. Use the scenario selector to explore a different outcome.</p></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script type="application/json" id="explorer-data">__FDE_DATA_JSON__</script>
+<script>const DATA=JSON.parse(document.getElementById('explorer-data').textContent);
+const systems=DATA.systems;
+const sources=DATA.sources || [];
+
+const icons = {
+  search:'<circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/>',
+  layers:'<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/>',
+  shield:'<path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6l-8-3Z"/><path d="m8 12 3 3 5-6"/>',
+  lock:'<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/>',
+  book:'<path d="M12 5C8 2 3 4 3 4v15s5-2 9 1c4-3 9-1 9-1V4s-5-2-9 1Z"/><path d="M12 5v15"/>',
+  flow:'<rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="15" y="15" width="6" height="6" rx="1.5"/><path d="M6 9v9h9M9 6h9v9"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  check:'<path d="m5 12 4 4L19 6"/>',
+  circle:'<circle cx="12" cy="12" r="9"/>',
+  arrow:'<path d="M4 12h16m-6-6 6 6-6 6"/>',
+  back:'<path d="M20 12H4m6-6-6 6 6 6"/>',
+  play:'<path d="m8 5 11 7-11 7V5Z"/>',
+  pause:'<path d="M8 5v14M16 5v14"/>',
+  reset:'<path d="M3 9a9 9 0 1 1 1 9M3 4v5h5"/>',
+  chat:'<path d="M20 4H4v13h4l4 4v-4h8V4Z"/><path d="M8 8h8M8 12h5"/>',
+  bulb:'<path d="M8 15a7 7 0 1 1 8 0v3H8v-3ZM9 21h6"/><path d="M9 10h6"/>',
+  copy:'<rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V3H3v13h5"/>',
+  print:'<path d="M6 8V3h12v5M6 17H3V8h18v9h-3"/><rect x="6" y="14" width="12" height="7"/>',
+  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  warning:'<path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v5M12 17h.01"/>',
+  sliders:'<path d="M3 6h18M3 12h18M3 18h18"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/>'
+};
+const icon = name => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${icons[name] || icons.circle}</svg>`;
+const el = id => document.getElementById(id);
+const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const storageKey = 'fde-html-explorer-v1:' + systems.map(s=>s.id).join('|');
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(storageKey) || '{}') || {}; } catch {}
+let state = { system: systems.some(s=>s.id===saved.system) ? saved.system : systems[0].id, scenario: saved.scenario || systems[0].scenarios[0].id, step: Number.isInteger(saved.step) ? saved.step : 0, mode: saved.mode === 'revision' ? 'revision' : 'explore', detail: 'story', reviewed: Array.isArray(saved.reviewed) ? saved.reviewed.filter(id=>systems.some(s=>s.id===id)) : [] };
+let playTimer = null, toastTimer = null;
+const currentSystem = () => systems.find(s=>s.id===state.system);
+const currentScenario = () => currentSystem().scenarios.find(s=>s.id===state.scenario) || currentSystem().scenarios[0];
+const stages = () => currentScenario().stages;
+const persist = () => { try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch {} };
+const toast = text => { el('toast').textContent=text;el('toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el('toast').classList.remove('visible'),2500); };
+
+function normalize() {
+  if(!currentSystem().scenarios.some(s=>s.id===state.scenario)) state.scenario=currentSystem().scenarios[0].id;
+  state.step=Math.max(0,Math.min(state.step,stages().length-1));
+}
+function stopPlay() {
+  if(playTimer) clearInterval(playTimer);
+  playTimer=null;
+  el('play-button').innerHTML=icon('play')+'Run flow';
+  el('play-button').setAttribute('aria-label','Automatically step through the request flow');
+  el('play-button').setAttribute('aria-pressed','false');
+}
+function setSystem(id) {
+  if(!systems.some(s=>s.id===id)) return;
+  stopPlay();
+  state.system=id;state.scenario=currentSystem().scenarios[0].id;state.step=0;state.detail='story';
+  history.replaceState(null,'',`#${id}`);
+  render();
+}
+function setStep(index,fromPlay=false) {
+  if(!fromPlay) stopPlay();
+  state.step=Math.max(0,Math.min(index,stages().length-1));
+  renderStage();renderDiagram();renderSteps();persist();
+}
+function setMode(mode) {
+  stopPlay();state.mode=mode;renderMode();persist();
+}
+function renderNav() {
+  el('systems-nav').innerHTML=systems.map(s=>`<button class="nav-item ${s.id===state.system?'active':''}" data-system="${esc(s.id)}" ${s.id===state.system?'aria-current="page"':''}>${icon(s.icon)}<span>${esc(s.nav)}</span>${state.reviewed.includes(s.id)?'<span class="nav-check" aria-label="Reviewed">✓</span>':''}</button>`).join('');
+  el('mark-reviewed').innerHTML=icon(state.reviewed.includes(state.system)?'check':'circle')+(state.reviewed.includes(state.system)?'Reviewed':'Mark reviewed');
+  el('mark-reviewed').classList.toggle('reviewed',state.reviewed.includes(state.system));
+  el('mark-reviewed').setAttribute('aria-pressed',String(state.reviewed.includes(state.system)));
+}
+function render() {
+  normalize();renderNav();
+  const s=currentSystem();
+  el('system-meta').innerHTML=`<span class="tag ${esc(s.color || 'purple')}">${esc(s.tag)}</span><span>${esc(s.family)}</span><span class="time">${icon('clock')}${esc(s.time || 'Guided')} walkthrough</span>`;
+  el('system-title').textContent=s.name;el('system-description').textContent=s.description;
+  el('request-question').textContent=s.question;
+  el('takeaway').textContent=s.revision.remember;
+  el('scenario').innerHTML=s.scenarios.map(x=>`<option value="${esc(x.id)}" ${x.id===state.scenario?'selected':''}>${esc(x.label)}</option>`).join('');
+  renderDiagram();renderStage();renderSteps();renderRevision();renderMode();persist();
+}
+function renderMode() {
+  const revision=state.mode==='revision';
+  el('explore-tab').setAttribute('aria-selected',String(!revision));
+  el('revision-tab').setAttribute('aria-selected',String(revision));
+  el('explore-tab').tabIndex=revision?-1:0;el('revision-tab').tabIndex=revision?0:-1;
+  el('explore-view').hidden=revision;el('revision-view').hidden=!revision;
+  el('scenario').disabled=revision;
+  el('scenario').title=revision?'Switch to Explore flow to change scenario':'Choose a request outcome';
+}
+function renderStage() {
+  const st=stages()[state.step];
+  el('stage-eyebrow').textContent=`STAGE ${String(state.step+1).padStart(2,'0')} OF ${String(stages().length).padStart(2,'0')}`;
+  el('stage-number').textContent=String(state.step+1).padStart(2,'0');
+  el('stage-title').textContent=st.title;
+  el('stage-component').textContent=st.component;
+  document.querySelectorAll('[data-detail]').forEach(b=>{const active=b.dataset.detail===state.detail;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;});
+  el('detail-content').setAttribute('aria-labelledby',`${state.detail}-tab`);
+  if(state.detail==='story') el('detail-content').innerHTML=`<div class="detail-block"><div class="detail-label">${icon('layers')} What it does</div><p>${esc(st.what)}</p></div><div class="detail-block"><div class="detail-label">${icon('bulb')} Why it exists</div><p>${esc(st.why)}</p></div><div class="detail-block next-note"><span>WHAT HAPPENS NEXT</span><p>${esc(st.next)}</p></div>`;
+  else if(state.detail==='checks') el('detail-content').innerHTML=st.checks.map(c=>`<div class="check-row"><span class="check-kind ${c.kind==='Judge'?'judge':''}">${esc(c.kind.toUpperCase())}</span><p>${esc(c.text)}</p></div>`).join('')+`<p class="check-explanation">Exact = deterministic rule. Judge = semantic assessment. Offline = evaluation method. Observe = production measurement.</p>`;
+  else el('detail-content').innerHTML=`<div class="example-block"><span>INPUT / REQUEST</span><pre>${esc(typeof st.input==='string'?st.input:JSON.stringify(st.input,null,2))}</pre></div><div class="example-block"><span>OUTPUT / RESULT</span><pre>${esc(typeof st.output==='string'?st.output:JSON.stringify(st.output,null,2))}</pre></div><p class="example-note">Illustrative payloads, simplified for interview preparation.</p>`;
+  el('previous-button').innerHTML=icon('back')+'Previous';el('previous-button').disabled=state.step===0;
+  const last=state.step===stages().length-1;
+  el('next-button').innerHTML=(last?'Review system':'Next stage')+icon('arrow');
+  el('next-button').setAttribute('aria-label',last?'Open interview revision for this system':'Go to next stage');
+  el('player-count').textContent=`Stage ${state.step+1} / ${stages().length}`;
+  el('player-outcome').textContent=state.step===stages().length-1?currentScenario().outcome:'Follow the request';
+  el('player-progress').style.width=`${(state.step+1)/stages().length*100}%`;
+}
+function renderSteps() {
+  el('stage-list').innerHTML=stages().map((st,i)=>`<button class="stage-step ${i===state.step?'active':''}" data-step="${i}" ${i===state.step?'aria-current="step"':''} aria-label="Stage ${i+1}: ${esc(st.title)}"><span class="step-number">${String(i+1).padStart(2,'0')}${i<state.step?icon('check'):''}</span><span class="step-title">${esc(st.title)}</span></button>`).join('');
+}
+
+function graphNodes() {
+  const sc=currentScenario();
+  return currentSystem().diagram.nodes.map(n=>({...n,...(sc.nodeOverrides?.[n.id]||{})}));
+}
+function edgePoints(edge,nodes) {
+  if(edge.points)return edge.points;
+  const a=nodes.find(n=>n.id===edge.from),b=nodes.find(n=>n.id===edge.to);
+  const aw=a.w||178,ah=a.h||70,bw=b.w||178,bh=b.h||70;
+  const ax=a.x+aw/2,ay=a.y+ah/2,bx=b.x+bw/2,by=b.y+bh/2;
+  if(Math.abs(bx-ax)>Math.abs(by-ay)) {
+    const x1=bx>ax?a.x+aw:a.x,x2=bx>ax?b.x:b.x+bw;
+    const mid=(x1+x2)/2;
+    return [[x1,ay],[mid,ay],[mid,by],[x2,by]];
+  }
+  const y1=by>ay?a.y+ah:a.y,y2=by>ay?b.y:b.y+bh;
+  const mid=(y1+y2)/2;
+  return [[ax,y1],[ax,mid],[bx,mid],[bx,y2]];
+}
+function renderDiagram() {
+  const s=currentSystem(),sc=currentScenario(),d=s.diagram;
+  const nodes=graphNodes(),active=new Set(stages()[state.step].nodeIds);
+  const visited=new Set(stages().slice(0,state.step).flatMap(st=>st.nodeIds));
+  const skipped=new Set(sc.skipNodes||[]);
+  const edges=sc.edges||d.edges||[];
+  let svg=`<svg class="architecture-svg" style="min-width:${Math.max(740,(d.width||960)*.8)}px" viewBox="0 0 ${d.width||960} ${d.height||470}" aria-labelledby="architecture-title architecture-desc"><title id="architecture-title">${esc(s.name)} · ${esc(sc.label)}</title><desc id="architecture-desc">Directed request flow with dependencies and alternative paths. Select a component to read its stage. Skipped components are marked. The numbered stages below also support keyboard navigation.</desc><defs>`;
+  const colors={flow:'#b5a0d3',data:'#8fbaa7',branch:'#bca276',observation:'#9db2c6',active:'#9475d0'};
+  for(const [key,color] of Object.entries(colors))svg+=`<marker id="arrow-${key}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 10 5 0 10Z" fill="${color}"/></marker>`;
+  svg+='</defs>';
+  for(const edge of edges) {
+    const points=edgePoints(edge,nodes),kind=edge.kind||'flow';
+    const isActive=active.has(edge.to)||active.has(edge.from)&&active.has(edge.to);
+    const complete=visited.has(edge.from)&&visited.has(edge.to);
+    const path=points.map((p,i)=>`${i?'L':'M'}${p[0]} ${p[1]}`).join(' ');
+    svg+=`<path d="${path}" class="diagram-edge ${kind==='flow'?'':kind==='data'?'side-edge':kind==='branch'?'branch-edge':'observation-edge'} ${complete?'completed':''} ${isActive?'active-edge':''}" marker-end="url(#arrow-${isActive?'active':kind})"/>`;
+    if(edge.label){const mid=points[Math.floor(points.length/2)];svg+=`<text x="${edge.labelX??mid[0]}" y="${edge.labelY??mid[1]-9}" class="edge-label" text-anchor="middle">${esc(edge.label)}</text>`;}
+  }
+  for(const node of nodes) {
+    const index=stages().findIndex(st=>st.nodeIds.includes(node.id));
+    const isSkipped=skipped.has(node.id),role=node.role||'component';
+    const classes=`diagram-node ${role==='data'?'side-node':role==='branch'?'branch-node':role==='observation'?'observation-node':''} ${active.has(node.id)?'active':visited.has(node.id)?'visited':''} ${isSkipped?'skipped-node':''}`;
+    const clickable=index>=0&&!isSkipped;
+    const attrs=clickable?`data-step="${index}" role="button" tabindex="0"`:'role="img"';
+    const badge=role==='component'&&!isSkipped&&index>=0;
+    svg+=`<g class="${classes}" transform="translate(${node.x} ${node.y})" data-node-id="${esc(node.id)}" ${attrs} aria-label="${esc(isSkipped?'Skipped: ':`Stage ${index+1}: `)}${esc(node.label)}"><rect width="${node.w||178}" height="${node.h||70}" rx="9"/>`;
+    if(badge)svg+=`<rect x="12" y="15" width="19" height="19" rx="5" class="node-badge"/><text x="21.5" y="28" text-anchor="middle" class="badge-number">${String(index+1).padStart(2,'0')}</text>`;
+    const labelX=badge?39:13;
+    const maxFont=Math.min(15,Math.max(10,((node.w||178)-labelX-10)/(node.label.length*.53)));
+    svg+=`<text x="${labelX}" y="28" class="node-title map-node-label" style="font-size:${maxFont}px">${esc(node.label)}</text><text x="13" y="49" class="node-sub map-node-sub">${esc(isSkipped?'Skipped in this scenario':node.sub)}</text></g>`;
+  }
+  svg+='</svg>';
+  const canvas=el('diagram-container');canvas.innerHTML=svg;
+  if(canvas.clientWidth){const first=nodes.find(n=>active.has(n.id));if(first){const w=Math.max(canvas.clientWidth,740,(d.width||960)*.8);canvas.scrollLeft=Math.max(0,(first.x+(first.w||178)/2)*w/(d.width||960)-canvas.clientWidth/2);}}
+}
+
+function renderRevision() {
+  const s=currentSystem(),r=s.revision;
+  el('revision-view').innerHTML=`<div class="revision-header"><div><h3>Your compact interview card</h3><p>The essentials, in the order you would explain them.</p></div><div class="revision-actions"><button id="copy-pitch">${icon('copy')} Copy answer</button><button id="print-card">${icon('print')} Print card</button></div></div><div class="pitch-card"><span class="micro-label">THE 60–90 SECOND ANSWER</span><p>${esc(r.pitch)}</p></div><div class="revision-flow"><span>THE FLOW TO REMEMBER</span>${esc(r.flow)}</div><div class="revision-grid"><div class="revision-card"><h4>${icon('target')} Requirements</h4>${r.requirements.map(([label,text])=>`<div class="requirements-row"><strong>${label}</strong><span>${esc(text)}</span></div>`).join('')}</div><div class="revision-card"><h4>${icon('chat')} Ask before you design</h4><ul>${r.discovery.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div><div class="revision-card"><h4>${icon('sliders')} One tradeoff to explain</h4><p>${esc(r.tradeoff)}</p></div><div class="revision-card"><h4>${icon('warning')} One failure to handle</h4><p>${esc(r.failure)}</p></div><div class="revision-card wide"><h4>${icon('layers')} Production talking points</h4><div class="ops-grid">${r.ops.map(([label,text])=>`<div class="ops-item"><strong>${label.toUpperCase()}</strong><p>${esc(text)}</p></div>`).join('')}</div></div></div><div class="revision-remember"><span>ANCHOR LINE</span><p>${esc(r.remember)}</p></div><div class="print-only">Representative interview pattern. ${esc(s.provenance)} Source material: ${s.sourceIds.map(id=>esc(sources.find(x=>x.id===id)?.file || sources.find(x=>x.id===id)?.title || id)).join('; ')}.</div>`;
+}
+function openSources() {
+  const s=currentSystem();
+  el('sources-content').innerHTML=`<div class="scope-note"><strong>${esc(s.name)}</strong><br>${esc(s.scope)}<br><br>${esc(s.provenance)}</div>`+sources.map(src=>`<div class="source-item"><h3>${esc(src.title)}${s.sourceIds.includes(src.id)?' · used in this pattern':''}</h3><p>${esc(src.note)}</p><div class="source-file">${esc(src.file || '')}</div>${src.url?`<a href="${esc(src.url)}" target="_blank" rel="noopener noreferrer">Open source</a>`:''}</div>`).join('')+`<div class="scope-note"><strong>How to read these walkthroughs</strong><br>This is a representative interview walkthrough. The scope and assumptions above distinguish available source material from added design choices. Payloads and outcomes are teaching examples; no measured performance, live model call, or real business action is claimed.</div>`;
+  el('sources-dialog').showModal();
+}
+
+el('private-chip').innerHTML=icon('book')+'Standalone HTML';
+el('sources-nav').innerHTML=icon('book')+'Content & sources';
+el('explore-tab').innerHTML=icon('flow')+'Explore flow';
+el('revision-tab').innerHTML=icon('book')+'Interview revision';
+el('reset-button').innerHTML=icon('reset');
+el('request-icon').innerHTML=icon('chat');el('thinking-icon').innerHTML=icon('bulb');
+el('systems-nav').addEventListener('click',e=>{const b=e.target.closest('[data-system]');if(b)setSystem(b.dataset.system);});
+el('stage-list').addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(b)setStep(Number(b.dataset.step));});
+el('diagram-container').addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(b)setStep(Number(b.dataset.step));});
+el('diagram-container').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const b=e.target.closest('[data-step]');if(b){e.preventDefault();setStep(Number(b.dataset.step));const same=el('diagram-container').querySelector(`[data-step="${state.step}"]`);same?.focus();}}});
+el('scenario').addEventListener('change',e=>{stopPlay();state.scenario=e.target.value;state.step=0;state.detail='story';render();});
+el('previous-button').addEventListener('click',()=>setStep(state.step-1));
+el('next-button').addEventListener('click',()=>state.step===stages().length-1?setMode('revision'):setStep(state.step+1));
+el('reset-button').addEventListener('click',()=>{state.detail='story';setStep(0);});
+el('explore-tab').addEventListener('click',()=>setMode('explore'));
+el('revision-tab').addEventListener('click',()=>setMode('revision'));
+el('revision-shortcut').addEventListener('click',()=>{setMode('revision');el('revision-tab').focus();});
+document.querySelectorAll('[data-detail]').forEach(b=>b.addEventListener('click',()=>{state.detail=b.dataset.detail;renderStage();}));
+el('mark-reviewed').addEventListener('click',()=>{const reviewed=state.reviewed.includes(state.system);state.reviewed=reviewed?state.reviewed.filter(x=>x!==state.system):[...state.reviewed,state.system];renderNav();persist();toast(reviewed?'Removed from reviewed':'Marked reviewed · saved in this browser');});
+el('play-button').addEventListener('click',()=>{
+  if(playTimer){stopPlay();return;}
+  if(state.step===stages().length-1)setStep(0);
+  el('play-button').innerHTML=icon('pause')+'Pause';el('play-button').setAttribute('aria-pressed','true');el('play-button').setAttribute('aria-label','Pause automatic request walkthrough');
+  playTimer=setInterval(()=>{if(state.step<stages().length-1)setStep(state.step+1,true);if(state.step===stages().length-1)stopPlay();},5500);
+});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPlay();});
+el('revision-view').addEventListener('click',async e=>{
+  if(e.target.closest('#print-card')){window.print();return;}
+  if(e.target.closest('#copy-pitch')){
+    const text=currentSystem().revision.pitch;
+    try{await navigator.clipboard.writeText(text);toast('Interview answer copied');}
+    catch{const area=document.createElement('textarea');area.value=text;area.style.position='fixed';area.style.top='-9999px';document.body.append(area);area.select();const ok=document.execCommand('copy');area.remove();toast(ok?'Interview answer copied':'Copy unavailable in this browser. Select the answer text to copy it.');}
+  }
+});
+['sources-nav','sources-footer'].forEach(id=>el(id).addEventListener('click',openSources));
+el('help-button').addEventListener('click',()=>el('help-dialog').showModal());
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>el(b.dataset.close).close()));
+document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close();}}));
+// Roving focus for both tab groups; arrows switch tabs without moving stages.
+document.querySelectorAll('[role="tablist"]').forEach(group=>group.addEventListener('keydown',e=>{
+  if(!['ArrowRight','ArrowLeft','Home','End'].includes(e.key))return;
+  const tabs=[...group.querySelectorAll('[role="tab"]')];const index=tabs.indexOf(document.activeElement);if(index<0)return;
+  e.preventDefault();e.stopPropagation();let next=e.key==='Home'?0:e.key==='End'?tabs.length-1:(index+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+  tabs[next].click();tabs[next].focus();
+}));
+document.addEventListener('keydown',e=>{
+  if(document.querySelector('dialog[open]')||e.ctrlKey||e.metaKey||e.altKey||e.target.closest('select,input,textarea,[contenteditable="true"],[role="tablist"]'))return;
+  if(e.key==='ArrowRight' && state.mode==='explore'){e.preventDefault();setStep(state.step+1);}
+  if(e.key==='ArrowLeft' && state.mode==='explore'){e.preventDefault();setStep(state.step-1);}
+  if(e.key.toLowerCase()==='r')setMode('revision');
+  if(e.key.toLowerCase()==='e')setMode('explore');
+});
+window.addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(systems.some(s=>s.id===id))setSystem(id);});
+const initialHash=location.hash.slice(1);
+if(systems.some(s=>s.id===initialHash)&&initialHash!==state.system){state.system=initialHash;state.scenario=currentSystem().scenarios[0].id;state.step=0;}
+document.title=DATA.title+' · Standalone HTML';
+el('nav-count').textContent=String(systems.length).padStart(2,'0');el('pattern-count').textContent=String(systems.length);
+el('content-count').textContent=systems.length+' representative '+(systems.length===1?'pattern':'patterns')+' · sources & assumptions inside';
+if(DATA.subtitle)document.querySelector('.page-intro').textContent=DATA.subtitle;
+document.querySelector('.brand').setAttribute('href','#'+systems[0].id);
+normalize();stopPlay();render();
+</script>
+</body>
+</html>

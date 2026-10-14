@@ -1,0 +1,6 @@
+{
+  "site": "https://eval-demystified.vercel.app",
+  "targets": {"coverage": 9, "depth": 8, "practice": 8, "grounding": 8, "credibility": 7,
+              "navigation": 8, "onboarding": 8, "template": 8, "progress": 6, "polish": 8},
+  "competitors": ["hamel-evals", "eugene-yan", "evidently-guide", "deepeval-docs", "openai-evals-guide", "deeplearning-ai"]
+}

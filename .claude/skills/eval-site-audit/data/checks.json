@@ -1,0 +1,688 @@
+{
+  "version": 1,
+  "site": "Agent Evaluation Demystified (https://eval-demystified.vercel.app)",
+  "lenses": {
+    "IA": {
+      "name": "Information architecture",
+      "question": "Can a reader predict where something lives, reach it from the index, and follow a sequence without dead ends?"
+    },
+    "ON": {
+      "name": "Onboarding",
+      "question": "Does a first-time visitor know who the site is for and what to open first within 30 seconds?"
+    },
+    "FV": {
+      "name": "First visit",
+      "question": "Does anything look broken, raw, empty or untrue before the reader has read a word?"
+    },
+    "PQ": {
+      "name": "Page quality",
+      "question": "Does every page of the same type behave the same way, and is the copy clean?"
+    },
+    "PR": {
+      "name": "Production readiness",
+      "question": "Would this survive being shared on LinkedIn, indexed by Google and read on a phone?"
+    },
+    "CT": {
+      "name": "Content coverage",
+      "question": "Does the site cover the evaluation surface end to end, tie it to runnable code, and keep its core strengths?"
+    }
+  },
+  "verify_methods": {
+    "scan": "crawl_inventory.py reports it (scan-checks.json)",
+    "read": "a person or subagent reads the pages",
+    "browser": "check in a real browser (references/browser-checks.md)",
+    "fetch": "fetch a specific URL and look at status or content",
+    "repo": "run a free repo script or read the source under docs/ and site/build.py"
+  },
+  "checks": [
+    {
+      "id": "IA-01",
+      "lens": "IA",
+      "title": "Top nav has 6 or fewer items",
+      "verify": "scan+browser",
+      "pass_when": "The header shows at most 6 section links (brand, contents toggle and theme controls excluded)",
+      "severity": "high",
+      "dimension": "navigation"
+    },
+    {
+      "id": "IA-02",
+      "lens": "IA",
+      "title": "Every page reachable from the index in one click",
+      "verify": "scan",
+      "pass_when": "Every crawled page is linked from the index page; no orphan pages",
+      "severity": "high",
+      "dimension": "navigation"
+    },
+    {
+      "id": "IA-03",
+      "lens": "IA",
+      "title": "No broken internal links",
+      "verify": "scan",
+      "pass_when": "Every internal link returns 200 and every #fragment exists on its target page",
+      "severity": "high",
+      "dimension": "navigation"
+    },
+    {
+      "id": "IA-04",
+      "lens": "IA",
+      "title": "One name per thing",
+      "verify": "scan+read",
+      "pass_when": "The index card title, the page <title> and the page H1 use the same words for each page",
+      "severity": "medium",
+      "dimension": "navigation"
+    },
+    {
+      "id": "IA-05",
+      "lens": "IA",
+      "title": "Sequences have prev and next",
+      "verify": "scan",
+      "pass_when": "Every roadmap explainer (Level 0-10) and every interactive lab (01-05) links to its previous and next page",
+      "severity": "medium",
+      "dimension": "navigation"
+    },
+    {
+      "id": "IA-06",
+      "lens": "IA",
+      "title": "Deliberate duplicates are declared and cross-linked",
+      "verify": "read+repo",
+      "pass_when": "Overlapping pages (question bank and drill, roadmap and explainers, OpenAI audit and tutorial, field guide and explainers) say what each is for and link each other both ways",
+      "severity": "medium",
+      "dimension": "navigation"
+    },
+    {
+      "id": "IA-07",
+      "lens": "IA",
+      "title": "Theory links to its practice",
+      "verify": "read",
+      "pass_when": "Each explainer and theory page links to the lab, drill section or notebook that practises it, and the lab links back",
+      "severity": "medium",
+      "dimension": "navigation"
+    },
+    {
+      "id": "IA-08",
+      "lens": "IA",
+      "title": "One URL scheme",
+      "verify": "scan",
+      "pass_when": "All page URLs are lowercase-kebab slugs under one pattern; no spaces, underscores, uppercase or nested legacy paths",
+      "severity": "low",
+      "dimension": "navigation"
+    },
+    {
+      "id": "IA-09",
+      "lens": "IA",
+      "title": "Retired URLs redirect permanently",
+      "verify": "fetch",
+      "pass_when": "Every retired URL returns 301/308 to its new page (not 404, not the index). na until a page is renamed or removed",
+      "severity": "high",
+      "dimension": "navigation"
+    },
+    {
+      "id": "IA-10",
+      "lens": "IA",
+      "title": "Site search",
+      "verify": "browser",
+      "pass_when": "A search box or Cmd-K finds pages and sections by keyword (e.g. 'faithfulness', 'release gate')",
+      "severity": "medium",
+      "dimension": "progress"
+    },
+    {
+      "id": "IA-11",
+      "lens": "IA",
+      "title": "References link to site pages, not repo paths or GitHub copies",
+      "verify": "scan+read",
+      "pass_when": "Every mention of another document that is on the site is a link to its site page; no docs/… paths as plain text, no GitHub source-view links where a site page exists, no references to files the site does not serve",
+      "severity": "medium",
+      "dimension": "navigation"
+    },
+    {
+      "id": "ON-01",
+      "lens": "ON",
+      "title": "Homepage says who it is for and where to start",
+      "verify": "browser+read",
+      "pass_when": "Above the fold: the audience, the promise, and one primary call to action (at most one secondary)",
+      "severity": "high",
+      "dimension": "onboarding"
+    },
+    {
+      "id": "ON-02",
+      "lens": "ON",
+      "title": "One recommended path, consistent everywhere",
+      "verify": "read",
+      "pass_when": "The index, the roadmap, the study plan and Level 0 recommend the same order and link to each other; no two start pages disagree",
+      "severity": "high",
+      "dimension": "onboarding"
+    },
+    {
+      "id": "ON-03",
+      "lens": "ON",
+      "title": "Effort shown and consistent",
+      "verify": "scan+read",
+      "pass_when": "Pages and paths show a time estimate, and hours for the roadmap, study plan and fast path agree wherever they appear",
+      "severity": "medium",
+      "dimension": "onboarding"
+    },
+    {
+      "id": "ON-04",
+      "lens": "ON",
+      "title": "Prerequisites stated",
+      "verify": "read",
+      "pass_when": "Each explainer and lab says what to know first, or which level comes before it",
+      "severity": "low",
+      "dimension": "onboarding"
+    },
+    {
+      "id": "ON-05",
+      "lens": "ON",
+      "title": "Express lane for interview-soon readers",
+      "verify": "read",
+      "pass_when": "A link on the index takes an 'interview this week' reader straight to the fast path, drill or question bank",
+      "severity": "medium",
+      "dimension": "onboarding"
+    },
+    {
+      "id": "ON-06",
+      "lens": "ON",
+      "title": "Path to the runnable course is clear",
+      "verify": "scan+read",
+      "pass_when": "The index links to the repository and says which course and setup to use to run the notebooks",
+      "severity": "medium",
+      "dimension": "onboarding"
+    },
+    {
+      "id": "FV-01",
+      "lens": "FV",
+      "title": "Diagrams render after load",
+      "verify": "browser",
+      "pass_when": "No raw Mermaid source (e.g. 'flowchart LR', 'graph TD') is visible 4 seconds after load; every diagram is an SVG",
+      "severity": "high",
+      "dimension": "template"
+    },
+    {
+      "id": "FV-02",
+      "lens": "FV",
+      "title": "Interactive labs respond on first load",
+      "verify": "browser",
+      "pass_when": "On every lab, moving the control changes the metric numbers, and the console shows no errors",
+      "severity": "high",
+      "dimension": "practice"
+    },
+    {
+      "id": "FV-03",
+      "lens": "FV",
+      "title": "The drill works for a new visitor",
+      "verify": "browser",
+      "pass_when": "Answers start hidden, reveal works, rating and the weak-only filter work, with no saved progress needed",
+      "severity": "high",
+      "dimension": "practice"
+    },
+    {
+      "id": "FV-04",
+      "lens": "FV",
+      "title": "Counts on the index and blurbs are true",
+      "verify": "scan+read",
+      "pass_when": "Claimed counts (questions, cases, levels, labs, stages, gotchas, TODOs, sections) match what the pages contain",
+      "severity": "medium",
+      "dimension": "polish"
+    },
+    {
+      "id": "FV-05",
+      "lens": "FV",
+      "title": "No stub or placeholder pages",
+      "verify": "scan",
+      "pass_when": "No published page under 300 words (labs excepted) and no TODO, TBD, lorem ipsum or Coming soon text",
+      "severity": "medium",
+      "dimension": "coverage"
+    },
+    {
+      "id": "FV-06",
+      "lens": "FV",
+      "title": "No build internals on the index",
+      "verify": "scan+read",
+      "pass_when": "The index shows readers content, not build bookkeeping (docs/ file paths, skip lists, generator notes)",
+      "severity": "low",
+      "dimension": "polish"
+    },
+    {
+      "id": "PQ-01",
+      "lens": "PQ",
+      "title": "Every page carries the site navigation",
+      "verify": "scan",
+      "pass_when": "Rendered and copied pages both link back to the index and to every top-nav section",
+      "severity": "high",
+      "dimension": "template"
+    },
+    {
+      "id": "PQ-02",
+      "lens": "PQ",
+      "title": "Copied pages match the site's look",
+      "verify": "browser",
+      "pass_when": "Standalone HTML pages (labs, drill, study plan, tutorial) use the same fonts, colours and header as rendered pages, in light and dark",
+      "severity": "medium",
+      "dimension": "template"
+    },
+    {
+      "id": "PQ-03",
+      "lens": "PQ",
+      "title": "Reading time on content pages",
+      "verify": "scan",
+      "pass_when": "Every rendered and standalone reading page shows one reading time",
+      "severity": "low",
+      "dimension": "template"
+    },
+    {
+      "id": "PQ-04",
+      "lens": "PQ",
+      "title": "Long pages have on-page contents",
+      "verify": "scan",
+      "pass_when": "Every page over 2,000 words has a contents rail, collapsible sections, or both",
+      "severity": "medium",
+      "dimension": "template"
+    },
+    {
+      "id": "PQ-05",
+      "lens": "PQ",
+      "title": "Explainers follow the house format",
+      "verify": "scan+read",
+      "pass_when": "Every roadmap explainer has imperative section headings, a worked example, Key Takeaways, Check Yourself and References",
+      "severity": "medium",
+      "dimension": "template"
+    },
+    {
+      "id": "PQ-06",
+      "lens": "PQ",
+      "title": "No build artefacts in page text",
+      "verify": "scan",
+      "pass_when": "No 'Generated from' footers, raw docs/*.md paths in prose, or links to .md files used as navigation",
+      "severity": "high",
+      "dimension": "polish"
+    },
+    {
+      "id": "PQ-07",
+      "lens": "PQ",
+      "title": "No copy bugs",
+      "verify": "scan+read",
+      "pass_when": "No doubled words, visible HTML entities (&middot;, &amp;), mojibake, placeholders, or claims that contradict the list beneath them",
+      "severity": "medium",
+      "dimension": "polish"
+    },
+    {
+      "id": "PQ-08",
+      "lens": "PQ",
+      "title": "One spelling system",
+      "verify": "scan",
+      "pass_when": "US or UK spelling used consistently across the site",
+      "severity": "low",
+      "dimension": "polish"
+    },
+    {
+      "id": "PQ-09",
+      "lens": "PQ",
+      "title": "Diagrams and tables fit the column",
+      "verify": "browser",
+      "pass_when": "No diagram or table forces horizontal page scroll; wide ones scroll inside their own box or scale",
+      "severity": "medium",
+      "dimension": "template"
+    },
+    {
+      "id": "PQ-10",
+      "lens": "PQ",
+      "title": "Author and last-updated date on content pages",
+      "verify": "scan",
+      "pass_when": "Every content page shows an author or maintainer and a last-updated date",
+      "severity": "medium",
+      "dimension": "credibility"
+    },
+    {
+      "id": "PR-01",
+      "lens": "PR",
+      "title": "Custom domain",
+      "verify": "fetch",
+      "pass_when": "Served from its own domain; the vercel.app host redirects to it",
+      "severity": "low",
+      "dimension": "polish"
+    },
+    {
+      "id": "PR-02",
+      "lens": "PR",
+      "title": "Share preview image",
+      "verify": "scan",
+      "pass_when": "og:title, og:description and og:image (1200x630) on every page; twitter:card summary_large_image",
+      "severity": "high",
+      "dimension": "polish"
+    },
+    {
+      "id": "PR-03",
+      "lens": "PR",
+      "title": "Canonical tag on every page",
+      "verify": "scan",
+      "pass_when": "<link rel=canonical> on every page, pointing at itself",
+      "severity": "medium",
+      "dimension": "polish"
+    },
+    {
+      "id": "PR-04",
+      "lens": "PR",
+      "title": "Privacy-friendly analytics",
+      "verify": "browser",
+      "pass_when": "An analytics script loads (e.g. Vercel Web Analytics, Plausible)",
+      "severity": "medium",
+      "dimension": "polish"
+    },
+    {
+      "id": "PR-05",
+      "lens": "PR",
+      "title": "About and author",
+      "verify": "fetch+read",
+      "pass_when": "A page or index section says who maintains the site, their background in evaluation, and how to reach them",
+      "severity": "high",
+      "dimension": "credibility"
+    },
+    {
+      "id": "PR-06",
+      "lens": "PR",
+      "title": "Edit-on-GitHub or feedback link",
+      "verify": "scan",
+      "pass_when": "Every content page links to its source Markdown on GitHub or to an issue form",
+      "severity": "medium",
+      "dimension": "polish"
+    },
+    {
+      "id": "PR-07",
+      "lens": "PR",
+      "title": "Custom 404 with navigation",
+      "verify": "fetch+browser",
+      "pass_when": "Unknown URLs return HTTP 404 with the site header and links back to the index sections",
+      "severity": "medium",
+      "dimension": "polish"
+    },
+    {
+      "id": "PR-08",
+      "lens": "PR",
+      "title": "robots.txt and sitemap present",
+      "verify": "fetch",
+      "pass_when": "robots.txt returns 200 and names the sitemap; sitemap.xml returns 200 and lists every page",
+      "severity": "medium",
+      "dimension": "polish"
+    },
+    {
+      "id": "PR-09",
+      "lens": "PR",
+      "title": "Sitemap complete, with lastmod",
+      "verify": "scan",
+      "pass_when": "The sitemap lists exactly the crawled pages and every entry has lastmod. na while there is no sitemap (PR-08 carries that)",
+      "severity": "low",
+      "dimension": "polish"
+    },
+    {
+      "id": "PR-10",
+      "lens": "PR",
+      "title": "Favicon, lang, description, one H1 per page",
+      "verify": "scan",
+      "pass_when": "All four on every page",
+      "severity": "low",
+      "dimension": "polish"
+    },
+    {
+      "id": "PR-11",
+      "lens": "PR",
+      "title": "Mobile layout works at 390 px",
+      "verify": "browser",
+      "pass_when": "No horizontal page scroll at 390 px on the index, an explainer, the question bank, a lab and the drill; nav usable",
+      "severity": "high",
+      "dimension": "polish"
+    },
+    {
+      "id": "PR-12",
+      "lens": "PR",
+      "title": "Fast first byte",
+      "verify": "scan+browser",
+      "pass_when": "Median time to first byte under 800 ms over repeat loads",
+      "severity": "low",
+      "dimension": "polish"
+    },
+    {
+      "id": "PR-13",
+      "lens": "PR",
+      "title": "Structured data",
+      "verify": "scan",
+      "pass_when": "LearningResource or Article JSON-LD on content pages",
+      "severity": "low",
+      "dimension": "polish"
+    },
+    {
+      "id": "PR-14",
+      "lens": "PR",
+      "title": "Derived material credited and cleared",
+      "verify": "read",
+      "pass_when": "Pages built on third-party material (OpenAI guide, FDE playbook, DeepLearning.AI x Arize labs) credit the source and the owner confirms the use is permitted",
+      "severity": "high",
+      "dimension": "credibility"
+    },
+    {
+      "id": "PR-15",
+      "lens": "PR",
+      "title": "Public changelog or last-deployed date",
+      "verify": "fetch",
+      "pass_when": "A dated changelog, or a site-wide last-updated date, is linked from the index or footer",
+      "severity": "low",
+      "dimension": "credibility"
+    },
+    {
+      "id": "PR-16",
+      "lens": "PR",
+      "title": "Drill progress persists and resets safely",
+      "verify": "browser",
+      "pass_when": "Drill ratings survive a reload, and clearing them asks for confirmation",
+      "severity": "low",
+      "dimension": "progress"
+    },
+    {
+      "id": "PR-17",
+      "lens": "PR",
+      "title": "Lighthouse 90+ on five page types",
+      "verify": "browser",
+      "pass_when": "Performance, accessibility, best practices and SEO each 90+ on the index, an explainer, the question bank, a lab and the drill",
+      "severity": "medium",
+      "dimension": "polish"
+    },
+    {
+      "id": "PR-18",
+      "lens": "PR",
+      "title": "Security headers",
+      "verify": "fetch",
+      "pass_when": "Framing blocked, HSTS, X-Content-Type-Options and a content security policy present",
+      "severity": "low",
+      "dimension": "polish"
+    },
+    {
+      "id": "PR-19",
+      "lens": "PR",
+      "title": "Third-party scripts pinned",
+      "verify": "scan",
+      "pass_when": "Every CDN script URL names an exact version (e.g. mermaid@11.4.1, not mermaid@11)",
+      "severity": "low",
+      "dimension": "polish"
+    },
+    {
+      "id": "CT-01",
+      "lens": "CT",
+      "title": "Evaluation surface covered end to end",
+      "verify": "scan+read",
+      "pass_when": "Retrieval, generation, tool use, trajectory, multi-turn, LLM judges, human labels, statistics, release gate/CI, online evaluation and safety each have a substantive section",
+      "severity": "high",
+      "dimension": "coverage"
+    },
+    {
+      "id": "CT-02",
+      "lens": "CT",
+      "title": "Every roadmap level has its explainer",
+      "verify": "scan",
+      "pass_when": "Eleven explainer pages, Level 0 to Level 10, all published (guards a core strength)",
+      "severity": "high",
+      "dimension": "coverage"
+    },
+    {
+      "id": "CT-03",
+      "lens": "CT",
+      "title": "Explainers point to runnable code",
+      "verify": "scan+read",
+      "pass_when": "Every explainer links to the notebook(s) or lab that implement it",
+      "severity": "high",
+      "dimension": "grounding"
+    },
+    {
+      "id": "CT-04",
+      "lens": "CT",
+      "title": "All four frameworks shown in use",
+      "verify": "scan+read",
+      "pass_when": "DeepEval, RAGAS, MLflow 3 GenAI and Arize Phoenix each appear with a concrete example or code, not only a mention",
+      "severity": "medium",
+      "dimension": "grounding"
+    },
+    {
+      "id": "CT-05",
+      "lens": "CT",
+      "title": "Six interactive labs present",
+      "verify": "scan",
+      "pass_when": "The surface map and Labs 01-05 are published (guards a core strength)",
+      "severity": "high",
+      "dimension": "practice"
+    },
+    {
+      "id": "CT-06",
+      "lens": "CT",
+      "title": "Drill in sync with the question bank",
+      "verify": "repo",
+      "pass_when": "python3 .github/scripts/check_drill_sync.py exits 0 on the deployed commit",
+      "severity": "medium",
+      "dimension": "practice"
+    },
+    {
+      "id": "CT-07",
+      "lens": "CT",
+      "title": "Worked examples with numbers",
+      "verify": "scan+read",
+      "pass_when": "Every explainer and theory page has at least one worked example with concrete inputs and metric values",
+      "severity": "medium",
+      "dimension": "depth"
+    },
+    {
+      "id": "CT-08",
+      "lens": "CT",
+      "title": "Failure modes named for each metric family",
+      "verify": "read",
+      "pass_when": "Each metric family says what it misses or how it lies (e.g. faithfulness 1.00 on a false answer), not only how to compute it",
+      "severity": "medium",
+      "dimension": "depth"
+    },
+    {
+      "id": "CT-09",
+      "lens": "CT",
+      "title": "Self-check on every explainer",
+      "verify": "scan",
+      "pass_when": "Every explainer ends with Check Yourself questions whose answers are hidden until revealed",
+      "severity": "low",
+      "dimension": "practice"
+    },
+    {
+      "id": "CT-10",
+      "lens": "CT",
+      "title": "Library APIs on the site match the pinned versions",
+      "verify": "scan+read",
+      "pass_when": "No retired API names (e.g. LLMTestCaseParams in GEval, ragas.metrics imports of moved metrics) shown as current; code matches deepeval 4.2.3 / ragas 0.4.3 / mlflow 3",
+      "severity": "medium",
+      "dimension": "grounding"
+    },
+    {
+      "id": "CT-11",
+      "lens": "CT",
+      "title": "Production and organisational side covered",
+      "verify": "read",
+      "pass_when": "Online evaluation, monitoring, cost and guardrails, sign-off and ownership each have material a practitioner can act on",
+      "severity": "medium",
+      "dimension": "coverage"
+    },
+    {
+      "id": "CT-12",
+      "lens": "CT",
+      "title": "Every tracked docs/ file is published or deliberately skipped",
+      "verify": "repo",
+      "pass_when": "Each git-tracked file under docs/ appears in RENDER, COPY or SKIP in site/build.py, and the build fails when one does not",
+      "severity": "high",
+      "dimension": "coverage"
+    }
+  ],
+  "gaps": {
+    "C1": {
+      "title": "No visible author, About or update dates",
+      "checks": [
+        "PR-05",
+        "PQ-10",
+        "PR-15"
+      ]
+    },
+    "C2": {
+      "title": "Derived material not cleared",
+      "checks": [
+        "PR-14"
+      ]
+    },
+    "C3": {
+      "title": "Theory not tied to runnable code",
+      "checks": [
+        "CT-03",
+        "CT-04",
+        "CT-10",
+        "IA-07"
+      ]
+    },
+    "C4": {
+      "title": "Coverage of the evaluation surface",
+      "checks": [
+        "CT-01",
+        "CT-02",
+        "CT-11",
+        "CT-12"
+      ]
+    },
+    "S1": {
+      "title": "Findability: broken links, orphans, no search",
+      "checks": [
+        "IA-02",
+        "IA-03",
+        "IA-10",
+        "IA-11"
+      ]
+    },
+    "S2": {
+      "title": "Competing start pages",
+      "checks": [
+        "ON-01",
+        "ON-02",
+        "ON-03",
+        "ON-05"
+      ]
+    },
+    "S3": {
+      "title": "Two page families (rendered vs copied) behave differently",
+      "checks": [
+        "PQ-01",
+        "PQ-02",
+        "PQ-03",
+        "IA-05"
+      ]
+    },
+    "S4": {
+      "title": "Launch basics missing",
+      "checks": [
+        "PR-02",
+        "PR-03",
+        "PR-06",
+        "PR-07",
+        "PR-08",
+        "PQ-06",
+        "FV-06"
+      ]
+    }
+  }
+}

@@ -189,16 +189,16 @@ BLOCK → "I can only help with your account"
 
 ## Evaluation metrics
 
-| Metric                         | Type              | What It Measures                                |
-|--------------------------------|-------------------|-------------------------------------------------|
-| Injection detection precision  | Non-deterministic | How often flagged inputs are truly injections    |
-| Injection detection recall     | Non-deterministic | How many real injections are caught              |
-| Toxicity detection accuracy    | Non-deterministic | Correct classification of abusive inputs         |
-| PII detection recall           | Non-deterministic | Fraction of PII-containing inputs caught         |
-| False block rate               | Deterministic     | Legitimate requests incorrectly blocked          |
-| Auth validation accuracy       | Deterministic     | Invalid tokens correctly rejected                |
-| Rate-limit enforcement         | Deterministic     | Requests above threshold correctly throttled     |
-| Input validation pass rate     | Deterministic     | Well-formed requests passing schema checks       |
+| Metric                        | Type              | What It Measures                              |
+| ----------------------------- | ----------------- | --------------------------------------------- |
+| Injection detection precision | Non-deterministic | How often flagged inputs are truly injections |
+| Injection detection recall    | Non-deterministic | How many real injections are caught           |
+| Toxicity detection accuracy   | Non-deterministic | Correct classification of abusive inputs      |
+| PII detection recall          | Non-deterministic | Fraction of PII-containing inputs caught      |
+| False block rate              | Deterministic     | Legitimate requests incorrectly blocked       |
+| Auth validation accuracy      | Deterministic     | Invalid tokens correctly rejected             |
+| Rate-limit enforcement        | Deterministic     | Requests above threshold correctly throttled  |
+| Input validation pass rate    | Deterministic     | Well-formed requests passing schema checks    |
 
 ## Why this matters
 
@@ -1269,20 +1269,20 @@ flowchart TD
 
 # 25. Deterministic vs Non-Deterministic Checks — Final View
 
-| Stage                    | Deterministic Checks                          | Non-Deterministic Checks               |
-| ------------------------ | --------------------------------------------- | -------------------------------------- |
+| Stage                    | Deterministic Checks                          | Non-Deterministic Checks                |
+| ------------------------ | --------------------------------------------- | --------------------------------------- |
 | **Input Query**    | Auth, rate limit, length, schema, blocklist   | Prompt injection, toxicity, PII, intent |
-| **Tenant**         | Tenant ID, ACL, isolation, auth               | Usually none                           |
-| **Router**         | Valid agent, expected route, allowed route    | Routing quality                        |
-| **Delegation**     | Allowed transition, hop limit, loop detection | Was delegation sensible?               |
-| **Tool Selection** | Expected/allowed tool, call count             | Was it the best tool?                  |
-| **Tool Arguments** | Schema, types, IDs, permissions               | Do arguments represent intent?         |
-| **RAG Retrieval**  | Recall@K, Hit@K, tenant filter, ACL           | Context relevance                      |
-| **RAG Answer**     | Citation validity, document existence         | Groundedness, correctness              |
-| **Trajectory**     | Steps, loops, forbidden transitions, cost     | Efficiency and reasoning quality       |
-| **Action**         | Permission, limits, eligibility, idempotency  | Usually recommendation quality         |
-| **Final Answer**   | Format, action-result consistency             | Correctness, completeness, helpfulness |
-| **Production**     | Errors, latency, cost, violations             | Sampled quality judging                |
+| **Tenant**         | Tenant ID, ACL, isolation, auth               | Usually none                            |
+| **Router**         | Valid agent, expected route, allowed route    | Routing quality                         |
+| **Delegation**     | Allowed transition, hop limit, loop detection | Was delegation sensible?                |
+| **Tool Selection** | Expected/allowed tool, call count             | Was it the best tool?                   |
+| **Tool Arguments** | Schema, types, IDs, permissions               | Do arguments represent intent?          |
+| **RAG Retrieval**  | Recall@K, Hit@K, tenant filter, ACL           | Context relevance                       |
+| **RAG Answer**     | Citation validity, document existence         | Groundedness, correctness               |
+| **Trajectory**     | Steps, loops, forbidden transitions, cost     | Efficiency and reasoning quality        |
+| **Action**         | Permission, limits, eligibility, idempotency  | Usually recommendation quality          |
+| **Final Answer**   | Format, action-result consistency             | Correctness, completeness, helpfulness  |
+| **Production**     | Errors, latency, cost, violations             | Sampled quality judging                 |
 
 ---
 

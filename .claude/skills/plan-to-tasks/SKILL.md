@@ -1,180 +1,132 @@
 ---
 name: plan-to-tasks
-description: >-
-  Turns a migration plan in `.plan/` into a tracked task board under
-  `.tasks/<plan-name>/` — one task file per unit of work, each with frontmatter
-  (id, status, wave, effort, target files, scanner rules, dependencies, output) plus
-  a generated INDEX.md tracker showing progress. Use when the user says "create tasks
-  from the plan", "break the plan into tasks", "make a task tracker", "track this
-  migration", or asks what to work on next. Also the skill that maintains the board:
-  flipping task status, logging notes, regenerating the index. Sits between
-  langchain-v1-migration-audit (which writes the plan) and plan-to-teaching-notebook
-  (which consumes `type: explainer` tasks).
+description: Review an implementation plan produced by the website-implementation-plan skill, check it for gaps and broken structure, then turn it into ready-to-build task cards grouped by phase, with a dependency-ordered board. Use this whenever the user wants to check, audit, validate or review an implementation plan, break a plan into tasks, tickets, issues or a backlog, "make tasks from the plan", "what do I build first", or plan sprint work from docs/implementation-plan.md or any similar sectioned plan, even if they do not name either skill.
 ---
 
-# Plan → Tasks
+# Plan to Tasks
 
-A plan is a document; a task board is state. This skill converts one into the other and then
-maintains it, so work survives across sessions and nothing gets half-done silently.
+Your job has two halves. First, act as the reviewer the plan never had: catch what would block or mislead a builder. Second, act as the tech lead who turns the approved plan into task cards a developer can pick up cold, without re-reading the whole plan.
 
-**Pipeline position:**
-`langchain-v1-migration-audit` → `.plan/*.md` → **this skill** → `.tasks/<board>/` →
-`plan-to-teaching-notebook` (picks up `type: explainer` tasks).
+The cards are only as good as the plan underneath. So check first, and do not paper over a broken plan by inventing detail in the cards.
 
-## What a task is
+## Step 1: Find the plan
 
-One task = **one sitting of work with a single acceptance criterion**. Not one finding, not one
-whole wave.
+Use the path the user gave. Otherwise look for `implementation-plan*.md` in `docs/`, `plans/`, `specs/`, `.website_spec/` and the project root. If several exist, pick the newest and say which. If none exist, stop and suggest running the website-implementation-plan skill first.
 
-- A wave of 13 files that all need the same import repointed is **one** task, not 13 — the
-  decision is made once and applied mechanically.
-- A single notebook needing a full `LLMChain` → LCEL rewrite plus narrative rework is **one** task
-  on its own, because it carries its own judgment.
-- "Add `langchain-classic` to `pyproject.toml` + `requirements.txt` + `requirements.lock.txt`"
-  is a **prereq** task that
-  everything in Wave 1 depends on.
+Read the whole plan. You need the context of sections 3 to 13 to write good cards, not just the task tables.
 
-If you can't write a one-line acceptance criterion for it, it's not a task yet — split it.
-
-Three task types:
-
-| `type` | Meaning | Consumed by |
-| --- | --- | --- |
-| `prereq` | Environment/dependency work that unblocks others | you, first |
-| `migration` | Change existing notebooks to 1.x | you / the user |
-| `explainer` | Write a new teaching notebook for a concept | `plan-to-teaching-notebook` |
-
-## Process
-
-### 1. Read the plan
-
-Read the `.plan/*_plan.md` file(s) named by the user (or list `.plan/` and ask if ambiguous).
-Harvest: waves, per-notebook rows with their **repoint vs rewrite** decisions, effort buckets,
-rule IDs, prerequisites, and any `- [x]` already ticked — **ticked rows become tasks with
-`status: done`**, not omitted tasks. The board must account for the whole plan or it stops being
-a reliable record.
-
-Board name = the plan's target folder name: `.plan/04_Chains_langchain_v1_plan.md` →
-`.tasks/04_Chains/`.
-
-### 2. Decompose, then confirm
-
-Group the plan's rows into tasks by the rule above. Present the proposed list — id, title, type,
-wave, effort, targets — and get approval before writing files. Cheap to change now, annoying later.
-
-Include the `explainer` tasks in the same board: the concepts a learner needs are part of the
-same body of work, and putting them on the board is what lets the notebook skill find them.
-
-### 3. Create the task files
+## Step 2: Run the structural check
 
 ```bash
-python .claude/skills/plan-to-tasks/scripts/tasks.py new .tasks/04_Chains \
-  --title "Repoint legacy chain imports to langchain-classic" \
-  --type migration --wave 1 --effort S --disposition repoint \
-  --plan .plan/04_Chains_langchain_v1_plan.md \
-  --targets "04_Chains/4.0_Basics_of_Chains.ipynb,04_Chains/4.2_Advanced_Chains.ipynb" \
-  --rules "IMP-chains,CHN-llmchain" \
-  --depends-on T-001 \
-  --objective "Notebooks import and run on 1.x without changing what they teach."
+python3 <this-skill-dir>/scripts/check_plan.py <plan.md>          # readable summary
+python3 <this-skill-dir>/scripts/check_plan.py <plan.md> --json   # data for card generation
 ```
 
-IDs are assigned automatically (`T-001`, `T-002`, …) and the file is written as
-`T-00N_<Slugged_Title>.md` with a body scaffold: Objective / Scope / Steps / Acceptance criteria /
-Notes log.
+The script parses the plan's task tables (`| ID | Outcome | Size | Depends on |`), phases (`### Phase N: name` with a `Tasks:` line and exit-criteria bullets) and traceability table. It reports:
 
-Then **fill in the `## Steps` section by editing the file** — the scaffold ships one placeholder
-step. Steps should be checkable actions, not restatements of the title. Refine the acceptance
-criteria too; the generated ones are a floor, not a ceiling.
+- **Errors** (block card generation): missing sections, duplicate or unknown task IDs, sizes other than S/M/L, dependency cycles, a task depending on one in a later phase, phases with no tasks, traceability rows pointing at missing tasks.
+- **Warnings** (review, may proceed): sections 3 to 13 missing one of Goal / Decisions / Tasks / Acceptance criteria, vague task outcomes, tasks in no phase, phases without exit criteria, requirements with no task.
 
-Set `--depends-on` wherever real ordering exists (prereqs before Wave 1; Wave 2 agent rewrites
-before an explainer that documents the result). The index renders unmet dependencies as
-"Blocked by", and `tasks.py next` refuses to suggest a blocked task.
+It also returns `build_order`, a dependency-respecting order for all tasks. Use it rather than re-deriving order by hand; that is exactly the kind of thing that goes wrong when done mentally across 60 tasks.
 
-### 4. Generate the tracker
+## Step 3: Review with judgment
 
-```bash
-python .claude/skills/plan-to-tasks/scripts/tasks.py index .tasks/04_Chains
+The script checks shape, not sense. Read the plan as a builder and look for:
+
+- **Missing tasks.** A decision with no task that implements it (for example, a dark theme decided in section 6 but no `DS-` task builds it). Acceptance criteria no task would satisfy.
+- **Hidden dependencies.** A frontend task that obviously needs an API task but does not list it. Design-system tokens that components depend on.
+- **Untestable acceptance criteria.** "Looks good", "fast", "accessible" without a measure.
+- **Phase 1 bloat.** Phase 1 should deliver the top user jobs from section 3 and nothing more. Flag tasks that could move later.
+- **Unresolved open questions** in section 15 that block a Phase 1 task.
+- **Mismatch with the codebase.** If code exists, spot-check that paths, components and routes named in the plan are real.
+
+Write the findings to `<tasks-dir>/PLAN_REVIEW.md`:
+
+```markdown
+# Plan review: <plan file>
+
+Date: <today>. Verdict: Ready | Ready with fixes | Not ready
+
+## Blocking (fix before building)
+- [ ] finding, with section or task ID, and the suggested fix
+
+## Should fix
+- [ ] ...
+
+## Notes
+- ...
+
+## Structural check
+<paste the script's summary output>
 ```
 
-Writes `INDEX.md`: progress bar, status counts, and per-wave tables linking each task file, with
-blockers and output paths. **`INDEX.md` is generated — never hand-edit it.** Edit the task files'
-frontmatter and re-run `index`; that way the tracker cannot drift from reality, which is the
-usual way trackers die.
+**If there are blocking findings or script errors**, stop after writing the review. Show the user the blocking items and ask whether to fix the plan first (you can edit it if they agree) or generate cards anyway with the problems flagged. Do not quietly "fix" the plan inside the cards, because the plan would then drift from what is being built.
 
-### 4b. The review gate
+## Step 4: Generate task cards
 
-Tasks of type `explainer` and `migration` are created with `review: pending` and **cannot be
-closed** until `review: approved` — `tasks.py set --status done` refuses them, printing the
-command sequence needed. Approval comes only from the `notebook-review` skill.
+Put tasks next to the plan: `<plan-dir>/tasks/` unless the user names another place. If the folder already has cards, ask before overwriting; offer to regenerate only cards whose plan rows changed.
 
-`prereq` tasks are `review: n/a` and close on their own acceptance criteria.
-
-`--force` exists for a deliberate human override and stamps a ⚠️ line in the task log. Never
-use it to get past a review you couldn't satisfy; that is the one thing that makes the board
-lie.
-
-### 5. Maintain the board
-
-This is the part that matters. While work happens:
-
-```bash
-tasks.py set .tasks/04_Chains/T-003_*.md --status in-progress
-tasks.py set .tasks/04_Chains/T-003_*.md --status done --note "3 files done; 4.3 deferred, see T-009"
-tasks.py set .tasks/04_Chains/T-007_*.md --status blocked --note "needs langchain-classic (T-001)"
-tasks.py set .tasks/04_Chains/T-005_*.md --output 03_LCEL/3.7_Chains_to_LCEL_LangChain_v1.ipynb
-tasks.py index .tasks/04_Chains          # after ANY status change
-```
-
-Rules:
-
-- **Flip status when it changes, not at the end.** A board that is only accurate after the fact
-  is a report, not a tracker.
-- `--note` appends a dated line to the task's log. Use it for decisions and surprises — that log
-  is the only record of *why* something was done a particular way.
-- Re-run `index` after every change. If you forget, `INDEX.md` lies.
-- `wontfix` is legitimate — a plan row you deliberately decline. Record why in the log.
-- Never delete a task file to "clean up"; close it as `done` or `wontfix`.
-
-Reading state: `tasks.py list <board> [--status todo] [--type explainer]` and
-`tasks.py next <board>` (lowest-id unblocked `todo`).
-
-### 6. Roll up to the plan
-
-```bash
-python .claude/skills/plan-to-tasks/scripts/tasks.py rollup .tasks/<board>
-```
-
-`rollup` reads the board and rewrites a managed block in each source `.plan/` file
-(between `<!-- rollup:start -->` / `<!-- rollup:end -->`): a **Plan complete** checkbox, the
-board path, a task-progress bar, and the rollup date.
-
-**A plan is marked complete only when every task on its board is closed** (`done` or
-`wontfix`) **and** no review-gated task was closed without approval. One notebook landing never
-closes a plan. `rollup` re-derives this every time, so a reopened task automatically un-ticks
-the plan.
-
-Run `rollup` after any status change, right after `index`. Also tick the matching per-notebook
-`- [ ]` rows in the plan's own checklist as their tasks close — the rollup block tracks the
-board, those rows track the narrative.
-
-## Board layout
+Layout:
 
 ```
-.tasks/
-  <board-name>/
-    INDEX.md                 # generated tracker — do not hand-edit
-    T-001_<slug>.md          # one task, frontmatter + body
-    T-002_<slug>.md
+tasks/
+  README.md              board: phases, build order, status
+  PLAN_REVIEW.md         from step 3
+  phase-1/
+    01-FE-01-app-shell-and-layout.md
+    02-DS-01-color-and-type-tokens.md
+  phase-2/
+    ...
+  backlog/               tasks in no phase
 ```
 
-Task frontmatter fields: `id`, `title`, `type`, `status`, `wave`, `effort`, `disposition`,
-`plan`, `targets`, `rules`, `depends_on`, `output`, `created`, `updated`.
-Statuses: `todo`, `in-progress`, `blocked`, `done`, `wontfix`.
+The numeric prefix is the task's position in `build_order` within its phase, so `ls` shows a valid order to work in.
 
-`.tasks/` is tracked in git alongside `.plan/` — it is the record of what was done and why.
+Each card follows `references/task-card-template.md`. Read it now. The card must be self-contained: pull in the relevant decision, design values, route, data shape and acceptance criteria from the plan sections the task came from, and cite the plan section so the reader can check the source. A developer should not have to open the plan to start.
 
-## Extending
+Rules for cards:
 
-`tasks.py` is domain-agnostic — nothing in it mentions LangChain. Any future plan in `.plan/`
-can be boarded with the same script; only the decomposition judgment in §2 is specific to what
-the plan describes.
+- **Copy, do not invent.** Context, values and acceptance criteria come from the plan. If the plan is silent on something the task needs, write it under "Open questions" on the card, not as a made-up spec.
+- **Acceptance criteria are checkable.** Start from the plan's section criteria that apply to this task, then add the task's own outcome as a criterion. Include accessibility criteria for any UI task.
+- **Definition of done** is the same short checklist on every card (see template) so reviews are consistent.
+- **Files likely touched** comes from the codebase when it exists (search for the real paths); otherwise from the plan's folder structure in section 8. Mark guesses.
+- **Keep L tasks honest.** If while writing a card you see an L task is really two pieces of work, note "Consider splitting" with the proposed split; do not split it silently, since IDs are referenced elsewhere.
+
+## Step 5: Write the board
+
+`tasks/README.md`:
+
+```markdown
+# Tasks: <project>
+
+Source plan: <path> · Review verdict: <verdict> · Generated: <date>
+
+## Phase 1: <name>
+Outcome: <phase outcome>
+
+| # | Task | Outcome | Size | Depends on | Status |
+|---|---|---|---|---|---|
+| 1 | [FE-01](phase-1/01-FE-01-....md) | ... | M | - | todo |
+
+Exit criteria:
+- [ ] ...
+
+## Critical path
+<the longest dependency chain by size, S=0.5, M=1.5, L=4 days, and which tasks can run in parallel>
+
+## Backlog
+...
+```
+
+Compute the critical path from the dependency graph using those size weights; state that it is an estimate.
+
+## Step 6: Report
+
+Tell the user briefly: review verdict, number of blocking and should-fix findings, task and phase counts, where the folder is, and the first three tasks to start. Do not paste cards into chat.
+
+## Optional exports
+
+Only when the user asks, since these publish outside the repo or change shared state:
+
+- **GitHub issues:** one issue per card via `gh issue create`, title `<ID>: <outcome>`, body from the card, labels for phase and prefix. Confirm the repo and count before creating.
+- **Claude Code task list:** load the task tools and create one task per Phase 1 card, in build order.
