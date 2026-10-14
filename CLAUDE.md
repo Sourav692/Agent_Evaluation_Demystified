@@ -57,6 +57,8 @@ commits `2faa463` and `ac8c306` exist solely to repair breakage from skipping th
 
 ## Don't touch
 
+- `_personal/` is the owner's private workspace (gitignored, no history, no backup). Never read it
+  into published files and never link it from tracked files.
 - `labs/agent-evaluation/arize-phoenix-labs/` is third-party DeepLearning.AI × Arize course
   material, kept whole and substantially unmodified. Do not reformat or restyle it.
 - `shared/` is **intentional dead code** — nothing imports it, because notebooks initialise

@@ -78,3 +78,10 @@ site/dist/
 # Vercel CLI link + build cache
 .vercel/
 .website_spec/
+
+# Repo-structure audit, owner decisions and phase plan (maintainer-only)
+.repo_audit/
+
+# Owner-only private workspace: notes, progress, interview stories, parked
+# third-party material. Never published, never linked from tracked files.
+/_personal/
