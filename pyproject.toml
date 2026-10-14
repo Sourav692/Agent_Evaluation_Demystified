@@ -16,7 +16,11 @@ dependencies = [
     # LangChain / LangGraph — the systems under evaluation
     "langchain>=1.4.0",
     "langchain-core>=1.6.1",
-    "langchain-community>=0.4.2",
+    # LOAD-BEARING: ragas 0.4.3 hard-imports langchain_community.chat_models.vertexai,
+    # which 0.4.2 deleted, so an unpinned resolve breaks `import ragas`. 0.4.1 still
+    # ships it. Not 0.3.31 like course 03: the [databricks] extra's
+    # unitycatalog-langchain needs langchain-community>=0.4.0,<=0.4.1.
+    "langchain-community==0.4.1",
     "langchain-openai>=1.6.0",
     "langchain-chroma>=1.1.0",
     # Pinned, not floated: resolving ragas or mlflow can silently pull langgraph
