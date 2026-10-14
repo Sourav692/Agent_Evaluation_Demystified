@@ -1,11 +1,12 @@
 # Study guide
 
-Two files: a roadmap and a study plan. Neither needs a build step, a server or an API key.
+Three files: a roadmap, a study plan and a set of templates. Neither needs a build step, a server or an API key.
 
 | File | What it is |
 |---|---|
 | [`evaluation-roadmap.md`](evaluation-roadmap.md) | **The complete path, basic → expert.** Ten levels in four bands — orientation, RAG, agents, ground truth, judges, statistics, the gate, online, safety and multi-agent, the harness as a product — each with what to read or run, what it costs, and a *you are done when you can…* check. Then two dedicated sections: what an **OpenAI**-style round pushes on, and the **Databricks / MLflow 3** track as its own ladder. Ends with fast paths for an hour, an evening, a weekend and two weeks. |
 | [`evaluation-study-plan.html`](evaluation-study-plan.html) | **The interview reading path.** Seven stages ordered by what an eval-heavy round tests, with time estimates, a 2–3 day fast path, a skip list and a readiness check. Checkboxes persist in `localStorage`, so it doubles as a tracker. |
+| [`evaluation-templates.md`](evaluation-templates.md) | **Four fill-in templates**: an evaluation scorecard, a failure-investigation report, an acceptance-criteria document and a regression report, each linked to the explainer that teaches it. |
 
 Pick by intent: the roadmap teaches the subject; the plan prepares for the round. The rest of
 this page is about the plan.

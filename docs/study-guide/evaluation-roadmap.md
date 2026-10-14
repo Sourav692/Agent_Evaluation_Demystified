@@ -25,6 +25,13 @@ own ladder, and what an **OpenAI**-style evaluation round pushes on.
 Roughly 54 hours end to end. The [fast paths](#fast-paths) at the bottom cut it to an hour,
 an evening, or a weekend.
 
+**Cost tags.** Every notebook and resource behind a level carries one of four tags, so a paid
+run is never a surprise. **none**: no API calls at all — reading a doc, or deterministic maths
+such as Precision@K. **key**: needs a live API key and makes real model calls, as any notebook
+running an LLM judge does. **cached**: judged once, then replayed from a saved verdict cache on
+every later run. **workspace**: needs a real cloud workspace such as Databricks, not just a key,
+as the advanced Databricks-track phases do. Everything under `docs/` is **none**.
+
 **Two routes through the same material.** This roadmap is the **Full path**: every level, its
 Core and Optional notebooks, and its question-bank sections, in order. The **Core path** is the
 short route — only the 21 Core notebooks, course 01 then course 03 — and is listed in
@@ -277,7 +284,7 @@ metrics.
 
 **Notebooks & resources:** [Level 9 mapping →](evaluation-topic-notebook-mapping.md#level-9--the-harness-as-a-product)
 
-**Path:** [explainer 09](../roadmap-explainers/09-the-harness-as-a-product.md) · **Core:** — (course 03 README: *Cost*, *Conventions*) · **Optional:** [c02/00](../../courses/02-databricks-mlflow-evals/00_eval_strategy_worksheet.ipynb) · **Question bank:** Part 9 (Q33–Q35), Cases 18–19 · **Exit check:** the list below.
+**Path:** [explainer 09](../roadmap-explainers/09-the-harness-as-a-product.md) · **Core:** — (course 03 README: *Cost*, *Conventions*) · **Optional:** [c02/00](../../courses/02-databricks-mlflow-evals/00_eval_strategy_worksheet.ipynb) · **Question bank:** Part 9 (Q33–Q35), Cases 18–19 · **Templates:** [scorecard, acceptance criteria, regression report](evaluation-templates.md) · **Exit check:** the list below.
 
 **You are done when you can**
 
@@ -498,6 +505,9 @@ filtered to weak items, Appendix D.
 | **One weekend**                 | Levels 0–2 with the labs, then Level 6 read-only. You can now draw the taxonomy, argue mechanics ≠ process ≠ outcome, and describe a gate                                                                                                                                                                                                                                                                                              |
 | **Two weeks**                   | All ten levels in order, running what you can afford. Course 03's own hour is[01](../../courses/03-agentic-eval-harness/01_knowledge_base_and_rag_agent.ipynb) → [03](../../courses/03-agentic-eval-harness/03_the_golden_set.ipynb) → [04](../../courses/03-agentic-eval-harness/04_rag_evaluation_with_ragas.ipynb) → [11](../../courses/03-agentic-eval-harness/11_the_release_gate_and_ci.ipynb)                                       |
 | **An interview, not a subject** | [The study plan](evaluation-study-plan.html), then the OpenAI or Databricks section above, then [the drill](../interview-prep/evaluation-round-drill.html)                                                                                                                                                                                                                                                                                  |
+| **An interview tomorrow**       | No new material. Rehearse one answer skeleton (the question bank's Decomposition Spine) and one debugging loop: reproduce, find the first broken layer, fix, add the regression case. Say five failures out loud, one per layer: stale document, retrieval miss, wrong citation, wrong tool, prompt injection. Then [the drill](../interview-prep/evaluation-round-drill.html), filtered to weak items |
+| **Seven days**                  | One day each: Level 0 plus the Spine · Level 1 failure modes · Level 2 · Levels 3–4 · Levels 5–6 · Level 8 plus the question-bank cases out loud · a timed mock, scored against [the drill](../interview-prep/evaluation-round-drill.html), then rewrite your weakest three answers |
+| **Thirty days**                 | Week 1: Levels 0–2, running course 01. Week 2: Levels 3–5, running course 03 notebooks 03, 04 and 08–10. Week 3: Levels 6–9, plus an evaluation plan and an incident write-up of your own using the [templates](evaluation-templates.md). Week 4: the 19 cases out loud, three timed mocks, and the drill until nothing is weak |
 
 **Where the money goes.** Course 01 nb 01 and the interactive labs are free; the rest of
 course 01 needs a key. Course 02 phases 0–5 and 9–10 spend on an LLM endpoint; 6–8 need a

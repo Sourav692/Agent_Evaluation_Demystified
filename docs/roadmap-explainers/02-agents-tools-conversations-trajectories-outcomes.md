@@ -3,7 +3,7 @@
 *Score mechanics, process and outcome separately, because passing any one of the three says
 nothing about the other two.*
 
-◷ 23 min · Level 2 · [Level 0](00-orientation.md) named tool mechanics, trajectory and outcome
+◷ 20 min · Level 2 · [Level 0](00-orientation.md) named tool mechanics, trajectory and outcome
 as three of the five evaluable layers. This is where each gets built out, plus the multi-turn
 axis Level 0 flagged and left open.
 
@@ -120,19 +120,12 @@ Tool use is where an agent's output stops being text. It becomes a decision. A t
 API. **The confident sentence looks identical whether the call succeeded, failed, or never
 happened.**
 
-| | Standard LLM evaluation | Tool-using agent evaluation |
-| --- | --- | --- |
-| **What you score** | One output against a reference | A sequence of decisions, *then* the output |
-| **Where failure lives** | In the text | Underneath it — which tool, what order, what arguments, how results were read |
-| **What a good-looking reply proves** | Usually that it's good | Nothing on its own — it could be describing a tool call that never happened |
-
-Three checks answer different questions at different granularities:
-
-| Check | Type | Needs | Best for |
-| --- | --- | --- | --- |
-| **Tool selection** | Reference-based, deterministic | The expected tool list | Regression and CI, where correct behaviour is already known |
-| **Argument correctness** | Referenceless, judged | Tool descriptions only | Dynamic workflows and production, where correct argument values can't be pre-written |
-| **Multi-turn tool use** | Multi-turn, judged | The list of available tools | Conversational agents, where tool use spans exchanges |
+What you score is a sequence of decisions, then the output. Three checks cover it at three
+granularities: **tool selection** (reference-based, for CI), **argument correctness**
+(referenceless and judged, for production) and **multi-turn tool use** (across a dialogue). The
+field guide's [§2.2](../concepts/rag-agent-tool-evaluation.md#22-tool-use) defines each one and
+compares tool-use evaluation with ordinary output scoring. This section covers what the
+definitions leave out: how much the configuration changes the number.
 
 ### Strict vs. loose matching: the same check can score 1.00 or 0.00
 
@@ -153,15 +146,9 @@ Five of the six are broken in a way that should matter.
 looks nearly perfect. It is missing a reversed sequence, a silently dropped output and a wrong
 travel date, all at once.
 
-Both extremes are wrong in their own way, which is why strictness is a decision rather than a
-setting left alone. Too strict — exact tools, exact order, nothing extra — and an agent that
-harmlessly also checked the weather fails the whole run. Too loose — expected tools appear
-somewhere, extras ignored — and an agent firing all eight of its tools on every question passes
-every time. It is spraying, and the check applauds.
-
-**Demand strict ordering only where the order genuinely is the requirement.** A flight cannot
-be booked before it is searched for, so that ordering is real. Whether the weather check came
-first or third usually is not.
+Both extremes are wrong: too strict fails a harmless extra call, too loose passes an agent that
+fires every tool on every question. **Demand strict ordering only where the order genuinely is
+the requirement** ([field guide §2.2, property 1](../concepts/rag-agent-tool-evaluation.md#22-tool-use)).
 
 A selection check can also be handed the list of tools the agent *could* have called. Without
 it, the check compares called tools to expected tools mechanically. With it, a judge also asks
@@ -172,14 +159,10 @@ whether the agent picked the *best* available tool.
 
 ### Argument correctness: cheap check first, judge second
 
-"Were the arguments right?" is two questions, and they do not cost the same. **Is it even
-well-formed?** Does the booking call have a date field, and is `2026-02-31` a real date? Plain
-code answers that — free, instant, never wobbles. **Does it make sense for what was asked?** The
-user wanted a morning flight to Delhi; did it book an evening flight to Dubai? Only a judge
-answers that.
-
-The pattern is to validate the schema deterministically first, and spend the judge call only if
-that passes.
+"Were the arguments right?" is two questions with different prices: *is it well-formed?* (code
+answers it, free) and *does it make sense for the request?* (only a judge answers it). Validate
+the schema first and spend the judge call only if that passes
+([field guide §2.2, property 2](../concepts/rag-agent-tool-evaluation.md#22-tool-use)).
 
 ```python
 # A structurally malformed call is worth zero -- no point spending a judge call
@@ -191,29 +174,13 @@ else:
     metric.measure(test_case)              # now spend the LLM call
 ```
 
-### Combine sub-scores with the worst one, not the average
+### Combine with the minimum, and score doing nothing
 
-Where a check has a selection score and an argument score, the final score should be the
-**minimum** of the two. Suppose selection scores 1.0 — exactly the right tool — and arguments
-score 0.0, because it handed that tool nonsense. The mean says 0.5, which reads as "half
-working". **Nothing was half working: the booking failed.** The minimum says 0.0, which is the
-truth. Averaging lets a healthy dimension cover for a broken one, which is the exact failure the
-check exists to catch.
-
-### Doing nothing is behaviour, and it needs scoring too
-
-"What's your refund policy?" should produce **no tool call at all**. The agent should answer from
-what it knows and stop. That restraint is correct and deserves a passing score, not silence.
-
-Most suites only inspect the calls that happened, which leaves them blind in both directions.
-**Should have stayed still, and moved.** It calls a tool it did not need, wasting money and
-adding one more thing that can go wrong. That stays invisible, because the calls that did
-happen were correct. **Should have moved, and stayed still.** It says *"your flight is
-booked!"* without ever calling the booking tool. Also invisible, because there is no call to
-inspect.
-
-So the expected-tool list has to be allowed to be an **empty set**, and an empty set has to be
-something a run can pass or fail against, exactly like any other expected value.
+Two more rules from the field guide's
+[§2.2, properties 3 and 4](../concepts/rag-agent-tool-evaluation.md#22-tool-use). **Combine a selection score and an
+argument score with the minimum, not the mean**: right tool plus nonsense arguments is a failed
+booking, not "half working". **Let the expected-tool list be empty**, so restraint ("What's your
+refund policy?" needs no call) can pass, and a claimed action with no call behind it can fail.
 
 ---
 
@@ -238,28 +205,15 @@ and argument checks both score that run well, because the tools were right and t
 well-formed. A task-completion check is built to catch that the actual requirement — staying
 under budget — was not met.
 
-It is what lets the judge see *how* the outcome was reached, not only what the agent claims. Where the real task is broader than the literal wording, state it explicitly rather than
-letting the check infer it from the last message. A constraint mentioned earlier in a
-conversation is exactly the case that gets lost. A full execution trace also beats a flat list
-of calls, because a trace carries the agent's intermediate reasoning.
+A constraint mentioned earlier in a conversation, like that budget, is exactly what gets lost
+when the check infers the task from the last message, so state the task explicitly. The field
+guide's [§2.3](../concepts/rag-agent-tool-evaluation.md#23-task-completion) covers how to set the check up and its two
+escalations: a custom rubric when "done" is domain-specific, and verifying the side effect when
+the stakes are too high for a judge.
 
-### Two escalations beyond a generic check
-
-A generic check uses a fixed definition of "done". Two situations call for going further.
-
-**When "done" is domain-specific**, write a `GEval` rubric instead of the generic prompt — *"the
-summary must cite at least two sources"*, *"a refund response must never promise a dollar amount
-before policy lookup"*. It costs more to author, and applies a local bar rather than a general one.
-
-**When the stakes are too high for a judge at all**, verify the side effect. A generic check and
-a custom rubric are both still a model reading text. After a "book the hotel" task, query the
-booking system for a confirmed reservation matching the dates and budget.
-
-> **A state-based check cannot be fooled by a fluent-but-wrong response.**
-
-In practice, combine them. Use a deterministic state check as the pass/fail gate wherever a
-checkable outcome exists. Keep a judged check as a secondary signal for the genuinely fuzzy
-parts, like tone or the completeness of an explanation.
+> **A state-based check cannot be fooled by a fluent-but-wrong response.** Use it as the
+> pass/fail gate wherever a checkable outcome exists, and keep the judged check for the fuzzy
+> parts.
 
 ### Reading the record beats every judged check
 
@@ -270,17 +224,38 @@ because they hold the event rather than a *description* of it.
 > **Wherever a real side effect exists to check, reading it is the strongest signal in this
 > level** — and it is free and deterministic.
 
-One failure hides underneath all of this. A tool can fail softly instead of raising — `found:
-false`, an empty result, a 200 with an empty payload. The model gets something that *looks*
-like data. It fills the gap with a plan and a balance for an account that does not exist.
-Nothing crashes. Nothing alerts.
+One failure hides underneath all of this: the **polite tool failure**. A tool returns `found:
+false` or an empty payload instead of raising, and the model fills the gap with an invented
+balance. **Neither grounding nor task success reads the tool's own output**, so only a
+deterministic check on the tool result catches it. The field guide's
+[§2.4](../concepts/rag-agent-tool-evaluation.md#24-failure-mode-polite-tool-failure) walks it end to end.
 
-> **Neither grounding nor task success reads the tool's own output**, which is the only place
-> this failure is visible.
+### When the output is a query, compare what it returns
 
-The fix is a deterministic check that reads the tool result and, on failure, asserts the response
-does not state the facts that tool was meant to supply. Pair it with making "I couldn't retrieve
-that" an explicitly rewarded behaviour, because prompting alone does not fix it.
+Some tools take code the agent wrote. In a text-to-SQL skill, the agent writes a query and the
+answer is whatever that query returns. **Do not judge the SQL text. Judge the result.** Two
+correct queries can look nothing alike, so run the generated query and a reference query on the
+same data and compare the result sets: the same rows, the same values, and the same order where
+the question asked for one. That check is deterministic and needs no judge. For a read-only
+system it is the closest thing to verifying a side effect.
+
+Run the cheap checks first, and stop at the first failure:
+
+| Check | Catches | Cost |
+| --- | --- | --- |
+| Parses | Malformed SQL | Free |
+| Executes | Wrong table or column names, type errors | One query |
+| Touches only governed views | Queries that bypass the curated, permission-checked layer to reach raw tables | Free — read the query plan or the table list |
+| Result set matches the reference | Wrong joins, filters, aggregations, time windows | Two queries |
+
+Restricting the agent to governed views also helps evaluation. It shrinks the space of
+plausible-but-wrong queries before anything has to be checked.
+
+**When there is no reference query**, fall back to referenceless signals: the query executes,
+stays inside governed views, returns a plausible row count, and the written answer actually
+reflects the rows that came back. Say plainly that these are weaker. For a regulated domain,
+write reference queries for the most frequent question patterns rather than living on the
+fallback.
 
 ---
 
@@ -366,39 +341,19 @@ must never look like passed" rule again.
 
 ### Three traps
 
-**The tool-selection scorer that scores 100% for calling everything.** The common version
-computes both missing and unexpected tools but bases the verdict only on the missing ones. Fail
-both directions — an unexpected account lookup on an unrelated request is a privacy problem, and
-a coverage-only check never sees it.
-
-**Exact-sequence matching as the default.** It fails on a mid-trace typo or a harmless extra
-lookup. Use fuzzy matching — the *successful* tool set against the gold set, order and retries
-ignored — and demand exact ordering only where order genuinely is the requirement.
-
-**Rewarding recovery on its own.** A high recovery rate is good news. Pair it with step-wise
-accuracy, or the reward goes to a system that generates errors to have something to recover from.
+The field guide's [§3.2](../concepts/rag-agent-tool-evaluation.md#32-three-traps) names three: a selection scorer
+that scores 100% for calling everything (fail unexpected calls too), exact-sequence matching as
+the default (fuzzy by default, exact only where order is the requirement), and rewarding
+recovery on its own (pair it with step-wise accuracy).
 
 ### From a hand-built trace to a live system
 
 Hand-computing all nine from a toy trace is how the checks get learned. On a running system the
-*questions* do not change. Only the source of each answer does:
-
-| Question | Where the answer comes from in production |
-| --- | --- |
-| Did it call the tools it needed? | Gold tool set stored beside the eval questions; called set read from the tool spans tracing already captures |
-| Were the arguments valid? | Typed tool signatures reject a malformed call before it executes — the failure never reaches evaluation |
-| Did it repeat itself? | Query the trace store for duplicate (tool, arguments) spans inside one request — pure SQL, no judge |
-| Did each step make progress? | A per-step scorer walking each trace's spans, run as part of the eval job |
-| Did the task succeed? | An eval set of (task, expected outcome) pairs, run on a schedule, trended over time |
-| Was the path close to gold? | Gold trajectories stored as structured data; a comparison function registered once |
-| Did the real effect happen? | A before/after diff of the system-of-record table, taken in the same run as the agent |
-| Did it recover? | Tracing marks error spans automatically; a job matches them against later successful spans in the same trace tree |
-| What did it cost? | Tracing captures tokens and latency per span automatically — query the trace table |
-
-**Instrumentation is the precondition under every row of that table, not an implementation
-detail. An untraceable agent is unevaluable.** Every request needs a span per retrieval, per
-model call and per tool call, carrying tokens and latency, or none of these nine checks have
-anything to read.
+*questions* do not change, only where each answer comes from. The field guide's
+[§3.3](../concepts/rag-agent-tool-evaluation.md#33-what-each-check-looks-like-on-a-live-system)
+maps all nine to their production source. **An untraceable agent is unevaluable**: every request
+needs a span per retrieval, per model call and per tool call, carrying tokens and latency, or
+none of the nine has anything to read.
 
 ---
 
@@ -516,7 +471,8 @@ class names replaced by what each check does.
 - `docs/concepts/rag-agent-tool-evaluation.md`, Part 2 (§2.1–2.4) and Part 3 (§3.1–3.3) — the
   multi-turn arithmetic and consent/stalled framing, the tool-use properties, the
   task-completion escalation ladder, the "polite tool failure" mode, the nine trajectory checks,
-  the three traps, and the hand-built-trace-to-live-system table.
+  the three traps, and the hand-built-trace-to-live-system table. Sections 2–4 now link to these
+  for the definitions rather than restating them.
 - `docs/concepts/databricks-mlflow-evals.md`, Part 4 — the conversation-success table used in
   Section 1.
 - `docs/interactive-labs/04-tool-use-evaluation.html` — the six-trace, three-configuration

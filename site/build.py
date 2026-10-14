@@ -80,6 +80,10 @@ RENDER = {
          "Topic &amp; notebook mapping",
          "The roadmap's resource index: for every level, which notebook, explainer, "
          "lab or question teaches each topic, and what running it costs."),
+        ("study-guide/evaluation-templates.md", "evaluation-templates",
+         "Evaluation templates",
+         "Four fill-in documents: a scorecard, a failure-investigation report, an "
+         "acceptance-criteria document and a regression report."),
     ],
     "Roadmap explainers": [
         ("roadmap-explainers/00-orientation.md", "00-orientation",

@@ -3,7 +3,7 @@
 *Collect inputs from real traffic but never labels from the system under test, because a dataset
 built from its own answers can only agree with itself.*
 
-◷ 19 min · Level 3 · [Level 0](00-orientation.md)'s five-layer taxonomy is assumed background.
+◷ 22 min · Level 3 · [Level 0](00-orientation.md)'s five-layer taxonomy is assumed background.
 This level is about where the test cases and correct answers for checking those layers come
 from.
 
@@ -110,8 +110,9 @@ must route to a human rather than being answered.
 **How small is too small to gate a release on?** The Hindi stratum has 8 cases. One case flipping
 moves that stratum by 12.5 points. A gate set to "no worse than 5 points below baseline" would
 block releases at random. The fix is a floor: every stratum is *reported*, but only strata at or
-above a minimum size may *block* a release. Smaller ones are report-only. Level 5 derives where
-that number comes from; here it is simply applied.
+above a minimum size may *block* a release. Smaller ones are report-only. Lumen Cloud sets it
+as `MIN_CASES_TO_GATE = 8` in the golden-set notebook, and the CI gate applies the same number
+as `min_cases_to_gate`. Level 5 derives where that number comes from; here it is simply applied.
 
 ---
 
@@ -209,6 +210,37 @@ Whatever stores these datasets needs to be queryable and versioned rather than a
 A managed dataset is attached to an experiment, versioned, and searchable by tag — which is what
 makes "re-run last month's selection" a query rather than an archaeology project.
 
+### When the history is also the knowledge: split by time
+
+A harder version of mining comes up when the system's own knowledge is built from the same
+history the cases are drawn from. A support agent retrieves from past resolved tickets, and
+the evaluation set is also past resolved tickets. **Retrieval over a corpus that contains the
+very ticket being tested finds the ticket itself.** The score looks near-perfect and says
+nothing about a ticket the system has never seen. That is **contamination**: the test leaked
+into what the system draws on.
+
+**Split by date, not at random.** Build the corpus, and any few-shot examples, from items up to
+a cutoff. Evaluate only on items after it. That mirrors production, where every new ticket is
+unseen by definition.
+
+A random split fails here for a specific reason: **near-duplicates recur.** The same routine
+request arrives hundreds of times in slightly different words, so a random split puts
+near-copies on both sides and the leak survives. A date split helps but does not cure it,
+because next month's routine request still resembles last month's. Deduplicate across the
+cutoff too: normalise the text, compare by hash or by similarity, and report how many test
+items still have a near-copy in the corpus.
+
+| Split | What the score measures | Failure |
+|---|---|---|
+| Random | Recall of items the corpus already holds | Contaminated; near-copies on both sides |
+| By date | Generalisation to unseen items, as in production | Still leaks recurring near-duplicates unless deduplicated |
+| By date + near-duplicate filter | Generalisation across new phrasings | Needs a similarity threshold someone owns |
+
+Two more rules carry over from Section 2. Stratify by ticket type, because the dominant
+category swamps a random draw and leaves rare types with too few rows to read. And note the
+cutoff date and the duplicate filter in the datasheet. Without them, nobody can tell later
+whether a score drop came from the system or from the split.
+
 ---
 
 ## 5. Record Who Decided, and Merge by Input
@@ -252,6 +284,40 @@ Hand-writing does not scale past a handful of examples, so document-grounded syn
 practical way to get volume. Two conditions apply. Spot-check every generated case, and build its
 retrieval context by actually running the retriever rather than reusing the source passage the
 question came from.
+
+### Synthesise volume, author judgement
+
+A generator can write questions. It cannot decide what the business wants the agent to do. That
+draws the line between what to synthesise and what a person has to write.
+
+| Synthesise | Author by hand |
+|---|---|
+| Factual questions answerable from one document, in bulk | What counts as a correct refusal, escalation or "I don't know" — the refusal quota from Section 2 |
+| Paraphrases of questions you already have | Final-state expectations: which rows a write must leave behind |
+| Questions that need two or more chunks combined | Policy calls where the right answer is a business decision |
+| Variants of a known attack phrasing | The attack *classes* themselves, and the strata and quotas the set must meet |
+
+**Evolution is how a generator gets past easy questions.** It takes a simple seed question
+written from a chunk and rewrites it along a chosen dimension. It can make the question need
+several reasoning steps or several chunks. It can make it more concrete, add a constraint,
+turn it into a comparison or a "what if", or widen it to a neighbouring topic. The weights on
+each kind decide the mix. Left at defaults, the mix drifts towards whatever the generator finds
+easy to write.
+
+**Filter before anything reaches the set.** Generated questions come out ambiguous, unanswerable
+from their own context, or near-identical to each other. Three filters catch most of that. A
+critic model scores each question for clarity and self-containedness and regenerates the ones
+below a threshold. Near-duplicates are removed. And a person spot-checks a sample, then tags the
+survivors into the same strata as the hand-written cases, so a thousand easy English questions
+cannot pass for coverage.
+
+Two rules from the field guide's
+[§1.8](../concepts/rag-agent-tool-evaluation.md#18-golden-datasets) apply to every synthetic case, and are not
+repeated here: spot-check the output, and build each case's retrieval context by running the
+real retriever. **Hands-on:** course 01's
+[`07_RAG_Capstone_Build_and_Evaluate.ipynb`](../../courses/01-rag-agent-tool-evaluation/07_RAG_Capstone_Build_and_Evaluate.ipynb)
+generates a golden set from its own documents with DeepEval's `Synthesizer`, using two
+evolution types, and then scores the live pipeline against it.
 
 **The lifecycle view, day one versus month three:**
 
@@ -403,8 +469,11 @@ mechanism does.
 **Notebook:**
 
 - `courses/03-agentic-eval-harness/03_the_golden_set.ipynb` — the Lumen Cloud 40-case set, the
-  six-field case anatomy, stratification and the refusal quota, the minimum-size gating floor,
-  and the datasheet.
+  six-field case anatomy, stratification and the refusal quota, the minimum-size gating floor
+  (`MIN_CASES_TO_GATE = 8`, applied as `min_cases_to_gate` in
+  `courses/03-agentic-eval-harness/ci/apply_gate.py`), and the datasheet.
+- `courses/01-rag-agent-tool-evaluation/07_RAG_Capstone_Build_and_Evaluate.ipynb` — synthetic
+  golden-set generation with DeepEval's `Synthesizer` and its evolution settings.
 - `courses/02-databricks-mlflow-evals/04_eval_datasets_from_traces.ipynb` — TelcoAssist, trace
   mining, random versus novelty sampling, the tagging pattern, label provenance, and
   merge-by-input-hash.

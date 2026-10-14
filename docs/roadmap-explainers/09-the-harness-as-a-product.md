@@ -3,7 +3,7 @@
 *A harness that only computes numbers is not yet a product, because nobody has agreed what the
 numbers must reach or who signs off on them.*
 
-◷ 25 min · Level 9 · Not a new metric. This is the layer sitting *above* every metric from
+◷ 30 min · Level 9 · Not a new metric. This is the layer sitting *above* every metric from
 Levels 0–8, asking whether the machine computing them can itself be trusted and afforded.
 
 Every earlier level answered "is this number right?" This one asks whether the *system
@@ -129,6 +129,28 @@ exactly one, so the metric meant to catch that failure can be watched catching i
 a normal 200 status code. **A metric nobody has watched fail on a deliberately broken case is a
 metric nobody yet trusts**, which is the entire reason the switches exist.
 
+### Count which guardrail rules ever decide a case
+
+A fault switch proves a *metric* can fail. A rule-based guardrail needs the same proof for
+every *rule*. Access policies and safety policies are usually lists of rules — deny if the
+region does not match, deny if the clearance is too low, deny by default — and a test suite can
+pass while one of those rules has never been exercised.
+
+**A rule shadowed by a stricter rule never fires.** If every test case that would trip "deny
+outside the user's region" also trips "deny above the user's clearance", which runs first, the
+region rule never decides anything. The suite is green. The region rule could be deleted, or
+broken, and no test would notice. The fix is per-rule coverage. For each rule, log how many
+cases it was the *deciding* rule for, and treat zero as a gap. Then write a case that passes
+every stricter rule and fails only this one.
+
+**A false alarm is a label-quality bug, not a near miss.** Sometimes a guardrail test fires, and
+the investigation shows the system was right and the test was wrong. The expected label said
+"must not see", but the user had been reassigned to that case since the data was written. Or a
+label confused "not relevant to this question" with "not allowed to see it". Fix the label. Add
+a check that the test fixtures still match current permissions. Record the alarm and its cause
+where the team can see them. **A false security alarm does more harm than no alarm**, because
+each one teaches the team to ignore the next.
+
 ---
 
 ## 2. Choose Conventions That Keep Every Number Traceable
@@ -206,6 +228,13 @@ That second read-only tool matters more than it looks. **With only one tool, "ca
 **"Must-have" and "blocking" are two different axes, on purpose.** A dimension can matter without
 being a ship-blocker.
 
+Domain guidelines is also where regulated-advice risk lives. A question that drifts into medical
+or legal territory — *"can I cancel my contract while I'm in hospital?"* — needs the factual
+answer *plus* a caveat that this is not legal or medical advice, and a pointer to someone who
+can give it. The check runs both ways: the caveat appears when the question calls for it, and
+does not get bolted onto every billing answer. Level 8's attack classes do not name regulated
+advice as a surface of its own, so here it is a guideline the judge scores.
+
 ### Leave a gap visibly empty rather than silently absent
 
 The scenario seeds cover happy-path questions, edge cases, adversarial prompts, domain questions
@@ -238,12 +267,31 @@ nobody asked for, because consent happens *between* turns.
 | Conciseness | 0.70 | **no** | Informational only — tracked, never blocks a release |
 
 Several were added *after* phases turned out to have scorers measuring things that gated
-nothing. It happened twice in the same track. **Adding a scorer does not add a gate.** A scorer
-with no entry in the gates table is informational by default. Measured, reported, blocking
-nothing.
+nothing. It happened twice in the same track. Account protection and escalation were added once
+the offline-evaluation and custom-scorer phases (2–3) had scorers for both and no gate. Tool
+selection, approval gate and context retention were added for the same reason a second time,
+once multi-turn support existed. **Adding a scorer does not add a gate.** A scorer with no entry
+in the gates table is informational by default. Measured, reported, blocking nothing.
 
 Three of the gates resolve only on conversation runs. On a single-turn run they report "not
 measured", never zero. **A gate has a scope of applicability, exactly the way a scorer does.**
+
+### Map the worksheet onto the five-step workflow
+
+OpenAI's evaluation guide describes evaluation as a five-step loop. The worksheet answers the
+first and third steps outright, and every later phase of the course 02 track answers one of the
+others.
+
+| Step in the guide | Where it happens in this track |
+|---|---|
+| 1. Define the objective and success criteria | The worksheet's quality gates (the table above) |
+| 2. Collect diverse datasets | Hand-written first (Phase 2), then mined from production traces (Phase 4) |
+| 3. Define metrics aligned with the objective | The worksheet's evaluation dimensions, implemented as scorers in Phases 2–3 |
+| 4. Run, compare, iterate | Prompt versioning and regression detection (Phase 5) |
+| 5. Evaluate continuously, for every change | Online production monitoring (Phase 6) |
+
+Only steps 1 and 3 happen before any code. That is the point of the worksheet: steps 2, 4 and 5
+need a running agent, while steps 1 and 3 decide what that agent will be judged on.
 
 ### Tell a disciplined non-goal from a blind spot
 
@@ -300,9 +348,11 @@ blockers from the improvement backlog. Document residual risk and escalation rul
 sign-off owners across business, security, data and technical. And tie metrics to customer
 outcomes: deflection, handle time, compliance evidence, adoption.
 
-> **The word "sign-off" does not occur anywhere in this repository.** The gate config holds real
-> thresholds, chosen by engineers rather than negotiated with a customer. **A threshold nobody
-> agreed to is an opinion with a number attached.**
+> **No notebook or gate config in this repository records a sign-off.** The gate config holds
+> real thresholds, chosen by engineers rather than negotiated with a customer. The
+> [acceptance-criteria template](../study-guide/evaluation-templates.md) is the document a
+> sign-off would go on; nothing in the courses fills one in yet. **A threshold nobody agreed to
+> is an opinion with a number attached.**
 
 This is the largest single gap the audit found, and closing it *reframes* work that already
 exists rather than building new measurement.
@@ -357,6 +407,53 @@ playbook says "review confidence intervals" and stops. It names position bias an
 bias explicitly. Its release gate is actually wired into CI. It has final-state verification
 and loop detection, which the playbook never mentions. And it works through the multi-turn
 compounding arithmetic.
+
+### One core-metrics list, sliced four ways
+
+Four audiences need four views, and all four should draw from the same short list of numbers,
+so that nobody argues over whose figure is right. A workable core list for a RAG agent:
+
+- **Overall:** pass rate against the acceptance criteria, and regression failures against the
+  last release.
+- **Answer quality:** correctness, groundedness, hallucination rate, citation accuracy.
+- **Retrieval:** precision and recall at the cut-off actually used.
+- **Agent:** tool-call success.
+- **Safety:** the safety pass, reported as a list of violating case IDs (Level 8), not a rate.
+- **Operations:** latency at p50 and p95, cost per answer, tokens per answer.
+- **Users:** explicit feedback, and production incidents traced back to an answer.
+
+**Every number carries four tags: workflow, document category, prompt version and model
+version.** Workflow shows *where* users are blocked. Document category shows whether failures
+cluster in one kind of source, such as scanned contracts or a recently migrated wiki. Prompt
+version and model version tie a change in any metric to the change that caused it.
+
+The tags have to be written when the score is recorded, not added later. A score stored without
+its prompt version can never be sliced by prompt version. A result that cannot be sliced
+reproduces the problem from Level 5: an average that hides the failing segment.
+
+### Explain the result to someone who never opens a notebook
+
+An executive does not need fifteen metrics. They need to know whether the system is ready,
+what could still go wrong, and what happens next. Four parts cover it:
+
+```
+READINESS   252 of 300 acceptance cases pass (84%); the launch target is 90%.
+            No safety violations. Every launch blocker passes except p95 latency.
+RISKS       Refund-policy questions account for 29 of the 48 failures.
+            Two document sources are stale, so answers drawn from them can be out of date.
+            p95 latency on long questions is 6.1 s against a 5 s target.
+NEXT        Fix refund-policy retrieval this sprint, re-run the suite, report the delta.
+            Retire the stale sources. Launch decision on re-run, not on a date.
+ASK         Confirm that 90% is still the bar, and who signs off.
+```
+
+**Never promise 100%.** No suite can show that a generative system will never be wrong, and a
+promise of perfection turns the first visible failure into a broken commitment. Promise the
+controls instead: the thresholds, the escalation rules, human review on high-risk cases, and
+how fast a failure gets detected and rolled back. Readiness against a target, named risks and
+dated next actions is also the scorecard template's layout
+([evaluation templates](../study-guide/evaluation-templates.md)), so the summary and the detail
+never drift apart.
 
 ---
 
@@ -518,6 +615,8 @@ longer a platform — it is eight harnesses sharing a logo.**
   coverage.
 - A threshold nobody agreed to is an opinion with a number attached — sign-off is the largest gap
   between a harness and a product.
+- A guardrail rule that never decides a test case is unproven, and a false alarm is a label bug
+  that teaches people to ignore alarms.
 - Step count beats model price, and the cost nobody budgets for is maintaining ground truth.
 - An errored row vanishes from the denominator, so a metric computed over half a dataset looks
   exactly like a healthy one.
@@ -556,13 +655,15 @@ replaced by what each choice does.
 
 - `courses/03-agentic-eval-harness/` README and notebooks — the judge-model and timeout findings,
   the verdict cache and its modes, the fault switches, and the repo conventions.
-- `courses/02-databricks-mlflow-evals/` Phase 0 worksheet — the agent spec, evaluation
-  dimensions, quality gates, scenario seeds, and non-goals.
+- `courses/02-databricks-mlflow-evals/00_eval_strategy_worksheet.ipynb` (Phase 0) — the agent
+  spec, evaluation dimensions, quality gates, scenario seeds, non-goals, the anti-pattern table,
+  and the cross-reference to OpenAI's five-step workflow used in Section 3.
 
 **Docs:**
 
-- `docs/guide-audits/openai-eval-guide-coverage-gaps.md` — the anti-pattern table and the
-  five-step workflow mapping.
+- `docs/guide-audits/openai-eval-guide-coverage-gaps.md` — the same anti-patterns and five steps
+  checked against the repository as a whole, mostly course 03's notebooks. That is a different
+  mapping from Section 3's, which comes from the worksheet.
 - `docs/guide-audits/genai-eval-playbook-coverage-map.md` — dataset sizing by stage, acceptance
   criteria and sign-off, the four dashboard audiences, the canary ladder, and what this repo has
   that the playbook does not.

@@ -3,7 +3,7 @@
 *Report safety as a list of case IDs rather than a percentage, because a percentage cannot be
 opened and read.*
 
-◷ 22 min · Level 8 · Expert band. Assumes the earlier levels' vocabulary: traces, spans, judges,
+◷ 26 min · Level 8 · Expert band. Assumes the earlier levels' vocabulary: traces, spans, judges,
 gates, strata.
 
 Two questions no earlier level asked. **What must never happen, no matter how good the answers
@@ -380,6 +380,66 @@ is what hid it.
 > **Test refusal in both directions.** A system that refuses everything scores perfectly on every
 > safety metric and is useless.
 
+### Access-boundary evaluation
+
+Lumen's agents serve one customer at a time. An enterprise knowledge assistant is harder: **the
+same question has a different correct answer depending on who asks.** A claims manager may see a
+case file an analyst may not, and a user in one region may see a document a user in another may
+not. Access is an invariant, not a quality score, so it gets no tolerance band. It is tested
+like an attack surface.
+
+**Build the matrix, not a list of examples.** Take every attribute the access policy reads —
+role, region and document sensitivity at minimum, plus tenant, case assignment or time window if
+the policy uses them — and cross them. Every boundary in that grid gets cases in **both
+directions**: a user who must be refused, and a near neighbour who must be allowed. A system
+that refuses everything never leaks and is useless, so over-refusal is a failure here too.
+
+| Boundary | Must be refused | Must be allowed |
+|---|---|---|
+| Role | An analyst asking for a restricted case file | The case's assigned manager asking the same question |
+| Region | A user in region A asking for a region-B-only policy | A region-B user asking the same question |
+| Sensitivity | A standard-tier user asking for a confidential-tier document | A cleared user asking the same question |
+| Tenant | Customer A asking a question whose only answer is in customer B's data | Customer B asking it |
+
+**Report per boundary, never in aggregate.** The headline number is the **ACL pass rate**: the
+share of matrix cases where what the user could retrieve, cite and see matched what the policy
+allows. ACL is short for access-control list. Like every safety number in Section 1, its
+target is 100%, and anything below that is reported as the failing case IDs and the boundary
+each one sits on. A 98% pass rate with one whole boundary at zero is the attack-class table
+above, in a different domain.
+
+**Deny by default, and test the combinations nobody wrote down.** The matrix covers the
+combinations someone enumerated. Production brings new ones: a new region, a new role, a user
+profile with an attribute missing. Add synthetic users with an unknown or missing attribute and
+assert they retrieve nothing restricted. **Unknown-attribute handling is where multi-region
+systems leak.** When a region or role is added, it is a new dimension of the matrix, and the
+cross terms with every existing dimension are the cases that have never been run.
+
+**Measure how often the two permission layers disagree.** A common design has two layers. A
+fast **pre-filter** is compiled into the retrieval index, using attributes as they were when the
+index was built. An authoritative **live check** then runs on current attributes just before
+generation. A revoked grant reaches the live check at once, but reaches the pre-filter only at
+the next reindex. Whenever the two disagree, log a security event rather than silently dropping
+the document. The **divergence rate** — the share of requests where the live check removed
+something the pre-filter let through — measures how far the index has drifted from the policy.
+Silently correcting the mismatch throws away the only evidence that drift is happening. Test it
+directly: revoke a grant, query straight away, assert the document is not returned, and record
+the staleness window you are accepting.
+
+**Test cross-tenant leakage on every shared layer, not only retrieval.** Plant a marker document
+in tenant A, then query as tenant B with questions that would surface it. Assert the marker never
+appears in retrieved context, citations, the reply or a tool argument. Then repeat the test
+against everything tenants share: response and retrieval caches, conversation memory, embedding
+stores, and the trace store, which captures whatever flowed through.
+
+**Check the signed-off policy against the running policy.** The access policy compliance
+approved is a document. The rules the system enforces are code. A deterministic check that
+compares the two — every rule in the document present in the code, with the same attributes and
+the same effect, and no rule in the code that the document lacks — stops a rule change from
+quietly drifting away from what was signed off. Pair it with per-rule coverage: a rule that never
+decides a single test case is unproven, even when every test passes. [Level 9 §1](09-the-harness-as-a-product.md)
+covers that check, and the false alarm that comes from stale test labels.
+
 ---
 
 ## 5. Gate Consent Between Turns
@@ -522,6 +582,9 @@ once, not planned. And a narrowed blast radius: one segment, one category, inter
   that makes the gap explainable rather than just visible.
 - An adversarial suite is a classes × variants design problem; reporting in aggregate hides one
   undefended surface inside a healthy average.
+- Access control is tested as a role × region × sensitivity matrix in both directions, reported
+  per boundary, with unseen combinations denied by default and pre-filter/live-check divergence
+  logged rather than silently corrected.
 - "Acted without asking" has no single-turn representation, and turn-level rates compound as
   `p ** n` — 95% a turn is 77% at five turns.
 - Enforce in code where you can and evaluate where you can't; "never" that lives only in the
@@ -564,6 +627,14 @@ class names replaced by what each mechanism does.
 - `courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb` — routing accuracy and
   the confusion matrix, the confidence sweep, handoff integrity, loop detection, the four
   path-matching modes, the final-state check, and blame attribution.
+- `courses/02-databricks-mlflow-evals/09_multiturn_and_tool_selection.ipynb` — the `p ** n`
+  table, the unguarded ticket tool, the three consent outcomes, and why "acted without asking"
+  has no single-turn representation. The strictly-before timing rule in Section 5 comes from its
+  backing module, `courses/02-databricks-mlflow-evals/conversation.py`, which the notebook
+  imports rather than redefines.
+- `courses/02-databricks-mlflow-evals/10_capstone_edge_cases_and_crossref.ipynb` — classes ×
+  variants for adversarial design, boundaries rather than gold answers, the polite tool failure
+  and multiple intents, and the N/A-versus-missing distinction.
 
 **Docs:**
 
@@ -574,6 +645,15 @@ class names replaced by what each mechanism does.
   table and the two questions, reproduced in full in Sections 4 and 6 rather than pointed at.
 - `docs/study-guide/evaluation-roadmap.md` — Level 8's topic list and goal statement.
 - `docs/study-guide/evaluation-topic-notebook-mapping.md` — Level 8's resource table.
+
+**Further reading (external, not sources for this page):**
+
+- OWASP Top 10 for Large Language Model Applications — the shared vocabulary for prompt
+  injection, sensitive-information disclosure and excessive agency, which Sections 4 and 5 test.
+- NIST AI Risk Management Framework, including its Generative AI Profile (2024) — the
+  organisation-level framing for the audit evidence in Section 6.
+- Liu et al., "Lost in the Middle: How Language Models Use Long Contexts" (2023) — evidence that
+  a model can under-use material placed mid-context, so retrieved does not mean used.
 
 **Limitations.** This file was written by reading the repository's own material, not by running
 any notebook or calling any API — no cost was incurred producing it, consistent with this

@@ -3,7 +3,7 @@
 *A judge is the only way to score open-ended text at scale, and it cannot be trusted until it is
 measured against the people who do not scale.*
 
-◷ 25 min · Level 4 · [Level 3](03-ground-truth.md) covered where reference answers come from.
+◷ 28 min · Level 4 · [Level 3](03-ground-truth.md) covered where reference answers come from.
 This level answers what that leaves open: who decides whether a reply is actually good?
 
 A customer asks, the agent answers, and somebody has to decide whether that was a good reply. A
@@ -98,6 +98,31 @@ lower score on the same scale. A **categorical** judge — named outcomes like `
 Iterating is cheap if done right. Re-running a full evaluation to find out whether one guideline
 is worded well is slow and wasteful. Call the judge's decision logic directly on a single
 example instead: drafting a rubric then costs one model call and answers immediately.
+
+### Split "quality" into named dimensions
+
+Correctness and groundedness ([Level 1](01-rag-retrieval-and-generation.md)) say whether a reply
+is true and supported. They say nothing about whether it is any use. A correct, grounded reply
+can still bury the answer, skip the next step, or strike the wrong tone. Asking a judge for one
+"quality" number blurs all of that into a score nobody can act on. Eight named dimensions cover
+most of what "useful" means for a support reply.
+
+| Dimension | The question | What failing looks like |
+|---|---|---|
+| Helpfulness | Did it solve the user's task? | Accurate, but the user has to ask again |
+| Completeness | Are the conditions, caveats and next steps that matter all there? | Gives the refund window, omits that it applies only to annual plans |
+| Conciseness | Is everything in it needed? | Three paragraphs where one sentence answers |
+| Tone | Does the register fit the user and the moment? | A breezy reply to someone reporting a double charge |
+| Actionability | Can the user act on it without another round trip? | "Contact support", with no route, form or reference number |
+| Formatting | Is it laid out the way it will be read? | Five steps buried in one paragraph |
+| Business usefulness | Does it serve the workflow's goal, not just the literal question? | Answers the question asked, misses that the user is about to cancel |
+| Escalation quality | When it hands off, is that the right call, and does the handoff carry what the human needs? | Escalates without a case summary, or escalates what it could have answered |
+
+Score each dimension on its own scale, with level descriptions two people can apply and agree
+on. **Never average them into one number.** A friendly reply can be wrong and a terse one can
+be right, so style must not buy back a correctness failure. Decide per use case which dimensions
+block a release and which are only reported. Level 9 keeps "must-have" and "blocking" as two
+separate axes for exactly this reason.
 
 ---
 
@@ -207,7 +232,8 @@ nothing to do with the quality of the answer.
 
 Ask a pairwise judge to choose between A and B, then ask again with the order swapped. **The
 verdict should not change.** When it does, the judge is scoring which side of the screen an
-answer appeared on, and every pairwise number it ever produced becomes suspect.
+answer appeared on, and every pairwise number it ever produced becomes suspect — including a
+canary win rate deciding whether a rollout continues.
 
 The analogy: two wine judges, one always preferring whichever glass is handed over first, the
 other always preferring whichever glass is fuller. Neither is tasting the wine.
@@ -224,7 +250,8 @@ stronger reply won 12 of 12, winners averaging 25.2 words against 18.7 — 35% l
 That alone cannot separate quality from word count. **The length-controlled probe** costs model
 calls. Pad the worse reply with filler until it is the longer one, then judge again. If the
 better reply still wins, length was not doing the work. If the padded reply wins, the judge
-measures word count, and every pairwise number it produced is suspect.
+measures word count, and every pairwise number it produced is suspect. That includes a canary
+comparison: a new build that writes longer replies can win a judged canary without being better.
 
 > **A win rate published without the length distribution beside it is partly a word count.**
 
@@ -303,6 +330,23 @@ Record a human's verdict on the **same scale** the judge uses, so the two compar
 without inventing a mapping. Record how long the reviewer took to decide, too. That becomes the
 input to Section 8's rubber-stamp check.
 
+### Mask what the labeller does not need to see
+
+Expert annotation sends real replies to people, and real traces carry names, account numbers,
+addresses, and sometimes health or financial details. Three controls belong in front of every
+labelling queue. **Mask personal data** with typed placeholders such as `[CUSTOMER_NAME]` and
+`[ACCOUNT_ID]`, used consistently within a trace so the conversation still reads. **Limit
+access**: who can open the queue, and which fields each reviewer sees. **Log every review
+action**, so a label can be traced to who made it and what they were shown.
+
+> **Masking can delete the very thing being labelled.** If the question is "did this reply
+> disclose another customer's account?", replacing every ID with `[ACCOUNT_ID]` hides the
+> failure. Use placeholders that keep identity apart, such as `[ACCOUNT_A]` and `[ACCOUNT_B]`,
+> or route privacy cases to a smaller reviewer group that sees raw values.
+
+Record on each label that it was made on masked data. A disagreement between judge and human
+sometimes comes down to the human not seeing what the judge saw.
+
 ---
 
 ## 5. Measure Agreement Above Chance, Not Raw Agreement
@@ -347,6 +391,8 @@ They will tell you the pass mark is 0.62 rather than 0.70.
 
 > **Maximising kappa treats a false pass and a false block as equally costly, and they rarely
 > are.** A false pass on a refund agent ships a broken release. A false block annoys an engineer.
+> Weigh the two against each other before choosing the threshold, then pick the cutoff that
+> minimises the weighted cost rather than the one that maximises agreement.
 
 ### Direction matters more than rate
 
@@ -559,13 +605,25 @@ names replaced by what each judge shape does.
 - `courses/03-agentic-eval-harness/08_building_custom_judges.ipynb` — the three judge shapes, the
   reference-based/reference-free split and the reference gap, categorical judges, and cheap
   rubric iteration.
-- `courses/02-databricks-mlflow-evals/` — the custom-scorer hierarchy, the tool-call scorer's
-  two failure directions, the deterministic-plus-judged pairing, aggregation choices, judge
-  alignment, and the rubber-stamp signals.
+- `courses/03-agentic-eval-harness/09_human_feedback_and_calibration.ipynb` — the three kinds
+  of human feedback, disagreement-first sampling, Cohen's kappa derived by hand, setting a
+  threshold from labels, blinded preference testing with inter-rater kappa, and the rubber-stamp
+  detector for the approval step.
+- `courses/02-databricks-mlflow-evals/03_custom_scorers_and_judges.ipynb` — the custom-scorer
+  cost hierarchy, the outputs-shape trap, the tool-call scorer's two failure directions, the
+  deterministic-plus-judged pairing for account leaks, the six aggregations, categorical judge
+  output, cheap single-guideline iteration, and the trace-based judge.
+- `courses/02-databricks-mlflow-evals/07_judge_alignment_memalign.ipynb`, with its backing module
+  `courses/02-databricks-mlflow-evals/alignment.py` — the three agreement measures side by side,
+  the off-by-one versus uncorrelated weighted-kappa example, alignment mechanics, and the
+  before/after result.
 
 **Docs:**
 
 - `docs/concepts/rag-agent-tool-evaluation.md`, §0.3 — the judge failure modes used in Section 1.
+- `docs/guide-audits/openai-eval-guide-tutorial.md`, §4 (§4.1–§4.6) — the code-versus-judge-versus-
+  human flowchart and its cost table in Section 2, the three-bias framing and wine-judge analogy,
+  the 12-of-12 verbosity figures, and the blinded-preference rules in Sections 4 and 7.
 - `docs/concepts/databricks-mlflow-evals.md` — scorer cost hierarchy, bias tests, the
   human-feedback taxonomy, kappa and weighted kappa, alignment, and preference testing.
 - `docs/interview-prep/QUESTION_BANK.md`, Part 4 (Q14–Q17) — the four questions reproduced in

@@ -86,6 +86,7 @@ its section 6.1. Jump to the section rather than scrolling. `lab 0N-…` means
 | Judge alignment, agreement measures, quadratic weighted kappa | Databricks ref **Part 4**; question bank **Q15**, **Case 10** |
 | Wilson intervals, sample size, "is this drop real?" | Databricks ref **Part 4**; question bank **Q21**; online/offline **§5.1** |
 | Cost control | Question bank **Part 9**, **Case 19** |
+| Fill-in templates: scorecard, failure investigation, acceptance criteria, regression report | `docs/study-guide/evaluation-templates.md` **§1–§4** |
 
 ### Interview preparation
 
@@ -217,6 +218,18 @@ can…* check.
 | **OpenAI** | The five scoring axes, the Spine, the two follow-ups to expect with where the repo answers them, Agents SDK vocabulary mapped to the checks practised here, the guide audit tally, what must be learned outside the repo (the Evals API), a three-day plan |
 | **Databricks** | Course 02's ten phases as the ladder, the concepts to state grouped basic → expert (span contracts, prerequisites, six aggregations, two-condition promotion, online eligibility, sampling, weighted kappa, GEPA through the same gate), the three-vocabulary naming map, environment realities |
 | **Fast paths** | One hour, one evening, one weekend, two weeks, interview-only — and where the money goes |
+
+### `docs/study-guide/evaluation-templates.md` — Evaluation templates (1,698 words)
+
+Four fill-in documents, each with when to use it, the template as tables or a checklist, and
+links to the explainers that teach its fields. Copy one and fill in the empty column.
+
+| | Covers |
+|---|---|
+| **§1 Scorecard** | One evaluated build on one page: run identity and versions, per-metric target / result / interval / worst stratum, safety as case IDs, verdict, risks, next actions, known gaps |
+| **§2 Failure investigation** | One failure: input, provenance of the expectation, versions, an eight-step layer checklist (retrieval → measurement), first broken layer, root cause, the regression case added |
+| **§3 Acceptance criteria** | The bar agreed before results exist: scope, criteria with thresholds and blocking flags, must-never list, escalation, launch and rollback rules, residual risks, sign-off by role |
+| **§4 Regression report** | Candidate vs live baseline on the same cases: what changed, paired deltas with intervals, flipped cases, new safety violations, strata under their floor, the ship decision and who made it |
 
 ### `docs/study-guide/evaluation-topic-notebook-mapping.md` — Topic & notebook mapping (2,530 words)
 
