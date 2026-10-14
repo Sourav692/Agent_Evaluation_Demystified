@@ -5,7 +5,7 @@
 #   pip install -r requirements.txt
 #
 # Optional extras (see pyproject.toml) are NOT included here:
-#   pip install -e '.[phoenix]'      labs/agent-evaluation/arize-phoenix-labs
+#   pip install -e '.[phoenix]'      courses/01-rag-agent-tool-evaluation/13 (Phoenix)
 #   pip install -e '.[crewai]'       labs/agent-evaluation/crewai-travel-planner
 #   pip install -e '.[databricks]'   courses/02 against a real workspace
 #   pip install -e '.[apps]'         the Streamlit demos in labs/rag-evaluation

@@ -93,7 +93,7 @@ cp .env.example .env         # then fill in OPENAI_API_KEY
 
 | Extra | Install | Needed by |
 |---|---|---|
-| `phoenix` | `uv pip install -e '.[phoenix]'` | `labs/agent-evaluation/arize-phoenix-labs/` (also needs `PHOENIX_COLLECTOR_ENDPOINT`) |
+| `phoenix` | `uv pip install -e '.[phoenix]'` | `courses/01` notebook 13 — Phoenix tracing, evals and experiments (needs a running `phoenix serve`; set `PHOENIX_COLLECTOR_ENDPOINT` only if it is not on `localhost:6006`) |
 | `crewai` | `uv pip install -e '.[crewai]'` | `labs/agent-evaluation/crewai-travel-planner/` (also needs `SERPER_API_KEY`) |
 | `databricks` | `uv pip install -e '.[databricks]'` | `courses/02` phases 6–8 against a real workspace — phases 0–5 and 9–10 run locally on SQLite |
 | `apps` | `uv pip install -e '.[apps]'` | the Streamlit demos in `labs/rag-evaluation/` |

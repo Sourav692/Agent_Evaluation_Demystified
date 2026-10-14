@@ -49,9 +49,16 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# labs/agent-evaluation/arize-phoenix-labs — live tracing + experiments
+# courses/01-rag-agent-tool-evaluation/13 — Phoenix tracing, evals and experiments
 phoenix = [
-    "arize-phoenix>=5.0",
+    # courses/01-rag-agent-tool-evaluation/13_Production_Grade_Agent_Eval_Overview.ipynb is
+    # written against Phoenix 20.x: phoenix.otel.register, phoenix.evals.create_classifier,
+    # phoenix.client.Client (spans, datasets, experiments). 5.x-era APIs (llm_classify,
+    # OpenAIModel, phoenix.experiments) are gone.
+    "arize-phoenix>=20.19",
+    "arize-phoenix-evals>=3.9",
+    "arize-phoenix-client>=3.5",
+    "arize-phoenix-otel>=0.17",
     "openinference-instrumentation-openai>=0.1",
     "openinference-instrumentation-langchain>=0.1",
     "opentelemetry-sdk>=1.27",

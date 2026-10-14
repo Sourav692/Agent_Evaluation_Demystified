@@ -496,8 +496,9 @@ distance (Section 7).
   into the golden set, the 0.15 drift threshold, and the judge-drift (kappa) alert exercise.
 - `courses/02-databricks-mlflow-evals/` online-monitoring notebooks — sampling policy, the
   registered-but-never-started trap, and traces as queryable tables.
-- `labs/agent-evaluation/arize-phoenix-labs/` — live tracing, skill evaluation, and the
-  dataset/task/evaluator experiment shape used in Section 8.
+- `courses/01-rag-agent-tool-evaluation/13_Production_Grade_Agent_Eval_Overview.ipynb` — live
+  tracing, router and skill evaluation logged onto spans, and the dataset/task/evaluator
+  experiment shape used in Section 8.
 
 **Docs:**
 

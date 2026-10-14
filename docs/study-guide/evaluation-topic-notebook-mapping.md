@@ -96,7 +96,7 @@ workspace. Everything under `docs/` is free.
 | [`06_online_eval_production_monitoring.ipynb`](../../courses/02-databricks-mlflow-evals/06_online_eval_production_monitoring.ipynb) | Traces as tables · sampled live scorers · register *and* start · the mechanical online-eligibility test | workspace |
 | [Online vs offline](../concepts/online_vs_offline_evaluation.md) | The two regimes, what flows between them, where human alignment fits | none |
 | [Field guide Part 4](../concepts/rag-agent-tool-evaluation.md) | §4.1 what can never go online · §4.2 sampling and alerting · §4.3 what tracing adds | none |
-| [`13_Production_Grade_Agent_Eval_Overview.ipynb`](../../courses/01-rag-agent-tool-evaluation/13_Production_Grade_Agent_Eval_Overview.ipynb) → [Arize labs](../../labs/agent-evaluation/arize-phoenix-labs/) *(optional)* | Live tracing plus offline experiments in Phoenix — the one framework built around traces rather than test cases | key + Phoenix |
+| [`13_Production_Grade_Agent_Eval_Overview.ipynb`](../../courses/01-rag-agent-tool-evaluation/13_Production_Grade_Agent_Eval_Overview.ipynb) *(optional)* | Phoenix end to end on a small support agent: tracing, an LLM judge on the router and a code check on a tool logged back onto spans, the convergence score from stored spans, and an experiment comparing two prompts | key + Phoenix |
 | [`rag-vs-support-eval-walkthrough.html`](../concepts/rag-vs-support-eval-walkthrough.html) | Offline, online and the gate walked through on two real systems | none |
 | [Question bank Part 5, Case 15](../interview-prep/QUESTION_BANK.md) | Q18 offline vs online · Q19 what to sample · Q20 beyond a quality score · Case 15 sets up monitoring | none |
 

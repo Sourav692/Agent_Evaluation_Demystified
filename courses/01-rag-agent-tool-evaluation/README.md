@@ -10,7 +10,7 @@ A single, ordered learning path through everything this repo has for evaluating 
 
 ## Prerequisites
 
-- **Python 3.12+** and the repo-root environment described in the root [`README.md`](../../README.md#setup) Setup section (this course has no environment of its own). Module 4's Arize labs and Module 5's CrewAI app need their own extras.
+- **Python 3.12+** and the repo-root environment described in the root [`README.md`](../../README.md#setup) Setup section (this course has no environment of its own). Module 4 needs the `phoenix` extra and a running Phoenix server; Module 5's CrewAI app needs the `crewai` extra.
 - **`OPENAI_API_KEY`** in a root `.env` (copy [`.env.example`](../../.env.example)). Almost every notebook calls a paid model.
 - **Free to run (no API calls):** `00_Evaluation_Landscape.ipynb`, `01_Retrieval_Metrics_Deterministic.ipynb`, the mocked part of `05_RAG_Eval_Inside_the_Pipeline.ipynb`, and Parts A–B of `12_Agent_Trajectory_Evaluation.ipynb`.
 - Notebook outputs are cleared in git; nothing below has been run for you.
@@ -32,7 +32,7 @@ A single, ordered learning path through everything this repo has for evaluating 
 | 2.3 | [`10_Task_Completion_Evaluation.ipynb`](10_Task_Completion_Evaluation.ipynb) | `TaskCompletionMetric`, custom `GEval` rubrics, outcome verification | ✅ Built (needs `OPENAI_API_KEY`) |
 | 2.4 | [`11_Same_Evals_with_MLflow.ipynb`](11_Same_Evals_with_MLflow.ipynb) | Modules 2.1–2.2's questions, reimplemented via `mlflow.genai.evaluate()` (`Guidelines`, `make_judge`, `@scorer` over `Trace`/`SpanType.TOOL`) | ✅ Built (needs `OPENAI_API_KEY`; local SQLite MLflow store) |
 | 3 | [`12_Agent_Trajectory_Evaluation.ipynb`](12_Agent_Trajectory_Evaluation.ipynb) | Simple mocked trajectory scoring, then the full 9-metric trace-level suite (mocked, free) on a realistic refund-agent scenario + Databricks mapping table, then a real tool-calling agent (needs `OPENAI_API_KEY`) | ✅ Built (Parts A–B free; Part C needs `OPENAI_API_KEY`) |
-| 4 | [`13_Production_Grade_Agent_Eval_Overview.ipynb`](13_Production_Grade_Agent_Eval_Overview.ipynb) + links to the 5 Arize labs (left in place at `labs/agent-evaluation/arize-phoenix-labs/`) | Live tracing + offline experiments (Arize Phoenix); concept map from each lab back to Modules 1–3's vocabulary | ✅ Built (bridge notebook; labs need their own env — see notebook's Prerequisites) |
+| 4 | [`13_Production_Grade_Agent_Eval_Overview.ipynb`](13_Production_Grade_Agent_Eval_Overview.ipynb) | Arize Phoenix end to end on a small support agent: tracing, router and skill evals logged onto spans, the convergence score, an experiment comparing two prompts | Needs the `phoenix` extra and `phoenix serve` |
 | 5 | [`14_Capstone_CrewAI_Travel_Planner_Eval.ipynb`](14_Capstone_CrewAI_Travel_Planner_Eval.ipynb) | `TaskCompletionMetric` (Module 2.3) batch-scored against a real running 3-agent CrewAI app, left in place at `labs/agent-evaluation/crewai-travel-planner/` | ✅ Built (walkthrough; app is a separate live process — see notebook's Standing up the app) |
 
 **If you only have an hour:** Module 0 → 1.2 → 2.2 → 3.
