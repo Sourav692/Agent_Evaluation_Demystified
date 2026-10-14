@@ -215,7 +215,7 @@ are not.
 ### 2.5 Keep measuring after launch
 
 Offline you have a right answer to compare against. In production you never do, so the checks
-change shape: cheap deterministic rules on 100% of traffic, expensive judges on 1–2%.
+change shape: cheap deterministic rules on 100% of traffic, expensive judges on 2–5%.
 
 | Check | Still works in production? | Why |
 |---|---|---|
@@ -326,7 +326,7 @@ flowchart TD
 | Cost per check | £0 | ~£0.001 | ~£1 |
 | Same answer twice? | Always | Usually | Often not |
 | Can judge "is this polite?" | No | Yes | Yes |
-| Run it on | 100% of traffic | 1–2% | 50 cases, once |
+| Run it on | 100% of traffic | 2–5% | 50 cases, once |
 
 ### 4.1 If code can decide it, never pay a model
 

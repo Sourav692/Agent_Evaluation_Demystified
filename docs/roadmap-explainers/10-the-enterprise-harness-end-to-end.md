@@ -140,7 +140,7 @@ Two sub-stages sit inside offline evaluation. Getting either wrong invalidates e
 downstream.
 
 **The scorer's three tiers.** Code runs on 100% of traffic at ~£0, same answer every time. A
-judge costs ~£0.001 a call and is realistic on 1–2% of traffic. A human costs ~£1 and is
+judge costs ~£0.001 a call and is realistic on 2–5% of traffic. A human costs ~£1 and is
 realistic on roughly fifty chosen cases. **A deterministic metric moving means the system
 changed. A judged metric moving might be the judge having a different day.**
 

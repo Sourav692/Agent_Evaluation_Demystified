@@ -147,7 +147,7 @@ flowchart TD
 | Cost per check | ~£0 | ~£0.001 | ~£1 |
 | Same answer twice? | Always | Usually | Often not |
 | Can judge "is this polite?" | No | Yes | Yes |
-| Realistic to run on | 100% of traffic | 1–2% of traffic | ~50 cases, once |
+| Realistic to run on | 100% of traffic | 2–5% of traffic | ~50 cases, once |
 
 > **Code runs on everything, a judge on a slice, a human on a small deliberately chosen
 > sample.** Which is why Section 4 spends so much care on *which* cases reach that scarce human
