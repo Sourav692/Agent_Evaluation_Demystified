@@ -120,6 +120,10 @@ editing notebooks — heading structure, `# ====` section banners, import order,
 **Clear all outputs and reset `execution_count` to null before committing a notebook.** A git
 `pre-commit` hook enforces this, but produce clean notebooks rather than relying on it.
 
+**Exception: `courses/03-agentic-eval-harness/` keeps its outputs** (owner decision, 2026-10-15).
+Its runs are paid, so readers who don't run them still see the results. The hook skips that
+folder. Keep the outputs free of machine paths: write `data/…`, never `/Users/…`.
+
 ## The website
 
 **`docs/` is published as a static site at https://eval-demystified.vercel.app.** When the
