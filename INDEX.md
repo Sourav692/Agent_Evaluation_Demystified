@@ -24,6 +24,8 @@ question bank `question-bank.html`, the roadmap `roadmap.html`, the drill
 | **Question bank** | [`docs/interview-prep/QUESTION_BANK.md`](docs/interview-prep/QUESTION_BANK.md) | 35 questions + 30 metric questions + 19 cases + appendices |
 | **Databricks ref** | [`docs/concepts/databricks-mlflow-evals.md`](docs/concepts/databricks-mlflow-evals.md) | Course 02 theory. Framework-specific: MLflow scorers, gotchas, the numbers |
 | **Drill page** | [`docs/interview-prep/evaluation-round-drill.html`](docs/interview-prep/evaluation-round-drill.html) | The self-quiz. Open in a browser |
+| **Case study** | [`docs/concepts/customer-support-multi-agent-case-study.md`](docs/concepts/customer-support-multi-agent-case-study.md) | One multi-tenant support system evaluated stage by stage, through the gate, canary and online signals |
+| **Cost doc** | [`docs/concepts/cost-tracking-and-guardrails.md`](docs/concepts/cost-tracking-and-guardrails.md) | The same system's cost tracking, budgets and guardrails |
 | **Online/offline** | [`docs/concepts/databricks-mlflow-evals.md`, Part 5](docs/concepts/databricks-mlflow-evals.md#part-5--online-vs-offline) | The two regimes and what flows between them; the sampling-resolution argument is in explainer 05 §6 |
 
 `§` is a section number inside that file — **§1.1** is the field guide's section 1.1, **§6.1**
@@ -104,7 +106,7 @@ its section 6.1. Jump to the section rather than scrolling. `lab 0N-…` means
 
 ## 2. The documents
 
-### `docs/concepts/rag-agent-tool-evaluation.md` — Field guide (13,700 words)
+### `docs/concepts/rag-agent-tool-evaluation.md` — Field guide (15,900 words)
 
 The theory companion to course 01. Tool-agnostic on purpose: no framework APIs, no code.
 **The single best place to look up what a check catches and what it misses.**
@@ -120,7 +122,7 @@ The theory companion to course 01. Tool-agnostic on purpose: no framework APIs, 
 | **Part 6 — The worked labs** | 6.1–6.5, the slow narrative version of each interactive lab, against real numbers |
 | **Quick Reference** | Debugging loop · question → measurement · one-page cheat sheet · the five that matter most |
 
-### `docs/concepts/databricks-mlflow-evals.md` — Databricks/MLflow reference (9,900 words)
+### `docs/concepts/databricks-mlflow-evals.md` — Databricks/MLflow reference (11,100 words)
 
 The theory companion to course 02. Framework-specific, where the field guide is not.
 
@@ -131,7 +133,33 @@ The theory companion to course 02. Framework-specific, where the field guide is 
 | **Part 3** | 32 gotchas as symptom → cause → fix, led by the silent failures |
 | **Part 4** | The numbers, thresholds, decision rules, scorer prerequisites, agreement measures, phase map |
 
-### `docs/interview-prep/QUESTION_BANK.md` — Question bank (25,300 words)
+### `docs/concepts/customer-support-multi-agent-case-study.md` — Support-system case study (10,300 words)
+
+One multi-tenant customer-support system (supervisor, order, refund and RAG agents) evaluated
+end to end. Where the field guide defines each check, this applies all of them to one system.
+
+| | Covers |
+|---|---|
+| **§1–§4** | The scenario and its scale targets · RAG agent vs multi-agent, two shapes one harness · architecture · one real request traced |
+| **§5–§16** | Every stage's deterministic and judged checks: input, tenant resolution, router (confidence floor 0.7→0.82), delegation, RAG retrieval and answer (the 11-row scorer map, thresholds), tool selection and arguments, action and policy, trajectory, final response, instruction following |
+| **§17–§24** | Dataset design · instrumentation · the offline suite and metrics · human evaluation and judge calibration · versioned rubrics · candidate vs production · pairwise evaluation |
+| **§25–§30** | The release gate's four checks and scenarios · canary · online deterministic and judged evaluation · product signals · the feedback loop |
+| **§31–§38** | Eval-driven architecture · the complete architecture, offline flow and lifecycle · deterministic vs judged, final view · coverage · the mental model · what to remember, with eight interview mistakes |
+
+### `docs/concepts/cost-tracking-and-guardrails.md` — Cost and guardrails (3,400 words)
+
+The case study's system again, from the cost side. Diagram source:
+`cost-tracking-and-guardrails.excalidraw` (rendered as `cost-tracking-and-guardrails.png`).
+
+| | Covers |
+|---|---|
+| **§1–§4** | Scenario · architecture · one request · its cost trace |
+| **§5–§9** | Cost tracking per LLM call, RAG step, tool and agent · tenant-level attribution |
+| **§10–§15** | Cost guardrails: per-request budgets, dynamic budgets, model routing, RAG cost limits, tenant budgets |
+| **§16–§24** | Five guardrail boundaries: input, agent, RAG/data, tool/action ("agent recommends, policy decides, executor acts"), output · deterministic vs AI guardrails · what happens when one triggers |
+| **§25–§29** | Cost, guardrails and evaluation together · production monitoring · cost as a blocking release check · the mental model |
+
+### `docs/interview-prep/QUESTION_BANK.md` — Question bank (48,100 words)
 
 Everything for the evaluation thread of a system-design round, in one file.
 
@@ -143,7 +171,7 @@ Everything for the evaluation thread of a system-design round, in one file.
 | **Tiers A–H** | 19 cases, 30–45 minutes each: strategy from zero · diagnosing production · trajectory and multi-agent · judges and calibration · gating and CI · monitoring · adversarial · platform |
 | **Appendices A–G** | Silent-failure catalogue · misreadings that sound like insight · company-specific flavour · rapid-fire drill · closing notes · interview scorecard · production scenarios |
 
-### `docs/guide-audits/openai-eval-guide-coverage-gaps.md` — OpenAI guide repo coverage (3,500 words)
+### `docs/guide-audits/openai-eval-guide-coverage-gaps.md` — OpenAI guide repo coverage (3,800 words)
 
 Maps every topic in OpenAI's *Evaluation best practices* guide to where this repo teaches it,
 and names what is missing. Verdicts are taken **per course**, because a repo-wide average
@@ -158,7 +186,7 @@ hides whichever course is weaker.
 | **Corrections** | Three claims in course 02's own cross-reference that had drifted — one stale, one overstated, one resolved elsewhere — all corrected 2026-09-20 |
 | **Terminology · Related · What moves the needle** | Four renamings the guide uses · the two companion documents · the cheapest two actions |
 
-### `docs/guide-audits/openai-eval-guide-tutorial.md` — Evaluation tutorial + tracker (3,400 words)
+### `docs/guide-audits/openai-eval-guide-tutorial.md` — Evaluation tutorial + tracker (4,300 words)
 
 The lesson to the audit's record. OpenAI's guide walked through in plain language — 3–4 lines
 per concept, the notebook that teaches it, and a TODO that asks you to produce something
@@ -177,7 +205,7 @@ rather than read something. The file is its own progress tracker.
 Published on the site as `openai-eval-guide-tutorial.html`, rendered from this Markdown (the
 earlier hand-built HTML version is in `archive/`).
 
-### `docs/study-guide/evaluation-roadmap.md` — Evaluation roadmap (5,357 words)
+### `docs/study-guide/evaluation-roadmap.md` — Evaluation roadmap (4,400 words)
 
 The complete path through the repository ordered by **skill level**, where the study plan is
 ordered by what the round tests and the tutorial's §7 is the shortest route. Ten levels in four
@@ -191,7 +219,7 @@ can…* check.
 | **Databricks** | Course 02's ten phases as the ladder, the concepts to state grouped basic → expert (span contracts, prerequisites, six aggregations, two-condition promotion, online eligibility, sampling, weighted kappa, GEPA through the same gate), the three-vocabulary naming map, environment realities |
 | **Fast paths** | One hour, one evening, one weekend, two weeks, interview-only — and where the money goes |
 
-### `docs/study-guide/evaluation-templates.md` — Evaluation templates (1,698 words)
+### `docs/study-guide/evaluation-templates.md` — Evaluation templates (1,700 words)
 
 Four fill-in documents, each with when to use it, the template as tables or a checklist, and
 links to the explainers that teach its fields. Copy one and fill in the empty column.
@@ -203,7 +231,7 @@ links to the explainers that teach its fields. Copy one and fill in the empty co
 | **§3 Acceptance criteria** | The bar agreed before results exist: scope, criteria with thresholds and blocking flags, must-never list, escalation, launch and rollback rules, residual risks, sign-off by role |
 | **§4 Regression report** | Candidate vs live baseline on the same cases: what changed, paired deltas with intervals, flipped cases, new safety violations, strata under their floor, the ship decision and who made it |
 
-### `docs/study-guide/evaluation-topic-notebook-mapping.md` — Topic & notebook mapping (2,530 words)
+### `docs/study-guide/evaluation-topic-notebook-mapping.md` — Topic & notebook mapping (2,600 words)
 
 The lookup companion to the roadmap above. The roadmap carries the narrative — goal and
 self-check per level; this file carries every topic &rarr; notebook/resource &rarr; cost table,
@@ -266,7 +294,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this level exists · 1. The five things you can actually evaluate · 2. The one question that splits every metric in two: does it need an answer key? · 3. LLM-as-judge: powerful, but not an oracle · 4. The decision you'll make constantly: code, or a judge? · 5. The cost ladder for building a check (which rung do you actually need?) · 6. The other cost ladder: what it costs in real dollars to *run* a notebook or check · 7. The tooling landscape: four frameworks, two shapes · 8. Offline vs. online: the two questions that decide where a check can run · Question-bank corner — what a decomposition round pushes on · References |
 
-### `docs/roadmap-explainers/00-orientation.md` — Level 0, Orientation: What There Is to Evaluate (4,033 words)
+### `docs/roadmap-explainers/00-orientation.md` — Level 0, Orientation: What There Is to Evaluate (4,000 words)
 
 | | Covers |
 |---|---|
@@ -279,7 +307,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this level exists · 1. The RAG pipeline, and why you evaluate its two halves separately · 2. Deterministic retrieval metrics: four numbers that are supposed to disagree · 3. LLM-judged retrieval metrics: three metrics because there are three failures · 4. Generation without a reference: three ways "the answer is wrong" can happen · 5. Generation against a reference: Answer Correctness and Semantic Similarity · 6. Writing a rubric that doesn't produce a vague judge · 7. Evaluation as pipeline gates, not just after-the-fact scoring · 8. RAGAS as a second opinion, and the pytest/CI batch pattern · 9. Building a RAG system and synthesizing a golden set · 10. Reading the results · Question-bank corner — retrieval and generation numbers, live on a dashboard · References |
 
-### `docs/roadmap-explainers/01-rag-retrieval-and-generation.md` — Level 1, RAG: Retrieval and Generation (5,800 words)
+### `docs/roadmap-explainers/01-rag-retrieval-and-generation.md` — Level 1, RAG: Retrieval and Generation (5,900 words)
 
 | | Covers |
 |---|---|
@@ -292,7 +320,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this level exists · 1. Multi-turn conversational evaluation · 2. Tool-use metrics: the mechanics layer · 3. Task completion and outcome verification · 4. Agent trajectory evaluation: the nine trace-level checks · Question-bank corner — the design-round follow-ups this level answers · References |
 
-### `docs/roadmap-explainers/02-agents-tools-conversations-trajectories-outcomes.md` — Level 2, Agents: Tools, Conversations, Trajectories, Outcomes (5,195 words)
+### `docs/roadmap-explainers/02-agents-tools-conversations-trajectories-outcomes.md` — Level 2, Agents: Tools, Conversations, Trajectories, Outcomes (4,600 words)
 
 | | Covers |
 |---|---|
@@ -305,7 +333,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this level exists · 1. Case anatomy — six expectations, not one · 2. Stratification and the refusal quota · 3. Dataset datasheets · 4. Mining production traces into eval datasets · 5. Provenance and merge-by-input-hash · 6. Synthesized vs. hand-authored cases · 7. The two ways a dataset lies to you · Question-bank corner — ground truth and datasets · References |
 
-### `docs/roadmap-explainers/03-ground-truth.md` — Level 3, Ground Truth: Where Cases and Labels Come From (4,062 words)
+### `docs/roadmap-explainers/03-ground-truth.md` — Level 3, Ground Truth: Where Cases and Labels Come From (4,800 words)
 
 | | Covers |
 |---|---|
@@ -318,7 +346,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this level exists · 1. Building a judge, three ways · 2. Custom scorers: spend judgement where judgement is actually needed · 3. Judge bias: the three specific ways a judge lies · 4. Human feedback: three kinds, and only one can calibrate a judge · 5. Calibration: agreement, and agreement above chance · 6. Judge alignment: turning expert disagreement into a better judge · 7. Blinded preference testing, and why it needs a second rater · 8. The rubber-stamp signal: evaluating the human, not just the record · Question-bank corner · References |
 
-### `docs/roadmap-explainers/04-judges-and-the-humans-who-validate-them.md` — Level 4, Judges, and the Humans Who Validate Them (5,362 words)
+### `docs/roadmap-explainers/04-judges-and-the-humans-who-validate-them.md` — Level 4, Judges, and the Humans Who Validate Them (6,100 words)
 
 | | Covers |
 |---|---|
@@ -331,7 +359,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this level exists · 1. Stratified reporting: score each slice, not the whole · 2. Sample size: could your suite even see the change? · 3. The small-stratum rule: when a group is too small to gate on · 4. Paired comparison and McNemar's test · 5. Confidence intervals: bootstrap and Wilson · 6. The same problem in production: the sampling-resolution problem · 7. Simpson's paradox: when every stratum improves and the total falls · 8. Putting it together · Question-bank corner — the two rounds this level prepares you for · References |
 
-### `docs/roadmap-explainers/05-statistics-and-stratified-reporting.md` — Level 5, Statistics and Stratified Reporting (3,734 words)
+### `docs/roadmap-explainers/05-statistics-and-stratified-reporting.md` — Level 5, Statistics and Stratified Reporting (4,000 words)
 
 | | Covers |
 |---|---|
@@ -344,7 +372,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this level exists · 1. A gate is not another metric · 2. The four checks, in order · 3. Why a threshold alone is not enough — the erosion problem · 4. Tolerance has to be set per metric type · 5. Free CI gate vs. paid evaluation job · 6. Prompt registry and production aliasing · 7. The two-condition promotion gate, worked through a real prompt edit · 8. Optimizer scores vs. the same gate · 9. What a gate is not · Question-bank corner — what this level's interview material adds · References |
 
-### `docs/roadmap-explainers/06-the-release-gate-and-ci.md` — Level 6, The Release Gate and CI (4,914 words)
+### `docs/roadmap-explainers/06-the-release-gate-and-ci.md` — Level 6, The Release Gate and CI (5,600 words)
 
 | | Covers |
 |---|---|
@@ -357,7 +385,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this level exists · 1. The fact that decides everything: production has no ground truth · 2. Reference-free production metrics: three techniques, no answer key · 3. Sampling: cheap checks on everything, judges see a slice · 4. The five standard alerts · 5. Incident drills: proving which alert catches what · 6. The canary: the only online question that's properly answerable · 7. Closing the loop · 8. Live tracing in Phoenix, and two genuinely new ideas · Question-bank corner — offline → online · References |
 
-### `docs/roadmap-explainers/07-online-evaluation-and-the-loop.md` — Level 7, Online Evaluation and the Loop (4,352 words)
+### `docs/roadmap-explainers/07-online-evaluation-and-the-loop.md` — Level 7, Online Evaluation and the Loop (5,000 words)
 
 | | Covers |
 |---|---|
@@ -370,7 +398,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this level exists · 1. Safety assertions that never get averaged · 2. Routing confusion matrices and handoff integrity · 3. Circular-handoff detection and blame attribution · 4. Adversarial design by attack surface · 5. Consent and approval gating between turns · Question-bank corner · Key checks to carry forward · References |
 
-### `docs/roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution.md` — Level 8, Safety, Adversarial Testing, and Multi-Agent Attribution (4,614 words)
+### `docs/roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution.md` — Level 8, Safety, Adversarial Testing, and Multi-Agent Attribution (5,600 words)
 
 | | Covers |
 |---|---|
@@ -383,7 +411,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this level exists · 1. Keeping the measuring instrument honest · 2. Repo conventions that keep every number traceable · 3. Eval-driven development — deciding "good" before the code exists · 4. What the harness still doesn't do — the open gaps · Question-bank corner — cost, ownership, decay, and building a platform · References |
 
-### `docs/roadmap-explainers/09-the-harness-as-a-product.md` — Level 9, The Harness as a Product (5,434 words)
+### `docs/roadmap-explainers/09-the-harness-as-a-product.md` — Level 9, The Harness as a Product (6,200 words)
 
 | | Covers |
 |---|---|
@@ -396,7 +424,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 |---|---|
 | **Sections** | Why this page exists · 1. Stage ① — The contract: decide "good" before the code exists · 2. Stage ② — Ground truth: the golden set · 3. Stage ③ — Offline evaluation: score every layer separately · 4. Stage ③b — Who does the scoring, and reading the numbers honestly · 5. Stage ④ — The release gate and CI · 6. Stage ⑤ — Production and online evaluation · 7. Stage ⑥ — Human feedback, and closing the loop · 8. The layer above: is the harness itself still working? · 9. The traps, in one table · 10. Build order — what to do first · 11. The one-page card · References |
 
-### `docs/roadmap-explainers/10-the-enterprise-harness-end-to-end.md` — Level 10, The Enterprise Harness, End to End (4,958 words)
+### `docs/roadmap-explainers/10-the-enterprise-harness-end-to-end.md` — Level 10, The Enterprise Harness, End to End (5,000 words)
 
 | | Covers |
 |---|---|

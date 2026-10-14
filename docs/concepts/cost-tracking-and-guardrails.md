@@ -1,6 +1,6 @@
 # Cost Tracking & Guardrails for a Multi-Tenant Customer Support Agent
 
-## 1. Scenario
+# 1. Scenario
 
 Assume we have the same **multi-tenant customer-support platform**.
 

@@ -19,8 +19,9 @@ Never run bare `pytest` at the root; it would sweep all of them up and spend cre
 | `courses/03-agentic-eval-harness/tests/test_release_gate.py` | LLM-driven release-gate drill (`deepeval test run <file>`). Skips itself unless `data/candidate_runs.json` exists |
 | `archive/labs-*/**/test_*.py` | Retired DeepEval drills kept for history. Never run them |
 
-**There is now one CI workflow**, `.github/workflows/release-gate.yml`, scoped by a `paths:`
-filter to `courses/03-agentic-eval-harness/**`. It is inert for the rest of the repo. Its
+**There are two CI workflows.** `.github/workflows/docs-sync.yml` runs the three free docs gates
+on every push that touches `docs/`. `.github/workflows/release-gate.yml` is scoped by a `paths:`
+filter to `courses/03-agentic-eval-harness/**` and is inert for the rest of the repo. Its
 `gate` job is free and standard-library-only; its `evaluate` job is the paid one and runs on
 `workflow_dispatch` only, skipping itself when no `OPENAI_API_KEY` secret is set. Do not move
 the paid job onto the push/PR path — the split is the subject of that course's notebook 11.
@@ -45,10 +46,14 @@ Set by the restructure; each folder has a `README.md` acting as its index.
   any notebook can be opened alone. Do not "fix" the duplication by extracting a module. It
   also bans pandas, numpy, scipy and matplotlib — grouping is `defaultdict`, statistics are
   stdlib. All 12 notebooks are written.
-- **`labs/`** — raw source material, deliberately unnumbered because order doesn't matter.
+- **`labs/`** — only what no course teaches, or a running target a course drives (the CrewAI
+  app, the FastAPI RAG bot). Unnumbered because order doesn't matter. Once a course carries a
+  lab's content, the lab moves to `archive/`.
 - **`docs/`** — prose only. Nothing in here executes.
-- **`archive/`** — superseded material. **Never delete from it**; `archive/README.md` is a
-  manifest explaining why each file is there.
+- **`archive/`** — superseded material: retired labs (`archive/labs-*`), earlier editions of
+  the explainers, and docs merged into others. **Never delete from it**; `archive/README.md` is a
+  manifest with a row per arrival naming what replaced it. **No topic may live only here:**
+  before archiving a file, carry every topic it holds into `courses/`, `labs/` or `docs/`.
 
 Course notebooks **cross-reference each other by filename**, and folder READMEs link across
 directories with relative paths. Moving or renaming any file requires sweeping those links —
@@ -64,15 +69,15 @@ commits `2faa463` and `ac8c306` exist solely to repair breakage from skipping th
 
 ## Environments
 
-**There is no working root environment right now.** The root `.venv` is a **Databricks Connect**
-env — about 66 packages (`databricks-connect`, `databricks-sdk`, `ipykernel`, `pandas`,
-`pyarrow`), built alongside the untracked `databricks.yml`. None of the `pyproject.toml`
-dependencies are installed in it and there is no `uv.lock`. A `ModuleNotFoundError` from a
-`courses/` or `labs/` notebook running on the `python3` kernel is usually this, not a genuinely
-missing package. `pyproject.toml` still describes the *intended* root env for `courses/01`,
-`courses/02` and most of `labs/` — treat it as a spec, not as the installed state.
+**The root `.venv` is a mix, and only partly matches the lockfile.** It holds **Databricks
+Connect** (`databricks-connect` 17.3, used with the tracked `databricks.yml`) plus the eval
+libraries (`deepeval` 4.2.3, `ragas` 0.4.3, `mlflow` 3.16.1). `uv.lock` is tracked and is the
+intended root env; the installed `.venv` lags it (it still has `langchain-community` 0.4.2, which
+breaks `import ragas` — the lock pins 0.4.1). Its Python 3.12.10 also lacks `_lzma`, so `import
+ragas` fails there for a second reason. A `ModuleNotFoundError` or `ImportError` from a
+`courses/` or `labs/` notebook on the `python3` kernel is usually this, not a missing package.
 
-**Ask before running `uv sync` at the root.** With no lockfile it resolves fresh and **prunes
+**Ask before running `uv sync` at the root.** It installs exactly the lockfile and **prunes
 `databricks-connect`**, which is not in `pyproject.toml` (the `databricks` extra lists only
 `databricks-langchain` and `databricks-sdk`). That silently undoes the Databricks Connect setup.
 
@@ -89,7 +94,8 @@ Course 03's pins are **exact** (`deepeval==4.2.3`, `ragas==0.4.3`, `chromadb`, a
 `ipykernel==6.30.1` — 7.x deadlocks nbclient part way through an `--execute` run), and its
 notebooks 04–06 are written against those exact releases:
 RAGAS 0.4 moved metrics to `ragas.metrics.collections` with an async `ascore()`, and DeepEval
-4.x replaced `LLMTestCaseParams` with `SingleTurnParams` in `GEval`. Verify metric imports
+4.x takes `SingleTurnParams` in `GEval` (`LLMTestCaseParams` is a deprecated alias that still
+resolves in 4.2.3, with a warning). Verify metric imports
 against the installed version before editing that course's metric code — remembered API shapes are wrong
 here more often than not.
 

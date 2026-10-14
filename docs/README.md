@@ -4,7 +4,8 @@ Prose. Nothing here executes.
 
 | Folder | What it is |
 |---|---|
-| [`concepts/`](concepts/) | Theory companions to both courses — definitions, gotchas, quick-reference tables. Written for random access, not sequential reading. |
+| [`roadmap-explainers/`](roadmap-explainers/) | One explainer per roadmap level, 00–10 — the canonical theory for each level, read alongside its Core notebooks. |
+| [`concepts/`](concepts/) | Theory companions to courses 01 and 02, plus a support-system case study and its cost companion — definitions, gotchas, quick-reference tables. Written for random access, not sequential reading. |
 | [`interactive-labs/`](interactive-labs/) | Six standalone HTML labs you can open in a browser and manipulate. Built from course 01's notebooks; the written companions are Part 6 of the field guide. Start at [`README.md`](interactive-labs/README.md). |
 | [`interview-prep/`](interview-prep/) | Evaluation questions for agentic system-design rounds and 19 decomposition case studies — plus a [self-quiz drill](interview-prep/evaluation-round-drill.html), standalone HTML. |
 | [`guide-audits/`](guide-audits/) | This repo measured against external evaluation guides — an audit and the teaching companion to it. Start at [`README.md`](guide-audits/README.md). |
@@ -23,3 +24,10 @@ Prose. Nothing here executes.
   symptom → cause → fix, the numbers and decision rules, and online vs offline — what each
   regime can see and what flows between them. The sampling-resolution argument (why a 5%
   sample cannot see a two-point regression) is in explainer 05 §6.
+- [`customer-support-multi-agent-case-study.md`](concepts/customer-support-multi-agent-case-study.md) —
+  one multi-tenant support system evaluated end to end: every stage's deterministic and judged
+  checks, the offline suite, the release gate and its scenarios, the canary, online signals and
+  the feedback loop.
+- [`cost-tracking-and-guardrails.md`](concepts/cost-tracking-and-guardrails.md) — the same
+  system's cost: tracking per call, agent and tenant, budgets, five guardrail boundaries, and
+  cost as a blocking release check.

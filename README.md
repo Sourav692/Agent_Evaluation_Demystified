@@ -8,7 +8,7 @@ generator stayed grounded in it, whether the agent picked the right tool with th
 arguments, whether the task actually completed, and whether any of that still holds in
 production a month later.
 
-Covered across 60 notebooks and three courses, using **DeepEval**, **RAGAS**,
+Covered across 43 notebooks — 38 in three courses, 5 in `labs/` — using **DeepEval**, **RAGAS**,
 **MLflow 3 GenAI** and **Arize Phoenix** — deliberately the same ideas in four
 frameworks, so the concept survives the tool going out of fashion.
 
@@ -28,10 +28,10 @@ Six entry points, depending on what you want:
 | **Learn it in order, start to finish** | [`courses/01-rag-agent-tool-evaluation/`](courses/01-rag-agent-tool-evaluation/) | 15 notebooks, 6 modules: deterministic retrieval metrics → LLM-judged → generator → tool use → trajectory → CrewAI capstone |
 | **Learn the production/MLOps side** *(optional)* | [`courses/02-databricks-mlflow-evals/`](courses/02-databricks-mlflow-evals/) | **Optional track.** 11 notebooks: one agent built in Phase 1, then offline eval, custom judges, datasets from traces, regression gating, online monitoring, judge alignment |
 | **Build the thing that says "don't ship"** | [`courses/03-agentic-eval-harness/`](courses/03-agentic-eval-harness/) | 12 notebooks: one multi-agent system, a stratified golden set, then RAG → tool → agent → safety → judges → human labels → statistics → **a release gate wired to CI** → online eval |
-| **Read, not run** | [`docs/`](docs/) | Three theory companions, six interactive HTML labs, one question bank — nothing to execute |
+| **Read, not run** | [`docs/`](docs/) | Eleven roadmap explainers, two theory companions, a support-system case study with its cost companion, six interactive HTML labs, one question bank — nothing to execute |
 | **Prep for an eval-heavy interview** | [`docs/interview-prep/`](docs/interview-prep/) | A 54-item self-quiz drill, plus a staged study plan in [`docs/study-guide/`](docs/study-guide/) — standalone HTML, open the file, no setup |
 
-**If you only have an hour:** course 01, modules 0 → 1.2 → 2.2 → 3.
+**If you only have an hour:** course 01 notebooks `00` → `02` → `09` → `12`.
 
 **Prefer a browser?** Everything under `docs/` is published at
 **[eval-demystified.vercel.app](https://eval-demystified.vercel.app)** — the theory companions,
@@ -53,8 +53,8 @@ courses/     Finished, sequential. Start here.
                                   LangGraph multi-agent system, stratified reporting, CI
                                   (12 notebooks, complete)
 
-labs/        Raw source material. Runnable, but not a curriculum — reach for these
-             when a course points at one, or when you want the unabridged version.
+labs/        What no course teaches, or a running app a course evaluates. Runnable, not a
+             curriculum — reach for these when a course points at one.
   rag-evaluation/                 A RAGAS pytest-CI script, a FastAPI RAG bot, Streamlit demos
   rag-evaluation-techniques/      GroUSE, Open-RAG-Eval and end-to-end RAGAS notebooks
   agent-evaluation/
@@ -63,15 +63,20 @@ labs/        Raw source material. Runnable, but not a curriculum — reach for t
   langgraph-agent-rag-eval/       Interview-prep notebooks: 9-metric trace-level suite
 
 docs/        Prose only. Nothing executes. See INDEX.md for a section-level lookup.
-  concepts/                       One theory companion per course, plus online vs. offline
+  roadmap-explainers/             One explainer per roadmap level (00–10)
+  concepts/                       Theory companions to courses 01 and 02, plus a support-system
+                                  case study and its cost-and-guardrails companion
   interactive-labs/               6 standalone HTML labs
   interview-prep/                 One question bank (35 questions + 30 metric questions
                                   + 19 cases), plus a self-quiz drill as standalone HTML
-  study-guide/                    The staged study plan through that question bank,
-                                  as standalone HTML
+  study-guide/                    The roadmap (the Full path), its topic→notebook mapping,
+                                  evaluation templates, and the staged study plan (HTML)
+  guide-audits/                   This repo measured against OpenAI's evaluation guide, plus
+                                  the plain-language tutorial
 
 shared/      Small LLM/embedding provider helpers (OpenAI, Groq, Databricks)
-archive/     Superseded material, kept for reference — see archive/README.md
+archive/     Superseded material and retired labs, kept for reference — see archive/README.md.
+             Every topic in it also lives in courses/, labs/ or docs/
 ```
 
 ---

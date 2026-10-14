@@ -97,7 +97,7 @@ workspace. Everything under `docs/` is free.
 | [Databricks reference, Part 5](../concepts/databricks-mlflow-evals.md#part-5--online-vs-offline) | The two regimes, what flows between them, where human alignment fits | none |
 | [Field guide Part 4](../concepts/rag-agent-tool-evaluation.md) | §4.1 what can never go online · §4.2 sampling and alerting · §4.3 what tracing adds | none |
 | [`13_Production_Grade_Agent_Eval_Overview.ipynb`](../../courses/01-rag-agent-tool-evaluation/13_Production_Grade_Agent_Eval_Overview.ipynb) *(optional)* | Phoenix end to end on a small support agent: tracing, an LLM judge on the router and a code check on a tool logged back onto spans, the convergence score from stored spans, and an experiment comparing two prompts | key + Phoenix |
-| [Support-system case study, §25–§29](../concepts/customer_support_multi_agent_evaluation_updated.md) | The gate, the canary, online checks and product signals walked through on one multi-agent support system | none |
+| [Support-system case study, §25–§29](../concepts/customer-support-multi-agent-case-study.md) | The gate, the canary, online checks and product signals walked through on one multi-agent support system | none |
 | [Question bank Part 5, Case 15](../interview-prep/QUESTION_BANK.md) | Q18 offline vs online · Q19 what to sample · Q20 beyond a quality score · Case 15 sets up monitoring | none |
 
 ## Level 8 · Safety, adversarial, and multi-agent attribution
@@ -108,7 +108,7 @@ workspace. Everything under `docs/` is free.
 | [`06_agent_handoff_and_end_to_end.ipynb`](../../courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb) | Routing confusion matrix · handoff integrity · circular-handoff detection · trajectory matching · the SQLite final-state check · blame attribution | key |
 | [`10_capstone_edge_cases_and_crossref.ipynb`](../../courses/02-databricks-mlflow-evals/10_capstone_edge_cases_and_crossref.ipynb) | Design by attack surface: classes × variants · behavioural boundaries · channel confusion · the polite tool failure · stating N/A with a reason | key |
 | [`09_multiturn_and_tool_selection.ipynb`](../../courses/02-databricks-mlflow-evals/09_multiturn_and_tool_selection.ipynb) | Consent lives between turns · three approval outcomes · gate by prompt, verify by evaluation · gates that must report *not measured*, never 0 | key |
-| [Support-system case study, §2](../concepts/customer_support_multi_agent_evaluation_updated.md) | The same harness on an enterprise RAG agent and on a tool-calling multi-agent system, side by side | none |
+| [Support-system case study, §2](../concepts/customer-support-multi-agent-case-study.md) | The same harness on an enterprise RAG agent and on a tool-calling multi-agent system, side by side | none |
 | [Field guide Part 5](../concepts/rag-agent-tool-evaluation.md) | Handoff quality, nested traces, attribution | none |
 | [Question bank Part 8, Cases 8, 16, 17](../interview-prep/QUESTION_BANK.md) | Adversarial sets worth having · evidence for legal · "we tested 15 jailbreak strings and passed 12" · "the agent must never do X" | none |
 

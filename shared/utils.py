@@ -69,8 +69,7 @@ def get_openai_llm(model_name: str = "gpt-4o-mini", temperature: float = 0):
         The OpenAI model to use. Common options:
         - "gpt-4o-mini": Fast, cost-effective, good for most tasks (recommended for learning)
         - "gpt-4o": Most capable model, best for complex reasoning
-        - "gpt-4-turbo": Balance of capability and speed
-        - "gpt-3.5-turbo": Fastest and cheapest, good for simple tasks
+        - "gpt-4.1": Long context, strong instruction following
     
     temperature : float, default=0
         Controls randomness in responses (0.0 to 2.0):

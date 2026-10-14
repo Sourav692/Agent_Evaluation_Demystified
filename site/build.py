@@ -52,6 +52,14 @@ RENDER = {
          "MLflow &amp; Databricks",
          "Course 02's companion: the agent under test, concepts by theme, "
          "32 gotchas as symptom &rarr; cause &rarr; fix, and the numbers."),
+        ("concepts/customer-support-multi-agent-case-study.md", "support-case-study",
+         "Support-system case study",
+         "One multi-tenant support agent evaluated end to end: every stage's checks, "
+         "the offline suite, the release gate, the canary and online signals."),
+        ("concepts/cost-tracking-and-guardrails.md", "cost-and-guardrails",
+         "Cost and guardrails",
+         "The same system's cost: per-request, per-agent and per-tenant attribution, "
+         "budgets, and five guardrail boundaries &mdash; and how cost gates a release."),
     ],
     "Audits": [
         ("guide-audits/openai-eval-guide-coverage-gaps.md", "openai-audit",
@@ -1020,9 +1028,9 @@ def top_nav(active_section):
     return "".join(out)
 
 
-# Flip to True once every straggler below is registered or moved (repo-structure
-# plan, Phase 7). Until then a straggler is printed, not fatal, so a push still deploys.
-STRICT_COMPLETENESS = False
+# A page under docs/ in none of RENDER, COPY or SKIP fails the build. Set to False only
+# to get a deploy out while a known straggler is being registered.
+STRICT_COMPLETENESS = True
 
 
 def docs_sources():
