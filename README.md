@@ -16,6 +16,10 @@ frameworks, so the concept survives the tool going out of fashion.
 
 ## Where to start
 
+**Two routes.** The **[Core path](courses/README.md#core-path)** is 21 notebooks, course 01 then
+course 03. The **[Full path](docs/study-guide/evaluation-roadmap.md)** is the roadmap: every level, with
+its Core and Optional notebooks.
+
 Six entry points, depending on what you want:
 
 | I want to… | Go to | Shape |

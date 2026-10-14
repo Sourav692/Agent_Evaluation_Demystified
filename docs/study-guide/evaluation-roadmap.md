@@ -25,6 +25,11 @@ own ladder, and what an **OpenAI**-style evaluation round pushes on.
 Roughly 54 hours end to end. The [fast paths](#fast-paths) at the bottom cut it to an hour,
 an evening, or a weekend.
 
+**Two routes through the same material.** This roadmap is the **Full path**: every level, its
+Core and Optional notebooks, and its question-bank sections, in order. The **Core path** is the
+short route — only the 21 Core notebooks, course 01 then course 03 — and is listed in
+[`courses/README.md`](../../courses/README.md#core-path). Each level's **Path** line says which is which.
+
 ---
 
 ## Beginner
@@ -47,6 +52,8 @@ without hesitating. Every follow-up later is a disguised version of *"which laye
 measuring?"*
 
 **Notebooks & resources:** [Level 0 mapping →](evaluation-topic-notebook-mapping.md#level-0--orientation)
+
+**Path:** [explainer 00](../roadmap-explainers/00-orientation.md) · **Core:** [c01/00](../../courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb) · **Optional:** — · **Question bank:** Part 0 (§0.1–0.3) · **Exit check:** the list below.
 
 **You are done when you can**
 
@@ -71,6 +78,8 @@ measuring?"*
 one failure no referenceless metric can see.
 
 **Notebooks & resources:** [Level 1 mapping →](evaluation-topic-notebook-mapping.md#level-1--rag-retrieval-and-generation)
+
+**Path:** [explainer 01](../roadmap-explainers/01-rag-retrieval-and-generation.md) · **Core:** [c01/01](../../courses/01-rag-agent-tool-evaluation/01_Retrieval_Metrics_Deterministic.ipynb), [c01/02](../../courses/01-rag-agent-tool-evaluation/02_Retrieval_Metrics_LLM_Judged.ipynb), [c01/03](../../courses/01-rag-agent-tool-evaluation/03_Generator_Metrics_Referenceless.ipynb), [c01/04](../../courses/01-rag-agent-tool-evaluation/04_Generator_Metrics_Reference_Based.ipynb), [c03/04](../../courses/03-agentic-eval-harness/04_rag_evaluation_with_ragas.ipynb) · **Optional:** [c01/05](../../courses/01-rag-agent-tool-evaluation/05_RAG_Eval_Inside_the_Pipeline.ipynb), [c01/06](../../courses/01-rag-agent-tool-evaluation/06_RAGAS_in_Practice.ipynb), [c01/07](../../courses/01-rag-agent-tool-evaluation/07_RAG_Capstone_Build_and_Evaluate.ipynb) · **Question bank:** Q5, Q8, §10.1–10.3 · **Exit check:** the list below.
 
 **You are done when you can**
 
@@ -98,6 +107,8 @@ record before any judge.
 
 **Notebooks & resources:** [Level 2 mapping →](evaluation-topic-notebook-mapping.md#level-2--agents-tools-conversations-trajectories-outcomes)
 
+**Path:** [explainer 02](../roadmap-explainers/02-agents-tools-conversations-trajectories-outcomes.md) · **Core:** [c01/08](../../courses/01-rag-agent-tool-evaluation/08_MultiTurn_Conversational_Evaluation.ipynb), [c01/09](../../courses/01-rag-agent-tool-evaluation/09_Tool_Use_Evaluation.ipynb), [c01/10](../../courses/01-rag-agent-tool-evaluation/10_Task_Completion_Evaluation.ipynb), [c01/12](../../courses/01-rag-agent-tool-evaluation/12_Agent_Trajectory_Evaluation.ipynb), [c03/05](../../courses/03-agentic-eval-harness/05_tool_call_evaluation.ipynb) · **Optional:** [c01/11](../../courses/01-rag-agent-tool-evaluation/11_Same_Evals_with_MLflow.ipynb), [c01/14](../../courses/01-rag-agent-tool-evaluation/14_Capstone_CrewAI_Travel_Planner_Eval.ipynb) · **Question bank:** Part 7 (Q26–Q29), §10.4–10.5, Cases 7, 9 · **Exit check:** the list below.
+
 **You are done when you can**
 
 - give three things a task-success metric cannot see (the drill's first rapid-fire question);
@@ -120,6 +131,8 @@ a dataset lies to you.
 
 **Notebooks & resources:** [Level 3 mapping →](evaluation-topic-notebook-mapping.md#level-3--ground-truth)
 
+**Path:** [explainer 03](../roadmap-explainers/03-ground-truth.md) · **Core:** [c03/01](../../courses/03-agentic-eval-harness/01_knowledge_base_and_rag_agent.ipynb), [c03/02](../../courses/03-agentic-eval-harness/02_tools_agents_and_supervisor_graph.ipynb), [c03/03](../../courses/03-agentic-eval-harness/03_the_golden_set.ipynb) · **Optional:** [c02/04](../../courses/02-databricks-mlflow-evals/04_eval_datasets_from_traces.ipynb) · **Question bank:** Part 3 (Q10–Q13) · **Exit check:** the list below.
+
 **You are done when you can**
 
 - explain *circular ground truth* — why using the agent's own outputs as expectations makes it pass by construction;
@@ -141,6 +154,8 @@ a dataset lies to you.
 licenses trusting it.
 
 **Notebooks & resources:** [Level 4 mapping →](evaluation-topic-notebook-mapping.md#level-4--judges-and-the-humans-who-validate-them)
+
+**Path:** [explainer 04](../roadmap-explainers/04-judges-and-the-humans-who-validate-them.md) · **Core:** [c03/08](../../courses/03-agentic-eval-harness/08_building_custom_judges.ipynb), [c03/09](../../courses/03-agentic-eval-harness/09_human_feedback_and_calibration.ipynb) · **Optional:** [c02/03](../../courses/02-databricks-mlflow-evals/03_custom_scorers_and_judges.ipynb), [c02/07](../../courses/02-databricks-mlflow-evals/07_judge_alignment_memalign.ipynb) · **Question bank:** Part 4 (Q14–Q17), Cases 10–12 · **Exit check:** the list below.
 
 **You are done when you can**
 
@@ -167,6 +182,8 @@ buries a segment.
 
 **Notebooks & resources:** [Level 5 mapping →](evaluation-topic-notebook-mapping.md#level-5--statistics-and-stratified-reporting)
 
+**Path:** [explainer 05](../roadmap-explainers/05-statistics-and-stratified-reporting.md) · **Core:** [c03/10](../../courses/03-agentic-eval-harness/10_stratified_reporting_and_statistics.ipynb) · **Optional:** — · **Question bank:** Q4, Q21 · **Exit check:** the list below.
+
 **You are done when you can**
 
 - derive a sample rate from the smallest regression you must catch, rather than from a round number;
@@ -188,6 +205,8 @@ it on a named line.
 
 **Notebooks & resources:** [Level 6 mapping →](evaluation-topic-notebook-mapping.md#level-6--the-release-gate-and-ci)
 
+**Path:** [explainer 06](../roadmap-explainers/06-the-release-gate-and-ci.md) · **Core:** [c03/11](../../courses/03-agentic-eval-harness/11_the_release_gate_and_ci.ipynb) · **Optional:** [c02/05](../../courses/02-databricks-mlflow-evals/05_prompt_versioning_and_regression.ipynb), [c02/08](../../courses/02-databricks-mlflow-evals/08_automated_improvement_gepa.ipynb) · **Question bank:** Part 6 (Q22–Q25), Cases 13–14 · **Exit check:** the list below.
+
 **You are done when you can**
 
 - explain why a threshold-only gate permits erosion (0.98 → 0.91 clears 0.90) and why a regression-only gate ships a bad baseline's improvement;
@@ -208,6 +227,8 @@ it on a named line.
 finding back into a gated test.
 
 **Notebooks & resources:** [Level 7 mapping →](evaluation-topic-notebook-mapping.md#level-7--online-evaluation-and-the-loop)
+
+**Path:** [explainer 07](../roadmap-explainers/07-online-evaluation-and-the-loop.md) · **Core:** [c03/12](../../courses/03-agentic-eval-harness/12_online_evaluation_and_the_loop.ipynb) · **Optional:** [c02/06](../../courses/02-databricks-mlflow-evals/06_online_eval_production_monitoring.ipynb), [c01/13](../../courses/01-rag-agent-tool-evaluation/13_Production_Grade_Agent_Eval_Overview.ipynb) · **Question bank:** Part 5 (Q18–Q20), Case 15 · **Exit check:** the list below.
 
 **You are done when you can**
 
@@ -234,6 +255,8 @@ surface rather than by example, and say which agent broke a multi-agent run.
 
 **Notebooks & resources:** [Level 8 mapping →](evaluation-topic-notebook-mapping.md#level-8--safety-adversarial-and-multi-agent-attribution)
 
+**Path:** [explainer 08](../roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution.md) · **Core:** [c03/06](../../courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb), [c03/07](../../courses/03-agentic-eval-harness/07_safety_and_policy_checks.ipynb) · **Optional:** [c02/09](../../courses/02-databricks-mlflow-evals/09_multiturn_and_tool_selection.ipynb), [c02/10](../../courses/02-databricks-mlflow-evals/10_capstone_edge_cases_and_crossref.ipynb) · **Question bank:** Part 8 (Q30–Q32), Cases 8, 16, 17 · **Exit check:** the list below.
+
 **You are done when you can**
 
 - say why a flat list of jailbreak strings tells you nothing when it passes, and what replaces it;
@@ -253,6 +276,8 @@ surface rather than by example, and say which agent broke a multi-agent run.
 metrics.
 
 **Notebooks & resources:** [Level 9 mapping →](evaluation-topic-notebook-mapping.md#level-9--the-harness-as-a-product)
+
+**Path:** [explainer 09](../roadmap-explainers/09-the-harness-as-a-product.md) · **Core:** — (course 03 README: *Cost*, *Conventions*) · **Optional:** [c02/00](../../courses/02-databricks-mlflow-evals/00_eval_strategy_worksheet.ipynb) · **Question bank:** Part 9 (Q33–Q35), Cases 18–19 · **Exit check:** the list below.
 
 **You are done when you can**
 
