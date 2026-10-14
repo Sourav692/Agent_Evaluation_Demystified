@@ -85,3 +85,6 @@ site/dist/
 # Owner-only private workspace: notes, progress, interview stories, parked
 # third-party material. Never published, never linked from tracked files.
 /_personal/
+
+# Local Databricks bundle config: names the owner's workspace, kept out of the repo
+databricks.yml

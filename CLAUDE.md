@@ -70,7 +70,7 @@ commits `2faa463` and `ac8c306` exist solely to repair breakage from skipping th
 ## Environments
 
 **The root `.venv` is a mix, and only partly matches the lockfile.** It holds **Databricks
-Connect** (`databricks-connect` 17.3, used with the tracked `databricks.yml`) plus the eval
+Connect** (`databricks-connect` 17.3, used with a local, untracked `databricks.yml`) plus the eval
 libraries (`deepeval` 4.2.3, `ragas` 0.4.3, `mlflow` 3.16.1). `uv.lock` is tracked and is the
 intended root env; the installed `.venv` lags it (it still has `langchain-community` 0.4.2, which
 breaks `import ragas` — the lock pins 0.4.1). Its Python 3.12.10 also lacks `_lzma`, so `import
@@ -137,7 +137,7 @@ user says "update the website", "deploy the site", "is it live", or similar, thi
 | Production URL | https://eval-demystified.vercel.app (aliases `eval-demystified-sourav-dbx.vercel.app`, `eval-demystified-git-main-sourav-dbx.vercel.app`) |
 | Source | Git-connected to `github.com/Sourav692/Agent_Evaluation_Demystified`, production branch `main`. **A push to `main` is the deploy** — there is no separate publish step and nothing to upload. |
 | Build | `vercel.json`: framework "Other", build command creates a venv, installs `site/requirements.txt` (`markdown==3.7`) and runs `site/build.py`; output directory `site/dist/`. ~10 s builds |
-| CLI | `vercel` 59.x is installed and logged in as `<vercel-user>`. `.vercel/` is gitignored and usually absent, so `vercel ls eval-demystified` / `vercel project inspect eval-demystified` work but `vercel deploy` would first need `vercel link --yes --project eval-demystified --scope sourav-dbx`. Prefer pushing to `main` over CLI deploys, so every live version has a commit |
+| CLI | `vercel` 59.x is installed and logged in to the owner's account. `.vercel/` is gitignored and usually absent, so `vercel ls eval-demystified` / `vercel project inspect eval-demystified` work but `vercel deploy` would first need `vercel link --yes --project eval-demystified --scope sourav-dbx`. Prefer pushing to `main` over CLI deploys, so every live version has a commit |
 
 **To update the website:** edit the Markdown or HTML under `docs/` (the Markdown is canonical —
 never edit `site/dist/`), make sure the file is registered in `RENDER`, `COPY` or `SKIP` in
