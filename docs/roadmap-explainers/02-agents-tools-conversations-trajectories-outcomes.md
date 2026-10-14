@@ -484,7 +484,7 @@ class names replaced by what each check does.
   full in Section 5 rather than pointed at.
 - `docs/study-guide/evaluation-roadmap.md` — Level 2's topic list and goal statement.
 - `docs/study-guide/evaluation-topic-notebook-mapping.md` — Level 2's resource table.
-- `labs/multiturn-and-tool-eval/README.md` — checked and found to introduce no topic beyond what
+- `archive/labs-multiturn-and-tool-eval/README.md` — checked and found to introduce no topic beyond what
   course 01 already covers.
 
 **Limitations.** This file was written by reading the repository's own material, not by running

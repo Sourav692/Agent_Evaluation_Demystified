@@ -506,8 +506,9 @@ distance (Section 7).
   and [Explainer 05, Section 6](05-statistics-and-stratified-reporting.md#6-buy-the-sample-rate-that-can-see-the-regression)
   — the offline/online split, the sampling-resolution table, and the soup analogy (merged there
   from the retired online-versus-offline page).
-- `docs/concepts/rag-vs-support-eval-walkthrough.html` — the self-consistency framing for RAG
-  against support agents.
+- `docs/concepts/customer_support_multi_agent_evaluation_updated.md`, §28 — online judges
+  without an answer key (self-consistency, rules, delayed labels, the paired canary) on a
+  support system.
 - `docs/interview-prep/QUESTION_BANK.md`, Part 5 (Q18–Q20) and Case 15 — the four questions
   reproduced in full in Section 9 rather than pointed at.
 - `docs/study-guide/evaluation-roadmap.md` — Level 7's topic list and goal statement.

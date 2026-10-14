@@ -8,8 +8,6 @@ system — judgement under a constraint, not coding exercises or metric derivati
 | File | What it is |
 |---|---|
 | [`../study-guide/evaluation-study-plan.html`](../study-guide/evaluation-study-plan.html) | **The reading path.** Seven stages ordered by what the round actually tests, with time estimates, a 2–3 day fast path, an explicit skip list, and a readiness check. Open it in a browser; tick items off as you go. |
-| [`fde-playbook-end-to-end-evaluation.html`](fde-playbook-end-to-end-evaluation.html) | **How end-to-end evaluation works**, per *LLM Evaluation for GenAI Forward Deployed Engineers*, sections 1–14. The pipeline first, then what happens at each stage — dataset, scorers, safety, regression, A/B, canary, acceptance criteria, dashboard. Condensed to one page with the book's own numbers. |
-| [`stratified-reporting-explained.html`](stratified-reporting-explained.html) | **One concept, explained simply.** Why a single overall score is the most dangerous number on a dashboard — built around one table where quality improves and a language segment halves at the same time. Written for the interview, not the deep dive. |
 | [`evaluation-round-drill.html`](evaluation-round-drill.html) | **The self-quiz.** The same 35 questions and 19 cases with every answer hidden until you reveal it. Rate your recall per item, then filter to what's still weak. Progress saves locally. |
 
 Both are standalone — no build step, no server. Open the file.

@@ -4,5 +4,27 @@
   "outputDirectory": "site/dist",
   "installCommand": "echo 'no package manager: the site is built by site/build.py'",
   "framework": null,
-  "cleanUrls": false
+  "cleanUrls": false,
+  "redirects": [
+    {
+      "source": "/online-vs-offline.html",
+      "destination": "/databricks-mlflow.html#part-5-online-vs-offline",
+      "permanent": true
+    },
+    {
+      "source": "/stratified-reporting-explained.html",
+      "destination": "/05-statistics-and-stratified-reporting.html",
+      "permanent": true
+    },
+    {
+      "source": "/fde-playbook-audit.html",
+      "destination": "/index.html",
+      "permanent": false
+    },
+    {
+      "source": "/fde-playbook-end-to-end-evaluation.html",
+      "destination": "/index.html",
+      "permanent": false
+    }
+  ]
 }

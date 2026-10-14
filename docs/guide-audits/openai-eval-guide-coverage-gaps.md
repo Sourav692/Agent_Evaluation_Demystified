@@ -6,8 +6,7 @@ to where this repo teaches it, and names what is genuinely missing.
 **Checked against disk 2026-09-20; every row verified per course rather than repo-wide.**
 Every path below was verified to exist. **All paths are relative to the repository root**,
 not to this file. Verdicts rest on the 107 tracked files under `courses/`, `docs/` and
-`labs/`; `labs/agent-evaluation/arize-phoenix-labs/` is third-party and `archive/` is
-superseded, so neither counts as coverage.
+`labs/`; `archive/` is superseded, so it does not count as coverage.
 
 **The headline, as of 2026-09-20: one row is open, and it is a framework rather than a
 technique.** Four gaps were closed on 2026-09-20 — circular handoffs, verbosity bias, blinded
@@ -60,7 +59,7 @@ time, never decremented.)*
 | --- | --- | --- |
 | Step 1 — define the eval objective | `courses/02-databricks-mlflow-evals/00_eval_strategy_worksheet.ipynb` is a worked answer to exactly this | ✅ Covered |
 | Step 2 — collect a dataset | `courses/03-agentic-eval-harness/03_the_golden_set.ipynb` — 40 cases, strata, datasheet, `content_hash`, version | ✅ Covered |
-| Data sources: production, domain-expert, synthetic, historical | All four present — `courses/02-databricks-mlflow-evals/04_eval_datasets_from_traces.ipynb`, `labs/rag-evaluation/4.End_to_End_RAG_System_Evaluation.ipynb` | ✅ Covered |
+| Data sources: production, domain-expert, synthetic, historical | All four present — `courses/02-databricks-mlflow-evals/04_eval_datasets_from_traces.ipynb`, `archive/labs-rag-evaluation/4.End_to_End_RAG_System_Evaluation.ipynb` | ✅ Covered |
 | Data source: purchased datasets | ⏭️ **Descoped.** Listed by the guide as one of six sources. There is nothing to teach beyond the sentence, and no fictional-corpus equivalent | ⏭️ Descoped |
 | Step 3 — define eval metrics | The bulk of all three courses | ✅ Covered |
 | Step 4 — run and compare evals | `courses/03-agentic-eval-harness/10_stratified_reporting_and_statistics.ipynb` — paired comparison, McNemar's test, bootstrap CIs; `courses/02-databricks-mlflow-evals/05_prompt_versioning_and_regression.ipynb` builds the v1-vs-v2 regression deliberately | ✅ Covered |
@@ -128,7 +127,7 @@ in the `OPENAI_EDGE_CASE_COVERAGE` dict. Every verdict there was re-verified 202
 
 | Guide topic | Repo coverage | Status |
 | --- | --- | --- |
-| **Evals API and the Graders tool** | ❌ **Zero occurrences of `Evals API`, `openai.evals`, `client.evals` or `grader`** anywhere in live material. The repo's stated pitch is "deliberately the same ideas in four frameworks" — DeepEval, RAGAS, MLflow 3 GenAI and Arize Phoenix — and the platform this guide is written around is the one framework not represented. Belongs in a new lab under `labs/`, beside `labs/llm-as-judge/`, not inside a numbered course: the courses are sequential and this is a parallel framework, not a next step | ❌ Gap |
+| **Evals API and the Graders tool** | ❌ **Zero occurrences of `Evals API`, `openai.evals`, `client.evals` or `grader`** anywhere in live material. The repo's stated pitch is "deliberately the same ideas in four frameworks" — DeepEval, RAGAS, MLflow 3 GenAI and Arize Phoenix — and the platform this guide is written around is the one framework not represented. Belongs in a new lab under `labs/`, beside `archive/labs-llm-as-judge/`, not inside a numbered course: the courses are sequential and this is a parallel framework, not a next step | ❌ Gap |
 
 ---
 
@@ -211,14 +210,6 @@ Two run the other way — covered here, absent from the guide: **same-model bias
 reporting with a detection limit** (`courses/03-agentic-eval-harness/10_stratified_reporting_and_statistics.ipynb`).
 
 ## Related
-
-[`genai-eval-playbook-coverage-map.md`](genai-eval-playbook-coverage-map.md) (beside this
-file) is the same exercise against *LLM Evaluation for GenAI Forward Deployed Engineers*, a
-customer-facing playbook. It finds thirteen open gaps clustered around commercial apparatus —
-acceptance criteria, sign-off owners, stakeholder dashboards, staged rollout — and retrieval
-operations. **This document is the measurement audit; that one is the deployment audit.**
-The two overlapped in exactly one item — ROUGE / BLEU / BERTScore — **closed in both on
-2026-09-20** by course 01's §1c. Nothing else is shared.
 
 [`openai-eval-guide-tutorial.md`](openai-eval-guide-tutorial.md) (beside this file) is the
 teaching companion — the same guide walked through in plain language, 3–4 lines per concept,

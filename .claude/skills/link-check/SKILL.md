@@ -43,7 +43,6 @@ fixes:
 - References to files left behind in the `AI-ENGINEERING-DEMYSTIFIED` monorepo
   (`NOTEBOOK_INDEX.md`, the OpenAI coverage-gap analysis, the red-teaming notebook). The root
   README documents these as mentions, not links.
-- Anything under `labs/agent-evaluation/arize-phoenix-labs/`, which is third-party material
-  kept verbatim.
+- Anything under `archive/`, which records an older layout on purpose.
 
 Propose specific edits for the rest, then let the user pick which to apply.

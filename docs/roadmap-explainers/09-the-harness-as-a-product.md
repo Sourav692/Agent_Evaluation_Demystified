@@ -311,19 +311,10 @@ is often invisible until the machinery that would reveal it already exists.
 
 ## 4. Name What the Harness Still Doesn't Do
 
-An audit compares this repository against a customer-facing playbook rather than a measurement
-guide. The distinction matters.
-
-| | A measurement guide | A customer-facing playbook |
-|---|---|---|
-| Central question | "How do you evaluate this?" | "How do you prove it and get sign-off?" |
-| Audience | The team building the system | The customer, their executives, their security team |
-| Ends at | A continuous evaluation loop | A signed acceptance document and a staged rollout |
-| This repo's coverage | Near-total | Strong on measurement, thin on everything commercial |
-
-**This repo can compute almost every number the playbook asks for.** It has almost none of the
-apparatus for agreeing what those numbers must reach, who signs off, or how they get explained
-to someone who never opens a notebook. That gap is what "the harness as a product" means.
+The courses can compute almost every number a launch needs. They have almost none of the
+apparatus for agreeing what those numbers must reach, who signs off, or how the result gets
+explained to someone who never opens a notebook. That gap is what "the harness as a product"
+means, and the subsections below name its parts.
 
 ### Size the dataset by deployment stage
 
@@ -354,8 +345,8 @@ outcomes: deflection, handle time, compliance evidence, adoption.
 > sign-off would go on; nothing in the courses fills one in yet. **A threshold nobody agreed to
 > is an opinion with a number attached.**
 
-This is the largest single gap the audit found, and closing it *reframes* work that already
-exists rather than building new measurement.
+This is the largest single gap, and closing it *reframes* work that already exists rather than
+building new measurement.
 
 ### A dashboard has more than one audience
 
@@ -387,26 +378,6 @@ flowchart TD
 Level 7's single paired canary exists. What is missing is the *ladder* — staged exposure, a
 per-stage gate, and the blast-radius reasoning deciding how far a change travels before it earns
 the next stage.
-
-### Named but not expanded
-
-Other gaps are real and sit outside this level's scope, named here so their absence reads as
-scoping rather than oversight. **Retrieval operations**: permission-filter pass rate, embedding
-freshness, duplicate-chunk rate, reranker evaluation, retriever version tracking. **Small
-additions to existing material**: an eight-dimension answer-quality rubric, protecting human
-labellers from sensitive data, a customer-facing debugging template, real-traffic A/B testing
-with cohorts as distinct from a paired canary, document templates for scorecards and acceptance
-criteria, and regulated-advice risk as its own adversarial surface.
-
-### What this repo has that the playbook doesn't
-
-The gap runs both ways. This repo has stratified reporting *with statistical detection limits*,
-where the playbook only warns that an average can hide a failing segment. It has real
-statistical rigour — McNemar's test, bootstrap intervals, the sample-size formula — where the
-playbook says "review confidence intervals" and stops. It names position bias and same-model
-bias explicitly. Its release gate is actually wired into CI. It has final-state verification
-and loop detection, which the playbook never mentions. And it works through the multi-turn
-compounding arithmetic.
 
 ### One core-metrics list, sliced four ways
 
@@ -664,9 +635,6 @@ replaced by what each choice does.
 - `docs/guide-audits/openai-eval-guide-coverage-gaps.md` — the same anti-patterns and five steps
   checked against the repository as a whole, mostly course 03's notebooks. That is a different
   mapping from Section 3's, which comes from the worksheet.
-- `docs/guide-audits/genai-eval-playbook-coverage-map.md` — dataset sizing by stage, acceptance
-  criteria and sign-off, the four dashboard audiences, the canary ladder, and what this repo has
-  that the playbook does not.
 - `docs/interview-prep/QUESTION_BANK.md`, Part 9 (Q33–Q35) plus Cases 18 and 19 — cost,
   ownership, harness decay, and the eight-team platform, reproduced in full in Section 5 rather
   than pointed at.

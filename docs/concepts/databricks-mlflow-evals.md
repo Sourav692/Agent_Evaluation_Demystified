@@ -684,8 +684,8 @@ that it lives there, on a corpus big enough for it to mean something.
 | -------------------------------- | ------------- | ----------------------------------------- | ------------- | --------------------------------------------------------------------------------- |
 | Precision@K, Recall@K, MRR, nDCG | Deterministic | **yes** — labelled chunk relevance | no            | `courses/01-rag-agent-tool-evaluation/01_Retrieval_Metrics_Deterministic.ipynb` |
 | `ContextualRelevancyMetric`    | Judge         | —                                        | **yes** | DeepEval,`labs/rag-evaluation/`                                                 |
-| `ContextualPrecisionMetric`    | Judge         | **yes** — expected output          | no            | `labs/rag-evaluation/deepeval-metrics/Contextual_Precision.ipynb`               |
-| `ContextualRecallMetric`       | Judge         | **yes** — expected output          | no            | `labs/rag-evaluation/deepeval-metrics/Contextual_Recall.ipynb`                  |
+| `ContextualPrecisionMetric`    | Judge         | **yes** — expected output          | no            | `archive/labs-rag-evaluation/deepeval-metrics/Contextual_Precision.ipynb`               |
+| `ContextualRecallMetric`       | Judge         | **yes** — expected output          | no            | `archive/labs-rag-evaluation/deepeval-metrics/Contextual_Recall.ipynb`                  |
 | RAGAS`context_precision`       | Judge         | **yes** (classic form)              | no            | `labs/rag-evaluation/ragas-scripts/`                                            |
 
 Note the inversion: the *deterministic* retrieval metrics are the offline-only ones. Cheap to

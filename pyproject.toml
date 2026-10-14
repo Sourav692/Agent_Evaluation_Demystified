@@ -9,7 +9,7 @@ requires-python = ">=3.12"
 # Install:  uv sync          (or: pip install -e .)
 dependencies = [
     # Evaluation frameworks — the subject of this repo
-    "deepeval>=4.1.8",          # courses/01, labs/rag-evaluation, labs/llm-as-judge
+    "deepeval>=4.1.8",          # courses/01, labs/rag-evaluation, archive/labs-llm-as-judge
     "ragas>=0.4.3",             # courses/01 module 1.6, labs/rag-evaluation/ragas-scripts
     "mlflow>=3.15.1",           # courses/01 module 2.4, courses/02 (entire track)
 

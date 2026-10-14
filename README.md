@@ -55,14 +55,12 @@ courses/     Finished, sequential. Start here.
 
 labs/        Raw source material. Runnable, but not a curriculum — reach for these
              when a course points at one, or when you want the unabridged version.
-  rag-evaluation/                 DeepEval metric drills, RAGAS scripts, a FastAPI RAG bot
+  rag-evaluation/                 A RAGAS pytest-CI script, a FastAPI RAG bot, Streamlit demos
+  rag-evaluation-techniques/      GroUSE, Open-RAG-Eval and end-to-end RAGAS notebooks
   agent-evaluation/
-    arize-phoenix-labs/           DeepLearning.AI × Arize: 5 progressive tracing/eval labs
     crewai-travel-planner/        A real 3-agent CrewAI app used as an evaluation target
     multi-agent-eval-demo/        Tiny LangGraph supervisor team + scorecard, behind FastAPI/Streamlit
   langgraph-agent-rag-eval/       Interview-prep notebooks: 9-metric trace-level suite
-  multiturn-and-tool-eval/        Multi-turn + tool metrics, DeepEval vs MLflow side by side
-  llm-as-judge/                   G-Eval smoke test
 
 docs/        Prose only. Nothing executes. See INDEX.md for a section-level lookup.
   concepts/                       One theory companion per course, plus online vs. offline
@@ -102,7 +100,7 @@ cp .env.example .env         # then fill in OPENAI_API_KEY
 To route OpenAI calls through OpenRouter or another OpenAI-compatible gateway, also set `OPENAI_BASE_URL=https://openrouter.ai/api/v1`
 (the openai SDK reads it; no repo code does) and use provider-prefixed model names such as `openai/gpt-4o-2024-08-06`.
 
-`labs/multiturn-and-tool-eval/` has its own `uv` project and lockfile — run `uv sync`
+`archive/labs-multiturn-and-tool-eval/` has its own `uv` project and lockfile — run `uv sync`
 inside that directory rather than using the root environment.
 
 `courses/03-agentic-eval-harness/` also carries its own `requirements.txt` with **exact**
@@ -152,5 +150,6 @@ OpenAI coverage-gap analysis, the red-teaming notebook under
 `12_Production_and_Observability/`). They are mentions, not links — nothing in this repo
 depends on them.
 
-`labs/agent-evaluation/arize-phoenix-labs/` is course material from DeepLearning.AI and
-Arize, kept whole and substantially unmodified.
+`labs/rag-evaluation-techniques/` is from Nir Diamant's *RAG_Techniques* anthology and keeps
+its own non-commercial licence. Earlier drafts and superseded labs are in `archive/`, listed in
+`archive/README.md`.

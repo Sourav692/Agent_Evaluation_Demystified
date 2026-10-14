@@ -44,7 +44,7 @@ workspace. Everything under `docs/` is free.
 | [`12_Agent_Trajectory_Evaluation.ipynb`](../../courses/01-rag-agent-tool-evaluation/12_Agent_Trajectory_Evaluation.ipynb) + [lab 05](../interactive-labs/05-agent-trajectory-evaluation.html) | The nine trace-level checks on a refund agent. Five of nine never move; task success passes on 40 % waste | none (Parts A–B), key (Part C) |
 | [Field guide Parts 2–3](../concepts/rag-agent-tool-evaluation.md) | §2.1 why per-turn rates multiply · §2.2 strict vs loose matching · §2.4 the polite tool failure · §3.2 the three trajectory traps | none |
 | [Databricks ref, Part 4 — `p ** n`](../concepts/databricks-mlflow-evals.md) | At 95 % per turn a conversation is more likely failed than not by turn 14 | none |
-| [`labs/multiturn-and-tool-eval/`](../../labs/multiturn-and-tool-eval/) *(optional)* | The same multi-turn and tool metrics twice — DeepEval and MLflow — side by side. Its own `uv` project | key |
+| [`archive/labs-multiturn-and-tool-eval/`](../../archive/labs-multiturn-and-tool-eval/) *(optional)* | The same multi-turn and tool metrics twice — DeepEval and MLflow — side by side. Its own `uv` project | key |
 
 ## Level 3 · Ground truth
 
@@ -72,8 +72,8 @@ workspace. Everything under `docs/` is free.
 | Read / run | Teaches | Cost |
 |---|---|---|
 | [`10_stratified_reporting_and_statistics.ipynb`](../../courses/03-agentic-eval-harness/10_stratified_reporting_and_statistics.ipynb) | Sample size · McNemar for paired runs · the bootstrap in ten lines of stdlib · the small-stratum rule | none |
-| [`stratified-reporting-explained.html`](../interview-prep/stratified-reporting-explained.html) | One table: overall 87.5 % → 90 % while Hindi collapses 88 % → 50 % | none |
-| [Online vs offline §5](../concepts/online_vs_offline_evaluation.md) | The sampling-resolution problem; §5.1 in plain English | none |
+| [Explainer 05, §1](../roadmap-explainers/05-statistics-and-stratified-reporting.md) | One table: overall 87.5 % → 90 % while Hindi collapses 88 % → 50 % (merged from the retired stratified-reporting page) | none |
+| [Explainer 05, §6](../roadmap-explainers/05-statistics-and-stratified-reporting.md#6-buy-the-sample-rate-that-can-see-the-regression) | The sampling-resolution problem and the drop-you-are-hunting table (10 / 5 / 2 points) | none |
 | [Databricks ref, Part 4 — the numbers](../concepts/databricks-mlflow-evals.md) | Wilson intervals: ±0.045 at 100 traces, ±0.018 at 600. A two-point drop needs ~606 scored traces — 30 % of 2,000/day, not 5 % | none |
 | [Question bank Q4, Q21](../interview-prep/QUESTION_BANK.md) | "One number for a dashboard" · "a metric dropped two points" | none |
 
@@ -85,7 +85,7 @@ workspace. Everything under `docs/` is free.
 | [`ci/apply_gate.py`](../../courses/03-agentic-eval-harness/ci/apply_gate.py) + [`release-gate.yml`](../../.github/workflows/release-gate.yml) | The free, stdlib-only decision layer, and why the paid `evaluate` job is *not* on the merge path | none |
 | [`05_prompt_versioning_and_regression.ipynb`](../../courses/02-databricks-mlflow-evals/05_prompt_versioning_and_regression.ipynb) | Registering ≠ deploying · alias as rollback · the two-condition gate · tolerance 0.00 deterministic, 0.02 judged | key |
 | [`08_automated_improvement_gepa.ipynb`](../../courses/02-databricks-mlflow-evals/08_automated_improvement_gepa.ipynb) | An optimised prompt passes the *same* gate, scored on a superset of what it optimised | workspace |
-| [`launch-gate.html`](../concepts/launch-gate.html) | The gate on one page | none |
+| [Explainer 06, §2](../roadmap-explainers/06-the-release-gate-and-ci.md#2-run-four-checks-and-block-on-any-one) | The four checks, a second worked case (the tenant the aggregate could not see) and the gate in code | none |
 | [Question bank Part 6, Case 13, Case 14](../interview-prep/QUESTION_BANK.md) | Safe to ship · the optimiser's higher score · a green dashboard that is wrong · Case 13 designs the CI gate | none |
 
 ## Level 7 · Online evaluation and the loop
@@ -94,10 +94,10 @@ workspace. Everything under `docs/` is free.
 |---|---|---|
 | [`12_online_evaluation_and_the_loop.ipynb`](../../courses/03-agentic-eval-harness/12_online_evaluation_and_the_loop.ipynb) | Reference-free metrics · five alerts · incident drills · the canary · the label queue that closes the loop | none |
 | [`06_online_eval_production_monitoring.ipynb`](../../courses/02-databricks-mlflow-evals/06_online_eval_production_monitoring.ipynb) | Traces as tables · sampled live scorers · register *and* start · the mechanical online-eligibility test | workspace |
-| [Online vs offline](../concepts/online_vs_offline_evaluation.md) | The two regimes, what flows between them, where human alignment fits | none |
+| [Databricks reference, Part 5](../concepts/databricks-mlflow-evals.md#part-5--online-vs-offline) | The two regimes, what flows between them, where human alignment fits | none |
 | [Field guide Part 4](../concepts/rag-agent-tool-evaluation.md) | §4.1 what can never go online · §4.2 sampling and alerting · §4.3 what tracing adds | none |
 | [`13_Production_Grade_Agent_Eval_Overview.ipynb`](../../courses/01-rag-agent-tool-evaluation/13_Production_Grade_Agent_Eval_Overview.ipynb) *(optional)* | Phoenix end to end on a small support agent: tracing, an LLM judge on the router and a code check on a tool logged back onto spans, the convergence score from stored spans, and an experiment comparing two prompts | key + Phoenix |
-| [`rag-vs-support-eval-walkthrough.html`](../concepts/rag-vs-support-eval-walkthrough.html) | Offline, online and the gate walked through on two real systems | none |
+| [Support-system case study, §25–§29](../concepts/customer_support_multi_agent_evaluation_updated.md) | The gate, the canary, online checks and product signals walked through on one multi-agent support system | none |
 | [Question bank Part 5, Case 15](../interview-prep/QUESTION_BANK.md) | Q18 offline vs online · Q19 what to sample · Q20 beyond a quality score · Case 15 sets up monitoring | none |
 
 ## Level 8 · Safety, adversarial, and multi-agent attribution
@@ -108,7 +108,7 @@ workspace. Everything under `docs/` is free.
 | [`06_agent_handoff_and_end_to_end.ipynb`](../../courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb) | Routing confusion matrix · handoff integrity · circular-handoff detection · trajectory matching · the SQLite final-state check · blame attribution | key |
 | [`10_capstone_edge_cases_and_crossref.ipynb`](../../courses/02-databricks-mlflow-evals/10_capstone_edge_cases_and_crossref.ipynb) | Design by attack surface: classes × variants · behavioural boundaries · channel confusion · the polite tool failure · stating N/A with a reason | key |
 | [`09_multiturn_and_tool_selection.ipynb`](../../courses/02-databricks-mlflow-evals/09_multiturn_and_tool_selection.ipynb) | Consent lives between turns · three approval outcomes · gate by prompt, verify by evaluation · gates that must report *not measured*, never 0 | key |
-| [`eval-harness-two-usecases.html`](../concepts/eval-harness-two-usecases.html) | The same harness on an enterprise RAG agent and on a tool-calling multi-agent system, side by side | none |
+| [Support-system case study, §2](../concepts/customer_support_multi_agent_evaluation_updated.md) | The same harness on an enterprise RAG agent and on a tool-calling multi-agent system, side by side | none |
 | [Field guide Part 5](../concepts/rag-agent-tool-evaluation.md) | Handoff quality, nested traces, attribution | none |
 | [Question bank Part 8, Cases 8, 16, 17](../interview-prep/QUESTION_BANK.md) | Adversarial sets worth having · evidence for legal · "we tested 15 jailbreak strings and passed 12" · "the agent must never do X" | none |
 
@@ -119,8 +119,8 @@ workspace. Everything under `docs/` is free.
 | [Course 03 README — *Cost*, *Judge verdicts are cached*, *Fault switches*](../../courses/03-agentic-eval-harness/README.md) | The judge runs on a different model than the agent (`gpt-4.1-mini`, 6 of 6 calls at ~2.5 s vs a 248 s runaway) · `SCORE_MODE` auto / strict / record · a cache that exists for comparability, not savings · twelve faults that all return a fluent 200 | none |
 | [Course 03 README — *Conventions*](../../courses/03-agentic-eval-harness/README.md) | No shared modules, files in `data/` as the handoff, no pandas — every number traceable from the notebook that produced it | none |
 | [`00_eval_strategy_worksheet.ipynb`](../../courses/02-databricks-mlflow-evals/00_eval_strategy_worksheet.ipynb) | Thresholds and blocking flags written before the agent exists — eval-driven development as a worksheet | none |
-| [`genai-eval-playbook-coverage-map.md`](../guide-audits/genai-eval-playbook-coverage-map.md) | What this repo does *not* build: acceptance criteria with sign-off owners, stakeholder dashboards, the staged canary ladder, retrieval operations. Thirteen open gaps, clustered | none |
-| [`fde-playbook-end-to-end-evaluation.html`](../interview-prep/fde-playbook-end-to-end-evaluation.html) | The customer-facing version of the whole pipeline: dataset sizes by stage, the canary ladder with rollback triggers, four dashboard views | none |
+| [Explainer 09, §4](../roadmap-explainers/09-the-harness-as-a-product.md#4-name-what-the-harness-still-doesnt-do) | What the harness still does not build: dataset sizes by deployment stage, acceptance criteria and sign-off, a dashboard per audience, the staged canary ladder | none |
+| [`evaluation-templates.md`](evaluation-templates.md) | Fill-in scorecard, failure-investigation, acceptance-criteria and regression-report templates | none |
 | [Question bank Part 9, Cases 18, 19](../interview-prep/QUESTION_BANK.md) | Q33 cost · Q34 ownership · Q35 is the eval system still working · Case 18 build the platform · Case 19 cost is 4× | none |
 
 ---

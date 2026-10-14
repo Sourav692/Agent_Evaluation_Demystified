@@ -52,20 +52,16 @@ RENDER = {
          "MLflow &amp; Databricks",
          "Course 02's companion: the agent under test, concepts by theme, "
          "32 gotchas as symptom &rarr; cause &rarr; fix, and the numbers."),
-        ("concepts/online_vs_offline_evaluation.md", "online-vs-offline",
-         "Online vs. offline",
-         "The two regimes side by side, what flows between them, and why a 5% "
-         "sample cannot see a two-point regression."),
     ],
     "Audits": [
         ("guide-audits/openai-eval-guide-coverage-gaps.md", "openai-audit",
          "OpenAI guide audit",
          "This repo measured against OpenAI's evaluation guide, per course. "
          "Every topic badged, with the gap list and the corrections."),
-        ("guide-audits/genai-eval-playbook-coverage-map.md", "fde-playbook-audit",
-         "FDE playbook audit",
-         "The same exercise against a customer-facing playbook. All 20 sections "
-         "mapped; the gaps cluster in commercial apparatus."),
+        ("guide-audits/openai-eval-guide-tutorial.md", "openai-eval-guide-tutorial",
+         "The tutorial",
+         "The OpenAI guide in plain language &mdash; 3&ndash;4 lines a concept, "
+         "the notebook that teaches it, and 21 TODOs."),
     ],
     "Interview prep": [
         ("interview-prep/QUESTION_BANK.md", "question-bank",
@@ -128,22 +124,9 @@ COPY = {
         ("interview-prep/evaluation-round-drill.html", "The self-quiz drill",
          "The same questions and cases with every answer hidden until you reveal "
          "it. Rate your recall, filter to what is still weak."),
-        ("interview-prep/fde-playbook-end-to-end-evaluation.html",
-         "End-to-end evaluation",
-         "The FDE playbook's sections 1&ndash;14 on one page: the pipeline, then "
-         "what happens at each stage."),
-        ("interview-prep/stratified-reporting-explained.html",
-         "Stratified reporting",
-         "Why one overall score is the most dangerous number on a dashboard, "
-         "built around a single table."),
         ("study-guide/evaluation-study-plan.html", "The study plan",
          "Seven stages ordered by what the round tests, with time estimates and "
          "a 2&ndash;3 day fast path."),
-    ],
-    "Audits": [
-        ("guide-audits/openai-eval-guide-tutorial.html", "The tutorial",
-         "The OpenAI guide in plain language &mdash; 3&ndash;4 lines a concept, "
-         "the notebook that teaches it, and 21 TODOs."),
     ],
     "Interactive labs": [
         ("interactive-labs/00-evaluation-index.html", "The surface map",
@@ -168,54 +151,6 @@ COPY = {
 
 # Deliberate omissions. Printed on every build so nothing disappears quietly.
 SKIP = [
-    ("roadmap-explainers/org/00-orientation.md",
-     "The original edition of Level 0. The restyled edition at "
-     "roadmap-explainers/00-orientation.md carries the same content and ships instead; "
-     "the original is kept for comparison, not published twice."),
-    ("roadmap-explainers/org/01-rag-retrieval-and-generation.md",
-     "The original edition of Level 1. The restyled edition at "
-     "roadmap-explainers/01-rag-retrieval-and-generation.md carries the same content and ships instead; "
-     "the original is kept for comparison, not published twice."),
-    ("roadmap-explainers/org/02-agents-tools-conversations-trajectories-outcomes.md",
-     "The original edition of Level 2. The restyled edition at "
-     "roadmap-explainers/02-agents-tools-conversations-trajectories-outcomes.md carries the same content and ships instead; "
-     "the original is kept for comparison, not published twice."),
-    ("roadmap-explainers/org/03-ground-truth.md",
-     "The original edition of Level 3. The restyled edition at "
-     "roadmap-explainers/03-ground-truth.md carries the same content and ships instead; "
-     "the original is kept for comparison, not published twice."),
-    ("roadmap-explainers/org/04-judges-and-the-humans-who-validate-them.md",
-     "The original edition of Level 4. The restyled edition at "
-     "roadmap-explainers/04-judges-and-the-humans-who-validate-them.md carries the same content and ships instead; "
-     "the original is kept for comparison, not published twice."),
-    ("roadmap-explainers/org/05-statistics-and-stratified-reporting.md",
-     "The original edition of Level 5. The restyled edition at "
-     "roadmap-explainers/05-statistics-and-stratified-reporting.md carries the same content and ships instead; "
-     "the original is kept for comparison, not published twice."),
-    ("roadmap-explainers/org/06-the-release-gate-and-ci.md",
-     "The original edition of Level 6. The restyled edition at "
-     "roadmap-explainers/06-the-release-gate-and-ci.md carries the same content and ships instead; "
-     "the original is kept for comparison, not published twice."),
-    ("roadmap-explainers/org/07-online-evaluation-and-the-loop.md",
-     "The original edition of Level 7. The restyled edition at "
-     "roadmap-explainers/07-online-evaluation-and-the-loop.md carries the same content and ships instead; "
-     "the original is kept for comparison, not published twice."),
-    ("roadmap-explainers/org/08-safety-adversarial-and-multi-agent-attribution.md",
-     "The original edition of Level 8. The restyled edition at "
-     "roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution.md carries the same content and ships instead; "
-     "the original is kept for comparison, not published twice."),
-    ("roadmap-explainers/org/09-the-harness-as-a-product.md",
-     "The original edition of Level 9. The restyled edition at "
-     "roadmap-explainers/09-the-harness-as-a-product.md carries the same content and ships instead; "
-     "the original is kept for comparison, not published twice."),
-    ("roadmap-explainers/org/10-the-enterprise-harness-end-to-end.md",
-     "The original edition of Level 10. The restyled edition at "
-     "roadmap-explainers/10-the-enterprise-harness-end-to-end.md carries the same content and ships instead; "
-     "the original is kept for comparison, not published twice."),
-    ("guide-audits/openai-eval-guide-tutorial.md",
-     "87.7% identical to its own .html, which ships instead. The repo's rule is "
-     "that the Markdown is canonical and the page is not a second source -- so "
-     "the site carries one of them, not both."),
     ("README.md", "Folder index. Its job is done by this site's navigation."),
     ("concepts/README.md", "Folder index -- see navigation."),
     ("guide-audits/README.md", "Folder index -- see navigation."),

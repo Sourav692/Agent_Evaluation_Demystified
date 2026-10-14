@@ -15,10 +15,9 @@ Never run bare `pytest` at the root; it would sweep all of them up and spend cre
 
 | File | What it actually is |
 |---|---|
-| `labs/multiturn-and-tool-eval/test_*.py` | DeepEval metric drills (`deepeval test run <file>`) |
-| `labs/llm-as-judge/DeepEval_GEval/test_firstdeepeval.py` | G-Eval smoke test |
 | `labs/agent-evaluation/crewai-travel-planner/evaluate_endtoend_test.py` | Needs a running FastAPI server first |
 | `courses/03-agentic-eval-harness/tests/test_release_gate.py` | LLM-driven release-gate drill (`deepeval test run <file>`). Skips itself unless `data/candidate_runs.json` exists |
+| `archive/labs-*/**/test_*.py` | Retired DeepEval drills kept for history. Never run them |
 
 **There is now one CI workflow**, `.github/workflows/release-gate.yml`, scoped by a `paths:`
 filter to `courses/03-agentic-eval-harness/**`. It is inert for the rest of the repo. Its
@@ -59,8 +58,6 @@ commits `2faa463` and `ac8c306` exist solely to repair breakage from skipping th
 
 - `_personal/` is the owner's private workspace (gitignored, no history, no backup). Never read it
   into published files and never link it from tracked files.
-- `labs/agent-evaluation/arize-phoenix-labs/` is third-party DeepLearning.AI × Arize course
-  material, kept whole and substantially unmodified. Do not reformat or restyle it.
 - `shared/` is **intentional dead code** — nothing imports it, because notebooks initialise
   models inline to stay copy-pasteable. `shared/utils.py` unconditionally imports
   `databricks_langchain` and `langchain_groq`, so it fails to import without those extras.
@@ -82,11 +79,10 @@ missing package. `pyproject.toml` still describes the *intended* root env for `c
 `VIRTUAL_ENV` points at the root `.venv`, so a bare `uv pip install` targets it **even when run
 from inside another folder that has its own `.venv`**. Always pass `--python <venv>/bin/python`.
 
-Two folders have their own environment and their own kernel — don't mix either with the root:
+One folder has its own environment and its own kernel — don't mix it with the root:
 
 | Folder | Environment | Kernel |
 |---|---|---|
-| `labs/multiturn-and-tool-eval/` | separate uv project + lockfile, older `deepeval==3.8.8` — `uv sync` inside it | its own |
 | `courses/03-agentic-eval-harness/` | own `.venv` + `requirements.txt` — `uv pip install --python .venv/bin/python -r requirements.txt` | `agentic-eval-harness` |
 
 Course 03's pins are **exact** (`deepeval==4.2.3`, `ragas==0.4.3`, `chromadb`, and

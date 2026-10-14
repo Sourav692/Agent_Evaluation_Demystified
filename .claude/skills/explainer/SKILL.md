@@ -6,7 +6,7 @@ description: "Build or audit a level's Explainer.md in this Agent-Evaluation-Dem
 # Explainer
 
 Generates (or audits) `Explainer.md` for one level of the evaluation roadmap in the
-`Agent_Evaluation_Demystified` repo — the file that lives in `21st_sep/<NN-level-slug>/`
+`Agent_Evaluation_Demystified` repo — the file that lives in `archive/roadmap-explainers-first-edition/<NN-level-slug>/`
 alongside that level's scaffold `README.md`. One Explainer.md per level. Works for any level
 (0 through 9, or the Databricks-track phases) — the level number/name is the only input that
 changes.
@@ -18,7 +18,7 @@ the full checklist even when the task feels done after the first draft.
 ## When to use this
 
 - The user asks to "create the conceptual/explainer for Level N", "build Explainer.md for
-  [level name]", or points at a `21st_sep/NN-.../` folder and asks for its write-up.
+  [level name]", or points at a `archive/roadmap-explainers-first-edition/NN-.../` folder and asks for its write-up.
 - The user asks to review/audit an existing `Explainer.md` for missed content from its
   sources.
 - The user asks to extend or refresh an Explainer.md after the roadmap or a source doc changed.
@@ -55,7 +55,7 @@ Explainer.md included:
    gives the **exact source documents** for that level (notebook(s), field-guide section(s),
    interactive lab page(s), question-bank section(s)) plus each one's **cost tag**
    (none/key/cached/workspace).
-3. Confirm the destination: `21st_sep/<NN-level-slug>/Explainer.md`, next to that folder's
+3. Confirm the destination: `archive/roadmap-explainers-first-edition/<NN-level-slug>/Explainer.md`, next to that folder's
    existing scaffold `README.md`. Read the README first — it already contains the roadmap's
    topic list, goal, and "you are done when you can" checklist for that level. **Never
    duplicate the README's checklist inside Explainer.md** — leave it where it is.

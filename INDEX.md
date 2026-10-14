@@ -24,7 +24,7 @@ question bank `question-bank.html`, the roadmap `roadmap.html`, the drill
 | **Question bank** | [`docs/interview-prep/QUESTION_BANK.md`](docs/interview-prep/QUESTION_BANK.md) | 35 questions + 30 metric questions + 19 cases + appendices |
 | **Databricks ref** | [`docs/concepts/databricks-mlflow-evals.md`](docs/concepts/databricks-mlflow-evals.md) | Course 02 theory. Framework-specific: MLflow scorers, gotchas, the numbers |
 | **Drill page** | [`docs/interview-prep/evaluation-round-drill.html`](docs/interview-prep/evaluation-round-drill.html) | The self-quiz. Open in a browser |
-| **Online/offline** | [`docs/concepts/online_vs_offline_evaluation.md`](docs/concepts/online_vs_offline_evaluation.md) | The two regimes, what flows between them, and the sampling-resolution argument |
+| **Online/offline** | [`docs/concepts/databricks-mlflow-evals.md`, Part 5](docs/concepts/databricks-mlflow-evals.md#part-5--online-vs-offline) | The two regimes and what flows between them; the sampling-resolution argument is in explainer 05 §6 |
 
 `§` is a section number inside that file — **§1.1** is the field guide's section 1.1, **§6.1**
 its section 6.1. Jump to the section rather than scrolling. `lab 0N-…` means
@@ -131,19 +131,6 @@ The theory companion to course 02. Framework-specific, where the field guide is 
 | **Part 3** | 32 gotchas as symptom → cause → fix, led by the silent failures |
 | **Part 4** | The numbers, thresholds, decision rules, scorer prerequisites, agreement measures, phase map |
 
-### `docs/concepts/online_vs_offline_evaluation.md` — Online vs. offline (2,600 words)
-
-Where the other two companions describe checks, this one describes the two *regimes* those
-checks run in, strictly within course 02's 10-phase MLflow track.
-
-| | Covers |
-|---|---|
-| **§1–§2** | The two regimes at a glance (data, coverage, reference answers, what each can act on) · where each phase of the track sits |
-| **§3–§4** | Offline: datasets, scorers, the quality gate · Online: traces in Unity Catalog, sampled scorers, per-span SQL for attributing a regression to a component |
-| **§5** | **The sampling-resolution problem** — why a 5% sample cannot see a two-point regression, what sample rate each regression size needs, and when to stop sampling and move the comparison offline. **§5.1** is the same argument in plain English |
-| **§6–§7** | Side-by-side comparison and what flows between the regimes · where human alignment fits |
-| **§8–§10** | Phase-by-phase contributions · key takeaways · the flywheel |
-
 ### `docs/interview-prep/QUESTION_BANK.md` — Question bank (25,300 words)
 
 Everything for the evaluation thread of a system-design round, in one file.
@@ -187,23 +174,8 @@ rather than read something. The file is its own progress tracker.
 | **§5–§6** | Edge cases by kind, the polite tool failure · the improvement loop and why judge alignment comes before prompt optimisation |
 | **§7** | An eight-step path through the repo, and the four-step version for one evening |
 
-Also rendered as [`openai-eval-guide-tutorial.html`](docs/guide-audits/openai-eval-guide-tutorial.html)
-— same content, tick-box exercises instead of `- [ ]`, and the three Mermaid blocks drawn as inline SVG.
-The markdown is canonical: it is the copy that gets committed as a tracker.
-
-### `docs/guide-audits/genai-eval-playbook-coverage-map.md` — GenAI FDE playbook map (2,100 words)
-
-The same exercise as the audit above, against *LLM Evaluation for GenAI Forward Deployed
-Engineers* — a customer-facing playbook rather than a measurement guide, so the gaps fall
-somewhere else entirely.
-
-| | Covers |
-|---|---|
-| **§1–§2** | Scope per course and doc folder · why this playbook's gaps differ: it asks how you prove quality to a paying customer and earn sign-off |
-| **§3** | **All 20 playbook sections mapped**, each ✅/🟡/❌ with the notebook that covers it |
-| **§4** | Fourteen gaps (P-1…P-14) in three clusters, **one closed 2026-09-20** — **commercial apparatus** (acceptance criteria and sign-off, stakeholder dashboards, executive reporting, the staged canary ladder, real-traffic A/B), **retrieval operations** (freshness, duplicates, ACL pass rate, rewrite impact, reranker, retriever versioning), and measurement details |
-| **§5** | Seven things this repo has that the playbook does not — detection limits, McNemar and bootstrap, judge-bias probes, a gate wired to CI, final-state verification, loop detection, `p**n` arithmetic |
-| **§6–§7** | A suggested order of work · how this audit relates to the OpenAI one — they overlap in exactly one item |
+Published on the site as `openai-eval-guide-tutorial.html`, rendered from this Markdown (the
+earlier hand-built HTML version is in `archive/`).
 
 ### `docs/study-guide/evaluation-roadmap.md` — Evaluation roadmap (5,357 words)
 
@@ -248,15 +220,9 @@ Open in a browser. No build step, no server, no API key.
 
 | File | What it does |
 |---|---|
-| `docs/guide-audits/openai-eval-guide-tutorial.html` | The tutorial above as a page — the same seven chapters, its three flow diagrams drawn as SVG, and the 21 TODOs as tick-box exercises with a progress gauge. The `.md` is still the tracker you commit; this one saves to the browser |
 | `docs/study-guide/evaluation-study-plan.html` | Seven stages ordered by what the round tests, with time estimates, a 2–3 day fast path, a skip list and a readiness check. Tick items off as you go |
-| `docs/interview-prep/fde-playbook-end-to-end-evaluation.html` | **The FDE playbook's sections 1–14 on one page.** The evaluation pipeline as a spine, then each stage: golden datasets with sizes by deployment stage, human labels on a 1–5 scale, nine scorers with their blind spots, the correctness/faithfulness/groundedness/helpfulness split, retrieval failures including the four that only appear after deployment, eight answer-quality dimensions, seven safety attacks by severity, regression testing, A/B, the canary ladder with rollback triggers, acceptance criteria with sign-off owners, four dashboard views |
-| `docs/interview-prep/stratified-reporting-explained.html` | **Stratified reporting in plain English.** One table where the overall score rises 87.5% → 90% while Hindi collapses 88% → 50%, why the average buries it, how to choose your groups, the small-group trap, and what to say in an interview |
 | `docs/interview-prep/evaluation-round-drill.html` | The same 35 questions and 19 cases with every answer hidden. Rate recall per item, filter to what's weak. Progress saves locally |
 | `docs/interactive-labs/00-evaluation-index.html` | The surface map: pipeline, what breaks where, reference-based vs referenceless comparison |
-| `docs/concepts/eval-harness-two-usecases.html` | **The harness in practice, on two systems.** An enterprise RAG agent and a tool-calling multi-agent system evaluated side by side, and the mistakes that get caught in interviews |
-| `docs/concepts/launch-gate.html` | **The launch gate on one page** |
-| `docs/concepts/rag-vs-support-eval-walkthrough.html` | **Offline eval, online eval, release gate — walked through on two real systems** |
 
 ### The five interactive labs
 
@@ -294,7 +260,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 | 9 &middot; Expert | `09-the-harness-as-a-product` | Keep the evaluation system itself trustworthy and affordable &mdash; the layer above the metrics |
 | 10 &middot; Cram | `10-the-enterprise-harness-end-to-end` | Build the whole enterprise harness as one six-stage loop &mdash; contract, ground truth, offline, gate and CI, production and online, human feedback &mdash; and name the trap at every stage |
 
-### `docs/roadmap-explainers/org/00-orientation.md` — original edition of Level 0, superseded
+### `archive/roadmap-explainers-org/00-orientation.md` — original edition of Level 0, superseded
 
 | | Covers |
 |---|---|
@@ -305,9 +271,9 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 | | Covers |
 |---|---|
 | **Sections** | 1. Separate the Five Things You Can Evaluate · 2. Ask Whether the Check Needs an Answer Key · 3. Treat the Judge as an Instrument, Not an Oracle · 4. Reach for Code Before Reaching for a Judge · 5. Climb the Scorer Ladder Only When Forced · 6. Decide Where a Check Can Run Before Building It · 7. Rehearse the Decomposition Round · Key Takeaways · Check Yourself · References |
-| **Note** | Decompose the system before measuring it, because one quality score cannot say which stage broke. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `docs/roadmap-explainers/org/`. |
+| **Note** | Decompose the system before measuring it, because one quality score cannot say which stage broke. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `archive/roadmap-explainers-org/`. |
 
-### `docs/roadmap-explainers/org/01-rag-retrieval-and-generation.md` — original edition of Level 1, superseded
+### `archive/roadmap-explainers-org/01-rag-retrieval-and-generation.md` — original edition of Level 1, superseded
 
 | | Covers |
 |---|---|
@@ -320,7 +286,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 | **Sections** | 1. Evaluate the Two Halves Separately · 2. Count What the Retriever Found, Before Any Judge · 3. Ask a Judge Three Questions, Not One · 4. Score the Answer With No Reference, and Know What That Cannot See · 5. Check Correctness Against a Reference · 6. Write the Rubric, or the Judge Writes It for You · 7. Gate the Pipeline, Don't Only Score It Afterwards · 8. Build the System and Synthesize Its Golden Set · 9. Read the Table by Pattern, Not by Headline · 10. Rehearse the Decomposition Questions · Key Takeaways · Check Yourself · References |
 | **Note** | The same Level 1 content as the page above, restyled: trade-off tagline, reading time, imperative headings, argument-carrying prose in place of bullet runs, plus takeaways and a 10-question self-check. No framework tours: field and metric vocabulary is kept and glossed, but library class inventories and API mechanics are out, and the practice questions are reproduced in full rather than pointing at the question bank. Kept alongside the original for comparison. |
 
-### `docs/roadmap-explainers/org/02-agents-tools-conversations-trajectories-outcomes.md` — original edition of Level 2, superseded
+### `archive/roadmap-explainers-org/02-agents-tools-conversations-trajectories-outcomes.md` — original edition of Level 2, superseded
 
 | | Covers |
 |---|---|
@@ -331,9 +297,9 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 | | Covers |
 |---|---|
 | **Sections** | 1. Score the Conversation, Not Just the Turn · 2. Check the Mechanics: Right Tool, Right Arguments · 3. Verify the Outcome, Not the Sentence · 4. Judge the Path, Not Only Where It Ended · 5. Rehearse the Design-Round Follow-Ups · Key Takeaways · Check Yourself · References |
-| **Note** | Score mechanics, process and outcome separately, because passing any one of the three says nothing about the other two. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `docs/roadmap-explainers/org/`. |
+| **Note** | Score mechanics, process and outcome separately, because passing any one of the three says nothing about the other two. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `archive/roadmap-explainers-org/`. |
 
-### `docs/roadmap-explainers/org/03-ground-truth.md` — original edition of Level 3, superseded
+### `archive/roadmap-explainers-org/03-ground-truth.md` — original edition of Level 3, superseded
 
 | | Covers |
 |---|---|
@@ -344,9 +310,9 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 | | Covers |
 |---|---|
 | **Sections** | 1. Pin Six Expectations, Not One · 2. Stratify Before Writing, and Keep a Refusal Quota · 3. Ship a Datasheet With the Dataset · 4. Mine Traffic for Inputs, Never for Labels · 5. Record Who Decided, and Merge by Input · 6. Run a Curated Set and a Mined Set With Opposite Policies · 7. Name the Two Ways a Dataset Lies · 8. Rehearse the Ground-Truth Questions · Key Takeaways · Check Yourself · References |
-| **Note** | Collect inputs from real traffic but never labels from the system under test, because a dataset built from its own answers can only agree with itself. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `docs/roadmap-explainers/org/`. |
+| **Note** | Collect inputs from real traffic but never labels from the system under test, because a dataset built from its own answers can only agree with itself. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `archive/roadmap-explainers-org/`. |
 
-### `docs/roadmap-explainers/org/04-judges-and-the-humans-who-validate-them.md` — original edition of Level 4, superseded
+### `archive/roadmap-explainers-org/04-judges-and-the-humans-who-validate-them.md` — original edition of Level 4, superseded
 
 | | Covers |
 |---|---|
@@ -357,9 +323,9 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 | | Covers |
 |---|---|
 | **Sections** | 1. Build the Judge in One of Three Shapes · 2. Spend Judgement Only Where Judgement Is Needed · 3. Test the Three Ways a Judge Lies · 4. Collect the One Kind of Human Feedback That Calibrates · 5. Measure Agreement Above Chance, Not Raw Agreement · 6. Align the Judge on Expert Disagreement · 7. Blind the Preference Test, and Use Two Raters · 8. Check the Approver, Not Just the Approval · 9. Rehearse the Judge Questions · Key Takeaways · Check Yourself · References |
-| **Note** | A judge is the only way to score open-ended text at scale, and it cannot be trusted until it is measured against the people who do not scale. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `docs/roadmap-explainers/org/`. |
+| **Note** | A judge is the only way to score open-ended text at scale, and it cannot be trusted until it is measured against the people who do not scale. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `archive/roadmap-explainers-org/`. |
 
-### `docs/roadmap-explainers/org/05-statistics-and-stratified-reporting.md` — original edition of Level 5, superseded
+### `archive/roadmap-explainers-org/05-statistics-and-stratified-reporting.md` — original edition of Level 5, superseded
 
 | | Covers |
 |---|---|
@@ -370,9 +336,9 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 | | Covers |
 |---|---|
 | **Sections** | 1. Score Each Slice, Not the Whole · 2. Ask Whether the Suite Could See the Change · 3. Report a Small Stratum Without Gating on It · 4. Compare the Same Cases, Not Two Samples · 5. Put an Interval Around Every Number · 6. Buy the Sample Rate That Can See the Regression · 7. Watch for Every Stratum Improving While the Total Falls · 8. Combine the Four Tools · 9. Rehearse the Reporting Questions · Key Takeaways · Check Yourself · References |
-| **Note** | Gate on the worst slice rather than the average, because a group is only as loud in the mean as it is big. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `docs/roadmap-explainers/org/`. |
+| **Note** | Gate on the worst slice rather than the average, because a group is only as loud in the mean as it is big. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `archive/roadmap-explainers-org/`. |
 
-### `docs/roadmap-explainers/org/06-the-release-gate-and-ci.md` — original edition of Level 6, superseded
+### `archive/roadmap-explainers-org/06-the-release-gate-and-ci.md` — original edition of Level 6, superseded
 
 | | Covers |
 |---|---|
@@ -383,9 +349,9 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 | | Covers |
 |---|---|
 | **Sections** | 1. Separate the Gate From the Metric · 2. Run Four Checks, and Block on Any One · 3. Check Both the Threshold and the Regression · 4. Set Tolerance by Metric Type · 5. Decide Free on Every Push, Score on Demand · 6. Register a Prompt Without Deploying It · 7. Promote Only What Clears Both Conditions · 8. Put Machine-Written Prompts Through the Same Gate · 9. Know What a Gate Is Not · 10. Rehearse the Gate Questions · Key Takeaways · Check Yourself · References |
-| **Note** | Gate against what is live, not against a fixed bar, because a system can lose seven points without any single release ever failing. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `docs/roadmap-explainers/org/`. |
+| **Note** | Gate against what is live, not against a fixed bar, because a system can lose seven points without any single release ever failing. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `archive/roadmap-explainers-org/`. |
 
-### `docs/roadmap-explainers/org/07-online-evaluation-and-the-loop.md` — original edition of Level 7, superseded
+### `archive/roadmap-explainers-org/07-online-evaluation-and-the-loop.md` — original edition of Level 7, superseded
 
 | | Covers |
 |---|---|
@@ -396,9 +362,9 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 | | Covers |
 |---|---|
 | **Sections** | 1. Accept That Production Has No Ground Truth · 2. Score Consistency and Shape Instead of Correctness · 3. Sample the Judges, Never the Free Checks · 4. Alert on Shape, Not on Quality · 5. Drill the Alerts to Learn What They Miss · 6. Ask Whether the New Build Beats the Old One · 7. Turn Every Finding Into a Permanent Test · 8. Trace Live, and Judge the Tool's Own Output · 9. Rehearse the Online Questions · Key Takeaways · Check Yourself · References |
-| **Note** | Every check that needs an answer key dies at deployment, and it dies silently — reporting "skipped" rather than failing. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `docs/roadmap-explainers/org/`. |
+| **Note** | Every check that needs an answer key dies at deployment, and it dies silently — reporting "skipped" rather than failing. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `archive/roadmap-explainers-org/`. |
 
-### `docs/roadmap-explainers/org/08-safety-adversarial-and-multi-agent-attribution.md` — original edition of Level 8, superseded
+### `archive/roadmap-explainers-org/08-safety-adversarial-and-multi-agent-attribution.md` — original edition of Level 8, superseded
 
 | | Covers |
 |---|---|
@@ -409,9 +375,9 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 | | Covers |
 |---|---|
 | **Sections** | 1. Report Safety as a List, Never a Rate · 2. Read the Routing Matrix, Not the Accuracy · 3. Detect Loops and Attribute Blame · 4. Design Adversarial Tests by Attack Surface · 5. Gate Consent Between Turns · 6. Rehearse the Safety Questions · Key Takeaways · Check Yourself · References |
-| **Note** | Report safety as a list of case IDs rather than a percentage, because a percentage cannot be opened and read. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `docs/roadmap-explainers/org/`. |
+| **Note** | Report safety as a list of case IDs rather than a percentage, because a percentage cannot be opened and read. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `archive/roadmap-explainers-org/`. |
 
-### `docs/roadmap-explainers/org/09-the-harness-as-a-product.md` — original edition of Level 9, superseded
+### `archive/roadmap-explainers-org/09-the-harness-as-a-product.md` — original edition of Level 9, superseded
 
 | | Covers |
 |---|---|
@@ -422,9 +388,9 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 | | Covers |
 |---|---|
 | **Sections** | 1. Keep the Measuring Instrument Honest · 2. Choose Conventions That Keep Every Number Traceable · 3. Decide "Good" Before the Code Exists · 4. Name What the Harness Still Doesn't Do · 5. Rehearse the Cost, Ownership and Decay Questions · Key Takeaways · Check Yourself · References |
-| **Note** | A harness that only computes numbers is not yet a product, because nobody has agreed what the numbers must reach or who signs off on them. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `docs/roadmap-explainers/org/`. |
+| **Note** | A harness that only computes numbers is not yet a product, because nobody has agreed what the numbers must reach or who signs off on them. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `archive/roadmap-explainers-org/`. |
 
-### `docs/roadmap-explainers/org/10-the-enterprise-harness-end-to-end.md` — original edition of Level 10, superseded
+### `archive/roadmap-explainers-org/10-the-enterprise-harness-end-to-end.md` — original edition of Level 10, superseded
 
 | | Covers |
 |---|---|
@@ -435,7 +401,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 | | Covers |
 |---|---|
 | **Sections** | 1. Write the Contract Before Any Code Exists (Stage ①) · 2. Build the Golden Set, and Know How It Lies (Stage ②) · 3. Score Every Layer Separately (Stage ③) · 4. Choose the Scorer, and Read the Numbers Honestly (Stage ③b) · 5. Wire the Gate Into CI (Stage ④) · 6. Measure Production Without an Answer Key (Stage ⑤) · 7. Close the Loop With Human Labels (Stage ⑥) · 8. Check That the Harness Itself Still Works · 9. Scan the Traps · 10. Build in This Order · 11. Keep the One-Page Card · Key Takeaways · Check Yourself · References |
-| **Note** | Every stage produces the artifact the next one consumes, so a skipped stage does not fail — it keeps reporting green while measuring nothing. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `docs/roadmap-explainers/org/`. |
+| **Note** | Every stage produces the artifact the next one consumes, so a skipped stage does not fail — it keeps reporting green while measuring nothing. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `archive/roadmap-explainers-org/`. |
 
 ### Folder indexes
 
@@ -537,13 +503,10 @@ when you want the unabridged version. Each folder has its own `README.md`.
 | Folder | What's in it |
 |---|---|
 | `rag-evaluation/` | DeepEval metric drills, RAGAS scripts, a FastAPI RAG bot, Streamlit demos |
-| `rag-evaluation-techniques/` | Five standalone RAG-evaluation notebooks (LangChain evaluators, RAGAS, DeepEval, GroUSE, Open-RAG-Eval) from Nir Diamant's *RAG_Techniques*. Third-party, non-commercial licence kept alongside |
-| `agent-evaluation/arize-phoenix-labs/` | DeepLearning.AI × Arize — 5 progressive tracing/eval labs. Third-party, kept verbatim |
+| `rag-evaluation-techniques/` | Three standalone RAG-evaluation notebooks (RAGAS end to end, GroUSE judge meta-evaluation, Open-RAG-Eval nugget metrics) from Nir Diamant's *RAG_Techniques*. Third-party, non-commercial licence kept alongside |
 | `agent-evaluation/crewai-travel-planner/` | A real 3-agent CrewAI app used as an evaluation target |
 | `agent-evaluation/multi-agent-eval-demo/` | A deliberately tiny LangGraph supervisor + two specialists, scored by checkable metrics and an LLM judge, served by FastAPI with a Streamlit scorecard |
 | `langgraph-agent-rag-eval/` | 9-metric trace-level suite, interview-prep framing |
-| `multiturn-and-tool-eval/` | Multi-turn + tool metrics, DeepEval vs MLflow side by side. **Its own uv project** — `uv sync` inside it |
-| `llm-as-judge/` | G-Eval smoke test |
 
 ---
 

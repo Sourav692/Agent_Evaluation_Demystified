@@ -2,7 +2,7 @@
 
 **Status:** ✅ Built — all modules (0 through 5) complete. See `archive/TUTORIAL_PLAN.md` for the full build plan, source mapping, and build-time notes.
 
-A single, ordered learning path through everything this repo has for evaluating RAG systems, tool-calling agents, and multi-turn conversational agents — pulled together from the notebooks and scripts previously scattered across `labs/rag-evaluation/`, `labs/agent-evaluation/`, `labs/multiturn-and-tool-eval/`, and `labs/langgraph-agent-rag-eval/`. Nothing was deleted from those folders; this tutorial is additive and, where a module references material with real relative-path or live-service dependencies (Module 4's Arize labs, Module 5's CrewAI app), links to it in place rather than copying it.
+A single, ordered learning path through everything this repo has for evaluating RAG systems, tool-calling agents, and multi-turn conversational agents — pulled together from the notebooks and scripts previously scattered across `labs/rag-evaluation/`, `labs/agent-evaluation/`, `archive/labs-multiturn-and-tool-eval/`, and `labs/langgraph-agent-rag-eval/`. Nothing was deleted from those folders; this tutorial is additive and, where a module references material with real relative-path or live-service dependencies (Module 4's Arize labs, Module 5's CrewAI app), links to it in place rather than copying it.
 
 **Target environment:** `deepeval==4.1.8` (repo root `.venv`). If you run an original source notebook directly instead of this tutorial's version, check that notebook's own folder for a different pin first.
 
@@ -21,7 +21,7 @@ A single, ordered learning path through everything this repo has for evaluating 
 |---|---|---|---|
 | 0 | [`00_Evaluation_Landscape.ipynb`](00_Evaluation_Landscape.ipynb) | Taxonomy of RAG/agent evaluation, reference-based vs. referenceless, LLM-as-judge and its failure modes, the code-vs-judge scorer decision in plain language, the DeepEval/RAGAS/MLflow/Arize tooling landscape, and a question → module/metric lookup table | ✅ Built |
 | 1.1 | [`01_Retrieval_Metrics_Deterministic.ipynb`](01_Retrieval_Metrics_Deterministic.ipynb) | Precision@K, Recall@K, MRR, nDCG — no API calls | ✅ Built (free to run) |
-| 1.2 | [`02_Retrieval_Metrics_LLM_Judged.ipynb`](02_Retrieval_Metrics_LLM_Judged.ipynb) | Contextual Precision/Recall/Relevancy — condensed from the 3 `labs/rag-evaluation/deepeval-metrics/` drill notebooks, hand-constructed test cases (no live-pipeline dependency) | ✅ Built (needs `OPENAI_API_KEY`) |
+| 1.2 | [`02_Retrieval_Metrics_LLM_Judged.ipynb`](02_Retrieval_Metrics_LLM_Judged.ipynb) | Contextual Precision/Recall/Relevancy — condensed from the 3 `archive/labs-rag-evaluation/deepeval-metrics/` drill notebooks, hand-constructed test cases (no live-pipeline dependency) | ✅ Built (needs `OPENAI_API_KEY`) |
 | 1.3 | [`03_Generator_Metrics_Referenceless.ipynb`](03_Generator_Metrics_Referenceless.ipynb) | Faithfulness, Answer Relevancy, Hallucination (DeepEval; RAGAS answer relevancy only through DeepEval's `RAGASAnswerRelevancyMetric` wrapper) | ✅ Built (needs `OPENAI_API_KEY`) |
 | 1.4 | [`04_Generator_Metrics_Reference_Based.ipynb`](04_Generator_Metrics_Reference_Based.ipynb) | Answer Correctness (custom `GEval`, both `criteria`- and `evaluation_steps`-based), Answer Semantic Similarity | ✅ Built (needs `OPENAI_API_KEY`) |
 | 1.5 | [`05_RAG_Eval_Inside_the_Pipeline.ipynb`](05_RAG_Eval_Inside_the_Pipeline.ipynb) | Evaluation wired in as LangGraph nodes — mocked (free) then real (needs `OPENAI_API_KEY`) | ✅ Built |
