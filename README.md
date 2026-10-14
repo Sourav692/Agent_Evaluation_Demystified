@@ -147,6 +147,12 @@ ship.
 
 ---
 
+## Licence
+
+Code is [MIT](LICENSE). Written material — `docs/` and the notebooks' prose — is
+[CC BY 4.0](LICENSE-docs). Third-party folders keep their own terms: see
+[`THIRD_PARTY.md`](THIRD_PARTY.md).
+
 ## Provenance
 
 This repository was split out of the larger `AI-ENGINEERING-DEMYSTIFIED` monorepo. A few

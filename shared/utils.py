@@ -160,7 +160,7 @@ def get_databricks_llm(model_name: str = "databricks-gpt-5-2", temperature: floa
 
     client = OpenAI(
     api_key=DATABRICKS_TOKEN,
-    base_url="https://<your-workspace>.cloud.databricks.com/ai-gateway/mlflow/v1"
+    base_url=os.environ["DATABRICKS_HOST"].rstrip("/") + "/ai-gateway/mlflow/v1"
     )
     return client.responses.create(
         model="system.ai.gemma-3-12b",
