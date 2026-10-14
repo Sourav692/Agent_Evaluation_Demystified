@@ -22,7 +22,7 @@ Six entry points, depending on what you want:
 |---|---|---|
 | **Follow one path from basic to expert** | [`docs/study-guide/evaluation-roadmap.md`](docs/study-guide/evaluation-roadmap.md) | Ten levels across all three courses, each with an exit check — then what an OpenAI round pushes on, and the Databricks track as its own ladder |
 | **Learn it in order, start to finish** | [`courses/01-rag-agent-tool-evaluation/`](courses/01-rag-agent-tool-evaluation/) | 15 notebooks, 6 modules: deterministic retrieval metrics → LLM-judged → generator → tool use → trajectory → CrewAI capstone |
-| **Learn the production/MLOps side** | [`courses/02-databricks-mlflow-evals/`](courses/02-databricks-mlflow-evals/) | 11 notebooks: one agent built in Phase 1, then offline eval, custom judges, datasets from traces, regression gating, online monitoring, judge alignment |
+| **Learn the production/MLOps side** *(optional)* | [`courses/02-databricks-mlflow-evals/`](courses/02-databricks-mlflow-evals/) | **Optional track.** 11 notebooks: one agent built in Phase 1, then offline eval, custom judges, datasets from traces, regression gating, online monitoring, judge alignment |
 | **Build the thing that says "don't ship"** | [`courses/03-agentic-eval-harness/`](courses/03-agentic-eval-harness/) | 12 notebooks: one multi-agent system, a stratified golden set, then RAG → tool → agent → safety → judges → human labels → statistics → **a release gate wired to CI** → online eval |
 | **Read, not run** | [`docs/`](docs/) | Three theory companions, six interactive HTML labs, one question bank — nothing to execute |
 | **Prep for an eval-heavy interview** | [`docs/interview-prep/`](docs/interview-prep/) | A 54-item self-quiz drill, plus a staged study plan in [`docs/study-guide/`](docs/study-guide/) — standalone HTML, open the file, no setup |
@@ -44,7 +44,7 @@ document, what each section covers, and a find-it-by-topic index down to the sec
 ```
 courses/     Finished, sequential. Start here.
   01-rag-agent-tool-evaluation/   RAG, tool-use and trajectory evaluation (15 notebooks)
-  02-databricks-mlflow-evals/     MLflow 3 GenAI, offline → online (11 notebooks + 10 modules)
+  02-databricks-mlflow-evals/     OPTIONAL. MLflow 3 GenAI, offline → online (11 notebooks + 10 modules)
   03-agentic-eval-harness/        The harness and the release gate: RAGAS + DeepEval over a
                                   LangGraph multi-agent system, stratified reporting, CI
                                   (12 notebooks, complete)
