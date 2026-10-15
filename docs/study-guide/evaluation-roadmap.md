@@ -7,7 +7,8 @@ goal, notebooks/resources, and a self-check, in that order.
 **Which path is this?** This is the learning path: everything, in order, about 54 hours with
 the notebooks. New here? Start at [Level 0](../roadmap-explainers/00-orientation.md). Preparing
 for an interview instead? [The study plan](evaluation-study-plan.html) is the interview path:
-about 20 hours, or about 10 on its fast path. Two dedicated sections follow the levels: the **Databricks / MLflow 3** track as its
+about 20 hours, or about 10 on its fast path. This page is the map: the order, each level's
+exit check and its notebooks. Each level's explainer is the lesson. Two dedicated sections follow the levels: the **Databricks / MLflow 3** track as its
 own ladder, and what an **OpenAI**-style evaluation round pushes on.
 
 ---

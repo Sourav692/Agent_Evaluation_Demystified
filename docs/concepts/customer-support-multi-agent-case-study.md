@@ -1,5 +1,9 @@
 # Support-System Case Study: Evaluating a Multi-Agent Customer Support System
 
+> This page covers the system's quality: every stage's checks, the offline suite, the release
+> gate and the online signals. Its companion, [Cost and guardrails](cost-tracking-and-guardrails.md),
+> covers what the same system costs and the limits that stop it overspending.
+
 # 1. Scenario
 
 Assume we are building a **multi-tenant customer-support platform** used

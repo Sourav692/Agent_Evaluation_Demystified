@@ -1131,6 +1131,15 @@ PRACTICE = {
 }
 
 
+def roadmap_levels():
+    """Level number -> the roadmap's anchor for its '### Level N: …' heading."""
+    text = io.open(os.path.join(DOCS, "study-guide/evaluation-roadmap.md"), encoding="utf-8").read()
+    return {int(n): github_slug(h) for h, n in re.findall(r"^### (Level (\d+):.*)$", text, re.M)}
+
+
+ROADMAP_LEVELS = roadmap_levels()
+
+
 def notebook_label(path):
     """courses/01-…/08_Tool_Use_Evaluation.ipynb -> 'c01/08 · Tool Use Evaluation'."""
     course, name = path.split("/")[1][:2], os.path.basename(path)
@@ -1154,6 +1163,10 @@ def practise_it(slug, html, group, pos):
     if lab_links:
         parts.append("<p><b>In the browser, free:</b> %s.</p>" % " &middot; ".join(lab_links))
     parts.append("<p><b>Run it</b> (notebooks in the repository):</p><ul>%s</ul>" % nb_items)
+    level = int(slug[:2])
+    parts.append('<p><b>On the map:</b> <a href="roadmap.html#%s">the roadmap&rsquo;s Level %d</a> has this '
+                 'level&rsquo;s exit check and its notebooks; this page is the lesson.</p>'
+                 % (ROADMAP_LEVELS[level], level))
     if pos < len(group) - 1 and group[pos + 1][1] in PRACTICE:
         parts.append('<p><b>Next:</b> <a href="%s.html">%s &rarr;</a></p>' % (group[pos + 1][1], group[pos + 1][2]))
     section = ('<h2 id="practise-it">Practise it</h2><div class="practise">%s</div>\n' % "".join(parts))

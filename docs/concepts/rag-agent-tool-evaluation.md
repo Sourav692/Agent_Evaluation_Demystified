@@ -2,6 +2,8 @@
 
 Companion to the 14 notebooks in [course 01](../../courses/01-rag-agent-tool-evaluation/). The notebooks show how to express each idea in a framework; this covers the idea.
 
+This guide is the reference, built for looking one check up. The lessons that walk the same ground in order are [Level 1](../roadmap-explainers/01-rag-retrieval-and-generation.md) (RAG) and [Level 2](../roadmap-explainers/02-agents-tools-conversations-trajectories-outcomes.md) (agents); they cite the sections here.
+
 - **Tool-agnostic on purpose.** Parts 1–5 avoid class names and constructor arguments. Framework APIs churn; the questions don't. The exceptions are deliberate: §0.5 maps names across the four frameworks, §1.7 sets RAGAS beside DeepEval, and Part 6 walks the labs in their own API.
 - **Built for recall under pressure.** Bullets and tables over prose. Each check is framed the same way — what it catches, what it misses, what it needs, when to reach for it.
 - **Read Part 0 first.** It's the map. After that, jump to whatever you're working through.

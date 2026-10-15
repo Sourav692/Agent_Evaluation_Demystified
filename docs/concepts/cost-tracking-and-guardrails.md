@@ -1,5 +1,9 @@
 # Cost and Guardrails for a Multi-Tenant Customer Support Agent
 
+> This page covers what the system costs and the guardrails that bound it. The quality side
+> (every stage's checks, the release gate and the online signals) is in the
+> [support-system case study](customer-support-multi-agent-case-study.md), which describes the same system.
+
 # 1. Scenario
 
 Assume we have the same **multi-tenant customer-support platform**.

@@ -18,9 +18,10 @@ AI engineer or FDE actually walks into on a customer engagement.
 → multi-turn → adversarial) and [`labs/`](../../labs/) (RAG, tool, trajectory, task-completion
 and conversational evaluation).
 
-**Two interactive companions, built from this file:**
-[`evaluation-study-plan.html`](../study-guide/evaluation-study-plan.html) orders it into a reading path;
-[`evaluation-round-drill.html`](evaluation-round-drill.html) hides every answer for self-quizzing.
+**This bank is the reference:** every question with its answer written out, to read and look
+up. [The drill](evaluation-round-drill.html) is the quiz: the same questions with every answer
+hidden until you reveal it, and your recall tracked. [The study plan](../study-guide/evaluation-study-plan.html)
+orders this file into a reading path.
 
 ---
 

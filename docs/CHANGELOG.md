@@ -4,6 +4,9 @@ What changed on the site, newest first. One entry per change a reader would noti
 
 ## 2026-10-16
 
+- Pages that cover the same ground now say which is which and link each other: the
+  question bank and the drill, the roadmap and each level, the field guide and Levels 1–2,
+  the support case study and its cost companion.
 - The top menu has six sections: Roadmap, Theory, Case studies, Labs, Interview prep and
   Audits. The case study and its cost companion have their own section, and the roadmap
   sits with its eleven levels, leading into Level 0.
