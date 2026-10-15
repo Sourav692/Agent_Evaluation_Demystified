@@ -171,9 +171,6 @@ tbody tr:last-child td{border-bottom:none}
 .cards .topics li::before{content:"\2014"; position:absolute; left:0;
   color:var(--rule)}
 
-.skips{font-size:15.5px}
-.skips code{font-size:.8em}
-
 :focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
 @media (prefers-reduced-motion:reduce){ *{transition:none!important; animation:none!important}
   html{scroll-behavior:auto} }

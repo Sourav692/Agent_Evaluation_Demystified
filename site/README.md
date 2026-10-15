@@ -21,28 +21,32 @@ hand-converting is how the site avoids being the fourth.
 
 ## What goes in, and what does not
 
-`build.py` sorts every file under `docs/` into exactly one of three buckets, and
-**prints all three on every build** so an omission is never silent:
+`build.py` sorts every file under `docs/` into exactly one bucket, and
+**prints them on every build** so an omission is never silent:
 
 | Bucket | Meaning |
 |---|---|
 | **Rendered** | A `.md` with unique content. Becomes one page with the shared shell and nav |
 | **Copied** | A standalone `.html` that already exists under `docs/`. These are interactive — the drill scores you, the labs recompute — and could not be produced from Markdown. Their links are rewritten for the flat layout |
-| **Skipped** | Left out on purpose, with the reason recorded in `SKIP` and shown on the site's own index page |
+| **Site pages** | `about.md` and `CHANGELOG.md`, listed in `SITE_PAGES`. Rendered like the first bucket, linked from the footer, never carded on the index |
+| **Skipped** | Left out on purpose, with the reason recorded in `SKIP` and printed by every build |
 
-A file that is in none of the three is a build error waiting to happen, so there is
-a completeness check: every tracked file under `docs/` must appear in one bucket.
+A file in no bucket would never be published, so there is a completeness check:
+every tracked file under `docs/` must appear in one bucket, or the build fails.
 
 ## Why things are skipped
 
-Two kinds, both measured rather than assumed.
+`SKIP` in `build.py` is canonical; this table mirrors it. If they disagree, trust
+`build.py` and fix this table.
 
-- **`openai-eval-guide-tutorial.md`** — 87.7% phrase-identical to its own `.html`,
-  which ships instead. Carrying both would put the same seven chapters on the site
-  twice.
-- **The six folder READMEs** — navigation, not content. Their job is done by the
-  site's nav. `interview-prep/README.md` is additionally 16.5% the question bank and
-  14.4% the drill.
+| File under `docs/` | Why |
+|---|---|
+| `README.md` | Folder index. Its job is done by the site's navigation |
+| `concepts/README.md` | Folder index |
+| `guide-audits/README.md` | Folder index |
+| `interactive-labs/README.md` | Folder index |
+| `interview-prep/README.md` | Folder index, and 16.5% the question bank plus 14.4% the drill: it summarises pages the site already carries |
+| `study-guide/README.md` | Folder index |
 
 The one duplication the site keeps on purpose is **the question bank and the drill**,
 which are 65% identical. They are not two renderings — one is the readable reference,
@@ -53,8 +57,7 @@ keeps them in step.
 
 Write the Markdown in `docs/`, add it to `RENDER` in `build.py` with a slug, a nav
 title and a one-line blurb, and rebuild. If it should not be on the site, add it to
-`SKIP` with the reason — that reason is published on the index page under
-*"What is deliberately not here"*.
+`SKIP` with the reason, and add a row to the table above.
 
 ## Page dates
 

@@ -1236,20 +1236,12 @@ def build():
             cards.append('<section id="%s"><h2>%s</h2><ul class="cards">%s</ul></section>'
                          % (section.lower().replace(" ", "-"), section, "".join(items)))
 
-    skips = "".join('<tr><td><code>docs/%s</code></td><td>%s</td></tr>' % (s, why)
-                    for s, why in SKIP)
     body = """<h1>Agent Evaluation Demystified</h1>
 <p class="lede">How do you know your RAG system or agent is actually working? These are the
 written companions &mdash; the theory, the audits, the interview material and the
 interactive labs. The notebooks live in
 <a href="%(repo)scourses/">the repository</a>.</p>
-%(cards)s
-<section id="not-here">
-<h2>What is deliberately not here</h2>
-<p>Every page on this site is the only place its content appears. These files under
-<code>docs/</code> were left out on purpose:</p>
-<table class="skips"><thead><tr><th>File</th><th>Why</th></tr></thead><tbody>%(skips)s</tbody></table>
-</section>""" % {"repo": REPO_URL, "cards": "".join(cards), "skips": skips}
+%(cards)s""" % {"repo": REPO_URL, "cards": "".join(cards)}
 
     io.open(os.path.join(DIST, "index.html"), "w", encoding="utf-8").write(
         shell("Agent Evaluation Demystified", body, top_nav(None),
