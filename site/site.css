@@ -1,61 +1,12 @@
 /* Shared shell for the generated site.
-   Same palette, fonts and light/dark handling as the standalone pages in docs/.
+   Colours, fonts, the type and spacing scales and the light/dark switch are in
+   assets/tokens.css, which the build prepends to this file. */
 
-   Six values carry the whole system. Ink and paper for the argument, three
-   verdicts, one rule. `unmeas` is the accent and is spent deliberately: it
-   marks the thing to notice — the active nav item, a callout, the state a
-   check has not reached. It is never decoration.
-
-   The token NAMES are unchanged from the earlier palette, because the
-   generated markup and pre.mermaid below resolve against them. Only the
-   values and the typography moved. */
-
-:root{
-  --ink:#0E2226; --paper:#E4E6E1; --surface:#EDEEEA; --surface-2:#DADCD6; --text:#0E2226;
-  --muted:#3C4E51; --rule:#C5C8C2;
-  --accent:#9A6A12; --accent-soft:#EDE3CE; --accent-text:#7A5410;
-  --pass:#2F6B4F; --pass-soft:#D9E3DB;
-  --fail:#8C2F22; --fail-soft:#EDDCD8;
-  --unmeas:#9A6A12; --unmeas-soft:#EDE3CE;
-  --shadow:none;
-  --serif:"Newsreader",Georgia,"Times New Roman",serif;
-  --mono:"Spline Sans Mono",ui-monospace,Menlo,monospace;
-  /* Two different jobs: --maxw composes the page, --measure sets the line
-     length for reading. They are deliberately not the same number --
-     1080px left 44% of a 1920px screen empty, and widening the container
-     alone could not fix that -- it moves the block left while prose stays
-     put, so a paragraph ends earlier on screen, not later. Line length is
-     the only lever that fills a page with text, so the measure goes to 38em
-     (~82 characters): above the classic 45-75 range, below where the return
-     sweep starts losing the next line. Tables, code and diagrams take the
-     full column. */
-  --maxw:1320px; --measure:38em;
-  --bar-h:58px;
-}
+:root{ --bar-h:58px }
 /* A page carrying the chapter row has a taller header. :has() is the only way
    to know that from CSS; where it is missing the anchor lands a row high,
    which is the right way for this to fail. */
 body:has(.chapter){ --bar-h:88px }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --ink:#081113; --paper:#0D1618; --surface:#142124; --surface-2:#132023; --text:#DDE5E3;
-    --muted:#9FB1B1; --rule:#26383B;
-    --accent:#D3A54C; --accent-soft:#2C2314; --accent-text:#D3A54C;
-    --pass:#7FB294; --pass-soft:#163024;
-    --fail:#D48F80; --fail-soft:#311915;
-    --unmeas:#D3A54C; --unmeas-soft:#2C2314;
-    --shadow:none;
-  }
-}
-:root[data-theme="dark"]{
-  --ink:#081113; --paper:#0D1618; --surface:#142124; --surface-2:#132023; --text:#DDE5E3;
-  --muted:#9FB1B1; --rule:#26383B;
-  --accent:#D3A54C; --accent-soft:#2C2314; --accent-text:#D3A54C;
-  --pass:#7FB294; --pass-soft:#163024;
-  --fail:#D48F80; --fail-soft:#311915;
-  --unmeas:#D3A54C; --unmeas-soft:#2C2314;
-  --shadow:none;
-}
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}

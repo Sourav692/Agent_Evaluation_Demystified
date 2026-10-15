@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,58 +8,55 @@
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+<link rel="stylesheet" href="../../site/assets/tokens.css">
 <style>
-:root{
-  --ink:#0D1618; --panel:#142124; --panel-2:#18272A; --line:#26383B;
-  --text:#DDE5E3; --muted:#9FB1B1;
-  --mono:'Spline Sans Mono', ui-monospace, monospace;
-  --disp:'Newsreader', Georgia, 'Times New Roman', serif;
-  --accent:#aab575; --ok:#68ad8b; --part:#c6a666; --bad:#c58f85; --dead:#3d5255;
+:root{ --panel-2:#18272A;
+  --lab-accent:#aab575; --ok:#68ad8b; --part:#c6a666; --bad:#c58f85; --dead:#3d5255;
 }
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(900px 500px at 10% -10%, #122023 0%, transparent 60%), var(--ink);
-  color:var(--text);font-family:var(--disp);line-height:1.5}
+body{margin:0;background:radial-gradient(900px 500px at 10% -10%, #122023 0%, transparent 60%), var(--paper);
+  color:var(--text);font-family:var(--serif);line-height:1.5}
 .wrap{max-width:980px;margin:0 auto;padding:28px 18px 60px}
 .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--muted);display:flex;gap:10px;align-items:center;margin-bottom:12px}
-.eyebrow::after{content:"";flex:1;height:1px;background:var(--line)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
 h1{font-size:clamp(22px,4.5vw,32px);margin:0 0 8px;font-weight:700;letter-spacing:-.01em}
 .sub{color:var(--muted);font-size:14px;max-width:66ch;margin:0 0 22px}
 h2{font-size:15px;margin:0 0 12px;font-weight:600;letter-spacing:-.01em}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:18px}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px;margin-bottom:18px}
 label{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.chip{font-family:var(--mono);font-size:11.5px;padding:7px 12px;border-radius:99px;cursor:pointer;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);text-align:left}
+.chip{font-family:var(--mono);font-size:11.5px;padding:7px 12px;border-radius:99px;cursor:pointer;background:var(--panel-2);border:1px solid var(--rule);color:var(--muted);text-align:left}
 .chip:hover{color:var(--text);border-color:#42585c}
-.chip[aria-pressed="true"]{background:#2a2e18;border-color:var(--accent);color:#dee2c9}
-.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.cfg{font-family:var(--mono);font-size:11px;color:#cfdbdd;margin-top:14px;background:#0A1315;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:11px 13px;white-space:pre-wrap}
+.chip[aria-pressed="true"]{background:#2a2e18;border-color:var(--lab-accent);color:#dee2c9}
+.chip:focus-visible{outline:2px solid var(--lab-accent);outline-offset:2px}
+.cfg{font-family:var(--mono);font-size:11px;color:#cfdbdd;margin-top:14px;background:#0A1315;border:1px solid var(--rule);border-left:3px solid var(--lab-accent);border-radius:8px;padding:11px 13px;white-space:pre-wrap}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0 0}
-.stat{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:12px}
+.stat{background:var(--panel-2);border:1px solid var(--rule);border-radius:10px;padding:12px}
 .stat .kicker{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--muted)}
 .stat b{display:block;font-size:24px;margin:4px 0 8px;letter-spacing:-.02em}
 .stat .note{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:6px}
 .bar{height:6px;border-radius:99px;background:#222d2f;overflow:hidden}
 .bar i{display:block;height:100%;border-radius:99px;transition:width .4s cubic-bezier(.22,.7,.3,1)}
-.trow{background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--dead);border-radius:8px;
+.trow{background:var(--panel-2);border:1px solid var(--rule);border-left:3px solid var(--dead);border-radius:8px;
   padding:9px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;transition:border-color .3s,background .3s}
 .tname{font-size:12.5px;flex:0 0 150px;font-weight:500}
 .tcalls{display:flex;gap:5px;flex-wrap:wrap;flex:1 1 320px;min-width:0}
-.call{font-family:var(--mono);font-size:10px;padding:3px 7px;border-radius:6px;background:#142124;border:1px solid var(--line);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px}
+.call{font-family:var(--mono);font-size:10px;padding:3px 7px;border-radius:6px;background:var(--surface);border:1px solid var(--rule);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px}
 .call.flag{border-color:#5c332b;background:#2a1916;color:#ddbdb7}
 .score{font-family:var(--mono);font-size:13px;flex:none;width:52px;text-align:right;transition:color .3s}
 .score.full{color:var(--ok)} .score.part{color:var(--part)} .score.zero{color:var(--bad)}
 .trow.full{border-left-color:var(--ok)}
 .trow.part{border-left-color:var(--part)}
 .trow.zero{border-left-color:var(--bad);background:#2a1916}
-.callout{margin-top:16px;background:linear-gradient(90deg,#252816,#142124 70%);border:1px solid #494f2a;border-left:3px solid var(--accent);border-radius:8px;padding:13px 15px;font-size:13.5px;color:#d5dfe0}
+.callout{margin-top:16px;background:linear-gradient(90deg,#252816,var(--surface) 70%);border:1px solid #494f2a;border-left:3px solid var(--lab-accent);border-radius:8px;padding:13px 15px;font-size:13.5px;color:#d5dfe0}
 .callout b{color:#fff}
-.callout.warn{background:linear-gradient(90deg,#301b17,#142124 70%);border-color:#5c332b;border-left-color:var(--bad)}
-pre{background:#0A1315;border:1px solid var(--line);border-radius:8px;padding:12px;overflow-x:auto;
+.callout.warn{background:linear-gradient(90deg,#301b17,var(--surface) 70%);border-color:#5c332b;border-left-color:var(--bad)}
+pre{background:#0A1315;border:1px solid var(--rule);border-radius:8px;padding:12px;overflow-x:auto;
   font-family:var(--mono);font-size:11.5px;color:#cfdbdd;margin:0}
 .cmt{color:#608085}.kw{color:#b4c6c8}.str{color:#68ad8b}.num{color:#c6a666}
-table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
 .tablewrap{overflow-x:auto;border-radius:10px}
-thead th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+thead th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--rule)}
 tbody td{padding:10px 12px;font-size:12.5px;border-bottom:1px solid #222e30;vertical-align:top}
 tbody tr:last-child td{border-bottom:none}
 .foot{color:var(--muted);font-size:12px;font-family:var(--mono);margin-top:28px;text-align:center}
@@ -70,7 +67,7 @@ tbody tr:last-child td{border-bottom:none}
 <body>
 <div class="wrap">
   <div class="eyebrow">Lab 04 · Tool use</div>
-  <h1>The same metric scores this trace <span style="color:var(--accent)">1.00 or 0.00</span> — you chose which.</h1>
+  <h1>The same metric scores this trace <span style="color:var(--lab-accent)">1.00 or 0.00</span> — you chose which.</h1>
   <p class="sub">ToolCorrectnessMetric's strictness lives entirely in its constructor arguments. Switch configurations and watch six broken traces flip between passing and failing without a single line of agent code changing.</p>
 
   <div class="panel">
@@ -85,7 +82,7 @@ tbody tr:last-child td{border-bottom:none}
     <div class="grid3">
       <div class="stat"><div class="kicker">Traces scoring 1.00</div><b id="sPass">5 / 6</b><div class="bar"><i id="bPass" style="background:var(--ok)"></i></div><div class="note" id="nPass">out of 6, five of which are broken</div></div>
       <div class="stat"><div class="kicker">Broken traces caught</div><b id="sCaught">1 / 5</b><div class="bar"><i id="bCaught" style="background:var(--bad)"></i></div><div class="note">5 of the 6 traces deviate from expected</div></div>
-      <div class="stat"><div class="kicker">Mean score</div><b id="sMean">0.92</b><div class="bar"><i id="bMean" style="background:var(--accent)"></i></div><div class="note">what a dashboard would report</div></div>
+      <div class="stat"><div class="kicker">Mean score</div><b id="sMean">0.92</b><div class="bar"><i id="bMean" style="background:var(--lab-accent)"></i></div><div class="note">what a dashboard would report</div></div>
     </div>
 
     <div class="callout" id="callout"></div>

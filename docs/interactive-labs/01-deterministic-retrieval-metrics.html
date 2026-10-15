@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,42 +8,39 @@
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+<link rel="stylesheet" href="../../site/assets/tokens.css">
 <style>
-:root{
-  --ink:#0D1618; --panel:#142124; --panel-2:#18272A; --line:#26383B;
-  --text:#DDE5E3; --muted:#9FB1B1;
-  --mono:'Spline Sans Mono', ui-monospace, monospace;
-  --disp:'Newsreader', Georgia, 'Times New Roman', serif;
-  --accent:#D3A54C; --hit:#68ad8b; --miss:#c58f85; --noise:#c6a666; --dead:#3d5255;
+:root{ --panel-2:#18272A;
+  --lab-accent:var(--accent); --hit:#68ad8b; --miss:#c58f85; --noise:#c6a666; --dead:#3d5255;
 }
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(900px 500px at 10% -10%, #122023 0%, transparent 60%), var(--ink);
-  color:var(--text);font-family:var(--disp);line-height:1.5}
+body{margin:0;background:radial-gradient(900px 500px at 10% -10%, #122023 0%, transparent 60%), var(--paper);
+  color:var(--text);font-family:var(--serif);line-height:1.5}
 .wrap{max-width:980px;margin:0 auto;padding:28px 18px 60px}
 .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--muted);display:flex;gap:10px;align-items:center;margin-bottom:12px}
-.eyebrow::after{content:"";flex:1;height:1px;background:var(--line)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
 h1{font-size:clamp(22px,4.5vw,32px);margin:0 0 8px;font-weight:700;letter-spacing:-.01em}
 .sub{color:var(--muted);font-size:14px;max-width:66ch;margin:0 0 22px}
 h2{font-size:15px;margin:0 0 12px;font-weight:600;letter-spacing:-.01em}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:18px}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px;margin-bottom:18px}
 .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 label{font-family:var(--mono);font-size:12px;color:var(--muted)}
-input[type=range]{accent-color:var(--accent);flex:1;min-width:150px}
-input[type=range]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.valpill{font-family:var(--mono);font-size:13px;background:var(--panel-2);border:1px solid var(--line);border-radius:99px;padding:4px 12px;min-width:48px;text-align:center;color:var(--accent)}
+input[type=range]{accent-color:var(--lab-accent);flex:1;min-width:150px}
+input[type=range]:focus-visible{outline:2px solid var(--lab-accent);outline-offset:2px}
+.valpill{font-family:var(--mono);font-size:13px;background:var(--panel-2);border:1px solid var(--rule);border-radius:99px;padding:4px 12px;min-width:48px;text-align:center;color:var(--lab-accent)}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.chip{font-family:var(--mono);font-size:11.5px;padding:6px 10px;border-radius:99px;cursor:pointer;background:var(--panel-2);border:1px solid var(--line);color:var(--muted)}
+.chip{font-family:var(--mono);font-size:11.5px;padding:6px 10px;border-radius:99px;cursor:pointer;background:var(--panel-2);border:1px solid var(--rule);color:var(--muted)}
 .chip:hover{color:var(--text);border-color:#42585c}
-.chip[aria-pressed="true"]{background:#192e24;border-color:var(--accent);color:#acd3c0}
-.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chip[aria-pressed="true"]{background:#192e24;border-color:var(--lab-accent);color:#acd3c0}
+.chip:focus-visible{outline:2px solid var(--lab-accent);outline-offset:2px}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0 0}
-.stat{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:12px}
+.stat{background:var(--panel-2);border:1px solid var(--rule);border-radius:10px;padding:12px}
 .stat .kicker{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--muted)}
 .stat b{display:block;font-size:24px;margin:4px 0 8px;letter-spacing:-.02em}
 .stat .note{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:6px}
 .bar{height:6px;border-radius:99px;background:#222d2f;overflow:hidden}
 .bar i{display:block;height:100%;border-radius:99px;transition:width .4s cubic-bezier(.22,.7,.3,1)}
-.crow{background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--dead);border-radius:8px;
+.crow{background:var(--panel-2);border:1px solid var(--rule);border-left:3px solid var(--dead);border-radius:8px;
   padding:9px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px;transition:opacity .3s,border-color .3s,background .3s}
 .crow.out{opacity:.32}
 .crow.hit{border-left-color:var(--hit)}
@@ -52,17 +49,17 @@ input[type=range]:focus-visible{outline:2px solid var(--accent);outline-offset:2
 .rank{font-family:var(--mono);font-size:11px;color:var(--muted);width:34px;flex:none}
 .cid{font-family:var(--mono);font-size:12px;width:76px;flex:none}
 .ctxt{font-size:12.5px;flex:1;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.grade{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:99px;flex:none;background:#142124;border:1px solid var(--line);color:var(--muted)}
+.grade{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:99px;flex:none;background:var(--surface);border:1px solid var(--rule);color:var(--muted)}
 .grade.g3{color:#acd3c0;border-color:#2f5743}.grade.g2{color:#b0d5c2;border-color:#294d3b}.grade.g1{color:#d7c093;border-color:#604c23}
-.callout{margin-top:16px;background:linear-gradient(90deg,#172b21,#142124 70%);border:1px solid #2f5743;border-left:3px solid var(--accent);border-radius:8px;padding:13px 15px;font-size:13.5px;color:#d5dfe0}
+.callout{margin-top:16px;background:linear-gradient(90deg,#172b21,var(--surface) 70%);border:1px solid #2f5743;border-left:3px solid var(--lab-accent);border-radius:8px;padding:13px 15px;font-size:13.5px;color:#d5dfe0}
 .callout b{color:#fff}
-.callout.warn{background:linear-gradient(90deg,#301b17,#142124 70%);border-color:#5c332b;border-left-color:var(--miss)}
-pre{background:#0A1315;border:1px solid var(--line);border-radius:8px;padding:12px;overflow-x:auto;
+.callout.warn{background:linear-gradient(90deg,#301b17,var(--surface) 70%);border-color:#5c332b;border-left-color:var(--miss)}
+pre{background:#0A1315;border:1px solid var(--rule);border-radius:8px;padding:12px;overflow-x:auto;
   font-family:var(--mono);font-size:11.5px;color:#cfdbdd;margin:0}
 .cmt{color:#608085}.kw{color:#b4c6c8}.str{color:#68ad8b}.num{color:#c6a666}
-table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
 .tablewrap{overflow-x:auto;border-radius:10px}
-thead th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+thead th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--rule)}
 tbody td{padding:10px 12px;font-size:12.5px;border-bottom:1px solid #222e30;vertical-align:top}
 tbody tr:last-child td{border-bottom:none}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:12px}
@@ -75,12 +72,12 @@ tbody tr:last-child td{border-bottom:none}
 <body>
 <div class="wrap">
   <div class="eyebrow">Lab 01 · Deterministic retrieval</div>
-  <h1>Four retrieval metrics, <span style="color:var(--accent)">and they disagree on purpose</span>.</h1>
+  <h1>Four retrieval metrics, <span style="color:var(--lab-accent)">and they disagree on purpose</span>.</h1>
   <p class="sub">Precision, Recall, MRR and nDCG all score the same ranked list and all move differently as you change K. Drag K and watch which ones react — that divergence is the whole reason you report four numbers instead of one.</p>
-  <p class="sub" style="font-size:12.5px">These are the classic set-overlap definitions — a chunk is relevant or not, checked against a fixed ground-truth set, no LLM involved. Lab 02's "Contextual Precision/Recall" reuse these names for a different, LLM-judged computation (rank-weighted precision, coverage-of-expected-output recall) — see <a href="02-llm-judged-retrieval-metrics.html" style="color:var(--accent)">02-llm-judged-retrieval-metrics.html</a>.</p>
+  <p class="sub" style="font-size:12.5px">These are the classic set-overlap definitions — a chunk is relevant or not, checked against a fixed ground-truth set, no LLM involved. Lab 02's "Contextual Precision/Recall" reuse these names for a different, LLM-judged computation (rank-weighted precision, coverage-of-expected-output recall) — see <a href="02-llm-judged-retrieval-metrics.html" style="color:var(--lab-accent)">02-llm-judged-retrieval-metrics.html</a>.</p>
 
   <div class="panel">
-    <h2>Query: <span style="font-family:var(--mono);font-size:13px;color:var(--accent)">"What is the time complexity of BST delete?"</span></h2>
+    <h2>Query: <span style="font-family:var(--mono);font-size:13px;color:var(--lab-accent)">"What is the time complexity of BST delete?"</span></h2>
     <div class="row">
       <label for="k">K — how many chunks reach the prompt</label>
       <input type="range" id="k" min="1" max="5" step="1" value="5">
@@ -96,7 +93,7 @@ tbody tr:last-child td{border-bottom:none}
     <div class="grid4">
       <div class="stat"><div class="kicker">Precision@K</div><b id="sP">0.40</b><div class="bar"><i id="bP" style="background:var(--noise)"></i></div><div class="note" id="nP">2 of 5 retrieved are relevant</div></div>
       <div class="stat"><div class="kicker">Recall@K</div><b id="sR">0.67</b><div class="bar"><i id="bR" style="background:var(--hit)"></i></div><div class="note" id="nR">2 of 3 relevant chunks found</div></div>
-      <div class="stat"><div class="kicker">MRR</div><b id="sM">0.50</b><div class="bar"><i id="bM" style="background:var(--accent)"></i></div><div class="note" id="nM">first hit at rank 2</div></div>
+      <div class="stat"><div class="kicker">MRR</div><b id="sM">0.50</b><div class="bar"><i id="bM" style="background:var(--lab-accent)"></i></div><div class="note" id="nM">first hit at rank 2</div></div>
       <div class="stat"><div class="kicker">nDCG@K</div><b id="sN">0.51</b><div class="bar"><i id="bN" style="background:#b4c6c8"></i></div><div class="note">graded relevance, rank-discounted</div></div>
     </div>
 

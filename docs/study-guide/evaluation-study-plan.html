@@ -7,41 +7,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,300;1,6..72,400&family=Spline+Sans+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap">
 <meta name="description" content="A staged reading path through this repository for the applied AI engineering problem-decomposition round, weighted toward evaluation.">
 
+<link rel="stylesheet" href="../../site/assets/tokens.css">
 <style>
 :root{color-scheme:light dark}
-:root{
-  --ink:#0E2226; --paper:#E4E6E1; --surface:#EDEEEA; --surface-2:#DADCD6;
-  --text:#0E2226; --text-2:#3C4E51; --text-3:#6E7D7E;
-  --rule:#C5C8C2; --rule-2:#D5D8D1;
-  --accent:#9A6A12; --accent-soft:#EDE3CE; --accent-text:#7A5410;
-  --pass:#2F6B4F; --pass-soft:#D9E3DB;
-  --fail:#8C2F22; --fail-soft:#EDDCD8;
-  --unmeas:#9A6A12; --unmeas-soft:#EDE3CE;
-  --shadow:none;
-  --maxw:1080px;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --ink:#081113; --paper:#0D1618; --surface:#142124; --surface-2:#132023;
-    --text:#DDE5E3; --text-2:#9FB1B1; --text-3:#72878A;
-    --rule:#26383B; --rule-2:#1C2B2E;
-    --accent:#D3A54C; --accent-soft:#2C2314; --accent-text:#D3A54C;
-    --pass:#7FB294; --pass-soft:#163024;
-    --fail:#D48F80; --fail-soft:#311915;
-    --unmeas:#D3A54C; --unmeas-soft:#2C2314;
-    --shadow:none;
-  }
-}
-:root[data-theme="dark"]{
-  --ink:#081113; --paper:#0D1618; --surface:#142124; --surface-2:#132023;
-  --text:#DDE5E3; --text-2:#9FB1B1; --text-3:#72878A;
-  --rule:#26383B; --rule-2:#1C2B2E;
-  --accent:#D3A54C; --accent-soft:#2C2314; --accent-text:#D3A54C;
-  --pass:#7FB294; --pass-soft:#163024;
-  --fail:#D48F80; --fail-soft:#311915;
-  --unmeas:#D3A54C; --unmeas-soft:#2C2314;
-  --shadow:none;
-}
+:root{ --maxw:1080px }
 *{box-sizing:border-box}
 body{margin:0; background:var(--paper); color:var(--text);
   font-family:"Newsreader",Georgia,"Times New Roman",serif;
@@ -49,15 +18,15 @@ body{margin:0; background:var(--paper); color:var(--text);
 img{max-width:100%}
 h1,h2,h3,h4{font-family:"Newsreader",Georgia,"Times New Roman",serif; text-wrap:balance; margin:0; line-height:1.2}
 code{font-family:"Spline Sans Mono",ui-monospace,Menlo,monospace; font-size:.88em;
-  background:var(--surface-2); padding:1px 5px; border-radius:2px; border:1px solid var(--rule-2);
+  background:var(--surface-2); padding:1px 5px; border-radius:2px; border:1px solid var(--rule-soft);
   word-break:break-word}
 a{color:var(--accent-text)}
 
 .mast{background:var(--ink); border-bottom:3px solid var(--accent)}
 .mast-in{max-width:var(--maxw); margin:0 auto; padding-block:32px 28px; padding-inline:20px}
-.mast .kicker{font-family:"Spline Sans Mono",ui-monospace,monospace; font-size:11px; letter-spacing:.01em; color:#C9A86A; margin-bottom:9px}
+.mast .kicker{font-family:"Spline Sans Mono",ui-monospace,monospace; font-size:11px; letter-spacing:.01em; color:var(--on-ink-accent); margin-bottom:9px}
 .mast h1{font-size:clamp(30px,5.2vw,46px); font-weight:700; letter-spacing:-.015em; color:#fff}
-.mast p{margin:11px 0 0; color:#A9BAC7; max-width:62ch; font-size:15.5px}
+.mast p{margin:11px 0 0; color:var(--on-ink-muted); max-width:62ch; font-size:15.5px}
 .mast .drilllink{display:inline-flex; gap:8px; align-items:center; margin-top:18px;
   background:var(--accent); color:#fff; text-decoration:none; font-size:14px; font-weight:500;
   padding:8px 15px; border-radius:3px}
@@ -75,17 +44,17 @@ nav.rail{position:sticky; top:16px; padding-top:30px}
   .rail .railnote{display:none}
 }
 .rail ol{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:1px}
-.rail a{display:flex; gap:9px; align-items:baseline; text-decoration:none; color:var(--text-2);
+.rail a{display:flex; gap:9px; align-items:baseline; text-decoration:none; color:var(--muted);
   font-size:13.5px; padding:7px 11px; border-radius:3px; white-space:nowrap; line-height:1.35}
 .rail a:hover{background:var(--surface-2); color:var(--text)}
-.rail .n{font-family:"Spline Sans Mono",ui-monospace,monospace; font-size:11px; color:var(--text-3)}
-.rail .railnote{font-size:11.5px; color:var(--text-3); padding:14px 11px 0; line-height:1.5;
-  border-top:1px solid var(--rule-2); margin-top:12px}
+.rail .n{font-family:"Spline Sans Mono",ui-monospace,monospace; font-size:11px; color:var(--faint)}
+.rail .railnote{font-size:11.5px; color:var(--faint); padding:14px 11px 0; line-height:1.5;
+  border-top:1px solid var(--rule-soft); margin-top:12px}
 
 main{padding-top:30px; min-width:0}
 .prose{max-width:70ch}
 p{margin:0 0 15px}
-.lede{font-size:17.5px; color:var(--text-2); max-width:66ch; margin-bottom:26px}
+.lede{font-size:17.5px; color:var(--muted); max-width:66ch; margin-bottom:26px}
 
 .stage{margin-bottom:52px; scroll-margin-top:20px}
 .stage-head{display:flex; flex-wrap:wrap; gap:14px; align-items:baseline;
@@ -94,15 +63,15 @@ p{margin:0 0 15px}
   letter-spacing:.01em; color:var(--accent); background:var(--accent-soft);
   padding:4px 9px; border-radius:2px}
 .stage-head h2{font-size:clamp(22px,3.3vw,29px); font-weight:700; letter-spacing:-.01em; flex:1 1 auto}
-.stage-head .time{font-family:"Spline Sans Mono",ui-monospace,monospace; font-size:12px; color:var(--text-3);
+.stage-head .time{font-family:"Spline Sans Mono",ui-monospace,monospace; font-size:12px; color:var(--faint);
   white-space:nowrap}
-.why{color:var(--text-2); max-width:70ch; margin-bottom:18px}
+.why{color:var(--muted); max-width:70ch; margin-bottom:18px}
 
 .tbl-wrap{overflow-x:auto; margin:18px 0; border:1px solid var(--rule); border-radius:3px; background:var(--surface)}
 table{border-collapse:collapse; width:100%; font-size:14.5px; min-width:440px}
-th,td{text-align:left; padding:10px 14px; border-bottom:1px solid var(--rule-2); vertical-align:top}
+th,td{text-align:left; padding:10px 14px; border-bottom:1px solid var(--rule-soft); vertical-align:top}
 thead th{background:var(--surface-2); font-family:"Spline Sans Mono",ui-monospace,monospace; font-size:11px;
-  letter-spacing:.01em; color:var(--text-2); font-weight:600; white-space:nowrap}
+  letter-spacing:.01em; color:var(--muted); font-weight:600; white-space:nowrap}
 tbody tr:last-child td{border-bottom:0}
 
 .callout{border-left:3px solid var(--accent); background:var(--surface); padding:15px 18px;
@@ -111,7 +80,7 @@ tbody tr:last-child td{border-bottom:0}
 .callout.warn{border-left-color:var(--fail)}
 .callout.key{border-left-color:var(--unmeas)}
 .callout.good{border-left-color:var(--pass)}
-.callout .lbl{font-family:"Spline Sans Mono",ui-monospace,monospace; font-size:10.5px; letter-spacing:.01em; color:var(--text-3); display:block; margin-bottom:7px}
+.callout .lbl{font-family:"Spline Sans Mono",ui-monospace,monospace; font-size:10.5px; letter-spacing:.01em; color:var(--faint); display:block; margin-bottom:7px}
 
 ul.pts{margin:0 0 15px; padding-left:19px; max-width:70ch} ul.pts li{margin-bottom:8px}
 ul.pts li::marker{color:var(--accent)}
@@ -123,25 +92,25 @@ ol.steps{margin:0 0 15px; padding-left:21px; max-width:70ch} ol.steps li{margin-
 .reading input{margin-top:5px; width:17px; height:17px; accent-color:var(--accent); flex:0 0 auto; cursor:pointer}
 .reading label{cursor:pointer; display:block}
 .reading .rt{font-weight:600; display:block; margin-bottom:3px}
-.reading .rd{font-size:14px; color:var(--text-2); display:block}
-.reading li:has(input:checked) .rt{color:var(--text-3); text-decoration:line-through}
-.reading li:has(input:checked) .rd{color:var(--text-3)}
+.reading .rd{font-size:14px; color:var(--muted); display:block}
+.reading li:has(input:checked) .rt{color:var(--faint); text-decoration:line-through}
+.reading li:has(input:checked) .rd{color:var(--faint)}
 
 .tag{font-family:"Spline Sans Mono",ui-monospace,monospace; font-size:10.5px; letter-spacing:.01em; padding:3px 7px; border-radius:2px; white-space:nowrap; font-weight:500}
 .tag-pri{background:var(--fail-soft); color:var(--fail)}
 .tag-mid{background:var(--accent-soft); color:var(--accent-text)}
-.tag-low{background:var(--surface-2); color:var(--text-3); border:1px solid var(--rule-2)}
+.tag-low{background:var(--surface-2); color:var(--faint); border:1px solid var(--rule-soft)}
 .tag-run{background:var(--pass-soft); color:var(--pass)}
 
-.fast{background:var(--ink); border-radius:3px; padding:28px 26px; margin:34px 0; color:#DDE5E3}
+.fast{background:var(--ink); border-radius:3px; padding:28px 26px; margin:34px 0; color:var(--on-ink)}
 .fast h3{color:#fff; font-size:21px; font-weight:600; margin-bottom:10px}
-.fast p{color:#A9BAC7; max-width:64ch}
-.fast ol{color:#C3D2CF; padding-left:20px; margin:0}
+.fast p{color:var(--on-ink-muted); max-width:64ch}
+.fast ol{color:var(--on-ink-soft); padding-left:20px; margin:0}
 .fast li{margin-bottom:7px}
 .fast b{color:#fff}
 
 footer.foot{border-top:1px solid var(--rule); margin-top:54px; padding-top:22px;
-  font-size:13.5px; color:var(--text-3); max-width:70ch}
+  font-size:13.5px; color:var(--faint); max-width:70ch}
 :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:2px}
 @media (prefers-reduced-motion:reduce){ *{transition:none !important} }
 html{scroll-behavior:smooth}

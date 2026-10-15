@@ -1300,8 +1300,10 @@ def build():
         shutil.rmtree(DIST)
     # site/assets/ holds the share image and favicons; their source is site/og.html.
     shutil.copytree(os.path.join(ROOT, "site", "assets"), os.path.join(DIST, "assets"))
-    shutil.copy(os.path.join(ROOT, "site", "site.css"),
-                os.path.join(DIST, "assets", "site.css"))
+    # tokens.css goes first in the same file, so rendered pages make one request.
+    with io.open(os.path.join(DIST, "assets", "site.css"), "w", encoding="utf-8") as out:
+        for name in ("assets/tokens.css", "site.css"):
+            out.write(io.open(os.path.join(ROOT, "site", name), encoding="utf-8").read())
 
     rendered, copied = [], []
     linked_paths = 0
@@ -1362,6 +1364,8 @@ def build():
             # a .md target, or a folder-relative path. Rewrite them the same way
             # as rendered pages so the flat site has no dead links.
             text = io.open(os.path.join(DOCS, src), encoding="utf-8").read()
+            # The page links the tokens by their repo path so it renders from a clone.
+            text = text.replace('href="../../site/assets/tokens.css"', 'href="assets/tokens.css"')
             text = LINK.sub(
                 lambda m: m.group(1) + rewrite_link(m.group(2), "docs/" + src) + m.group(3),
                 text)

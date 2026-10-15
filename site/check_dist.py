@@ -20,6 +20,8 @@ Rules, one function each:
   answers      every Check Yourself item's answer sits behind "Show answer"
   practise     every roadmap explainer has its "Practise it" section (lab or notebook links)
   names        each index card title is the short form of its page's H1 (a lab's eyebrow)
+  tokens       the drill, study plan and labs link assets/tokens.css and write no colour
+               the tokens define as a hex literal (use the variable)
 
 Stdlib only.
 """
@@ -30,7 +32,7 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from build import COPY, DIST, RENDER, REPO_URL, SITE_PAGES  # noqa: E402
+from build import COPY, DIST, RENDER, REPO_URL, SITE_PAGES, copied_name  # noqa: E402
 
 SCRIPT = re.compile(r"<script\b.*?</script>", re.S)
 HEAD_TAGS = ['property="og:title"', 'property="og:description"', 'property="og:image"',
@@ -138,7 +140,24 @@ def names(name, html, ctx):
     return out
 
 
-RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc, answers, practise, names]
+TOKENS_CSS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "tokens.css")
+TOKEN_HEX = {h.upper() for h in re.findall(r"#[0-9a-fA-F]{6}\b", open(TOKENS_CSS, encoding="utf-8").read())}
+TOKEN_PAGES = {copied_name(s) for s, *_ in COPY["Interactive labs"]} | {
+    "evaluation-round-drill.html", "evaluation-study-plan.html"}
+# The build's own bar and footer for copied pages are literal by design (other copied
+# pages do not load the tokens); FE-11 replaces them.
+SITEBAR_STYLE = re.compile(r"<style>\s*\.aed-(?:sitebar|foot)\b.*?</style>", re.S)
+
+
+def tokens(name, html, ctx):
+    if name not in TOKEN_PAGES:
+        return []
+    out = [] if 'href="assets/tokens.css"' in html else ["does not link assets/tokens.css"]
+    hexes = sorted({h.upper() for h in re.findall(r"#[0-9a-fA-F]{6}\b", SITEBAR_STYLE.sub("", html))} & TOKEN_HEX)
+    return out + ["token colour as a literal: %s" % ", ".join(hexes)] if hexes else out
+
+
+RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc, answers, practise, names, tokens]
 
 
 def context(pages):
@@ -195,6 +214,11 @@ def self_test():
     assert names("index.html", card % "The self-quiz drill", {"pages": {"b.html": "<h1>The Evaluation Round</h1>"}})
     assert not names("index.html", card % "Level 4 &middot; Judges &amp; the humans",
                      {"pages": {"b.html": "<h1>Judges, and the Humans Who Validate Them</h1>"}})
+    lab = copied_name(COPY["Interactive labs"][0][0])
+    assert tokens(lab, '<link href="assets/tokens.css"><style>a{color:#9a6a12}</style>', None)
+    assert tokens(lab, "<p>x</p>", None)
+    assert not tokens(lab, '<link href="assets/tokens.css"><style>.aed-sitebar{color:#0E2226}</style>'
+                           '<style>a{color:var(--text)} b{color:#fff}</style>', None)
     print("self-test ok")
 
 

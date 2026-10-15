@@ -1,0 +1,65 @@
+/* Design tokens: the one place the site's colours, type, spacing and motion live.
+
+   Used two ways. The build prepends this file to assets/site.css, so rendered
+   pages get it in the same request. The copied pages (the drill, the study plan,
+   the six labs) link it themselves as ../../site/assets/tokens.css, which works
+   when the file is opened straight from a clone; the build rewrites that href to
+   assets/tokens.css. A colour written as a hex literal anywhere else that equals
+   a value here fails site/check_dist.py (rule `tokens`): use the variable.
+
+   Six values carry the whole system. Ink and paper for the argument, three
+   verdicts, one rule. `unmeas` is the accent and is spent deliberately: it marks
+   the thing to notice -- the active nav item, a callout, the state a check has
+   not reached. It is never decoration. */
+
+:root{
+  --ink:#0E2226; --paper:#E4E6E1; --surface:#EDEEEA; --surface-2:#DADCD6; --text:#0E2226;
+  --muted:#3C4E51; --faint:#6E7D7E; --rule:#C5C8C2; --rule-soft:#D5D8D1;
+  --accent:#9A6A12; --accent-soft:#EDE3CE; --accent-text:#7A5410;
+  --pass:#2F6B4F; --pass-soft:#D9E3DB;
+  --fail:#8C2F22; --fail-soft:#EDDCD8;
+  --unmeas:#9A6A12; --unmeas-soft:#EDE3CE;
+  --focus:#7A5410;
+  --shadow:none;
+
+  /* The ink panel: the always-dark band (the drill's and the study plan's
+     masthead, fast path and flash card). Same in both themes. */
+  --on-ink:#DDE5E3; --on-ink-muted:#A9BAC7; --on-ink-soft:#C3D2CF;
+  --on-ink-accent:#C9A86A; --on-ink-rule:#35434F; --on-ink-rule-soft:#26333E;
+  --on-ink-track:#243341;
+  --on-ink-pass:#2F6B4F; --on-ink-unmeas:#9A6A12; --on-ink-fail:#8C2F22;
+
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --mono:"Spline Sans Mono",ui-monospace,Menlo,monospace;
+  --fs-1:.8125rem; --fs-2:.9375rem; --fs-3:1.0625rem; --fs-4:1.375rem; --fs-5:1.75rem; --fs-6:2.375rem;
+  --lh-body:1.6; --lh-head:1.2;
+
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px; --sp-7:48px; --sp-8:64px;
+  --r-1:4px; --r-2:8px;
+  --motion:150ms ease-out;
+
+  /* Two different jobs: --maxw composes the page, --measure sets the line
+     length for reading. 38em is ~82 characters: above the classic 45-75 range,
+     below where the return sweep starts losing the next line. */
+  --maxw:1320px; --measure:38em;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#081113; --paper:#0D1618; --surface:#142124; --surface-2:#132023; --text:#DDE5E3;
+    --muted:#9FB1B1; --faint:#72878A; --rule:#26383B; --rule-soft:#1C2B2E;
+    --accent:#D3A54C; --accent-soft:#2C2314; --accent-text:#D3A54C;
+    --pass:#7FB294; --pass-soft:#163024;
+    --fail:#D48F80; --fail-soft:#311915;
+    --unmeas:#D3A54C; --unmeas-soft:#2C2314;
+    --focus:#D3A54C;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#081113; --paper:#0D1618; --surface:#142124; --surface-2:#132023; --text:#DDE5E3;
+  --muted:#9FB1B1; --faint:#72878A; --rule:#26383B; --rule-soft:#1C2B2E;
+  --accent:#D3A54C; --accent-soft:#2C2314; --accent-text:#D3A54C;
+  --pass:#7FB294; --pass-soft:#163024;
+  --fail:#D48F80; --fail-soft:#311915;
+  --unmeas:#D3A54C; --unmeas-soft:#2C2314;
+  --focus:#D3A54C;
+}

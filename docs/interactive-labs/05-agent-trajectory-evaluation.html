@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,32 +8,29 @@
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+<link rel="stylesheet" href="../../site/assets/tokens.css">
 <style>
-:root{
-  --ink:#0D1618; --panel:#142124; --panel-2:#18272A; --line:#26383B;
-  --text:#DDE5E3; --muted:#9FB1B1;
-  --mono:'Spline Sans Mono', ui-monospace, monospace;
-  --disp:'Newsreader', Georgia, 'Times New Roman', serif;
-  --accent:#c6a666; --ok:#68ad8b; --err:#c58f85; --red:#b4c6c8; --outcome:#D3A54C; --dead:#3d5255;
+:root{ --panel-2:#18272A;
+  --lab-accent:#c6a666; --ok:#68ad8b; --err:#c58f85; --red:#b4c6c8; --outcome:var(--accent); --dead:#3d5255;
 }
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(900px 500px at 10% -10%, #122023 0%, transparent 60%), var(--ink);
-  color:var(--text);font-family:var(--disp);line-height:1.5}
+body{margin:0;background:radial-gradient(900px 500px at 10% -10%, #122023 0%, transparent 60%), var(--paper);
+  color:var(--text);font-family:var(--serif);line-height:1.5}
 .wrap{max-width:980px;margin:0 auto;padding:28px 18px 60px}
 .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--muted);display:flex;gap:10px;align-items:center;margin-bottom:12px}
-.eyebrow::after{content:"";flex:1;height:1px;background:var(--line)}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
 h1{font-size:clamp(22px,4.5vw,32px);margin:0 0 8px;font-weight:700;letter-spacing:-.01em}
 .sub{color:var(--muted);font-size:14px;max-width:66ch;margin:0 0 22px}
 h2{font-size:15px;margin:0 0 12px;font-weight:600;letter-spacing:-.01em}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:18px}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px;margin-bottom:18px}
 label{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.chip{font-family:var(--mono);font-size:11.5px;padding:7px 12px;border-radius:99px;cursor:pointer;background:var(--panel-2);border:1px solid var(--line);color:var(--muted)}
+.chip{font-family:var(--mono);font-size:11.5px;padding:7px 12px;border-radius:99px;cursor:pointer;background:var(--panel-2);border:1px solid var(--rule);color:var(--muted)}
 .chip:hover{color:var(--text);border-color:#42585c}
-.chip[aria-pressed="true"]{background:#302612;border-color:var(--accent);color:#e6d8bc}
-.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.scen{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:12px;padding-left:11px;border-left:2px solid var(--accent)}
-.srow{background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--ok);border-radius:8px;
+.chip[aria-pressed="true"]{background:#302612;border-color:var(--lab-accent);color:#e6d8bc}
+.chip:focus-visible{outline:2px solid var(--lab-accent);outline-offset:2px}
+.scen{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:12px;padding-left:11px;border-left:2px solid var(--lab-accent)}
+.srow{background:var(--panel-2);border:1px solid var(--rule);border-left:3px solid var(--ok);border-radius:8px;
   padding:8px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .srow.error{border-left-color:var(--err);background:#2a1916}
 .srow.redundant{border-left-color:var(--red);background:#212c2e}
@@ -44,23 +41,23 @@ label{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .stag.error{background:#2a1916;color:var(--err);border:1px solid #5c332b}
 .stag.redundant{background:#212c2e;color:var(--red);border:1px solid #3f5356}
 .mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
-.m{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:11px}
+.m{background:var(--panel-2);border:1px solid var(--rule);border-radius:10px;padding:11px}
 .m.outcome{border-top:2px solid var(--outcome)}
-.m.step{border-top:2px solid var(--accent)}
+.m.step{border-top:2px solid var(--lab-accent)}
 .m .k{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted);display:block;min-height:22px}
 .m b{display:block;font-size:20px;margin:3px 0 6px;letter-spacing:-.02em;transition:color .35s}
-.m b.good{color:var(--ok)} .m b.warn{color:var(--accent)} .m b.na{color:var(--dead)}
+.m b.good{color:var(--ok)} .m b.warn{color:var(--lab-accent)} .m b.na{color:var(--dead)}
 .bar{height:5px;border-radius:99px;background:#222d2f;overflow:hidden}
 .bar i{display:block;height:100%;border-radius:99px;transition:width .45s cubic-bezier(.22,.7,.3,1)}
-.callout{margin-top:16px;background:linear-gradient(90deg,#2c2415,#142124 70%);border:1px solid #584623;border-left:3px solid var(--accent);border-radius:8px;padding:13px 15px;font-size:13.5px;color:#d5dfe0}
+.callout{margin-top:16px;background:linear-gradient(90deg,#2c2415,var(--surface) 70%);border:1px solid #584623;border-left:3px solid var(--lab-accent);border-radius:8px;padding:13px 15px;font-size:13.5px;color:#d5dfe0}
 .callout b{color:#fff}
-.callout.good{background:linear-gradient(90deg,#172b21,#142124 70%);border-color:#2f5743;border-left-color:var(--outcome)}
-pre{background:#0A1315;border:1px solid var(--line);border-radius:8px;padding:12px;overflow-x:auto;
+.callout.good{background:linear-gradient(90deg,#172b21,var(--surface) 70%);border-color:#2f5743;border-left-color:var(--outcome)}
+pre{background:#0A1315;border:1px solid var(--rule);border-radius:8px;padding:12px;overflow-x:auto;
   font-family:var(--mono);font-size:11.5px;color:#cfdbdd;margin:0}
 .cmt{color:#608085}.kw{color:#b4c6c8}.str{color:#68ad8b}.num{color:#c6a666}
-table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
 .tablewrap{overflow-x:auto;border-radius:10px}
-thead th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+thead th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--rule)}
 tbody td{padding:10px 12px;font-size:12.5px;border-bottom:1px solid #222e30;vertical-align:top}
 tbody tr:last-child td{border-bottom:none}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:12px}
@@ -73,11 +70,11 @@ tbody tr:last-child td{border-bottom:none}
 <body>
 <div class="wrap">
   <div class="eyebrow">Lab 05 · Trajectory</div>
-  <h1>Five of these nine metrics <span style="color:var(--accent)">never move</span>.</h1>
+  <h1>Five of these nine metrics <span style="color:var(--lab-accent)">never move</span>.</h1>
   <p class="sub">A refund agent takes five steps: one fails, one is redundant, three do real work. Remove the waste one piece at a time and watch the outcome metrics report success the entire way — while step-level metrics swing from 0.60 to 1.00.</p>
 
   <div class="panel">
-    <h2>Task: <span style="font-family:var(--mono);font-size:13px;color:var(--accent)">"My order #4521 arrived broken, can I get a refund?"</span></h2>
+    <h2>Task: <span style="font-family:var(--mono);font-size:13px;color:var(--lab-accent)">"My order #4521 arrived broken, can I get a refund?"</span></h2>
     <div class="tabs" id="tabs">
       <button class="chip" data-v="0" aria-pressed="true">as traced</button>
       <button class="chip" data-v="1">without the redundant call</button>
@@ -97,12 +94,12 @@ tbody tr:last-child td{border-bottom:none}
       <div class="m outcome"><span class="k">1 · Tool selection<br>accuracy</span><b id="m1">✓</b><div class="bar"><i id="b1" style="background:var(--outcome)"></i></div></div>
       <div class="m outcome"><span class="k">2 · Tool call<br>correctness (args)</span><b id="m2">✓</b><div class="bar"><i id="b2" style="background:var(--outcome)"></i></div></div>
       <div class="m step"><span class="k">3 · Redundant<br>calls</span><b id="m3">1</b><div class="bar"><i id="b3" style="background:var(--red)"></i></div></div>
-      <div class="m step"><span class="k">4 · Step-wise<br>accuracy</span><b id="m4">0.60</b><div class="bar"><i id="b4" style="background:var(--accent)"></i></div></div>
+      <div class="m step"><span class="k">4 · Step-wise<br>accuracy</span><b id="m4">0.60</b><div class="bar"><i id="b4" style="background:var(--lab-accent)"></i></div></div>
       <div class="m outcome"><span class="k">5 · Task<br>success</span><b id="m5">✓</b><div class="bar"><i id="b5" style="background:var(--outcome)"></i></div></div>
       <div class="m outcome"><span class="k">6 · Trajectory match<br>(fuzzy)</span><b id="m6">✓</b><div class="bar"><i id="b6" style="background:var(--outcome)"></i></div></div>
       <div class="m outcome"><span class="k">7 · End-state<br>verification</span><b id="m7">✓</b><div class="bar"><i id="b7" style="background:var(--outcome)"></i></div></div>
       <div class="m step"><span class="k">8 · Recovery /<br>self-correction</span><b id="m8">1.00</b><div class="bar"><i id="b8" style="background:var(--ok)"></i></div></div>
-      <div class="m step"><span class="k">9 · Cost /<br>efficiency proxy</span><b id="m9">0.60</b><div class="bar"><i id="b9" style="background:var(--accent)"></i></div></div>
+      <div class="m step"><span class="k">9 · Cost /<br>efficiency proxy</span><b id="m9">0.60</b><div class="bar"><i id="b9" style="background:var(--lab-accent)"></i></div></div>
     </div>
 
     <div class="callout" id="callout"></div>
@@ -229,7 +226,7 @@ function render(){
   const v=VARIANTS[i];
   const m=metrics(v.trace);
 
-  $('scen').innerHTML=`<b style="color:var(--text)">${v.name}</b> — ${v.desc} <b style="color:var(--accent)">${m.steps} steps.</b>`;
+  $('scen').innerHTML=`<b style="color:var(--text)">${v.name}</b> — ${v.desc} <b style="color:var(--lab-accent)">${m.steps} steps.</b>`;
 
   traceEl.innerHTML=v.trace.map((s,j)=>{
     const cls = s.status==="error" ? "error" : s.redundant ? "redundant" : "";

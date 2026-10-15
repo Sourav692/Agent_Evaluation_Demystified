@@ -79,6 +79,16 @@ by `site/stamp_dates.py` and committed as `site/page-dates.json`
   This catches a skipped hook (`--no-verify`) or a clone without it. To fix, run
   `python3 site/stamp_dates.py` and commit the result.
 
+## Styles
+
+`site/assets/tokens.css` is the one source for colours, fonts, the type and spacing scales
+and the light/dark switch. The build prepends it to `site.css` (one request for rendered
+pages). The copied pages — the drill, the study plan and the six labs — link it as
+`../../site/assets/tokens.css`, so they still render when opened from a clone; the build
+rewrites that href to `assets/tokens.css`. The labs are dark-only and say so with
+`data-theme="dark"` on `<html>`. `check_dist.py`'s `tokens` rule fails a copied page that
+writes a token's colour as a hex literal instead of using the variable.
+
 ## Images
 
 `build()` copies `site/assets/` into `site/dist/assets/`. It holds the share preview
