@@ -163,6 +163,8 @@ SKIP = [
      "Folder index, and 16.5% the question bank plus 14.4% the drill -- it "
      "summarises pages the site already carries."),
     ("study-guide/README.md", "Folder index -- see navigation."),
+    ("about.md", "Rendered by SITE_PAGES (FE-06)."),
+    ("CHANGELOG.md", "Rendered by SITE_PAGES (FE-06)."),
 ]
 
 SECTION_ORDER = ["Theory", "Interview prep", "Audits", "Interactive labs", "Roadmap explainers"]

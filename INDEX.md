@@ -242,6 +242,16 @@ one per level, so neither document has to hold both jobs.
 | **Cost key** | none (no API calls) · key (live `OPENAI_API_KEY` calls) · cached (judged once, replayed from `data/score_cache/`) · workspace (a real Databricks workspace) |
 | **Levels 0–9** | One table per level, each row a notebook or doc, what it teaches, and its cost — the same ten levels as the roadmap, in lookup form |
 
+### `docs/about.md` — About the site (220 words)
+
+Who maintains the site, how to report a problem (GitHub issues), how the site is built, the
+privacy line, and the licences.
+
+### `docs/CHANGELOG.md` — Changelog
+
+What changed on the site, by date, newest first. Add an entry with every change a reader
+would notice.
+
 ### The four interactive HTML pages
 
 Open in a browser. No build step, no server, no API key.
