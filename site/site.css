@@ -174,12 +174,6 @@ tbody tr:last-child td{border-bottom:none}
 .skips{font-size:15.5px}
 .skips code{font-size:.8em}
 
-.foot{max-width:var(--maxw); margin:0 auto; padding:24px clamp(16px,3vw,28px) 56px;
-  border-top:1px solid var(--rule); color:var(--muted); font-size:15.5px;
-  font-style:italic; line-height:1.6}
-.foot p{margin:0; max-width:40em}
-.foot code{font-style:normal}
-
 :focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
 @media (prefers-reduced-motion:reduce){ *{transition:none!important; animation:none!important}
   html{scroll-behavior:auto} }

@@ -29,7 +29,7 @@ import shutil
 import sys
 from html import escape
 
-from head import head_tags
+from head import footer, head_tags
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(ROOT, "docs")
@@ -993,6 +993,7 @@ def sitebar():
 
 BODY_OPEN = re.compile(r"(<body[^>]*>)", re.I)
 HEAD_CLOSE = re.compile(r"</head>", re.I)
+BODY_CLOSE = re.compile(r"</body>", re.I)
 OWN_DESC = re.compile(r'<meta name="description" content="([^"]*)">\n?', re.I)
 
 
@@ -1031,7 +1032,7 @@ def chapter_row(group, pos, title):
             '<span class="ends">%s</span></div>' % (title, "".join(ends)))
 
 
-def shell(title, body, nav, head, is_index=False, diagrams=0, qa=0, rail=0,
+def shell(title, body, nav, head, foot, is_index=False, diagrams=0, qa=0, rail=0,
           chapter=""):
     home = "" if is_index else '<a class="home" href="index.html">&larr; All documents</a>'
     return """<!doctype html>
@@ -1060,13 +1061,10 @@ def shell(title, body, nav, head, is_index=False, diagrams=0, qa=0, rail=0,
 %s
 %s
 </main>
-<footer class="foot">
-  <p>Generated from the Markdown in <code>docs/</code> by <code>site/build.py</code>.
-  The Markdown is canonical &mdash; edit there and rebuild.</p>
-</footer>%s
+%s%s
 </body>
 </html>
-""" % (title, head, nav, chapter, home, body,
+""" % (title, head, nav, chapter, home, body, foot,
        (MERMAID_SCRIPT if diagrams else "") + (QA_SCRIPT if qa else "")
        + (DOCNAV_SCRIPT if rail else ""))
 
@@ -1165,6 +1163,7 @@ def build():
         page = shell(title_text, body, nav,
                      head_tags(slug + ".html", title_text, re.sub("<[^>]+>", "", blurb),
                                dates.get("docs/" + src)),
+                     footer("docs/" + src, dates.get("docs/" + src)),
                      diagrams=diagrams, qa=questions, rail=sections,
                      chapter=chapter)
         io.open(os.path.join(DIST, slug + ".html"), "w", encoding="utf-8").write(page)
@@ -1198,6 +1197,10 @@ def build():
             text, n = HEAD_CLOSE.subn(lambda m: tags + "\n" + m.group(0), text)
             if n != 1:
                 raise SystemExit("expected one </head> to attach the head tags to: %s" % src)
+            foot = footer("docs/" + src, dates.get("docs/" + src))
+            text, n = BODY_CLOSE.subn(lambda m: foot + "\n" + m.group(0), text)
+            if n != 1:
+                raise SystemExit("expected one </body> to attach the footer to: %s" % src)
             text, n = BODY_OPEN.subn(lambda m: m.group(1) + "\n" + sitebar(), text, count=1)
             if not n:
                 raise SystemExit("no <body> to attach the nav bar to: %s" % src)
@@ -1253,6 +1256,7 @@ interactive labs. The notebooks live in
               head_tags("index.html", "Agent Evaluation Demystified",
                         "Written companions to a hands-on course in evaluating RAG "
                         "systems and agents.", kind="website"),
+              footer(date=max(dates.values())),
               is_index=True))
 
     # ---- report
