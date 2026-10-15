@@ -613,7 +613,7 @@ Applying all of the above to a running multi-agent system surfaces what hand-bui
 
 # Part 6 — The worked labs
 
-Parts 0–5 are the compressed reference. This part is the same five surfaces walked through slowly against real numbers — the narrative companions to the six interactive labs in [`docs/interactive-labs/`](../interactive-labs/). Each one states the problem, derives the mechanism, walks the lab's own data, and says when not to reach for it. The interview questions that used to close each of these live in [`docs/interview-prep/QUESTION_BANK.md`](../interview-prep/QUESTION_BANK.md) Part 10.
+Parts 0–5 are the compressed reference. This part is the same five surfaces walked through slowly against real numbers — the narrative companions to the [six interactive labs](../interactive-labs/README.md#interactive-labs). Each one states the problem, derives the mechanism, walks the lab's own data, and says when not to reach for it. The interview questions that used to close each of these live in [`docs/interview-prep/QUESTION_BANK.md`](../interview-prep/QUESTION_BANK.md) Part 10.
 
 ## 6.1 Deterministic retrieval metrics: four numbers that are supposed to disagree
 

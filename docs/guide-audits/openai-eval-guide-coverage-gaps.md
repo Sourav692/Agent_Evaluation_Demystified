@@ -3,7 +3,7 @@
 Maps every topic in OpenAI's [Evaluation best practices guide](https://developers.openai.com/api/docs/guides/evaluation-best-practices?api-mode=responses)
 to where this repo teaches it, and names what is genuinely missing.
 
-**Checked against disk 2026-09-20; every row verified per course rather than repo-wide.**
+**Checked against the repository's files on 2026-09-20; every row verified per course rather than repo-wide.**
 Every path below was verified to exist. **All paths are relative to the repository root**,
 not to this file. Verdicts rest on the 107 tracked files under `courses/`, `docs/` and
 `labs/`; `archive/` is superseded, so it does not count as coverage.

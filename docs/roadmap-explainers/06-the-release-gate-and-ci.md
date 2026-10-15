@@ -596,7 +596,9 @@ escalation-appropriateness 0.90 → 0.71 with no room left to hedge or decline, 
 ## References
 
 All content above was drawn only from material already in this repository. Nothing here was
-invented, and no external source was consulted. The retired launch-gate reference page has been
+invented, and no external source was consulted. This page is the restyled edition of
+`archive/roadmap-explainers-org/06-the-release-gate-and-ci.md`; its content is the same, with platform and optimizer product
+names replaced by what each mechanism does. The retired launch-gate reference page has been
 merged into it: the metric-versus-gate table (Section 1), the trajectory-assertion framing of the
 safety check, the tenant-collapse case and the stratified-suite requirement (Section 2), and the
 canary and rollback boundaries (Section 9).
