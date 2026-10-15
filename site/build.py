@@ -28,8 +28,9 @@ import re
 import shutil
 import sys
 from html import escape
+from xml.sax.saxutils import escape as xml_escape
 
-from head import footer, head_tags
+from head import SITE_URL, footer, head_tags, page_url
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(ROOT, "docs")
@@ -1250,6 +1251,32 @@ interactive labs. The notebooks live in
                         "systems and agents.", kind="website"),
               footer(date=max(dates.values())),
               is_index=True))
+
+    # ---- 404: Vercel serves it for any unknown path, even /a/b/c, so <base> makes
+    # its relative links (stylesheet, nav, footer) resolve from the root.
+    sections = "".join('<li><a href="index.html#%s">%s</a></li>'
+                       % (s.lower().replace(" ", "-"), s) for s in SECTION_ORDER)
+    body = """<article class="doc"><h1>This page doesn&rsquo;t exist</h1>
+<p>The link may be old, or the address mistyped. Every page is one of these sections:</p>
+<ul>%s</ul>
+<p><a href="00-orientation.html">Start at Level 0 &rarr;</a></p></article>""" % sections
+    io.open(os.path.join(DIST, "404.html"), "w", encoding="utf-8").write(
+        shell("Page not found &middot; Agent Evaluation Demystified", body, top_nav(None),
+              '<base href="/">\n' + head_tags("404.html", "Page not found",
+                                               "This page doesn't exist.", kind="404"),
+              footer(), is_index=True))
+
+    # ---- robots.txt and sitemap.xml, from the pages written this run
+    pages = ([(out, dates.get("docs/" + src)) for src, out, *_ in rendered]
+             + [(out, dates.get("docs/" + src)) for src, out in copied]
+             + [("index.html", max(dates.values()))])
+    urls = "".join("<url><loc>%s</loc><lastmod>%s</lastmod></url>\n"
+                   % (xml_escape(page_url(out)), date) for out, date in pages)
+    io.open(os.path.join(DIST, "sitemap.xml"), "w", encoding="utf-8").write(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n%s</urlset>\n' % urls)
+    io.open(os.path.join(DIST, "robots.txt"), "w", encoding="utf-8").write(
+        "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % SITE_URL)
 
     # ---- report
     print("rendered from Markdown:")
