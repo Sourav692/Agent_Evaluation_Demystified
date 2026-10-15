@@ -123,14 +123,14 @@ tbody tr:last-child td{border-bottom:none}
 <span class="cmt"># recommended pattern is a custom GEval rubric instead of a generic class.</span>
 
 <span class="kw">from</span> deepeval.metrics <span class="kw">import</span> GEval
-<span class="kw">from</span> deepeval.test_case <span class="kw">import</span> LLMTestCaseParams
+<span class="kw">from</span> deepeval.test_case <span class="kw">import</span> SingleTurnParams
 
 <span class="cmt"># Style 1 — criteria: one sentence, DeepEval expands it into a procedure.</span>
 correctness = GEval(
     name=<span class="str">"Answer Correctness"</span>,
     criteria=<span class="str">"Determine whether actual_output is factually correct relative to expected_output."</span>,
-    evaluation_params=[LLMTestCaseParams.INPUT, LLMTestCaseParams.ACTUAL_OUTPUT,
-                       LLMTestCaseParams.EXPECTED_OUTPUT],
+    evaluation_params=[SingleTurnParams.INPUT, SingleTurnParams.ACTUAL_OUTPUT,
+                       SingleTurnParams.EXPECTED_OUTPUT],
     threshold=<span class="num">0.7</span>,
 )
 
@@ -144,8 +144,8 @@ correctness_v2 = GEval(
         <span class="str">"Penalise a wrong complexity class heavily; penalise wording drift lightly."</span>,
         <span class="str">"Verify each claim is also supported by retrieval_context."</span>,
     ],
-    evaluation_params=[LLMTestCaseParams.INPUT, LLMTestCaseParams.ACTUAL_OUTPUT,
-                       LLMTestCaseParams.EXPECTED_OUTPUT, LLMTestCaseParams.RETRIEVAL_CONTEXT],
+    evaluation_params=[SingleTurnParams.INPUT, SingleTurnParams.ACTUAL_OUTPUT,
+                       SingleTurnParams.EXPECTED_OUTPUT, SingleTurnParams.RETRIEVAL_CONTEXT],
     threshold=<span class="num">0.7</span>,
 )
 </pre>
