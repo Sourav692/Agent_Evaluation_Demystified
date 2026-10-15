@@ -759,6 +759,26 @@ def rail_headings(html):
     return []
 
 
+LEVEL_TAG = re.compile(r"<(/?)h([1-6])\b")
+
+
+def demote_extra_h1(html):
+    """Keep the first <h1> and shift every later heading down one level (h6 caps).
+
+    Five long documents carry their Parts as <h1>, which is right on GitHub and
+    wrong on a web page: a page should have one <h1>. The Markdown stays as it is,
+    and this runs after the rail and the question folds are built, so they see the
+    levels they were written for. ids are untouched, so #anchors still land.
+    """
+    first = re.search(r"<h1\b", html)
+    if not first or not re.search(r"<h1\b", html[first.end():]):
+        return html
+    end = html.index("</h1>", first.end()) + len("</h1>")
+    rest = LEVEL_TAG.sub(lambda m: "<%sh%d" % (m.group(1), min(int(m.group(2)) + 1, 6)),
+                         html[end:])
+    return html[:end] + rest
+
+
 def docnav(html):
     """Build the sticky section rail from the page's <h1>s. Returns (html, n).
 
@@ -931,7 +951,7 @@ DOCNAV_SCRIPT = """
 // the Markdown so no document carries link markup of its own.
 (function () {
   var heads = document.querySelectorAll("article.doc h1[id], article.doc h2[id], "
-                                        + "article.doc h3[id]");
+                                        + "article.doc h3[id], article.doc h4[id]");
   [].forEach.call(heads, function (h) {
     var a = document.createElement("a");
     a.className = "anchor";
@@ -1158,6 +1178,7 @@ def build():
         html, refs = fold_references(html)
         html, tables = tablecards(html)
         rail, sections = docnav(html)
+        html = demote_extra_h1(html)
         article = '<article class="doc">%s</article>' % html
         body = '<div class="withnav">%s%s</div>' % (rail, article) if rail else article
         title_text = re.sub("<[^>]+>", "", title)

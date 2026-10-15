@@ -94,6 +94,8 @@ h2{font-size:clamp(26px,3.4vw,32px); font-weight:500; margin:52px 0 16px; paddin
   border-top:1px solid var(--rule)}
 h3{font-size:22px; font-weight:600; margin:32px 0 9px}
 h4{font-size:19px; font-weight:600; margin:22px 0 7px; color:var(--muted)}
+h5{font-family:var(--serif); font-size:17px; font-weight:600; line-height:1.2;
+  margin:20px 0 6px; color:var(--muted)}
 p{margin:0 0 15px}
 .lede{font-size:20.5px; font-weight:300; color:var(--muted); margin:10px 0 34px;
   max-width:36em; line-height:1.62}
@@ -206,8 +208,10 @@ tbody tr:last-child td{border-bottom:none}
 .qa > summary:hover .qa-q{color:var(--accent-text)}
 
 .qa-h{margin:0; padding:0; border:0; font-weight:500; line-height:1.36; letter-spacing:-.01em}
-h2.qa-h{font-size:21px}
-h4.qa-h{font-size:18px; color:var(--text)}
+/* The question bank's folds sit at h3 (questions) and h5 (cases): the build
+   demotes its Part <h1>s so the page has one <h1>. */
+h3.qa-h{font-size:21px}
+h5.qa-h{font-size:18px; color:var(--text)}
 .qa-n{font-family:var(--mono); font-size:12.5px; color:var(--muted); margin-right:10px;
   white-space:nowrap}
 .qa[open] .qa-n{color:var(--accent-text)}
@@ -216,8 +220,8 @@ h4.qa-h{font-size:18px; color:var(--text)}
 .qa-body{padding:0 0 28px 32px}
 .qa-body > :first-child{margin-top:0}
 .qa-body > p, .qa-body > ul, .qa-body > ol, .qa-body > blockquote{max-width:var(--measure)}
-.qa-body h3, .qa-body h4{margin-top:24px}
-.qa-body h4{border:0}
+.qa-body h4, .qa-body h5{margin-top:24px}
+.qa-body h5{border:0}
 @media (max-width:640px){ .qa-body{padding-left:0} }
 @media print{
   .qa-bar{display:none}
@@ -310,7 +314,7 @@ details.plain[open] > summary{border-bottom:1px solid var(--rule)}
 
 /* Anchor jumps have to clear the sticky header -- every level, not just h1,
    since the explainers section at h2 and deep-link at h3. */
-.doc h1, .doc h2, .doc h3{scroll-margin-top:calc(var(--bar-h) + 12px)}
+.doc h1, .doc h2, .doc h3, .doc h4{scroll-margin-top:calc(var(--bar-h) + 12px)}
 
 @media (max-width:900px){
   /* Below this a sticky rail would eat the reading column, so it becomes a
@@ -385,10 +389,10 @@ details.plain[open] > summary{border-bottom:1px solid var(--rule)}
 .badge-row .badge code{background:none; padding:0; font-size:inherit; color:var(--text)}
 
 /* ---- heading anchors ---------------------------------------------------- */
-.doc h1, .doc h2, .doc h3{position:relative}
+.doc h1, .doc h2, .doc h3, .doc h4{position:relative}
 .doc .anchor{margin-left:.4em; color:var(--muted); opacity:0; text-decoration:none;
   font-family:var(--mono); font-weight:400; font-size:.7em; vertical-align:middle}
-.doc h1:hover .anchor, .doc h2:hover .anchor, .doc h3:hover .anchor,
+.doc h1:hover .anchor, .doc h2:hover .anchor, .doc h3:hover .anchor, .doc h4:hover .anchor,
 .doc .anchor:focus{opacity:.55}
 .doc .anchor:hover{opacity:1; color:var(--accent-text)}
 .doc .anchor.copied{opacity:1; color:var(--pass)}
