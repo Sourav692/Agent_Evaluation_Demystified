@@ -166,8 +166,14 @@ SKIP = [
      "Folder index, and 16.5% the question bank plus 14.4% the drill -- it "
      "summarises pages the site already carries."),
     ("study-guide/README.md", "Folder index -- see navigation."),
-    ("about.md", "Rendered by SITE_PAGES (FE-06)."),
-    ("CHANGELOG.md", "Rendered by SITE_PAGES (FE-06)."),
+]
+
+# Pages about the site rather than the subject. Rendered like RENDER, linked from the
+# footer, never carded on the index.
+SITE_PAGES = [
+    ("about.md", "about", "About", "Who maintains this site, how to report a problem, "
+     "how it is built, and the licences."),
+    ("CHANGELOG.md", "changelog", "Changelog", "What changed on the site, newest first."),
 ]
 
 SECTION_ORDER = ["Theory", "Interview prep", "Audits", "Interactive labs", "Roadmap explainers"]
@@ -250,7 +256,7 @@ def topics_html(slug, topics):
 
 
 def slug_for(src):
-    for entries in RENDER.values():
+    for entries in [*RENDER.values(), SITE_PAGES]:
         for s, slug, _, _ in entries:
             if s == src:
                 return slug + ".html"
@@ -1092,17 +1098,18 @@ def docs_sources():
 
 
 def check_completeness():
-    """Fail (or warn) on a docs/ page that is in none of RENDER, COPY, SKIP.
+    """Fail (or warn) on a docs/ page that is in none of RENDER, COPY, SITE_PAGES, SKIP.
 
     Without this, a new page under docs/ is silently never published.
     """
     known = ({s for g in RENDER.values() for s, *_ in g}
              | {s for g in COPY.values() for s, *_ in g}
-             | {s for s, _ in SKIP})
+             | {s for s, _ in SKIP}
+             | {s for s, *_ in SITE_PAGES})
     missing = [f for f in docs_sources() if f not in known]
     if not missing:
         return
-    msg = ("%d file(s) under docs/ are in none of RENDER, COPY or SKIP:\n   %s"
+    msg = ("%d file(s) under docs/ are in none of RENDER, COPY, SITE_PAGES or SKIP:\n   %s"
            % (len(missing), "\n   ".join(missing)))
     if STRICT_COMPLETENESS:
         raise SystemExit(msg)
@@ -1128,42 +1135,47 @@ def build():
     linked_paths = 0
     dates = json.load(io.open(os.path.join(ROOT, "site", "page-dates.json"), encoding="utf-8"))
 
+    def render(src, slug, title, blurb, nav, chapter=""):
+        """Markdown under docs/ -> site/dist/<slug>.html through the shared shell."""
+        nonlocal linked_paths
+        path = os.path.join(DOCS, src)
+        text = io.open(path, encoding="utf-8").read()
+        source, unfenced = unfence_in_lists(text)
+        md = markdown.Markdown(extensions=["tables", "fenced_code", "toc",
+                                           "sane_lists", "attr_list"])
+        html = md.convert(source)
+        html = LINK.sub(
+            lambda m: m.group(1) + rewrite_link(m.group(2), "docs/" + src) + m.group(3),
+            html)
+        html, paths = linkify_code_paths(html)
+        linked_paths += paths
+        html, diagrams = mermaidise(html)
+        html, plains = plainify(html)
+        html, questions = collapsify(html)
+        html, badges = badgify(html)
+        html, _rules = dedupe_rules(html)
+        html, callouts = calloutify(html)
+        html, examples = worked_examples(html)
+        html, refs = fold_references(html)
+        html, tables = tablecards(html)
+        rail, sections = docnav(html)
+        article = '<article class="doc">%s</article>' % html
+        body = '<div class="withnav">%s%s</div>' % (rail, article) if rail else article
+        title_text = re.sub("<[^>]+>", "", title)
+        page = shell(title_text, body, nav,
+                     head_tags(slug + ".html", title_text, re.sub("<[^>]+>", "", blurb),
+                               dates.get("docs/" + src)),
+                     diagrams=diagrams, qa=questions, rail=sections,
+                     chapter=chapter)
+        io.open(os.path.join(DIST, slug + ".html"), "w", encoding="utf-8").write(page)
+        rendered.append((src, slug + ".html", len(text.split()), diagrams,
+                         questions, plains, sections, tables, callouts,
+                         badges, examples))
+
     for section in SECTION_ORDER:
         group = RENDER.get(section, [])
         for pos, (src, slug, title, blurb) in enumerate(group):
-            path = os.path.join(DOCS, src)
-            text = io.open(path, encoding="utf-8").read()
-            source, unfenced = unfence_in_lists(text)
-            md = markdown.Markdown(extensions=["tables", "fenced_code", "toc",
-                                               "sane_lists", "attr_list"])
-            html = md.convert(source)
-            html = LINK.sub(
-                lambda m: m.group(1) + rewrite_link(m.group(2), "docs/" + src) + m.group(3),
-                html)
-            html, paths = linkify_code_paths(html)
-            linked_paths += paths
-            html, diagrams = mermaidise(html)
-            html, plains = plainify(html)
-            html, questions = collapsify(html)
-            html, badges = badgify(html)
-            html, _rules = dedupe_rules(html)
-            html, callouts = calloutify(html)
-            html, examples = worked_examples(html)
-            html, refs = fold_references(html)
-            html, tables = tablecards(html)
-            rail, sections = docnav(html)
-            article = '<article class="doc">%s</article>' % html
-            body = '<div class="withnav">%s%s</div>' % (rail, article) if rail else article
-            title_text = re.sub("<[^>]+>", "", title)
-            page = shell(title_text, body, top_nav(section),
-                         head_tags(slug + ".html", title_text, re.sub("<[^>]+>", "", blurb),
-                                   dates.get("docs/" + src)),
-                         diagrams=diagrams, qa=questions, rail=sections,
-                         chapter=chapter_row(group, pos, title))
-            io.open(os.path.join(DIST, slug + ".html"), "w", encoding="utf-8").write(page)
-            rendered.append((src, slug + ".html", len(text.split()), diagrams,
-                             questions, plains, sections, tables, callouts,
-                             badges, examples))
+            render(src, slug, title, blurb, top_nav(section), chapter_row(group, pos, title))
 
         for src, title, blurb in COPY.get(section, []):
             # Copied pages carry links written for their old home under docs/ --
@@ -1191,6 +1203,10 @@ def build():
                 raise SystemExit("no <body> to attach the nav bar to: %s" % src)
             io.open(os.path.join(DIST, copied_name(src)), "w", encoding="utf-8").write(text)
             copied.append((src, copied_name(src)))
+
+    # Site pages (about, changelog): the same rendering, but no index card and no nav section.
+    for src, slug, title, blurb in SITE_PAGES:
+        render(src, slug, title, blurb, top_nav(None))
 
     # ---- index
     topics = roadmap_topics()

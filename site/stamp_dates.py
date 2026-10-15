@@ -20,14 +20,14 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from build import COPY, RENDER, ROOT  # noqa: E402
+from build import COPY, RENDER, ROOT, SITE_PAGES  # noqa: E402
 
 MANIFEST = os.path.join(ROOT, "site", "page-dates.json")
 
 
 def published():
     """Repo paths of every page the site builds from docs/."""
-    srcs = [s for g in RENDER.values() for s, *_ in g] + [s for g in COPY.values() for s, *_ in g]
+    srcs = [s for g in [*RENDER.values(), *COPY.values(), SITE_PAGES] for s, *_ in g]
     return sorted("docs/" + s for s in srcs)
 
 

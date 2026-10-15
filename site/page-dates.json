@@ -1,4 +1,6 @@
 {
+ "docs/CHANGELOG.md": "2026-10-15",
+ "docs/about.md": "2026-10-15",
  "docs/concepts/cost-tracking-and-guardrails.md": "2026-10-15",
  "docs/concepts/customer-support-multi-agent-case-study.md": "2026-10-15",
  "docs/concepts/databricks-mlflow-evals.md": "2026-10-15",
