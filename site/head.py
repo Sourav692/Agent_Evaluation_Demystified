@@ -1,5 +1,5 @@
 """The <head> tags and the footer every page shares: description, share preview,
-canonical, favicons, JSON-LD, and who maintains the page and when it changed. Used by shell() for rendered pages and injected into the
+canonical, self-hosted fonts, favicons, JSON-LD, and who maintains the page and when it changed. Used by shell() for rendered pages and injected into the
 copied pages, so a shared link previews the same way from either family.
 
 Titles and descriptions arrive as HTML text (the RENDER and COPY lists hold
@@ -62,7 +62,10 @@ def head_tags(filename, title, description, date=None, kind="article"):
             '<meta property="og:image:alt" content="Agent Evaluation Demystified">',
             '<meta name="twitter:card" content="summary_large_image">',
         ]
-    tags += ['<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">',
+    tags += ['<link rel="preload" href="assets/fonts/newsreader.woff2" as="font" '
+             'type="font/woff2" crossorigin>',
+             '<link rel="stylesheet" href="assets/fonts.css">',
+             '<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">',
              '<link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">']
     if kind == "article":
         tags.append(json_ld(filename, title, description, date))

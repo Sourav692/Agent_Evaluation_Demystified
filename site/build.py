@@ -1014,6 +1014,7 @@ def sitebar():
 
 BODY_OPEN = re.compile(r"(<body[^>]*>)", re.I)
 HEAD_CLOSE = re.compile(r"</head>", re.I)
+GOOGLE_FONTS = re.compile(r'<link[^>]*fonts\.(?:googleapis|gstatic)\.com[^>]*>\n?', re.I)
 BODY_CLOSE = re.compile(r"</body>", re.I)
 OWN_DESC = re.compile(r'<meta name="description" content="([^"]*)">\n?', re.I)
 
@@ -1063,9 +1064,6 @@ def shell(title, body, nav, head, foot, is_index=False, diagrams=0, qa=0, rail=0
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>%s</title>
 %s
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Spline+Sans+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
@@ -1212,6 +1210,7 @@ def build():
             # description, when it has one, become the share tags. The original
             # description goes, so it isn't there twice.
             own_title = re.search(r"<title>(.*?)</title>", text, re.S).group(1).strip()
+            text = GOOGLE_FONTS.sub("", text)  # head_tags() links the self-hosted copies
             desc = OWN_DESC.search(text)
             text = OWN_DESC.sub("", text)
             tags = head_tags(copied_name(src), own_title, desc.group(1) if desc else blurb,
