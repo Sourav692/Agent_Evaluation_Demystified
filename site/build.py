@@ -357,7 +357,7 @@ MERMAID = re.compile(r'<pre><code class="language-mermaid">(.*?)</code></pre>', 
 # in both site themes, and the diagram reads as a figure rather than a hole.
 MERMAID_SCRIPT = """
 <script type="module">
-  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
   mermaid.initialize({
     startOnLoad: true,
     theme: "default",
