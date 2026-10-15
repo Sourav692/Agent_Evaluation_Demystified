@@ -345,6 +345,24 @@ def linkify_code_paths(html):
     return "".join(parts), count
 
 
+# Once a repo path links a page the site serves, the path itself is a build
+# internal: "Docs: docs/concepts/databricks-mlflow-evals.md" reads better as
+# "Docs: MLflow & Databricks". The page's nav title replaces the path; paths to
+# files the site doesn't serve (notebooks, folders) stay as written.
+SITE_LINK = re.compile(r'(<a href="([^"#]+\.html)(?:#[^"]*)?">)<code>docs/[^<]*</code>(</a>)')
+
+
+def titlify_site_links(html):
+    titles = {slug + ".html": t for s in [*RENDER.values(), SITE_PAGES] for _, slug, t, _ in s}
+    titles.update({copied_name(src): t for s in COPY.values() for src, t, _ in s})
+    parts = re.split(r"(<script\b.*?</script>)", html, flags=re.S)
+    for i in range(0, len(parts), 2):
+        parts[i] = SITE_LINK.sub(
+            lambda m: m.group(1) + titles[m.group(2)] + m.group(3) if m.group(2) in titles
+            else m.group(0), parts[i])
+    return "".join(parts)
+
+
 # Two concept docs were converted by Pandoc and keep its conventions: `\$` (so
 # GitHub doesn't read `$2,900 ... $0.029` as maths -- the escape must stay in
 # the source), `---` for an em dash and `1--5` for an en dash. Python-Markdown
@@ -1194,6 +1212,7 @@ def build():
             html)
         html, paths = linkify_code_paths(html)
         linked_paths += paths
+        html = titlify_site_links(html)
         html, diagrams = mermaidise(html)
         html, plains = plainify(html)
         html, questions = collapsify(html)
@@ -1234,6 +1253,7 @@ def build():
                 text)
             text, paths = linkify_code_paths(text)
             linked_paths += paths
+            text = titlify_site_links(text)
             # The page's own <title> (more specific than the nav title) and its own
             # description, when it has one, become the share tags. The original
             # description goes, so it isn't there twice.
