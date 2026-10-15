@@ -67,6 +67,9 @@ def head_tags(filename, title, description, date=None, kind="article"):
              '<link rel="stylesheet" href="assets/fonts.css">',
              '<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">',
              '<link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">']
+    # Vercel Web Analytics: cookieless page views, same origin. 404s locally and
+    # until the analytics are enabled on the project; harmless either way.
+    tags.append('<script defer src="/_vercel/insights/script.js"></script>')
     if kind == "article":
         tags.append(json_ld(filename, title, description, date))
     return "\n".join(tags)
@@ -108,7 +111,8 @@ def footer(src=None, date=None):
 if __name__ == "__main__":
     t = head_tags("x.html", "MLflow &amp; Databricks", 'Say "hi" </script>', "2026-10-15")
     assert 'content="MLflow &amp; Databricks"' in t  # entity not double-escaped
-    assert t.count("</script>") == 1  # the description's "</script>" can't close the JSON-LD early
+    # a "</script>" in the description can't close the JSON-LD early
+    assert json_ld("x.html", "t", "a </script>", None).count("</script>") == 1
     assert '"dateModified": "2026-10-15"' in t
     assert "noindex" in head_tags("404.html", "Not found", "d", kind="404")
     assert 'href="https://eval-demystified.vercel.app/"' in head_tags("index.html", "t", "d", kind="website")
