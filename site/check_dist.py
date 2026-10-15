@@ -15,6 +15,7 @@ Rules, one function each:
   blob-link    no GitHub blob link to a doc the site serves itself
   link         every relative <a href> resolves to a built file, and its #fragment to an id
   cdn-pin      every jsDelivr npm URL names an exact x.y.z version
+  pandoc       no literal \\$ or spaced --- in page text (Pandoc's escape and em dash)
 
 Stdlib only.
 """
@@ -77,7 +78,16 @@ def cdn_pin(name, html, ctx):
             if not re.fullmatch(r"\d+\.\d+\.\d+", v)]
 
 
-RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin]
+CODE_ZONES = re.compile(r"<(pre|code|script|style)\b.*?</\1>", re.S)
+
+
+def pandoc(name, html, ctx):
+    text = CODE_ZONES.sub("", html)
+    return (["%d literal \\$" % text.count("\\$")] if "\\$" in text else []) + \
+           (["literal --- in %r" % m for m in re.findall(r".{0,30}\s---\s.{0,30}", text)])
+
+
+RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc]
 
 
 def context(pages):
@@ -111,6 +121,7 @@ def self_test():
         "blob-link": ok + '<a href="%sdocs/about.md">x</a>' % REPO_URL,
         "link": ok + '<a href="missing.html">x</a><a href="b.html#nope">y</a>',
         "cdn-pin": ok + '<script src="https://cdn.jsdelivr.net/npm/mermaid@11/x.js"></script>',
+        "pandoc": ok + "<h2>System --- Gating</h2><p>Acme \\$2,900</p>",
     }
     for rule, html in cases.items():
         hits = [e for e in check({"a.html": html, "b.html": b}) if e.startswith("a.html: %s:" % rule)]
@@ -119,7 +130,8 @@ def self_test():
     quiet = ok + ("<pre><code>docs/x.md</code></pre><a href=\"y\"><code>docs/x.md</code></a>"
                   "<script>s='<code>docs/x.md</code><h1>'</script>"
                   '<a href="https://example.com/z.html">e</a><a href="mailto:x@y">m</a>'
-                  '<script src="https://cdn.jsdelivr.net/npm/mermaid@11.17.2/x.js"></script>')
+                  '<script src="https://cdn.jsdelivr.net/npm/mermaid@11.17.2/x.js"></script>'
+                  "<pre>a --- b \\$1</pre><code>\\$x</code>")
     assert [e for e in check({"a.html": quiet, "b.html": b}) if "a.html" in e and "link" not in e] == []
     assert head("404.html", '<meta name="robots" content="noindex">', None) == []
     print("self-test ok")

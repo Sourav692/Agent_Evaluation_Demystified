@@ -344,6 +344,22 @@ def linkify_code_paths(html):
         parts[i] = CODE_PATH.sub(link, parts[i])
     return "".join(parts), count
 
+
+# Two concept docs were converted by Pandoc and keep its conventions: `\$` (so
+# GitHub doesn't read `$2,900 ... $0.029` as maths -- the escape must stay in
+# the source), `---` for an em dash and `1--5` for an en dash. Python-Markdown
+# knows none of them and prints them literally. Outside <pre>, <code> and
+# <script> they become what Pandoc would have printed.
+PANDOC_SKIP = re.compile(r"(<pre\b.*?</pre>|<code\b.*?</code>|<script\b.*?</script>)", re.S)
+
+
+def pandoc_typography(html):
+    parts = PANDOC_SKIP.split(html)
+    for i in range(0, len(parts), 2):  # odd indexes are the skipped zones
+        t = re.sub(r"(\s)---(\s)", "\\1\u2014\\2", parts[i].replace("\\$", "$"))
+        parts[i] = re.sub(r"(\d)--(\d)", "\\1\u2013\\2", t)
+    return "".join(parts)
+
 # ```mermaid fences render as a plain code block by default. Mermaid reads
 # element.textContent, and the browser decodes the entities the Markdown
 # renderer escaped (&lt;br/&gt; -> <br/>), so the escaped body can be handed
@@ -1172,7 +1188,7 @@ def build():
         md = markdown.Markdown(extensions=["tables", "fenced_code", "toc",
                                            "sane_lists", "attr_list"],
                                extension_configs={"toc": {"slugify": github_slug}})
-        html = md.convert(source)
+        html = pandoc_typography(md.convert(source))
         html = LINK.sub(
             lambda m: m.group(1) + rewrite_link(m.group(2), "docs/" + src) + m.group(3),
             html)

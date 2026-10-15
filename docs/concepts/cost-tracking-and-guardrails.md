@@ -227,15 +227,13 @@ Cache Savings
 
 Example:
 
-  Agent                 Input Tokens   Output Tokens      Cost
-
----
-
-  Supervisor                     800              50   \$0.002
-  Replacement Agent            2,000             300   \$0.006
-  RAG Agent                    1,500             200   \$0.004
-  RAG Generation               4,000             400   \$0.011
-  Final Response               2,500             250   \$0.007
+| Agent | Input tokens | Output tokens | Cost |
+|---|--:|--:|--:|
+| Supervisor | 800 | 50 | \$0.002 |
+| Replacement Agent | 2,000 | 300 | \$0.006 |
+| RAG Agent | 1,500 | 200 | \$0.004 |
+| RAG Generation | 4,000 | 400 | \$0.011 |
+| Final Response | 2,500 | 250 | \$0.007 |
 
 ```text
 Total LLM Cost = $0.030
@@ -264,15 +262,13 @@ Track each independently.
 
 Example:
 
-  RAG Component              Cost
-
----
-
-  Embedding              \$0.0002
-  Vector Search          \$0.0005
-  Reranking              \$0.0010
-  LLM Generation         \$0.0110
-  **RAG Total**      **\$0.0127**
+| RAG component | Cost |
+|---|--:|
+| Embedding | \$0.0002 |
+| Vector Search | \$0.0005 |
+| Reranking | \$0.0010 |
+| LLM Generation | \$0.0110 |
+| **RAG Total** | **\$0.0127** |
 
 This becomes important when configuration changes.
 
@@ -330,14 +326,12 @@ Estimated cost
 
 Example:
 
-  Tool                    Cost
-
----
-
-  Order API                \$0
-  RAG Search           \$0.001
-  External Search      \$0.005
-  SMS Notification     \$0.008
+| Tool | Cost |
+|---|--:|
+| Order API | \$0 |
+| RAG Search | \$0.001 |
+| External Search | \$0.005 |
+| SMS Notification | \$0.008 |
 
 ---
 
@@ -391,13 +385,11 @@ not only a financial problem.
 
 For a multi-tenant platform, aggregate cost by tenant.
 
-  Tenant      Requests   Total Cost   Cost / Request
-
----
-
-  Acme            100K      \$2,900          \$0.029
-  Globex           50K      \$2,100          \$0.042
-  Contoso         200K      \$4,000          \$0.020
+| Tenant | Requests | Total cost | Cost / request |
+|---|--:|--:|--:|
+| Acme | 100K | \$2,900 | \$0.029 |
+| Globex | 50K | \$2,100 | \$0.042 |
+| Contoso | 200K | \$4,000 | \$0.020 |
 
 If Globex has unusually high cost/request, drill down:
 
@@ -1112,25 +1104,12 @@ flowchart TD
 
 A useful dashboard can be divided into four groups.
 
----
-
-  Area                                Important Metrics
-
----
-
-  **Cost**                            Cost/request, tokens/request,
-                                      cost/tenant, cost/agent, RAG cost,
-                                      tool cost
-
-  **Agent**                           Steps/request, tool calls/request,
-                                      loops, retries, delegation count
-
-  **Guardrails**                      Blocks, approvals, authorization
-                                      failures, cross-tenant attempts
-
-**Quality**                         Groundedness, correctness,
-                                      resolution rate, escalation rate
-----------------------------------------------------------------------
+| Area | Important metrics |
+|---|---|
+| **Cost** | Cost/request, tokens/request, cost/tenant, cost/agent, RAG cost, tool cost |
+| **Agent** | Steps/request, tool calls/request, loops, retries, delegation count |
+| **Guardrails** | Blocks, approvals, authorization failures, cross-tenant attempts |
+| **Quality** | Groundedness, correctness, resolution rate, escalation rate |
 
 The important part is correlating them.
 
