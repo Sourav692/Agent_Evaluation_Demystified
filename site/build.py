@@ -28,11 +28,6 @@ import shutil
 import sys
 from html import escape
 
-try:
-    import markdown
-except ImportError:
-    sys.exit("markdown is not installed.  pip install -r site/requirements.txt")
-
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(ROOT, "docs")
 DIST = os.path.join(ROOT, "site", "dist")
@@ -1108,6 +1103,12 @@ def check_completeness():
 
 
 def build():
+    # Imported here, not at the top, so stdlib-only tools (site/stamp_dates.py)
+    # can import this module's page lists without markdown installed.
+    try:
+        import markdown
+    except ImportError:
+        sys.exit("markdown is not installed.  pip install -r site/requirements.txt")
     check_completeness()
     if os.path.isdir(DIST):
         shutil.rmtree(DIST)

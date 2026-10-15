@@ -55,3 +55,23 @@ Write the Markdown in `docs/`, add it to `RENDER` in `build.py` with a slug, a n
 title and a one-line blurb, and rebuild. If it should not be on the site, add it to
 `SKIP` with the reason — that reason is published on the index page under
 *"What is deliberately not here"*.
+
+## Page dates
+
+Every published page shows when it last changed, and the sitemap's `lastmod` reads
+the same date. Vercel's build has no git history, so the dates are computed locally
+by `site/stamp_dates.py` and committed as `site/page-dates.json`
+(`{"docs/<path>": "YYYY-MM-DD"}`, one entry per page in `RENDER` and `COPY`).
+
+- **The pre-commit hook stamps them.** Add this line before the hook's final
+  `exec` line in `.git/hooks/pre-commit` (hooks aren't tracked, so each clone needs it):
+
+  ```sh
+  root="$(git rev-parse --show-toplevel)"
+  python3 "$root/site/stamp_dates.py" --staged && git add "$root/site/page-dates.json" || exit 1
+  ```
+
+- **CI is the real control.** The docs-sync workflow runs `stamp_dates.py --check`
+  and fails, naming the file, when a page's date doesn't match its last commit.
+  This catches a skipped hook (`--no-verify`) or a clone without it. To fix, run
+  `python3 site/stamp_dates.py` and commit the result.

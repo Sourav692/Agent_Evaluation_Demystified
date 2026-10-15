@@ -15,6 +15,10 @@
 #                   commit. Nothing noticed.
 #
 #   link-check      every relative link under docs/ still resolves.
+#
+#   page-dates      site/page-dates.json holds each published page's last-commit
+#                   date. Vercel can't compute it (no git history), so it is
+#                   stamped by the pre-commit hook; this catches a skipped hook.
 
 name: docs-sync
 
@@ -26,6 +30,7 @@ on:
       - '.github/scripts/check_drill_sync.py'
       - '.github/scripts/check_index_coverage.py'
       - '.github/workflows/docs-sync.yml'
+      - 'site/**'
   pull_request:
     paths:
       - 'docs/**'
@@ -33,6 +38,7 @@ on:
       - '.github/scripts/check_drill_sync.py'
       - '.github/scripts/check_index_coverage.py'
       - '.github/workflows/docs-sync.yml'
+      - 'site/**'
 
 jobs:
   docs-consistency:
@@ -40,6 +46,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # page-dates needs every file's last commit
 
       - name: Drill matches the question bank
         run: python3 .github/scripts/check_drill_sync.py
@@ -49,3 +57,6 @@ jobs:
 
       - name: Every relative link resolves
         run: python3 .claude/skills/link-check/scripts/check_links.py docs
+
+      - name: Page dates match git history
+        run: python3 site/stamp_dates.py --check
