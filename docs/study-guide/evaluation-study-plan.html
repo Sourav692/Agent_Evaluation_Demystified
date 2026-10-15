@@ -21,6 +21,7 @@ code{font-family:"Spline Sans Mono",ui-monospace,Menlo,monospace; font-size:.88e
   background:var(--surface-2); padding:1px 5px; border-radius:2px; border:1px solid var(--rule-soft);
   word-break:break-word}
 a{color:var(--accent-text)}
+.mast a, .fast a{color:var(--on-ink-accent)}
 
 .mast{background:var(--ink); border-bottom:3px solid var(--accent)}
 .mast-in{max-width:var(--maxw); margin:0 auto; padding-block:32px 28px; padding-inline:20px}
@@ -28,7 +29,7 @@ a{color:var(--accent-text)}
 .mast h1{font-size:clamp(30px,5.2vw,46px); font-weight:700; letter-spacing:-.015em; color:#fff}
 .mast p{margin:11px 0 0; color:var(--on-ink-muted); max-width:62ch; font-size:15.5px}
 .mast .drilllink{display:inline-flex; gap:8px; align-items:center; margin-top:18px;
-  background:var(--accent); color:#fff; text-decoration:none; font-size:14px; font-weight:500;
+  background:var(--accent); color:var(--on-accent); text-decoration:none; font-size:14px; font-weight:500;
   padding:8px 15px; border-radius:3px}
 .mast .drilllink:hover{filter:brightness(1.1)}
 
@@ -60,7 +61,7 @@ p{margin:0 0 15px}
 .stage-head{display:flex; flex-wrap:wrap; gap:14px; align-items:baseline;
   border-bottom:2px solid var(--ink); padding-bottom:12px; margin-bottom:18px}
 .stage-head .sn{font-family:"Spline Sans Mono",ui-monospace,monospace; font-size:12px; font-weight:600;
-  letter-spacing:.01em; color:var(--accent); background:var(--accent-soft);
+  letter-spacing:.01em; color:var(--accent-text); background:var(--accent-soft);
   padding:4px 9px; border-radius:2px}
 .stage-head h2{font-size:clamp(22px,3.3vw,29px); font-weight:700; letter-spacing:-.01em; flex:1 1 auto}
 .stage-head .time{font-family:"Spline Sans Mono",ui-monospace,monospace; font-size:12px; color:var(--faint);
@@ -111,7 +112,6 @@ ol.steps{margin:0 0 15px; padding-left:21px; max-width:70ch} ol.steps li{margin-
 
 footer.foot{border-top:1px solid var(--rule); margin-top:54px; padding-top:22px;
   font-size:13.5px; color:var(--faint); max-width:70ch}
-:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:2px}
 @media (prefers-reduced-motion:reduce){ *{transition:none !important} }
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
@@ -159,7 +159,7 @@ html{scroll-behavior:smooth}
     <p class="railnote">Tick items as you go — progress is saved in this browser.</p>
   </nav>
 
-  <main>
+  <main id="main">
     <p class="lede">This repository already contains a layer built for exactly this round:
       <a href="../interview-prep/QUESTION_BANK.md">the question bank</a> is 2,200 lines of 35 evaluation questions and 19 case
       studies written for the agentic system-design interview. <strong>For the interview, start there, not in the

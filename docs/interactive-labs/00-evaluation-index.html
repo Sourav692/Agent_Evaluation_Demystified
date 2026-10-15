@@ -27,7 +27,6 @@ h2{font-size:15px;margin:0 0 12px;font-weight:600;letter-spacing:-.01em}
 .chip{font-family:var(--mono);font-size:11.5px;padding:7px 12px;border-radius:99px;cursor:pointer;background:var(--panel-2);border:1px solid var(--rule);color:var(--muted)}
 .chip:hover{color:var(--text);border-color:#42585c}
 .chip[aria-pressed="true"]{background:#293739;border-color:var(--lab-accent);color:#dde5e7}
-.chip:focus-visible{outline:2px solid var(--lab-accent);outline-offset:2px}
 .headline{font-size:15px;font-weight:600;margin:16px 0 4px}
 .symptom{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:0 0 14px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -60,7 +59,7 @@ code{font-family:var(--mono);font-size:11.5px}
 </style>
 </head>
 <body>
-<div class="wrap">
+<main class="wrap" id="main">
   <div class="eyebrow">The surface map</div>
   <h1>Five evaluation surfaces. <span style="color:var(--lab-accent)">One bad answer.</span></h1>
   <p class="sub">A five-part interactive tutorial built from the <code>courses/01-rag-agent-tool-evaluation</code> notebooks. Each part pairs a lab you can manipulate with a written companion. Tap a surface below to see what breaks there, what it costs to measure, and which notebook it comes from.</p>
@@ -240,7 +239,7 @@ code{font-family:var(--mono);font-size:11.5px}
   </div>
 
   <div class="foot">If you only have an hour: index → Lab 02 → Lab 04 → Lab 05</div>
-</div>
+</main>
 
 <script>
 const $=id=>document.getElementById(id);

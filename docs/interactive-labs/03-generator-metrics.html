@@ -28,7 +28,6 @@ label{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .chip{font-family:var(--mono);font-size:11.5px;padding:7px 12px;border-radius:99px;cursor:pointer;background:var(--panel-2);border:1px solid var(--rule);color:var(--muted)}
 .chip:hover{color:var(--text);border-color:#42585c}
 .chip[aria-pressed="true"]{background:#2e1a16;border-color:var(--lab-accent);color:#ebd8d4}
-.chip:focus-visible{outline:2px solid var(--lab-accent);outline-offset:2px}
 .answer{background:#0A1315;border:1px solid var(--rule);border-left:3px solid var(--lab-accent);border-radius:8px;padding:12px 14px;margin-top:14px;font-size:13.5px}
 .answer .lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--muted);display:block;margin-bottom:6px}
 .ctxbox{background:var(--panel-2);border:1px solid var(--rule);border-radius:8px;padding:11px 13px;margin-top:10px;font-size:12.5px;color:var(--muted)}
@@ -52,7 +51,7 @@ label{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .callout.good{background:linear-gradient(90deg,#172b21,var(--surface) 70%);border-color:#2f5743;border-left-color:var(--free)}
 pre{background:#0A1315;border:1px solid var(--rule);border-radius:8px;padding:12px;overflow-x:auto;
   font-family:var(--mono);font-size:11.5px;color:#cfdbdd;margin:0}
-.cmt{color:#608085}.kw{color:#b4c6c8}.str{color:#68ad8b}.num{color:#c6a666}
+.cmt{color:#6A8A8F}.kw{color:#b4c6c8}.str{color:#68ad8b}.num{color:#c6a666}
 table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
 .tablewrap{overflow-x:auto;border-radius:10px}
 thead th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--rule)}
@@ -66,7 +65,7 @@ tbody tr:last-child td{border-bottom:none}
 </style>
 </head>
 <body>
-<div class="wrap">
+<main class="wrap" id="main">
   <div class="eyebrow">Lab 03 · Generator metrics</div>
   <h1>An answer can be <span style="color:var(--lab-accent)">perfectly faithful and completely wrong</span>.</h1>
   <p class="sub">Faithfulness, Answer Relevancy and Hallucination all judge the generator without a reference answer — and there is one failure all three are structurally incapable of catching. Switch between four answers to the same question and find it.</p>
@@ -152,7 +151,7 @@ correctness_v2 = GEval(
   </div>
 
   <div class="foot">Eval Lab 03 · prev ← 02 LLM-Judged Retrieval · next → 04 Tool-Use Evaluation</div>
-</div>
+</main>
 
 <script>
 const $=id=>document.getElementById(id);

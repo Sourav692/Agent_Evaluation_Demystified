@@ -2,6 +2,13 @@
 
 What changed on the site, newest first. One entry per change a reader would notice.
 
+## 2026-10-16
+
+- Every page now starts with a "Skip to content" link (press Tab to see it), and anything
+  you can tab to shows the same gold focus ring.
+- Small grey and gold text is darker where it was hard to read, and buttons on gold keep
+  readable text in the dark theme.
+
 ## 2026-10-15
 
 - Each page now goes by one name: home-page cards, browser titles and page headings match,

@@ -26,13 +26,11 @@ h2{font-size:15px;margin:0 0 12px;font-weight:600;letter-spacing:-.01em}
 .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 label{font-family:var(--mono);font-size:12px;color:var(--muted)}
 input[type=range]{accent-color:var(--lab-accent);flex:1;min-width:150px}
-input[type=range]:focus-visible{outline:2px solid var(--lab-accent);outline-offset:2px}
 .valpill{font-family:var(--mono);font-size:13px;background:var(--panel-2);border:1px solid var(--rule);border-radius:99px;padding:4px 12px;min-width:48px;text-align:center;color:var(--lab-accent)}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .chip{font-family:var(--mono);font-size:11.5px;padding:6px 10px;border-radius:99px;cursor:pointer;background:var(--panel-2);border:1px solid var(--rule);color:var(--muted)}
 .chip:hover{color:var(--text);border-color:#42585c}
 .chip[aria-pressed="true"]{background:#192e24;border-color:var(--lab-accent);color:#acd3c0}
-.chip:focus-visible{outline:2px solid var(--lab-accent);outline-offset:2px}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0 0}
 .stat{background:var(--panel-2);border:1px solid var(--rule);border-radius:10px;padding:12px}
 .stat .kicker{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--muted)}
@@ -56,7 +54,7 @@ input[type=range]:focus-visible{outline:2px solid var(--lab-accent);outline-offs
 .callout.warn{background:linear-gradient(90deg,#301b17,var(--surface) 70%);border-color:#5c332b;border-left-color:var(--miss)}
 pre{background:#0A1315;border:1px solid var(--rule);border-radius:8px;padding:12px;overflow-x:auto;
   font-family:var(--mono);font-size:11.5px;color:#cfdbdd;margin:0}
-.cmt{color:#608085}.kw{color:#b4c6c8}.str{color:#68ad8b}.num{color:#c6a666}
+.cmt{color:#6A8A8F}.kw{color:#b4c6c8}.str{color:#68ad8b}.num{color:#c6a666}
 table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
 .tablewrap{overflow-x:auto;border-radius:10px}
 thead th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--rule)}
@@ -70,7 +68,7 @@ tbody tr:last-child td{border-bottom:none}
 </style>
 </head>
 <body>
-<div class="wrap">
+<main class="wrap" id="main">
   <div class="eyebrow">Lab 01 · Deterministic retrieval</div>
   <h1>Four retrieval metrics, <span style="color:var(--lab-accent)">and they disagree on purpose</span>.</h1>
   <p class="sub">Precision, Recall, MRR and nDCG all score the same ranked list and all move differently as you change K. Drag K and watch which ones react — that divergence is the whole reason you report four numbers instead of one.</p>
@@ -152,7 +150,7 @@ tbody tr:last-child td{border-bottom:none}
   </div>
 
   <div class="foot">Eval Lab 01 · next → 02 LLM-Judged Retrieval</div>
-</div>
+</main>
 
 <script>
 const $=id=>document.getElementById(id);

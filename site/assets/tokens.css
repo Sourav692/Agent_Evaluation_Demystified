@@ -6,6 +6,7 @@
    when the file is opened straight from a clone; the build rewrites that href to
    assets/tokens.css. A colour written as a hex literal anywhere else that equals
    a value here fails site/check_dist.py (rule `tokens`): use the variable.
+   The focus ring and the skip link are at the end: every page needs them.
 
    Six values carry the whole system. Ink and paper for the argument, three
    verdicts, one rule. `unmeas` is the accent and is spent deliberately: it marks
@@ -14,12 +15,12 @@
 
 :root{
   --ink:#0E2226; --paper:#E4E6E1; --surface:#EDEEEA; --surface-2:#DADCD6; --text:#0E2226;
-  --muted:#3C4E51; --faint:#6E7D7E; --rule:#C5C8C2; --rule-soft:#D5D8D1;
+  --muted:#3C4E51; --faint:#536365; --rule:#C5C8C2; --rule-soft:#D5D8D1;
   --accent:#9A6A12; --accent-soft:#EDE3CE; --accent-text:#7A5410;
   --pass:#2F6B4F; --pass-soft:#D9E3DB;
   --fail:#8C2F22; --fail-soft:#EDDCD8;
   --unmeas:#9A6A12; --unmeas-soft:#EDE3CE;
-  --focus:#7A5410;
+  --focus:#7A5410; --on-accent:#FFFFFF;
   --shadow:none;
 
   /* The ink panel: the always-dark band (the drill's and the study plan's
@@ -46,20 +47,27 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --ink:#081113; --paper:#0D1618; --surface:#142124; --surface-2:#132023; --text:#DDE5E3;
-    --muted:#9FB1B1; --faint:#72878A; --rule:#26383B; --rule-soft:#1C2B2E;
+    --muted:#9FB1B1; --faint:#869B9E; --rule:#26383B; --rule-soft:#1C2B2E;
     --accent:#D3A54C; --accent-soft:#2C2314; --accent-text:#D3A54C;
     --pass:#7FB294; --pass-soft:#163024;
     --fail:#D48F80; --fail-soft:#311915;
     --unmeas:#D3A54C; --unmeas-soft:#2C2314;
-    --focus:#D3A54C;
+    --focus:#D3A54C; --on-accent:#081113;
   }
 }
 :root[data-theme="dark"]{
   --ink:#081113; --paper:#0D1618; --surface:#142124; --surface-2:#132023; --text:#DDE5E3;
-  --muted:#9FB1B1; --faint:#72878A; --rule:#26383B; --rule-soft:#1C2B2E;
+  --muted:#9FB1B1; --faint:#869B9E; --rule:#26383B; --rule-soft:#1C2B2E;
   --accent:#D3A54C; --accent-soft:#2C2314; --accent-text:#D3A54C;
   --pass:#7FB294; --pass-soft:#163024;
   --fail:#D48F80; --fail-soft:#311915;
   --unmeas:#D3A54C; --unmeas-soft:#2C2314;
-  --focus:#D3A54C;
+  --focus:#D3A54C; --on-accent:#081113;
 }
+
+/* Two base rules every page shares, so they live with the tokens they use. */
+:focus-visible{outline:2px solid var(--focus); outline-offset:3px; border-radius:2px}
+.skip{position:absolute; left:var(--sp-2); top:-100px; z-index:100; padding:var(--sp-2) var(--sp-4);
+  background:var(--paper); color:var(--text); border:2px solid var(--focus); border-radius:var(--r-1);
+  font-family:var(--mono); font-size:var(--fs-2); text-decoration:none}
+.skip:focus{top:var(--sp-2)}

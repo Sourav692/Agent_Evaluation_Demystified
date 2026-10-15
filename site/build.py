@@ -644,7 +644,7 @@ def mermaidise(html):
     """Turn mermaid code blocks into diagram containers. Returns (html, count)."""
     count = len(MERMAID.findall(html))
     if count:
-        html = MERMAID.sub(lambda m: '<pre class="mermaid">%s</pre>' % m.group(1), html)
+        html = MERMAID.sub(lambda m: '<pre class="mermaid" tabindex="0">%s</pre>' % m.group(1), html)
     return html, count
 
 
@@ -1071,6 +1071,8 @@ DOCNAV_SCRIPT = """
 # define --surface/--rule at all -- so this is deliberately NOT sticky and uses
 # no CSS variables. Everything is literal, scoped to .aed-sitebar, and carries
 # its own light/dark rules, so it cannot collide with or depend on the page.
+SKIP_LINK = '<a class="skip" href="#main">Skip to content</a>'
+
 SITEBAR = """<style>
 .aed-sitebar{display:flex;align-items:baseline;gap:24px;flex-wrap:wrap;
   padding:13px 20px;border-bottom:1px solid #C5C8C2;background:#E4E6E1;
@@ -1222,6 +1224,7 @@ def shell(title, body, nav, head, foot, is_index=False, diagrams=0, qa=0, rail=0
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
+%s
 <header class="bar">
   <div class="bar-top">
     <a class="brand" href="index.html">Agent Evaluation <span>Demystified</span></a>
@@ -1231,14 +1234,14 @@ def shell(title, body, nav, head, foot, is_index=False, diagrams=0, qa=0, rail=0
   </div>
   %s
 </header>
-<main class="wrap">
+<main class="wrap" id="main">
 %s
 %s
 </main>
 %s%s
 </body>
 </html>
-""" % (title, head, nav, chapter, home, body, foot,
+""" % (title, head, SKIP_LINK, nav, chapter, home, body, foot,
        (MERMAID_SCRIPT if diagrams else "") + (QA_SCRIPT if qa else "")
        + (DOCNAV_SCRIPT if rail else ""))
 
@@ -1388,7 +1391,7 @@ def build():
             text, n = BODY_CLOSE.subn(lambda m: foot + "\n" + m.group(0), text)
             if n != 1:
                 raise SystemExit("expected one </body> to attach the footer to: %s" % src)
-            text, n = BODY_OPEN.subn(lambda m: m.group(1) + "\n" + sitebar(), text, count=1)
+            text, n = BODY_OPEN.subn(lambda m: m.group(1) + "\n" + SKIP_LINK + "\n" + sitebar(), text, count=1)
             if not n:
                 raise SystemExit("no <body> to attach the nav bar to: %s" % src)
             io.open(os.path.join(DIST, copied_name(src)), "w", encoding="utf-8").write(text)

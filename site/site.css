@@ -153,7 +153,6 @@ tbody tr:last-child td{border-bottom:none}
 .cards .topics li::before{content:"\2014"; position:absolute; left:0;
   color:var(--rule)}
 
-:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
 @media (prefers-reduced-motion:reduce){ *{transition:none!important; animation:none!important}
   html{scroll-behavior:auto} }
 @media (max-width:640px){
@@ -303,16 +302,16 @@ details.answer[open] > summary{color:var(--muted)}
    two both index by bare letter. */
 .docnav .famhead{margin:15px 0 5px; padding-top:11px; border-top:1px solid var(--rule);
   font-family:var(--mono); font-size:10.5px; letter-spacing:.09em;
-  text-transform:uppercase; color:var(--muted); opacity:.8}
+  text-transform:uppercase; color:var(--faint)}
 .docnav ol:first-of-type{margin-top:0}
 .docnav a{display:grid; grid-template-columns:22px 1fr; gap:9px; align-items:baseline;
   padding:6px 9px; border-radius:3px; text-decoration:none; color:var(--muted);
   font-size:14.5px; line-height:1.34}
-.docnav a .i{font-family:var(--mono); font-size:11.5px; color:var(--muted);
-  opacity:.72; letter-spacing:-.02em}
+.docnav a .i{font-family:var(--mono); font-size:11.5px; color:var(--faint);
+  letter-spacing:-.02em}
 .docnav a:hover{background:var(--surface); color:var(--text)}
 .docnav a.on{background:var(--unmeas-soft); color:var(--accent-text); font-weight:600}
-.docnav a.on .i{color:var(--accent-text); opacity:1}
+.docnav a.on .i{color:var(--accent-text)}
 
 /* Anchor jumps have to clear the sticky header -- every level, not just h1,
    since the explainers section at h2 and deep-link at h3. */
@@ -406,7 +405,7 @@ details.answer[open] > summary{color:var(--muted)}
 .rail-bar i{display:block; height:100%; width:0; background:var(--accent);
   transition:width .18s ease}
 .rail-count{display:block; margin-top:7px; font-family:var(--mono); font-size:10.5px;
-  letter-spacing:.06em; text-transform:uppercase; color:var(--muted); opacity:.8}
+  letter-spacing:.06em; text-transform:uppercase; color:var(--faint)}
 
 /* ---- narrow screens: the rail becomes a drawer -------------------------- */
 /* It is never removed. An index-only strip was the other option and was

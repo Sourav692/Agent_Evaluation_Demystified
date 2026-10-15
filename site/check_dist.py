@@ -20,6 +20,7 @@ Rules, one function each:
   answers      every Check Yourself item's answer sits behind "Show answer"
   practise     every roadmap explainer has its "Practise it" section (lab or notebook links)
   names        each index card title is the short form of its page's H1 (a lab's eyebrow)
+  skip         a "Skip to content" link to #main (the link rule checks #main exists)
   tokens       the drill, study plan and labs link assets/tokens.css and write no colour
                the tokens define as a hex literal (use the variable)
 
@@ -157,7 +158,11 @@ def tokens(name, html, ctx):
     return out + ["token colour as a literal: %s" % ", ".join(hexes)] if hexes else out
 
 
-RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc, answers, practise, names, tokens]
+def skip(name, html, ctx):
+    return [] if '<a class="skip" href="#main">' in html else ["no Skip to content link"]
+
+
+RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc, answers, practise, names, skip, tokens]
 
 
 def context(pages):
@@ -179,7 +184,7 @@ def self_test():
     ok = ('<head><meta name="description" content="d"><link rel="canonical" href="x">'
           '<meta property="og:title" content="t"><meta property="og:description" content="d">'
           '<meta property="og:image" content="i"><meta property="og:url" content="u">'
-          '<meta name="twitter:card" content="c"></head><h1 id="top">T</h1>'
+          '<meta name="twitter:card" content="c"></head><a class="skip" href="#main">S</a><main id="main"></main><h1 id="top">T</h1>'
           '<p><a href="b.html#s">b</a> <a href="#top">top</a></p>')
     b = ok.replace("#top", "#s").replace('id="top"', 'id="s"')
     assert check({"a.html": ok, "b.html": b}) == [], check({"a.html": ok, "b.html": b})
@@ -192,6 +197,7 @@ def self_test():
         "link": ok + '<a href="missing.html">x</a><a href="b.html#nope">y</a>',
         "cdn-pin": ok + '<script src="https://cdn.jsdelivr.net/npm/mermaid@11/x.js"></script>',
         "pandoc": ok + "<h2>System --- Gating</h2><p>Acme \\$2,900</p>",
+        "skip": ok.replace('class="skip"', ""),
         "answers": ok + '<h2 id="check-yourself">C</h2><ol><li>Q? <strong>A.</strong></li></ol>',
     }
     for rule, html in cases.items():
