@@ -1112,8 +1112,8 @@ def build():
     check_completeness()
     if os.path.isdir(DIST):
         shutil.rmtree(DIST)
-    os.makedirs(os.path.join(DIST, "assets"))
-
+    # site/assets/ holds the share image and favicons; their source is site/og.html.
+    shutil.copytree(os.path.join(ROOT, "site", "assets"), os.path.join(DIST, "assets"))
     shutil.copy(os.path.join(ROOT, "site", "site.css"),
                 os.path.join(DIST, "assets", "site.css"))
 

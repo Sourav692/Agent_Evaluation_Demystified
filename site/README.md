@@ -75,3 +75,18 @@ by `site/stamp_dates.py` and committed as `site/page-dates.json`
   and fails, naming the file, when a page's date doesn't match its last commit.
   This catches a skipped hook (`--no-verify`) or a clone without it. To fix, run
   `python3 site/stamp_dates.py` and commit the result.
+
+## Images
+
+`build()` copies `site/assets/` into `site/dist/assets/`. It holds the share preview
+`og.png` (1200×630), `favicon.svg` (the "AE" monogram) and its 32 px fallback
+`favicon-32.png`. The share preview is rendered from `site/og.html`, and the PNG
+favicon from the SVG, with headless Chrome:
+
+```sh
+C="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+"$C" --headless=new --hide-scrollbars --virtual-time-budget=5000 --window-size=1200,630 \
+  --screenshot="$PWD/site/assets/og.png" "file://$PWD/site/og.html"
+"$C" --headless=new --hide-scrollbars --default-background-color=00000000 --window-size=32,32 \
+  --screenshot="$PWD/site/assets/favicon-32.png" "file://$PWD/site/assets/favicon.svg"
+```
