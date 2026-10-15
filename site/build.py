@@ -1124,6 +1124,71 @@ def badge_for(html_path):
     return "{:,} words".format(len(re.sub(r"<[^>]+>", " ", prose).split()))
 
 
+# What each level practises (UX-03): its labs and the Core notebooks from the
+# roadmap's **Path** line. Every explainer gets a "Practise it" section before
+# References and a one-line jump under its reading time, so a lab or notebook is
+# one click from any level (CT-03, IA-07). Paths are checked at build.
+C01, C03 = "courses/01-rag-agent-tool-evaluation/", "courses/03-agentic-eval-harness/"
+PRACTICE = {
+    "00-orientation": (["00-evaluation-index"], [C01 + "00_Evaluation_Landscape.ipynb"]),
+    "01-rag-retrieval-and-generation": (
+        ["01-deterministic-retrieval-metrics", "02-llm-judged-retrieval-metrics", "03-generator-metrics"],
+        [C01 + "01_Retrieval_Metrics_Deterministic.ipynb", C01 + "02_Retrieval_Metrics_LLM_Judged.ipynb",
+         C01 + "03_Generator_Metrics_Referenceless.ipynb", C01 + "04_Generator_Metrics_Reference_Based.ipynb",
+         C03 + "04_rag_evaluation_with_ragas.ipynb"]),
+    "02-agents-tools-conversations-trajectories-outcomes": (
+        ["04-tool-use-evaluation", "05-agent-trajectory-evaluation"],
+        [C01 + "08_MultiTurn_Conversational_Evaluation.ipynb", C01 + "09_Tool_Use_Evaluation.ipynb",
+         C01 + "10_Task_Completion_Evaluation.ipynb", C01 + "12_Agent_Trajectory_Evaluation.ipynb",
+         C03 + "05_tool_call_evaluation.ipynb"]),
+    "03-ground-truth": ([], [C03 + "01_knowledge_base_and_rag_agent.ipynb",
+                             C03 + "02_tools_agents_and_supervisor_graph.ipynb", C03 + "03_the_golden_set.ipynb"]),
+    "04-judges-and-the-humans-who-validate-them": (
+        [], [C03 + "08_building_custom_judges.ipynb", C03 + "09_human_feedback_and_calibration.ipynb"]),
+    "05-statistics-and-stratified-reporting": ([], [C03 + "10_stratified_reporting_and_statistics.ipynb"]),
+    "06-the-release-gate-and-ci": ([], [C03 + "11_the_release_gate_and_ci.ipynb"]),
+    "07-online-evaluation-and-the-loop": ([], [C03 + "12_online_evaluation_and_the_loop.ipynb"]),
+    "08-safety-adversarial-and-multi-agent-attribution": (
+        [], [C03 + "06_agent_handoff_and_end_to_end.ipynb", C03 + "07_safety_and_policy_checks.ipynb"]),
+    # Levels 9 and 10 have no notebook of their own: the harness is course 03 as a whole
+    "09-the-harness-as-a-product": ([], [C03 + "README.md"]),
+    "10-the-enterprise-harness-end-to-end": ([], [C03 + "README.md"]),
+}
+
+
+def notebook_label(path):
+    """courses/01-…/08_Tool_Use_Evaluation.ipynb -> 'c01/08 · Tool Use Evaluation'."""
+    course, name = path.split("/")[1][:2], os.path.basename(path)
+    if name == "README.md":
+        return "Course %s: the whole harness (README)" % course
+    num, rest = name.split("_", 1)
+    words = rest.rsplit(".", 1)[0].replace("_", " ")
+    return "c%s/%s &middot; %s" % (course, num, words[0].upper() + words[1:])
+
+
+def practise_it(slug, html, group, pos):
+    """Insert the jump line and the Practise it section into an explainer."""
+    labs, notebooks = PRACTICE[slug]
+    for nb in notebooks:
+        if not os.path.exists(os.path.join(ROOT, nb)):
+            sys.exit("PRACTICE names a missing path for %s: %s" % (slug, nb))
+    lab_title = {copied_name(src)[:-5]: t for src, t, _ in COPY["Interactive labs"]}
+    lab_links = ['<a href="%s.html">%s</a>' % (l, lab_title[l]) for l in labs]
+    nb_items = "".join('<li><a href="%s%s">%s</a></li>' % (REPO_URL, nb, notebook_label(nb)) for nb in notebooks)
+    parts = []
+    if lab_links:
+        parts.append("<p><b>In the browser, free:</b> %s.</p>" % " &middot; ".join(lab_links))
+    parts.append("<p><b>Run it</b> (notebooks in the repository):</p><ul>%s</ul>" % nb_items)
+    if pos < len(group) - 1:
+        parts.append('<p><b>Next:</b> <a href="%s.html">%s &rarr;</a></p>' % (group[pos + 1][1], group[pos + 1][2]))
+    section = ('<h2 id="practise-it">Practise it</h2><div class="practise">%s</div>\n' % "".join(parts))
+    jump = ('<p class="practise-jump">Practise it: %s</p>'
+            % " &middot; ".join(lab_links + ['<a href="#practise-it">%d notebook%s &darr;</a>'
+                                             % (len(notebooks), "" if len(notebooks) == 1 else "s")]))
+    html = re.sub(r"(<p>\u25f7[^\n]*?(?:\n[^\n<]*)*?</p>)", lambda m: m.group(1) + "\n" + jump, html, count=1)
+    return html.replace('<h2 id="references">', section + '<h2 id="references">', 1)
+
+
 def chapter_row(group, pos, title):
     """The header's slim second row: where you are, and the way on.
 
@@ -1242,7 +1307,7 @@ def build():
     linked_paths = 0
     dates = json.load(io.open(os.path.join(ROOT, "site", "page-dates.json"), encoding="utf-8"))
 
-    def render(src, slug, title, blurb, nav, chapter=""):
+    def render(src, slug, title, blurb, nav, chapter="", seq=None):
         """Markdown under docs/ -> site/dist/<slug>.html through the shared shell."""
         nonlocal linked_paths
         path = os.path.join(DOCS, src)
@@ -1266,6 +1331,8 @@ def build():
         html, _rules = dedupe_rules(html)
         html, callouts = calloutify(html)
         html, examples = worked_examples(html)
+        if slug in PRACTICE:
+            html = practise_it(slug, html, *seq)
         html, refs = fold_references(html)
         html, tables = tablecards(html)
         rail, sections = docnav(html)
@@ -1287,7 +1354,8 @@ def build():
     for section in SECTION_ORDER:
         group = RENDER.get(section, [])
         for pos, (src, slug, title, blurb) in enumerate(group):
-            render(src, slug, title, blurb, top_nav(section), chapter_row(group, pos, title))
+            render(src, slug, title, blurb, top_nav(section), chapter_row(group, pos, title),
+                   (group, pos))
 
         for src, title, blurb in COPY.get(section, []):
             # Copied pages carry links written for their old home under docs/ --

@@ -310,6 +310,13 @@ details.plain[open] > summary{border-bottom:1px solid var(--rule)}
 .plain-body > :last-child{margin-bottom:10px}
 @media print{ details.plain{display:block} details.plain > div{display:block!important} }
 
+/* ---- Practise it ----
+   Where each level is practised: its labs (free, in the browser) and the
+   notebooks behind it. A jump line under the reading time points here. */
+.practise-jump{font-family:var(--mono); font-size:13px; color:var(--muted)}
+.practise{border-left:2px solid var(--accent-text); padding:2px 0 2px 18px; max-width:var(--measure)}
+.practise ul{margin:4px 0 14px}
+
 /* ---- Check Yourself answers ----
    Each answer sits behind "Show answer" so the question gets tried first.
    Quieter than the question; opens in place. */

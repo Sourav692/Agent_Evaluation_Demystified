@@ -18,6 +18,7 @@ Rules, one function each:
   cdn-pin      every jsDelivr npm URL names an exact x.y.z version
   pandoc       no literal \\$ or --- in page text (Pandoc's escape and em dash)
   answers      every Check Yourself item's answer sits behind "Show answer"
+  practise     every roadmap explainer has its "Practise it" section (lab or notebook links)
 
 Stdlib only.
 """
@@ -101,7 +102,17 @@ def answers(name, html, ctx):
     return [] if items == folded else ["%d of %d Check Yourself answers shown inline" % (items - folded, items)]
 
 
-RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc, answers]
+EXPLAINERS = {slug + ".html" for _, slug, _, _ in RENDER.get("Roadmap explainers", [])}
+
+
+def practise(name, html, ctx):
+    if name not in EXPLAINERS:
+        return []
+    m = re.search(r'<h2 id="practise-it">.*?(?=<h2\b)', html, re.S)
+    return [] if m and "<a " in m.group(0) else ["no Practise it section with links"]
+
+
+RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc, answers, practise]
 
 
 def context(pages):
@@ -153,6 +164,7 @@ def self_test():
                   "<pre>a --- b \\$1</pre><code>\\$x</code>")
     assert [e for e in check({"a.html": quiet, "b.html": b}) if "a.html" in e and "link" not in e] == []
     assert head("404.html", '<meta name="robots" content="noindex">', None) == []
+    assert practise("00-orientation.html", "<h1>x</h1>", None) and not practise("a.html", "", None)
     print("self-test ok")
 
 
