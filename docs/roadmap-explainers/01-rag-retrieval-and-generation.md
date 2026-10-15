@@ -29,7 +29,7 @@ broken and the number describes retrieval, not the generator. Score the two halv
 **And retrieval is bounded by ingestion.** A document that never reached the index — dropped by
 the loader, mangled by the parser or OCR, or embedded with a different model than the query —
 shows up as a retrieval failure that no retriever change can fix. Count, checksum and spot-check
-the index before tuning anything ([field guide §1.0](../concepts/rag-agent-tool-evaluation.md#10-upstream-of-retrieval-did-the-evidence-ever-reach-the-index)).
+the index before tuning anything ([field guide §1.0](../concepts/rag-agent-tool-evaluation.md#10-upstream-of-retrieval--did-the-evidence-ever-reach-the-index)).
 
 ```mermaid
 flowchart LR

@@ -3266,7 +3266,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Separates *retrieved* from *seen*: scores the final prompt, not the retriever's output — chunk-inclusion rate and truncation events against the token budget
 - Tests position sensitivity directly: the same case with the gold chunk first, in the middle and last, so a lost-in-the-middle effect shows up as accuracy by position
 - Checks any compression or summarising step for dropped qualifiers, dates and units, by re-running the failures with it switched off
-- Looks for conflicting sources in the same context — an old and a new policy — then asks which precedence rule (source authority, effective date) the system is meant to apply, and tests that rule ([field guide §1.2b](../concepts/rag-agent-tool-evaluation.md#12b-context-construction-retrieved-is-not-the-same-as-seen))
+- Looks for conflicting sources in the same context — an old and a new policy — then asks which precedence rule (source authority, effective date) the system is meant to apply, and tests that rule ([field guide §1.2b](../concepts/rag-agent-tool-evaluation.md#12b-context-construction--retrieved-is-not-the-same-as-seen))
 
 #### Q7 — The assistant launches in German and Japanese alongside English. How do you evaluate retrieval across languages?
 

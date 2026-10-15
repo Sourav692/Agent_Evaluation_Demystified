@@ -228,7 +228,7 @@ One failure hides underneath all of this: the **polite tool failure**. A tool re
 false` or an empty payload instead of raising, and the model fills the gap with an invented
 balance. **Neither grounding nor task success reads the tool's own output**, so only a
 deterministic check on the tool result catches it. The field guide's
-[§2.4](../concepts/rag-agent-tool-evaluation.md#24-failure-mode-polite-tool-failure) walks it end to end.
+[§2.4](../concepts/rag-agent-tool-evaluation.md#24-failure-mode--polite-tool-failure) walks it end to end.
 
 ### When the output is a query, compare what it returns
 

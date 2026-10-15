@@ -8,7 +8,7 @@
   "redirects": [
     {
       "source": "/online-vs-offline.html",
-      "destination": "/databricks-mlflow.html#part-5-online-vs-offline",
+      "destination": "/databricks-mlflow.html#part-5--online-vs-offline",
       "permanent": true
     },
     {

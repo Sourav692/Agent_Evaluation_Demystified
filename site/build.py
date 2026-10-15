@@ -759,6 +759,17 @@ def rail_headings(html):
     return []
 
 
+def github_slug(value, separator="-"):
+    """Heading ids the way GitHub writes them, so a #fragment works in both places.
+
+    Lowercase, drop punctuation (anything but word characters, spaces and
+    hyphens), and turn each space into a hyphen without collapsing them:
+    "Part 5 -- Online vs offline" -> "part-5--online-vs-offline". The docs link
+    each other in that form; Python-Markdown's default collapses the "--".
+    """
+    return re.sub(r"[^\w\- ]", "", value.strip().lower()).replace(" ", separator)
+
+
 LEVEL_TAG = re.compile(r"<(/?)h([1-6])\b")
 
 
@@ -1159,7 +1170,8 @@ def build():
         text = io.open(path, encoding="utf-8").read()
         source, unfenced = unfence_in_lists(text)
         md = markdown.Markdown(extensions=["tables", "fenced_code", "toc",
-                                           "sane_lists", "attr_list"])
+                                           "sane_lists", "attr_list"],
+                               extension_configs={"toc": {"slugify": github_slug}})
         html = md.convert(source)
         html = LINK.sub(
             lambda m: m.group(1) + rewrite_link(m.group(2), "docs/" + src) + m.group(3),
