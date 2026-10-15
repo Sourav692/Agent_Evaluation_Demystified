@@ -71,8 +71,9 @@ Phase 1, extended once in Phase 9, and otherwise left alone — because the subj
 evaluation, and an agent that keeps changing makes every before/after comparison invalid.
 It exists to be *measurable*, not impressive.
 
-Grounded in **Case Study #2** (Customer-Support Agent) from
-`docs/interview-prep/OpenAI Applied_Engineer_Problem_Decomposition_Questions.md`.
+Grounded in **Case Study #2** (Customer-Support Agent) from the OpenAI Applied Engineer
+problem-decomposition question set, a document in the original `AI-ENGINEERING-DEMYSTIFIED`
+monorepo that did not come across to this repository.
 
 ### 2. How a request flows
 

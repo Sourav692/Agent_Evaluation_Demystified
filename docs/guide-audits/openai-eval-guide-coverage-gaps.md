@@ -70,7 +70,7 @@ time, never decremented.)*
 
 | Guide topic | Repo coverage | Status |
 | --- | --- | --- |
-| Single-turn model interactions | `courses/01-rag-agent-tool-evaluation/01`–`07`, `courses/02-databricks-mlflow-evals/02_offline_eval_fundamentals.ipynb` | ✅ Covered |
+| Single-turn model interactions | `courses/01-rag-agent-tool-evaluation/` notebooks `01`–`07`, `courses/02-databricks-mlflow-evals/02_offline_eval_fundamentals.ipynb` | ✅ Covered |
 | Workflow architectures (multistep chains) | `courses/02-databricks-mlflow-evals/03_custom_scorers_and_judges.ipynb` — the trajectory judge | ✅ Covered |
 | Single-agent architectures | `courses/01-rag-agent-tool-evaluation/09_Tool_Use_Evaluation.ipynb`, `courses/03-agentic-eval-harness/05_tool_call_evaluation.ipynb` | ✅ Covered |
 | Multi-agent architectures | `courses/03-agentic-eval-harness/02_tools_agents_and_supervisor_graph.ipynb` — supervisor plus specialists | ✅ Covered |

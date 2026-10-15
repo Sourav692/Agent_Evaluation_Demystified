@@ -20,6 +20,7 @@ The skip list is the "nothing is repeated" rule, made explicit. Measured
     python3 site/build.py
     python3 -m http.server -d site/dist 8000
 """
+import glob
 import io
 import os
 import re
@@ -293,6 +294,48 @@ def rewrite_link(href, src_path):
 
 
 LINK = re.compile(r'(<a [^>]*href=")([^"]+)(")')
+
+# References name repo files as `courses/.../08_building_custom_judges.ipynb`
+# code spans, which render as dead text on the site. A span that is exactly a
+# repo path becomes a link to wherever rewrite_link() sends it: the site page
+# for a doc the site serves, GitHub for everything else. Spans inside <pre>,
+# an existing <a> or a <script> (the drill builds HTML in JS strings, where an
+# inserted href's quotes would break the string) are left alone. Shorthands
+# (`courses/01-…/08_x.ipynb`, `courses/02`) link when they match one path.
+CODE_PATH = re.compile(
+    r"<code>((?:docs|courses|labs|archive|site|\.github)/[^<\s]*)</code>")
+SKIP_ZONES = re.compile(r"(<pre\b.*?</pre>|<a\b.*?</a>|<script\b.*?</script>)", re.S)
+
+
+def linkify_code_paths(html):
+    """Wrap repo-path code spans in links. Returns (html, count)."""
+    count = 0
+
+    def link(m):
+        nonlocal count
+        path = m.group(1)
+        if "*" in path:  # a glob (`docs/interactive-labs/*.html`) links its folder
+            path = path[:path.index("*")].rsplit("/", 1)[0] + "/"
+        full = os.path.join(ROOT, path)
+        if not os.path.exists(full):
+            hits = glob.glob(os.path.join(ROOT, path.replace("\u2026", "*").rstrip("/") + "*"))
+            if len(hits) == 1:
+                full = hits[0]
+                path = os.path.relpath(full, ROOT) + ("/" if os.path.isdir(full) else "")
+        if os.path.isdir(full):
+            href = REPO_URL.replace("/blob/", "/tree/") + path.rstrip("/")
+        elif os.path.isfile(full):
+            href = rewrite_link(path, "x")  # "x" sits at the root: path resolves as written
+        else:
+            print("   warning: code span names a missing path: %s" % path)
+            return m.group(0)
+        count += 1
+        return '<a href="%s">%s</a>' % (href, m.group(0))
+
+    parts = SKIP_ZONES.split(html)
+    for i in range(0, len(parts), 2):  # odd indexes are the skipped zones
+        parts[i] = CODE_PATH.sub(link, parts[i])
+    return "".join(parts), count
 
 # ```mermaid fences render as a plain code block by default. Mermaid reads
 # element.textContent, and the browser decodes the entities the Markdown
@@ -1074,6 +1117,7 @@ def build():
                 os.path.join(DIST, "assets", "site.css"))
 
     rendered, copied = [], []
+    linked_paths = 0
 
     for section in SECTION_ORDER:
         group = RENDER.get(section, [])
@@ -1087,6 +1131,8 @@ def build():
             html = LINK.sub(
                 lambda m: m.group(1) + rewrite_link(m.group(2), "docs/" + src) + m.group(3),
                 html)
+            html, paths = linkify_code_paths(html)
+            linked_paths += paths
             html, diagrams = mermaidise(html)
             html, plains = plainify(html)
             html, questions = collapsify(html)
@@ -1116,6 +1162,8 @@ def build():
             text = LINK.sub(
                 lambda m: m.group(1) + rewrite_link(m.group(2), "docs/" + src) + m.group(3),
                 text)
+            text, paths = linkify_code_paths(text)
+            linked_paths += paths
             text, n = BODY_OPEN.subn(lambda m: m.group(1) + "\n" + sitebar(), text, count=1)
             if not n:
                 raise SystemExit("no <body> to attach the nav bar to: %s" % src)
@@ -1186,6 +1234,7 @@ interactive labs. The notebooks live in
     print("\nskipped on purpose:")
     for src, why in SKIP:
         print("   %-48s %s" % (src, why[:60] + ("..." if len(why) > 60 else "")))
+    print("\n%d repo-path code spans turned into links" % linked_paths)
     print("\n%d pages in site/dist/  (%d rendered, %d copied, 1 index)"
           % (len(rendered) + len(copied) + 1, len(rendered), len(copied)))
 
