@@ -4,6 +4,8 @@ What changed on the site, newest first. One entry per change a reader would noti
 
 ## 2026-10-16
 
+- The drill, the study plan and the six labs now carry the site's own header. Each lab
+  links the previous and next lab and its theory level ("Theory: Level 1").
 - Every page now starts with a "Skip to content" link (press Tab to see it), and anything
   you can tab to shows the same gold focus ring.
 - Small grey and gold text is darker where it was hard to read, and buttons on gold keep

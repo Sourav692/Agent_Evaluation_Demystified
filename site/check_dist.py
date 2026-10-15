@@ -20,6 +20,7 @@ Rules, one function each:
   answers      every Check Yourself item's answer sits behind "Show answer"
   practise     every roadmap explainer has its "Practise it" section (lab or notebook links)
   names        each index card title is the short form of its page's H1 (a lab's eyebrow)
+  chrome       the site header (<header class="site-bar">), on copied pages too
   skip         a "Skip to content" link to #main (the link rule checks #main exists)
   tokens       the drill, study plan and labs link assets/tokens.css and write no colour
                the tokens define as a hex literal (use the variable)
@@ -145,24 +146,25 @@ TOKENS_CSS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", 
 TOKEN_HEX = {h.upper() for h in re.findall(r"#[0-9a-fA-F]{6}\b", open(TOKENS_CSS, encoding="utf-8").read())}
 TOKEN_PAGES = {copied_name(s) for s, *_ in COPY["Interactive labs"]} | {
     "evaluation-round-drill.html", "evaluation-study-plan.html"}
-# The build's own bar and footer for copied pages are literal by design (other copied
-# pages do not load the tokens); FE-11 replaces them.
-SITEBAR_STYLE = re.compile(r"<style>\s*\.aed-(?:sitebar|foot)\b.*?</style>", re.S)
 
 
 def tokens(name, html, ctx):
     if name not in TOKEN_PAGES:
         return []
     out = [] if 'href="assets/tokens.css"' in html else ["does not link assets/tokens.css"]
-    hexes = sorted({h.upper() for h in re.findall(r"#[0-9a-fA-F]{6}\b", SITEBAR_STYLE.sub("", html))} & TOKEN_HEX)
+    hexes = sorted({h.upper() for h in re.findall(r"#[0-9a-fA-F]{6}\b", html)} & TOKEN_HEX)
     return out + ["token colour as a literal: %s" % ", ".join(hexes)] if hexes else out
+
+
+def chrome(name, html, ctx):
+    return [] if re.search(r'<header class="site-bar[ "]', html) else ["no site header"]
 
 
 def skip(name, html, ctx):
     return [] if '<a class="skip" href="#main">' in html else ["no Skip to content link"]
 
 
-RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc, answers, practise, names, skip, tokens]
+RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc, answers, practise, names, chrome, skip, tokens]
 
 
 def context(pages):
@@ -184,7 +186,7 @@ def self_test():
     ok = ('<head><meta name="description" content="d"><link rel="canonical" href="x">'
           '<meta property="og:title" content="t"><meta property="og:description" content="d">'
           '<meta property="og:image" content="i"><meta property="og:url" content="u">'
-          '<meta name="twitter:card" content="c"></head><a class="skip" href="#main">S</a><main id="main"></main><h1 id="top">T</h1>'
+          '<meta name="twitter:card" content="c"></head><a class="skip" href="#main">S</a><header class="site-bar"></header><main id="main"></main><h1 id="top">T</h1>'
           '<p><a href="b.html#s">b</a> <a href="#top">top</a></p>')
     b = ok.replace("#top", "#s").replace('id="top"', 'id="s"')
     assert check({"a.html": ok, "b.html": b}) == [], check({"a.html": ok, "b.html": b})
@@ -198,6 +200,7 @@ def self_test():
         "cdn-pin": ok + '<script src="https://cdn.jsdelivr.net/npm/mermaid@11/x.js"></script>',
         "pandoc": ok + "<h2>System --- Gating</h2><p>Acme \\$2,900</p>",
         "skip": ok.replace('class="skip"', ""),
+        "chrome": ok.replace('<header class="site-bar"></header>', ""),
         "answers": ok + '<h2 id="check-yourself">C</h2><ol><li>Q? <strong>A.</strong></li></ol>',
     }
     for rule, html in cases.items():
@@ -223,8 +226,7 @@ def self_test():
     lab = copied_name(COPY["Interactive labs"][0][0])
     assert tokens(lab, '<link href="assets/tokens.css"><style>a{color:#9a6a12}</style>', None)
     assert tokens(lab, "<p>x</p>", None)
-    assert not tokens(lab, '<link href="assets/tokens.css"><style>.aed-sitebar{color:#0E2226}</style>'
-                           '<style>a{color:var(--text)} b{color:#fff}</style>', None)
+    assert not tokens(lab, '<link href="assets/tokens.css"><style>a{color:var(--text)} b{color:#fff}</style>', None)
     print("self-test ok")
 
 

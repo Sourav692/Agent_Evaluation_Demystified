@@ -15,22 +15,6 @@ body{margin:0; background:var(--paper); color:var(--text);
   font-synthesis:none; -webkit-font-smoothing:antialiased;
   overflow-wrap:break-word}  /* a long a/b/c/d token breaks rather than widening the page */
 
-/* ---- top bar ---- */
-/* One header, two rows. The second row (where you are, and the way on) used to
-   be a separate coloured bar below this one; stacking two sticky bars cost a
-   fifth of a phone screen before a word of the document showed. */
-.bar{position:sticky; top:0; z-index:20; padding:13px clamp(16px,3vw,28px);
-  background:var(--paper); border-bottom:1px solid var(--rule)}
-.bar-top{display:flex; align-items:baseline; gap:24px; flex-wrap:wrap}
-.brand{font-family:var(--serif); font-weight:600; font-size:18px; letter-spacing:-.012em;
-  color:var(--text); text-decoration:none; white-space:nowrap}
-.brand span{color:var(--muted); font-weight:400}
-.bar nav{display:flex; gap:20px; flex-wrap:wrap; font-family:var(--mono); font-size:12.5px}
-.bar nav a{color:var(--muted); text-decoration:none; padding-bottom:3px;
-  border-bottom:1.5px solid transparent}
-.bar nav a:hover{color:var(--text)}
-.bar nav a.on{color:var(--text); border-bottom-color:var(--accent)}
-
 .wrap{max-width:var(--maxw); margin:0 auto; padding:44px clamp(16px,3vw,28px) 92px}
 .home{display:inline-block; margin-bottom:26px; font-family:var(--mono); font-size:12.5px;
   color:var(--muted); text-decoration:none}
@@ -157,11 +141,11 @@ tbody tr:last-child td{border-bottom:none}
   html{scroll-behavior:auto} }
 @media (max-width:640px){
   .wrap{padding:30px 16px 68px}
-  .bar{gap:10px 16px; padding:11px 16px}
+  .site-bar{gap:10px 16px; padding:11px 16px}
   .cards{gap:0}
 }
 @media print{
-  .bar{position:static}
+  .site-bar{position:static}
   pre{background:none; color:#000; border:1px solid #000}
 }
 
@@ -340,15 +324,6 @@ details.answer[open] > summary{color:var(--muted)}
    style decision taken per instance.
    ========================================================================== */
 
-/* ---- header: chapter row ------------------------------------------------ */
-.chapter{display:flex; align-items:baseline; gap:18px; flex-wrap:wrap;
-  margin-top:9px; padding-top:9px; border-top:1px solid var(--rule);
-  font-family:var(--mono); font-size:12px; line-height:1.4}
-.chapter .here{color:var(--text); font-weight:500}
-.chapter .ends{display:flex; gap:18px; flex-wrap:wrap; margin-left:auto}
-.chapter .ends a{color:var(--muted); text-decoration:none; white-space:nowrap}
-.chapter .ends a:hover{color:var(--accent-text)}
-
 /* ---- header: the Contents button, shown by script on narrow screens ----- */
 .toc-toggle{display:none; margin-left:auto; padding:4px 11px; border-radius:3px;
   border:1px solid var(--rule); background:var(--surface); color:var(--muted);
@@ -412,19 +387,6 @@ details.answer[open] > summary{color:var(--muted)}
    rejected once already -- "A" and "07" name nothing on their own. */
 @media (max-width:900px){
   .toc-toggle{display:inline-block}
-  /* Wrapping five nav links plus a chapter row cost roughly half a phone
-     screen before the document started. One scrollable row instead. */
-  .bar{padding-bottom:9px}
-  .bar-top{gap:12px}
-  .bar nav{order:3; width:100%; flex-wrap:nowrap; overflow-x:auto; gap:16px;
-    padding-bottom:2px; scrollbar-width:none; -ms-overflow-style:none}
-  .bar nav::-webkit-scrollbar{display:none}
-  .bar nav a{white-space:nowrap}
-  .chapter{margin-top:7px; padding-top:7px; gap:4px 14px; font-size:11.5px}
-  .chapter .ends{margin-left:0; width:100%; justify-content:space-between; gap:14px}
-  /* A long prev/next title would push the page sideways at phone width. */
-  .chapter .ends a{white-space:normal}
-  .chapter .ends .next{text-align:right}
   .docnav{position:fixed; top:var(--bar-h); left:0; bottom:0; z-index:19;
     width:min(82vw,320px); max-height:none; margin:0; padding:20px 16px 28px;
     background:var(--paper); border-right:1px solid var(--rule); border-bottom:none;

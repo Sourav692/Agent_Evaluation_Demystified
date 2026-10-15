@@ -523,7 +523,7 @@ QA_SCRIPT = """
     // loop then "converged" on a scroll still in flight and left the reader
     // ~3,000px short. Converge on where the target actually sits instead.
     // clear the sticky top bar, or the question row lands behind it
-    var bar = document.querySelector(".bar");
+    var bar = document.querySelector(".site-bar");
     var gap = (bar ? bar.offsetHeight : 0) + 14;
     var still = 0, frames = 0;
     (function settle() {
@@ -943,7 +943,7 @@ DOCNAV_SCRIPT = """
 
   var fill = rail.querySelector(".rail-bar i");
   var count = rail.querySelector(".rail-count");
-  var bar = document.querySelector("header.bar");
+  var bar = document.querySelector("header.site-bar");
 
   var current = -1;
   function mark() {
@@ -1065,43 +1065,7 @@ DOCNAV_SCRIPT = """
 """
 
 
-# A back-link bar for the copied pages, which arrive with their own complete
-# stylesheet and no site chrome. Three of them (the drill, the study plan, the
-# tutorial) already have a sticky header of their own, and the labs do not
-# define --surface/--rule at all -- so this is deliberately NOT sticky and uses
-# no CSS variables. Everything is literal, scoped to .aed-sitebar, and carries
-# its own light/dark rules, so it cannot collide with or depend on the page.
 SKIP_LINK = '<a class="skip" href="#main">Skip to content</a>'
-
-SITEBAR = """<style>
-.aed-sitebar{display:flex;align-items:baseline;gap:24px;flex-wrap:wrap;
-  padding:13px 20px;border-bottom:1px solid #C5C8C2;background:#E4E6E1;
-  font-family:"Spline Sans Mono",ui-monospace,Menlo,monospace;
-  font-size:12.5px;line-height:1.4}
-.aed-sitebar a{color:#3C4E51;text-decoration:none;white-space:nowrap}
-.aed-sitebar a:hover{color:#0E2226}
-.aed-sitebar .aed-brand{font-family:"Newsreader",Georgia,serif;font-size:18px;
-  font-weight:600;letter-spacing:-.012em;color:#0E2226}
-.aed-sitebar .aed-links{display:flex;gap:20px;flex-wrap:wrap;color:#3C4E51}
-@media (prefers-color-scheme:dark){
-  .aed-sitebar{background:#0D1618;border-bottom-color:#26383B}
-  .aed-sitebar a{color:#9FB1B1}
-  .aed-sitebar a:hover{color:#DDE5E3}
-  .aed-sitebar .aed-brand{color:#DDE5E3}
-  .aed-sitebar .aed-links{color:#9FB1B1}
-}
-@media print{.aed-sitebar{display:none}}
-</style>
-<div class="aed-sitebar">
-  <a class="aed-brand" href="index.html">&larr; Agent Evaluation Demystified</a>
-  <span class="aed-links">%s</span>
-</div>"""
-
-
-def sitebar():
-    links = "".join('<a href="index.html#%s">%s</a>'
-                    % (s.lower().replace(" ", "-"), s) for s in SECTION_ORDER)
-    return SITEBAR % links
 
 
 BODY_OPEN = re.compile(r"(<body[^>]*>)", re.I)
@@ -1191,7 +1155,7 @@ def practise_it(slug, html, group, pos):
     return html.replace('<h2 id="references">', section + '<h2 id="references">', 1)
 
 
-def chapter_row(group, pos, title):
+def chapter_row(group, pos, title, extra=""):
     """The header's slim second row: where you are, and the way on.
 
     Prev/next come from the order of the section's own RENDER list, so adding a
@@ -1207,8 +1171,32 @@ def chapter_row(group, pos, title):
     if pos < len(group) - 1:
         ends.append('<a class="next" href="%s.html">%s &rarr;</a>'
                     % (group[pos + 1][1], group[pos + 1][2]))
-    return ('<div class="chapter"><span class="here">%s</span>'
-            '<span class="ends">%s</span></div>' % (title, "".join(ends)))
+    return ('<div class="chapter"><span class="here">%s</span>%s'
+            '<span class="ends">%s</span></div>' % (title, extra, "".join(ends)))
+
+
+def header(nav, chapter, toc=True, cls="site-bar"):
+    """The site header. Its class is site-bar, not bar: five labs style their meters as .bar.
+    Copied pages pass toc=False (no contents rail) and
+    cls="site-bar flat" (not sticky: the drill and the study plan have sticky bars)."""
+    button = ('\n    <button class="toc-toggle" type="button" aria-expanded="false"\n'
+              '            aria-controls="docnav" hidden>Contents</button>') if toc else ""
+    return """<header class="%s">
+  <div class="bar-top">
+    <a class="brand" href="index.html">Agent Evaluation <span>Demystified</span></a>%s
+    <nav>%s</nav>
+  </div>
+  %s
+</header>""" % (cls, button, nav, chapter)
+
+
+def lab_levels():
+    """Lab slug -> (explainer slug, level number): the first level whose PRACTICE lists it."""
+    out = {}
+    for slug, (labs, _) in PRACTICE.items():
+        for lab in labs:
+            out.setdefault(lab, (slug, int(slug[:2])))
+    return out
 
 
 def shell(title, body, nav, head, foot, is_index=False, diagrams=0, qa=0, rail=0,
@@ -1225,15 +1213,7 @@ def shell(title, body, nav, head, foot, is_index=False, diagrams=0, qa=0, rail=0
 </head>
 <body>
 %s
-<header class="bar">
-  <div class="bar-top">
-    <a class="brand" href="index.html">Agent Evaluation <span>Demystified</span></a>
-    <button class="toc-toggle" type="button" aria-expanded="false"
-            aria-controls="docnav" hidden>Contents</button>
-    <nav>%s</nav>
-  </div>
-  %s
-</header>
+%s
 <main class="wrap" id="main">
 %s
 %s
@@ -1241,7 +1221,7 @@ def shell(title, body, nav, head, foot, is_index=False, diagrams=0, qa=0, rail=0
 %s%s
 </body>
 </html>
-""" % (title, head, SKIP_LINK, nav, chapter, home, body, foot,
+""" % (title, head, SKIP_LINK, header(nav, chapter), home, body, foot,
        (MERMAID_SCRIPT if diagrams else "") + (QA_SCRIPT if qa else "")
        + (DOCNAV_SCRIPT if rail else ""))
 
@@ -1303,9 +1283,9 @@ def build():
         shutil.rmtree(DIST)
     # site/assets/ holds the share image and favicons; their source is site/og.html.
     shutil.copytree(os.path.join(ROOT, "site", "assets"), os.path.join(DIST, "assets"))
-    # tokens.css goes first in the same file, so rendered pages make one request.
+    # tokens.css and chrome.css go first in the same file, so rendered pages make one request.
     with io.open(os.path.join(DIST, "assets", "site.css"), "w", encoding="utf-8") as out:
-        for name in ("assets/tokens.css", "site.css"):
+        for name in ("assets/tokens.css", "assets/chrome.css", "site.css"):
             out.write(io.open(os.path.join(ROOT, "site", name), encoding="utf-8").read())
 
     rendered, copied = [], []
@@ -1362,7 +1342,10 @@ def build():
             render(src, slug, title, blurb, top_nav(section), chapter_row(group, pos, title),
                    (group, pos))
 
-        for src, title, blurb in COPY.get(section, []):
+        copies = COPY.get(section, [])
+        group = [(src, copied_name(src)[:-5], title, blurb) for src, title, blurb in copies]
+        levels = lab_levels()
+        for pos, (src, title, blurb) in enumerate(copies):
             # Copied pages carry links written for their old home under docs/ --
             # a .md target, or a folder-relative path. Rewrite them the same way
             # as rendered pages so the flat site has no dead links.
@@ -1384,6 +1367,7 @@ def build():
             text = OWN_DESC.sub("", text)
             tags = head_tags(copied_name(src), own_title, desc.group(1) if desc else blurb,
                              dates.get("docs/" + src))
+            tags += '\n<link rel="stylesheet" href="assets/chrome.css">'
             text, n = HEAD_CLOSE.subn(lambda m: tags + "\n" + m.group(0), text)
             if n != 1:
                 raise SystemExit("expected one </head> to attach the head tags to: %s" % src)
@@ -1391,7 +1375,10 @@ def build():
             text, n = BODY_CLOSE.subn(lambda m: foot + "\n" + m.group(0), text)
             if n != 1:
                 raise SystemExit("expected one </body> to attach the footer to: %s" % src)
-            text, n = BODY_OPEN.subn(lambda m: m.group(1) + "\n" + SKIP_LINK + "\n" + sitebar(), text, count=1)
+            theory = ('<a class="theory" href="%s.html">Theory: Level %d</a>' % levels[group[pos][1]]
+                      if group[pos][1] in levels else "")
+            bar = header(top_nav(section), chapter_row(group, pos, title, theory), toc=False, cls="site-bar flat")
+            text, n = BODY_OPEN.subn(lambda m: m.group(1) + "\n" + SKIP_LINK + "\n" + bar, text, count=1)
             if not n:
                 raise SystemExit("no <body> to attach the nav bar to: %s" % src)
             io.open(os.path.join(DIST, copied_name(src)), "w", encoding="utf-8").write(text)

@@ -89,6 +89,13 @@ rewrites that href to `assets/tokens.css`. The labs are dark-only and say so wit
 `data-theme="dark"` on `<html>`. `check_dist.py`'s `tokens` rule fails a copied page that
 writes a token's colour as a hex literal instead of using the variable.
 
+`site/assets/chrome.css` is the header (class `site-bar`: five labs already use `.bar` for
+their meters) and the footer. Rendered pages get it inside `site.css`; the build links it
+from the copied pages and injects the same header with a chapter row: the labs' prev/next
+follows `COPY["Interactive labs"]`, and each lab's "Theory: Level N" link comes from
+`PRACTICE`. On copied pages the header is not sticky (`site-bar flat`), because the drill
+and the study plan keep sticky bars of their own.
+
 ## Images
 
 `build()` copies `site/assets/` into `site/dist/assets/`. It holds the share preview
