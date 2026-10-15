@@ -61,7 +61,8 @@ body:has(.chapter){ --bar-h:88px }
 html{scroll-behavior:smooth}
 body{margin:0; background:var(--paper); color:var(--text);
   font-family:var(--serif); font-size:17.5px; line-height:1.72;
-  font-synthesis:none; -webkit-font-smoothing:antialiased}
+  font-synthesis:none; -webkit-font-smoothing:antialiased;
+  overflow-wrap:break-word}  /* a long a/b/c/d token breaks rather than widening the page */
 
 /* ---- top bar ---- */
 /* One header, two rows. The second row (where you are, and the way on) used to
@@ -421,6 +422,9 @@ details.plain[open] > summary{border-bottom:1px solid var(--rule)}
   .bar nav a{white-space:nowrap}
   .chapter{margin-top:7px; padding-top:7px; gap:4px 14px; font-size:11.5px}
   .chapter .ends{margin-left:0; width:100%; justify-content:space-between; gap:14px}
+  /* A long prev/next title would push the page sideways at phone width. */
+  .chapter .ends a{white-space:normal}
+  .chapter .ends .next{text-align:right}
   .docnav{position:fixed; top:var(--bar-h); left:0; bottom:0; z-index:19;
     width:min(82vw,320px); max-height:none; margin:0; padding:20px 16px 28px;
     background:var(--paper); border-right:1px solid var(--rule); border-bottom:none;

@@ -43,7 +43,7 @@ label{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .trow{background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--dead);border-radius:8px;
   padding:9px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;transition:border-color .3s,background .3s}
 .tname{font-size:12.5px;flex:0 0 150px;font-weight:500}
-.tcalls{display:flex;gap:5px;flex-wrap:wrap;flex:1 1 320px}
+.tcalls{display:flex;gap:5px;flex-wrap:wrap;flex:1 1 320px;min-width:0}
 .call{font-family:var(--mono);font-size:10px;padding:3px 7px;border-radius:6px;background:#142124;border:1px solid var(--line);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px}
 .call.flag{border-color:#5c332b;background:#2a1916;color:#ddbdb7}
 .score{font-family:var(--mono);font-size:13px;flex:none;width:52px;text-align:right;transition:color .3s}
@@ -58,6 +58,7 @@ pre{background:#0A1315;border:1px solid var(--line);border-radius:8px;padding:12
   font-family:var(--mono);font-size:11.5px;color:#cfdbdd;margin:0}
 .cmt{color:#608085}.kw{color:#b4c6c8}.str{color:#68ad8b}.num{color:#c6a666}
 table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.tablewrap{overflow-x:auto;border-radius:10px}
 thead th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
 tbody td{padding:10px 12px;font-size:12.5px;border-bottom:1px solid #222e30;vertical-align:top}
 tbody tr:last-child td{border-bottom:none}
@@ -101,6 +102,7 @@ tbody tr:last-child td{border-bottom:none}
 
   <div class="panel">
     <h2>Three tool metrics, three different jobs</h2>
+    <div class="tablewrap" tabindex="0" role="region" aria-label="Table, scrolls sideways">
     <table>
       <thead><tr><th>Metric</th><th>Type</th><th>Needs</th><th>Use it for</th></tr></thead>
       <tbody>
@@ -110,6 +112,7 @@ tbody tr:last-child td{border-bottom:none}
         <tr><td><b><code>TaskCompletionMetric</code></b></td><td>Referenceless, outcome-level</td><td><code>input</code> + <code>actual_output</code></td><td>The question the mechanics metrics never ask: did the user get what they wanted?</td></tr>
       </tbody>
     </table>
+    </div>
   </div>
 
   <div class="panel">
