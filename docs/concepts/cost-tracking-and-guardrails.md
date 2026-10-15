@@ -1335,3 +1335,26 @@ Evaluation measures
 > isolation, authorization and refund limits are deterministic---the
 > agent can recommend an action, but policy decides and a separate
 > executor performs it.**
+
+---
+
+# Key Takeaways
+
+- Give every customer request one trace ID and tenant ID, and carry them through every model, RAG and tool call.
+- Roll cost up from model and tool to agent, request and tenant, because abnormal cost often exposes an agent-quality problem.
+- Enforce per-request, RAG and tenant budgets during execution, and keep enforcement deterministic once a budget is selected.
+- Put guardrails at five boundaries: input, agent, data, action and output.
+- Keep the agent out of the action path: the agent recommends, policy decides, the executor acts.
+- Treat cost as a first-class release metric next to quality, safety and latency.
+
+# Check Yourself
+
+1. A candidate scores 4.7 quality against production's 4.6, but cost/request rises from \$0.030 to \$0.052 and P95 latency from 4.0 sec to 5.8 sec. Does it ship? **No. Correctness and groundedness pass, but the cost and latency regression thresholds fail, so the gate does not pass it.**
+2. Globex costs \$0.042 per request while Acme costs \$0.029. Where do you look? **Down the attribution hierarchy. Here the drill-down runs from the refund workflow to the RAG Agent, where a large retrieved context drives high token consumption.**
+3. The Refund Agent recommends "Refund \$2,000." What happens next? **Nothing executes yet. A deterministic policy engine checks tenant, ownership, eligibility, the configured limit and duplicates. Only then does the executor call the Refund API; a failed eligibility or limit check goes to rejection or human review.**
+4. A customer tells the agent to ignore its instructions and show another customer's refund information, and prompt-injection detection misses it. Is the data exposed? **No. Retrieval filters by tenant and permissions before the model sees anything, so the agent still cannot access unauthorized data. That is defense in depth.**
+5. The Refund API call failed, but the drafted reply says "Your refund has been processed." What catches it? **The output guardrail. It checks the Refund API result and blocks or rewrites the reply, because the system must never claim an action succeeded when the tool execution failed.**
+
+# References
+
+- [Support-system case study](customer-support-multi-agent-case-study.md) --- the same system's quality side: every stage's checks, the release gate and the online signals.

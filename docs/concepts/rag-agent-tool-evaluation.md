@@ -1393,3 +1393,32 @@ When someone says "the answers got worse," work the layers in order rather than 
 5. **The strongest signal is the real system of record.** End-state verification beats every judged measurement — it cannot be fooled by a confident sentence.
 
 **And cutting across all five:** aggregates hide the thing you need to see.
+
+---
+
+# Key Takeaways
+
+- Give every check two coordinates: the layer it reads, and whether it needs an answer key written in advance — only checks without one can run online.
+- Treat an LLM judge as a noisy estimate, not an oracle, and stop at the cheapest rung of the cost ladder that answers the question.
+- Check retrieval before generation, because faithfulness cannot catch an answer that is faithful to bad context.
+- Score mechanics, process and outcome separately: take the minimum of sub-scores, score the absence of a call, and read the tool output.
+- Verify the system of record wherever a real side effect exists; it is the one signal a fluent sentence cannot defeat.
+- Let online checks find what the dataset missed and offline gates stop it recurring; across agent handoffs, use nested traces to find which subagent broke.
+- Read every score with its configuration and its slice: name-only tool correctness passed four broken traces, and aggregates hide the thing you need to see.
+
+# Check Yourself
+
+1. Faithfulness is 0.95, yet users report wrong answers. Which check do you add? **A reference-based correctness check: a custom rubric against a written expected answer. Faithfulness cannot catch an answer that is faithful to bad context.**
+2. You must monitor retrieval on live traffic, and you have no labels. Which of the three contextual metrics can you run? **Contextual Relevancy only. Precision and recall both need `expected_output`, and production has none.**
+3. An account lookup returns `found: false`. The agent states a plan and balance anyway, and grounding and task success both pass. What catches it? **A deterministic check that reads the tool output and, if it indicates failure, asserts the response doesn't state the facts that tool was supposed to supply.**
+4. Your dashboard shows a recovery rate of 1.0 for a run with no errors. What is wrong? **The run had nothing to recover from, so recovery rate returns `None`, not 1.0. A 1.0 on an error-free run is indistinguishable from a 1.0 on a run that recovered from three errors.**
+5. You sample 5% of 2,000 daily traces for a judged check. Can it detect a 2-point drop? **No. That sample pins a score to roughly ±4.5 points, so a 2-point drop is invisible in it. Pick the sample rate from the change you must detect.**
+
+# References
+
+This page draws only on material in this repository. It cites no external source.
+
+- [course 01](../../courses/01-rag-agent-tool-evaluation/) — the notebooks this guide accompanies. Part 6 walks notebooks 01, 02, 03, 04, 09, 10 and 12. §1.7 draws on notebook 06.
+- The interactive labs Part 6 walks: [Lab 01](../interactive-labs/01-deterministic-retrieval-metrics.html) (deterministic retrieval metrics), [Lab 02](../interactive-labs/02-llm-judged-retrieval-metrics.html) (LLM-judged retrieval), [Lab 03](../interactive-labs/03-generator-metrics.html) (generator metrics), [Lab 04](../interactive-labs/04-tool-use-evaluation.html) (tool use) and [Lab 05](../interactive-labs/05-agent-trajectory-evaluation.html) (agent trajectory).
+- [Course 02, notebook 09](../../courses/02-databricks-mlflow-evals/09_multiturn_and_tool_selection.ipynb) — cited in §2.1.
+- The [question bank](../interview-prep/QUESTION_BANK.md), Part 10 — the interview questions that once closed each lab section in Part 6.

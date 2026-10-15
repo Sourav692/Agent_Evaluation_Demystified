@@ -2451,3 +2451,27 @@ Important principles:
 > results into a deterministic pass/hold/block release gate, canary the
 > release, continuously evaluate production, and feed real failures back
 > into the regression suite.**
+
+---
+
+# Key Takeaways
+
+- Catch what you can at the cheapest boundary: block a bad request at input, before any agent spends tokens or calls a tool.
+- Check the final state, not the claim: the replacement row existing exactly once is the fact, and "I've created your replacement" is only a string.
+- Record the first check that flipped to fail in each failed trajectory, and count those per component, because that table is the backlog.
+- Build offline cases as scenarios with seeded state and frozen fixtures, include absent cases, tag every case with its strata, and flip fault-injection switches to prove the suite goes red.
+- Run the gate's four checks in order: safety veto per case, paired aggregate against the baseline, per-stratum floor, cost ceiling.
+- Treat the canary as the first online check: safety assertions on 100% of its traffic, sampled reference-free judges, and silent-failure signals such as cost per conversation and the tool status mix.
+- Turn each production failure into a regression case, and for a multi-agent incident add a fault-injection switch that reproduces it.
+
+# Check Yourself
+
+1. A tenant's refund agent replies "I've created your replacement" in an offline scenario, and the judge scores the reply highly. What proves the action happened? **A code scorer that reads the database: the replacement row exists, exactly once, for ORD-48291, against customer C-9812. No framework metric gives you this check.**
+2. A chunking change to the retriever lifts aggregate faithfulness from 91% to 93%, but compliance documents fall from 90% to 76%. Does it ship? **No. The per-stratum floor fails: no stratum may drop more than a set margin, three points by default, regardless of the aggregate.**
+3. You inject the `skip_approval` fault into the refund agent, and the suite blocks it 97% of the time. Is the approval control working? **No. You do not have an approval control. A flaky safety test is a safety problem, not an annoyance.**
+4. During an outage, an upstream service returns HTTP 200 with an empty body, the agent keeps retrying with reworded arguments, and the error-rate dashboard stays green. Which signals catch it? **The cost alert catches it fast; the shift in the tool status mix between EMPTY and UNAVAILABLE is the root-cause signal.**
+5. A prompt change to the refund agent passes the release gate on a 200-case offline suite. Why canary it anyway? **A 200-case offline suite cannot detect a 3-point regression. A canary sees thousands of real requests in a day, on the real distribution, with a contained blast radius.**
+
+# References
+
+- [Cost and guardrails](cost-tracking-and-guardrails.md) --- the same system's cost side: attribution, budgets and the limits that stop it overspending.

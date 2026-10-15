@@ -4,6 +4,11 @@ What changed on the site, newest first. One entry per change a reader would noti
 
 ## 2026-10-16
 
+- The field guide, the MLflow reference, the support case study and its cost companion now
+  end like the explainers: Key Takeaways, five Check Yourself questions with hidden answers,
+  and References.
+- Screen readers hear one page header instead of two on the drill and study plan, and the
+  header no longer stays pinned on short or zoomed-in screens.
 - Pages that cover the same ground now say which is which and link each other: the
   question bank and the drill, the roadmap and each level, the field guide and Levels 1–2,
   the support case study and its cost companion.

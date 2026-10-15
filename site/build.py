@@ -562,7 +562,8 @@ QA_SCRIPT = """
 # its answer as one trailing **bold** span. Shown inline, the answer is read
 # before the question is tried, so it folds behind "Show answer". Only that
 # section and only a <strong> that closes its <li> are touched.
-CHECK_SECTION = re.compile(r'(<h2 id="check-yourself">.*?)(?=<h2\b|\Z)', re.S)
+# h1 too: pages whose Parts are '#' headings close with '# Check Yourself' (demoted later).
+CHECK_SECTION = re.compile(r'(<h[12] id="check-yourself">.*?)(?=<h[12]\b|\Z)', re.S)
 TRAILING_ANSWER = re.compile(r"(<li>(?:(?!</li>).)*?)(<strong>(?:(?!<strong>).)*?</strong>)(\s*(?:</p>\s*)?</li>)", re.S)
 
 
@@ -1227,7 +1228,7 @@ def header(nav, chapter, toc=True, cls="site-bar"):
     return """<header class="%s">
   <div class="bar-top">
     <a class="brand" href="index.html">Agent Evaluation <span>Demystified</span></a>%s
-    <nav>%s</nav>
+    <nav aria-label="Site">%s</nav>
   </div>
   %s
 </header>""" % (cls, button, nav, chapter)
