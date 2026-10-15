@@ -147,6 +147,34 @@ th{font-family:var(--mono); font-weight:500; color:var(--muted); font-size:11.5p
   letter-spacing:.01em; white-space:nowrap; padding-top:11px; padding-bottom:11px}
 tbody tr:last-child td{border-bottom:none}
 
+/* ---- index hero ----
+   Audience, promise, one primary and one secondary action, then three ways
+   in. Buttons fill with --accent-text (6.8:1 against --paper text on light),
+   since plain --accent is for large text and marks only. */
+.eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--muted); margin:0 0 14px; max-width:44em}
+.hero-lede{margin-bottom:22px}
+.cta{display:flex; flex-wrap:wrap; gap:12px; margin:0 0 12px}
+.btn{display:inline-block; padding:11px 20px; border:1px solid var(--accent-text); border-radius:8px;
+  font-family:var(--mono); font-size:14px; text-decoration:none; color:var(--accent-text);
+  transition:background .15s ease-out, color .15s ease-out}
+.btn:hover{background:var(--accent-soft)}
+.btn.primary{background:var(--accent-text); color:var(--paper)}
+.btn.primary:hover{background:var(--text); border-color:var(--text)}
+.repo-note{font-size:14.5px; color:var(--muted); margin:0 0 30px}
+.paths{list-style:none; padding:0; margin:0 0 44px; max-width:none; display:grid; gap:0 36px;
+  grid-template-columns:repeat(auto-fill,minmax(292px,1fr))}
+.paths > li{border-top:2px solid var(--accent-text); padding:14px 0 18px; font-size:15.5px;
+  color:var(--muted); line-height:1.56}
+.paths .path-t{display:block; font-family:var(--serif); font-weight:600; font-size:20px;
+  color:var(--text); margin-bottom:6px}
+.paths .go{display:block; margin-top:8px}
+.paths a{font-family:var(--mono); font-size:13px}
+@media (max-width:640px){
+  .cta{flex-direction:column}
+  .btn{display:block; text-align:center}
+}
+
 /* ---- index cards ----
    Ruled entries rather than boxes: the rule carries the grouping, so the
    eye reads a catalogue instead of eighteen identical tiles. */

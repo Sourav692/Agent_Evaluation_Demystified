@@ -1351,11 +1351,29 @@ def build():
             cards.append('<section id="%s"><h2>%s</h2><ul class="cards">%s</ul></section>'
                          % (section.lower().replace(" ", "-"), section, "".join(items)))
 
-    body = """<h1>Agent Evaluation Demystified</h1>
-<p class="lede">How do you know your RAG system or agent is actually working? These are the
-written companions &mdash; the theory, the audits, the interview material and the
-interactive labs. The notebooks live in
-<a href="%(repo)scourses/">the repository</a>.</p>
+    # The first screen names the reader, the promise and one thing to press
+    # (ON-01); the secondary button is the interview lane (ON-05). Copy is the
+    # owner-approved UX-01 draft.
+    body = """<p class="eyebrow">For engineers who ship RAG systems and agents &mdash; or answer
+for them in an interview</p>
+<h1>Agent Evaluation Demystified</h1>
+<p class="lede hero-lede">How do you know your RAG system or agent is actually working? Measure
+it layer by layer (retrieval, generation, tools, the path an agent takes), gate releases on it,
+and keep watching it in production.</p>
+<p class="cta"><a class="btn primary" href="00-orientation.html">Start at Level 0</a>
+<a class="btn" href="evaluation-study-plan.html#fast">Interviewing this week?</a></p>
+<p class="repo-note">The notebooks live in <a href="%(repo)scourses/">the repository</a>.</p>
+<ul class="paths">
+<li><span class="path-t">Learn it in order.</span> Level 0 to Level 10: eleven explainers, six
+labs and the notebooks behind them. About 54 hours.
+<span class="go"><a href="roadmap.html">The roadmap &rarr;</a></span></li>
+<li><span class="path-t">Cram for an interview.</span> The study plan&rsquo;s fast path, then the
+drill on what&rsquo;s still weak. About 10 hours.
+<span class="go"><a href="evaluation-study-plan.html#fast">The fast path &rarr;</a></span></li>
+<li><span class="path-t">Look up one thing.</span> The field guide for any metric; the question
+bank for any interview question.
+<span class="go"><a href="field-guide.html">Field guide &rarr;</a> &middot; <a href="question-bank.html">Question bank &rarr;</a></span></li>
+</ul>
 %(cards)s""" % {"repo": REPO_URL, "cards": "".join(cards)}
 
     io.open(os.path.join(DIST, "index.html"), "w", encoding="utf-8").write(

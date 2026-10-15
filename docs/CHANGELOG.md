@@ -4,6 +4,8 @@ What changed on the site, newest first. One entry per change a reader would noti
 
 ## 2026-10-15
 
+- The home page now says who the site is for and where to start: "Start at Level 0", or
+  "Interviewing this week?" for the fast path, with three ways in below.
 - The roadmap, the study plan and Level 0 now say which path each is (learning, about 54 h;
   interview, about 20 h) and link each other. The roadmap lists Level 10, the cram sheet.
 - Check Yourself answers on every explainer now sit behind "Show answer", so you can try
