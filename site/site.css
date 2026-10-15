@@ -282,6 +282,21 @@ details.plain[open] > summary{border-bottom:1px solid var(--rule)}
 .plain-body > :last-child{margin-bottom:10px}
 @media print{ details.plain{display:block} details.plain > div{display:block!important} }
 
+/* ---- Check Yourself answers ----
+   Each answer sits behind "Show answer" so the question gets tried first.
+   Quieter than the question; opens in place. */
+details.answer{display:inline}
+details.answer > summary{
+  display:inline-block; white-space:nowrap; cursor:pointer; list-style:none; margin-left:.35em;
+  font-family:var(--mono); font-size:.8rem; color:var(--accent-text);
+}
+details.answer > summary::-webkit-details-marker{display:none}
+details.answer > summary::before{content:"\25B8\00a0"}
+details.answer[open] > summary::before{content:"\25BE\00a0"}
+details.answer[open] > summary{color:var(--muted)}
+.answer-body{display:block; margin-top:4px}
+@media print{ details.answer > summary{display:none} details.answer > div{display:block!important} }
+
 /* ---- in-document section rail ----
    A sticky list of the page's top-level sections, built by site/build.py from
    the <h1> ids. Only long documents get one, so these rules are inert

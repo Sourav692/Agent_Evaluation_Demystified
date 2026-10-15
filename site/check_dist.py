@@ -17,6 +17,7 @@ Rules, one function each:
   link         every relative <a href> resolves to a built file, and its #fragment to an id
   cdn-pin      every jsDelivr npm URL names an exact x.y.z version
   pandoc       no literal \\$ or --- in page text (Pandoc's escape and em dash)
+  answers      every Check Yourself item's answer sits behind "Show answer"
 
 Stdlib only.
 """
@@ -92,7 +93,15 @@ def pandoc(name, html, ctx):
            (["literal --- in %r" % m for m in re.findall(r".{0,30}[\s\w]---[\s\w].{0,30}", text)])
 
 
-RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc]
+def answers(name, html, ctx):
+    m = re.search(r'<h2 id="check-yourself">(.*?)(?=<h2\b|\Z)', html, re.S)
+    if not m:
+        return []
+    items, folded = m.group(1).count("<li>"), m.group(1).count('<details class="answer">')
+    return [] if items == folded else ["%d of %d Check Yourself answers shown inline" % (items - folded, items)]
+
+
+RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc, answers]
 
 
 def context(pages):
@@ -127,6 +136,7 @@ def self_test():
         "link": ok + '<a href="missing.html">x</a><a href="b.html#nope">y</a>',
         "cdn-pin": ok + '<script src="https://cdn.jsdelivr.net/npm/mermaid@11/x.js"></script>',
         "pandoc": ok + "<h2>System --- Gating</h2><p>Acme \\$2,900</p>",
+        "answers": ok + '<h2 id="check-yourself">C</h2><ol><li>Q? <strong>A.</strong></li></ol>',
     }
     for rule, html in cases.items():
         hits = [e for e in check({"a.html": html, "b.html": b}) if e.startswith("a.html: %s:" % rule)]

@@ -4,6 +4,8 @@ What changed on the site, newest first. One entry per change a reader would noti
 
 ## 2026-10-15
 
+- Check Yourself answers on every explainer now sit behind "Show answer", so you can try
+  each question first.
 - Diagrams load as you scroll to them, so long pages show their text sooner.
 - The metric questions in the question bank are numbered by section (10.1 Q1, 10.2 Q1), so
   no two questions share a number. Explainer references no longer cite a file that doesn't exist.

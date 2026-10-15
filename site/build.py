@@ -549,6 +549,28 @@ QA_SCRIPT = """
 </script>"""
 
 
+# Check Yourself ends every explainer with a numbered list: the question, then
+# its answer as one trailing **bold** span. Shown inline, the answer is read
+# before the question is tried, so it folds behind "Show answer". Only that
+# section and only a <strong> that closes its <li> are touched.
+CHECK_SECTION = re.compile(r'(<h2 id="check-yourself">.*?)(?=<h2\b|\Z)', re.S)
+TRAILING_ANSWER = re.compile(r"(<li>(?:(?!</li>).)*?)(<strong>(?:(?!<strong>).)*?</strong>)(\s*(?:</p>\s*)?</li>)", re.S)
+
+
+def hide_answers(html):
+    """Fold each Check Yourself answer into <details>. Returns (html, count)."""
+    count = 0
+
+    def fold(m):
+        nonlocal count
+        count += 1
+        return ('%s<details class="answer"><summary>Show answer</summary>'
+                '<div class="answer-body">%s</div></details>%s' % m.groups())
+
+    html = CHECK_SECTION.sub(lambda s: TRAILING_ANSWER.sub(fold, s.group(1)), html)
+    return html, count
+
+
 def collapsify(html):
     """Wrap each question and case in <details>. Returns (html, count)."""
     heads = list(HEADING.finditer(html))
@@ -1239,6 +1261,7 @@ def build():
         html, diagrams = mermaidise(html)
         html, plains = plainify(html)
         html, questions = collapsify(html)
+        html, _answers = hide_answers(html)
         html, badges = badgify(html)
         html, _rules = dedupe_rules(html)
         html, callouts = calloutify(html)
