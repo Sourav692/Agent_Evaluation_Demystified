@@ -67,17 +67,17 @@ RENDER = {
          "This repo measured against OpenAI's evaluation guide, per course. "
          "Every topic badged, with the gap list and the corrections."),
         ("guide-audits/openai-eval-guide-tutorial.md", "openai-eval-guide-tutorial",
-         "The tutorial",
+         "Evaluating LLM systems",
          "The OpenAI guide in plain language &mdash; 3&ndash;4 lines a concept, "
          "the notebook that teaches it, and 21 TODOs."),
     ],
     "Interview prep": [
         ("interview-prep/QUESTION_BANK.md", "question-bank",
-         "The question bank",
+         "Evaluation question bank",
          "35 situational questions, 30 metric questions, 19 long-form cases and "
          "seven appendices. The readable reference; the drill is the quiz."),
         ("study-guide/evaluation-roadmap.md", "roadmap",
-         "The roadmap",
+         "Evaluation roadmap",
          "The complete path, basic to expert: ten levels with exit checks, then "
          "what an OpenAI round pushes on and the Databricks track as its own ladder."),
         ("study-guide/evaluation-topic-notebook-mapping.md", "topic-notebook-mapping",
@@ -97,7 +97,7 @@ RENDER = {
          "Level 1 &middot; RAG: retrieval &amp; generation",
          "Evaluate retrieval and generation as two separate systems, because a generator cannot be judged on evidence it never received."),
         ("roadmap-explainers/02-agents-tools-conversations-trajectories-outcomes.md", "02-agents-tools-conversations-trajectories-outcomes",
-         "Level 2 &middot; Agents, tools, trajectories &amp; outcomes",
+         "Level 2 &middot; Agents: tools, conversations, trajectories, outcomes",
          "Score mechanics, process and outcome separately, because passing any one of the three says nothing about the other two."),
         ("roadmap-explainers/03-ground-truth.md", "03-ground-truth",
          "Level 3 &middot; Ground truth",
@@ -115,13 +115,13 @@ RENDER = {
          "Level 7 &middot; Online evaluation &amp; the loop",
          "Every check that needs an answer key dies at deployment, and it dies silently &mdash; reporting &quot;skipped&quot; rather than failing."),
         ("roadmap-explainers/08-safety-adversarial-and-multi-agent-attribution.md", "08-safety-adversarial-and-multi-agent-attribution",
-         "Level 8 &middot; Safety, adversarial &amp; multi-agent attribution",
+         "Level 8 &middot; Safety, adversarial testing &amp; multi-agent attribution",
          "Report safety as a list of case IDs rather than a percentage, because a percentage cannot be opened and read."),
         ("roadmap-explainers/09-the-harness-as-a-product.md", "09-the-harness-as-a-product",
          "Level 9 &middot; The harness as a product",
          "A harness that only computes numbers is not yet a product, because nobody has agreed what the numbers must reach or who signs off on them."),
         ("roadmap-explainers/10-the-enterprise-harness-end-to-end.md", "10-the-enterprise-harness-end-to-end",
-         "Level 10 &middot; The whole harness, end to end",
+         "Level 10 &middot; The enterprise harness, end to end",
          "Every stage produces the artifact the next one consumes, so a skipped stage does not fail &mdash; it keeps reporting green while measuring nothing."),
     ],
 }
@@ -129,10 +129,10 @@ RENDER = {
 # standalone pages already under docs/ -- interactive, not producible from Markdown
 COPY = {
     "Interview prep": [
-        ("interview-prep/evaluation-round-drill.html", "The self-quiz drill",
+        ("interview-prep/evaluation-round-drill.html", "The Evaluation Round drill",
          "The same questions and cases with every answer hidden until you reveal "
          "it. Rate your recall, filter to what is still weak."),
-        ("study-guide/evaluation-study-plan.html", "The study plan",
+        ("study-guide/evaluation-study-plan.html", "Evaluation study plan",
          "Seven stages ordered by what the round tests, with time estimates and "
          "a 2&ndash;3 day fast path."),
     ],

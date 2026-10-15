@@ -19,10 +19,12 @@ Rules, one function each:
   pandoc       no literal \\$ or --- in page text (Pandoc's escape and em dash)
   answers      every Check Yourself item's answer sits behind "Show answer"
   practise     every roadmap explainer has its "Practise it" section (lab or notebook links)
+  names        each index card title is the short form of its page's H1 (a lab's eyebrow)
 
 Stdlib only.
 """
 import glob
+from html import unescape as html_unescape
 import os
 import re
 import sys
@@ -112,7 +114,31 @@ def practise(name, html, ctx):
     return [] if m and "<a " in m.group(0) else ["no Practise it section with links"]
 
 
-RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc, answers, practise]
+def words(s):
+    """'Level 4 &middot; Judges &amp; the humans' -> 'judges and the humans' (comparable form)."""
+    s = html_unescape(re.sub(r"<[^>]+>", "", s)).lower().replace("&", " and ")
+    s = re.sub(r"^level \d+ \W+ ", "", s)
+    s = re.sub(r"\bthe\b", " ", re.sub(r"[^a-z0-9 ]+", " ", s.replace("-", "")))
+    return " ".join(s.split())
+
+
+def names(name, html, ctx):
+    """Index only: a card's title must start its page's H1, or the H1 its title (IA-04)."""
+    if name != "index.html":
+        return []
+    out = []
+    for href, card in re.findall(r'<li><a href="([^"#]+\.html)">(.*?)</a>', html):  # the cards
+        page = ctx["pages"].get(href, "")
+        m = re.search(r'<div class="eyebrow">(.*?)</div>', page) or re.search(r"<h1\b[^>]*>(.*?)</h1>", page, re.S)
+        if not m:
+            continue
+        a, b = words(card), words(m.group(1))
+        if not (b.startswith(a) or a.startswith(b)):
+            out.append("card %r vs %r on %s" % (html_unescape(card), html_unescape(re.sub("<[^>]+>", "", m.group(1))).strip(), href))
+    return out
+
+
+RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc, answers, practise, names]
 
 
 def context(pages):
@@ -121,7 +147,7 @@ def context(pages):
              if os.path.isfile(p)}
     files.update({n: True for n in pages})
     ids = {n: set(re.findall(r'\bid="([^"]+)"', h)) for n, h in pages.items()}
-    return {"files": files, "ids": ids}
+    return {"files": files, "ids": ids, "pages": pages}
 
 
 def check(pages):
@@ -165,6 +191,10 @@ def self_test():
     assert [e for e in check({"a.html": quiet, "b.html": b}) if "a.html" in e and "link" not in e] == []
     assert head("404.html", '<meta name="robots" content="noindex">', None) == []
     assert practise("00-orientation.html", "<h1>x</h1>", None) and not practise("a.html", "", None)
+    card = '<ul class="cards"><li><a href="b.html">%s</a></li></ul></section>'
+    assert names("index.html", card % "The self-quiz drill", {"pages": {"b.html": "<h1>The Evaluation Round</h1>"}})
+    assert not names("index.html", card % "Level 4 &middot; Judges &amp; the humans",
+                     {"pages": {"b.html": "<h1>Judges, and the Humans Who Validate Them</h1>"}})
     print("self-test ok")
 
 

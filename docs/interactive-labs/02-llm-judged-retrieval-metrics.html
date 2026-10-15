@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LLM-Judged Retrieval Metrics — Eval Lab 02</title>
+<title>Lab 02 · Judged retrieval</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Spline+Sans+Mono:ital,wght@0,300;0,400;0,500;0,600&display=swap">
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,7 +73,7 @@ tbody tr:last-child td{border-bottom:none}
 </head>
 <body>
 <div class="wrap">
-  <div class="eyebrow">RAG · Agent · Tool eval lab · 02</div>
+  <div class="eyebrow">Lab 02 · Judged retrieval</div>
   <h1>Three retrieval judges, <span style="color:var(--accent)">three different failures</span>.</h1>
   <p class="sub">Contextual Precision, Recall and Relevancy all score the same retrieved context, and each one is blind to what the other two catch. Inject a failure and watch exactly one number move — that separation is why DeepEval ships three metrics instead of one "retrieval quality" score.</p>
   <p class="sub" style="font-size:12.5px">These are LLM-judged, not the classic set-overlap Precision/Recall: Contextual Precision is rank-weighted (chunk order matters directly), and Contextual Recall checks context coverage against <code style="font-family:var(--mono)">expected_output</code>, not a fixed relevant/irrelevant label set. For the deterministic definitions, see <a href="01-deterministic-retrieval-metrics.html" style="color:var(--accent)">01-deterministic-retrieval-metrics.html</a>.</p>

@@ -1,4 +1,4 @@
-# RAG, Agent & Tool Evaluation — Field Guide
+# Field Guide: RAG, Agent & Tool Evaluation
 
 Companion to the 14 notebooks in [course 01](../../courses/01-rag-agent-tool-evaluation/). The notebooks show how to express each idea in a framework; this covers the idea.
 

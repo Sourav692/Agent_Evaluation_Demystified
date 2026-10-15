@@ -4,6 +4,8 @@ What changed on the site, newest first. One entry per change a reader would noti
 
 ## 2026-10-15
 
+- Each page now goes by one name: home-page cards, browser titles and page headings match,
+  and each lab is labelled "Lab 01 · …" at the top.
 - Every roadmap explainer now ends with a "Practise it" section linking its labs and
   notebooks, with a shortcut to it under the reading time.
 - The home page now says who the site is for and where to start: "Start at Level 0", or

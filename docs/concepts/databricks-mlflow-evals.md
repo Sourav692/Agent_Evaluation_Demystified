@@ -1,4 +1,4 @@
-# Databricks & MLflow 3 GenAI Evaluation — Theory & Reference
+# MLflow & Databricks: GenAI Evaluation Theory and Reference
 
 The companion to [`courses/02-databricks-mlflow-evals/`](../../courses/02-databricks-mlflow-evals/).
 The notebooks are sequential and order-dependent; this file is the opposite — **random access**,

@@ -1,4 +1,4 @@
-# Customer Support Multi-Agent System --- Evaluation & Release Gating
+# Support-System Case Study: Evaluating a Multi-Agent Customer Support System
 
 # 1. Scenario
 

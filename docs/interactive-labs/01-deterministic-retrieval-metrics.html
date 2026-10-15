@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Deterministic Retrieval Metrics — Eval Lab 01</title>
+<title>Lab 01 · Deterministic retrieval</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Spline+Sans+Mono:ital,wght@0,300;0,400;0,500;0,600&display=swap">
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -74,10 +74,10 @@ tbody tr:last-child td{border-bottom:none}
 </head>
 <body>
 <div class="wrap">
-  <div class="eyebrow">RAG · Agent · Tool eval lab · 01</div>
+  <div class="eyebrow">Lab 01 · Deterministic retrieval</div>
   <h1>Four retrieval metrics, <span style="color:var(--accent)">and they disagree on purpose</span>.</h1>
   <p class="sub">Precision, Recall, MRR and nDCG all score the same ranked list and all move differently as you change K. Drag K and watch which ones react — that divergence is the whole reason you report four numbers instead of one.</p>
-  <p class="sub" style="font-size:12.5px">These are the classic set-overlap definitions — a chunk is relevant or not, checked against a fixed ground-truth set, no LLM involved. Tutorial 02's "Contextual Precision/Recall" reuse these names for a different, LLM-judged computation (rank-weighted precision, coverage-of-expected-output recall) — see <a href="02-llm-judged-retrieval-metrics.html" style="color:var(--accent)">02-llm-judged-retrieval-metrics.html</a>.</p>
+  <p class="sub" style="font-size:12.5px">These are the classic set-overlap definitions — a chunk is relevant or not, checked against a fixed ground-truth set, no LLM involved. Lab 02's "Contextual Precision/Recall" reuse these names for a different, LLM-judged computation (rank-weighted precision, coverage-of-expected-output recall) — see <a href="02-llm-judged-retrieval-metrics.html" style="color:var(--accent)">02-llm-judged-retrieval-metrics.html</a>.</p>
 
   <div class="panel">
     <h2>Query: <span style="font-family:var(--mono);font-size:13px;color:var(--accent)">"What is the time complexity of BST delete?"</span></h2>
