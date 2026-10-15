@@ -38,18 +38,21 @@ IA-10: also press Cmd-K (or Ctrl-K) and look for a search dialog. Pass only if a
 
 ## B2 Diagrams render (FV-01)
 
-Open every page with `mermaid > 0` in `inventory.json` (the theory pages and most explainers). Wait 4 s, then:
+Open every page with `mermaid > 0` in `inventory.json` (the theory pages and most explainers). Diagrams render lazily, as each one nears the viewport (since 2026-10-15), so a count straight after load undercounts. Scroll to each diagram and give it up to 10 s:
 
 ```js
-(() => {
-  const boxes = [...document.querySelectorAll('.mermaid')];
-  const raw = boxes.filter(b => !b.querySelector('svg') && /\b(flowchart|graph|sequenceDiagram|stateDiagram)\b/.test(b.textContent));
-  return { diagrams: boxes.length, rendered: boxes.filter(b => b.querySelector('svg')).length,
-           rawLeft: raw.length, example: raw[0]?.textContent.slice(0, 80) || null };
-})()
+const boxes = [...document.querySelectorAll('.mermaid')];
+for (const b of boxes) {
+  b.scrollIntoView();
+  const t = Date.now();
+  while (!b.querySelector('svg') && Date.now() - t < 10000) await new Promise(r => setTimeout(r, 100));
+}
+const raw = boxes.filter(b => !b.querySelector('svg') && /\b(flowchart|graph|sequenceDiagram|stateDiagram)\b/.test(b.textContent));
+({ diagrams: boxes.length, rendered: boxes.filter(b => b.querySelector('svg')).length,
+   rawLeft: raw.length, example: raw[0]?.textContent.slice(0, 80) || null })
 ```
 
-Pass when `rawLeft` is 0 on every page. A failure here usually means the Mermaid CDN script (`mermaid@11`, not pinned: PR-19) failed or changed.
+Pass when `rawLeft` is 0 on every page. A failure here usually means the Mermaid CDN script (pinned `mermaid@11.17.2`) failed to load, or the lazy loader in `MERMAID_SCRIPT` (`site/build.py`) broke.
 
 ## B3 Interactive labs respond (FV-02)
 

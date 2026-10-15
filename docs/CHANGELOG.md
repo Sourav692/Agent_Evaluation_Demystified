@@ -4,6 +4,10 @@ What changed on the site, newest first. One entry per change a reader would noti
 
 ## 2026-10-15
 
+- Diagrams load as you scroll to them, so long pages show their text sooner.
+- Links to another page on the site read as that page's title, not a repository path.
+- The cost and case-study pages show dollar amounts, dashes and their cost tables
+  correctly.
 - Added an [About](about.md) page and this changelog.
 - Every page now has a footer naming the maintainer and the date the page last changed,
   with links to edit it on GitHub or report an issue.

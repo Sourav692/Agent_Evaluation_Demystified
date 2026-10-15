@@ -391,13 +391,34 @@ MERMAID = re.compile(r'<pre><code class="language-mermaid">(.*?)</code></pre>', 
 # in both site themes, and the diagram reads as a figure rather than a hole.
 MERMAID_SCRIPT = """
 <script type="module">
-  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
-  mermaid.initialize({
-    startOnLoad: true,
-    theme: "default",
-    themeVariables: { fontFamily: '"Newsreader", Georgia, serif', fontSize: "14px" },
-    flowchart: { htmlLabels: true, curve: "basis", useMaxWidth: false },
+  // Mermaid is ~250 KB over ~27 requests. Imported up front, it competed with
+  // the page itself for the first paint (question bank LCP 4.6 s on mobile).
+  // It loads when the first diagram comes within a screen or two of view, and
+  // each diagram renders as it approaches. A diagram in a closed <details>
+  // renders when the reader opens it.
+  let ready;
+  const load = () => ready ||= import(
+    "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs"
+  ).then(({ default: mermaid }) => {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "default",
+      themeVariables: { fontFamily: '"Newsreader", Georgia, serif', fontSize: "14px" },
+      flowchart: { htmlLabels: true, curve: "basis", useMaxWidth: false },
+    });
+    return mermaid;
   });
+  // One run at a time: overlapping mermaid.run() calls drop diagrams (6 of 66
+  // when a reader scrolls fast).
+  let queue = Promise.resolve();
+  const near = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      near.unobserve(e.target);
+      queue = queue.then(() => load()).then((m) => m.run({ nodes: [e.target] })).catch(() => {});
+    }
+  }, { rootMargin: "1200px 0px" });
+  document.querySelectorAll("pre.mermaid").forEach((el) => near.observe(el));
 
   // useMaxWidth:false is not enough on its own -- mermaid still pins an inline
   // max-width on some diagrams, which fitted five wide `flowchart LR` pipelines
@@ -406,9 +427,9 @@ MERMAID_SCRIPT = """
   // one is wider than the column. That is the natural gesture for a
   // left-to-right pipeline, and it beats a sliver.
   //
-  // Driven by an observer rather than awaiting mermaid.run(): startOnLoad does
-  // the rendering, and hooking the promise proved unreliable -- it rejected
-  // after having drawn every diagram, which skipped the sizing pass entirely.
+  // Driven by an observer rather than awaiting mermaid.run(): hooking the
+  // promise proved unreliable -- it rejected after having drawn every diagram,
+  // which skipped the sizing pass entirely.
   // childList only, so writing the styles cannot retrigger this.
   const sizeFromViewBox = () => {
     for (const svg of document.querySelectorAll("pre.mermaid svg")) {
