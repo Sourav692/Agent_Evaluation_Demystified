@@ -3,7 +3,7 @@
 *Decompose the system before measuring it, because one quality score cannot say which stage
 broke.*
 
-◷ 17 min · Level 0 · the entry point. Nothing here is executable — it is the vocabulary and the
+◷ 17 min read, about 3 h with its notebook · Level 0 · the entry point. Nothing here is executable — it is the vocabulary and the
 decision rules every later level uses.
 
 "Evaluate the AI system" sounds like one task. It is five, each failing differently and each
@@ -12,7 +12,9 @@ being measured.
 
 > **Who this is for.** No library knowledge is assumed. Every technical term is defined in plain
 > words the first time it appears, and the page explains what gets measured rather than what
-> computes it.
+> computes it. Learning evaluation end to end? This is step one of
+> [the roadmap](../study-guide/evaluation-roadmap.md). Preparing for an interview?
+> [The study plan](../study-guide/evaluation-study-plan.html) is the shorter route.
 
 ---
 

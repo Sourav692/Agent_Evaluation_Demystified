@@ -1,8 +1,13 @@
 # Evaluation roadmap — agentic applications, basic to expert
 
 The complete ordered path through this repository, by **skill level**. Ten levels in four
-bands. Each level lists its topics, goal, notebooks/resources, and a self-check, in that
-order. Two dedicated sections follow the levels: the **Databricks / MLflow 3** track as its
+bands, plus the Level 10 cram sheet that puts them back together. Each level lists its topics,
+goal, notebooks/resources, and a self-check, in that order.
+
+**Which path is this?** This is the learning path: everything, in order, about 54 hours with
+the notebooks. New here? Start at [Level 0](../roadmap-explainers/00-orientation.md). Preparing
+for an interview instead? [The study plan](evaluation-study-plan.html) is the interview path:
+about 20 hours, or about 10 on its fast path. Two dedicated sections follow the levels: the **Databricks / MLflow 3** track as its
 own ladder, and what an **OpenAI**-style evaluation round pushes on.
 
 ---
@@ -21,8 +26,10 @@ own ladder, and what an **OpenAI**-style evaluation round pushes on.
 | Advanced     | [7 · Online](#level-7-online-evaluation-and-the-loop)                                 | What survives when the answer key is gone?                      | 6 h  |
 | Expert       | [8 · Safety and multi-agent](#level-8-safety-adversarial-and-multi-agent-attribution) | What must never happen, and which agent broke it?               | 6 h  |
 | Expert       | [9 · The harness](#level-9-the-harness-as-a-product)                                  | How does the evaluation system stay trustworthy and affordable? | 4 h  |
+| Cram sheet   | [10 · End to end](#level-10-the-enterprise-harness-end-to-end)                        | How do the ten levels fit into one harness?                     | 20 min |
 
-Roughly 54 hours end to end. The [fast paths](#fast-paths) at the bottom cut it to an hour,
+Times include running each level's Core notebooks; an explainer on its own reads in 15–30
+minutes (Level 0: 17). Roughly 54 hours end to end. The [fast paths](#fast-paths) at the bottom cut it to an hour,
 an evening, or a weekend.
 
 **Cost tags.** Every notebook and resource behind a level carries one of four tags, so a paid
@@ -292,6 +299,13 @@ metrics.
 - say what a hung eval run costs in CI that a failed one does not;
 - price a judged evaluation against the traffic it measures, and name the three levers before "use a smaller judge".
 
+### Level 10: The enterprise harness, end to end
+
+**Goal.** Nothing new: the ten levels as one harness, each stage producing the artifact the next
+one consumes. Read it first for the shape, or last to get it back in one sitting (20 min).
+
+**Path:** [explainer 10](../roadmap-explainers/10-the-enterprise-harness-end-to-end.md)
+
 ---
 
 ## Databricks — the MLflow 3 GenAI track as its own ladder
@@ -485,7 +499,7 @@ evaluation — every system in this repo is text-only.
 
 ### 6. Rehearsal
 
-1. [The study plan](evaluation-study-plan.html) — seven stages, 17–25 hours, a 2–3 day fast path and a skip list.
+1. [The study plan](evaluation-study-plan.html) — seven stages, roughly 20 hours, a 2–3 day fast path (about 10 hours) and a skip list.
 2. [The drill](../interview-prep/evaluation-round-drill.html) — the 35 questions and 19 cases with answers hidden; rate your recall.
 3. [Appendix D](../interview-prep/QUESTION_BANK.md) — 23 rapid-fire questions at 60–90 seconds each.
 4. [Appendix E](../interview-prep/QUESTION_BANK.md) — what gets people marked down, and seven lines worth having ready.
