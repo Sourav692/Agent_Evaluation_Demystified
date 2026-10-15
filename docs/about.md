@@ -1,8 +1,9 @@
 # About
 
 Maintained by **Sourav Banerjee**.
-<!-- OWNER: replace the next line with one line on your background in evaluation (owner-questions F10). -->
-A note on the maintainer's background in evaluation will be added here.
+Sourav wrote the repository's three courses: RAG, agent and tool evaluation across DeepEval,
+RAGAS, MLflow and Phoenix; MLflow 3 GenAI evaluation on Databricks, from tracing to judge
+alignment; and an agentic evaluation harness that ends in a release gate wired to CI.
 
 This site is the written half of a hands-on course in evaluating RAG systems and agents.
 The runnable half is the notebooks in the
