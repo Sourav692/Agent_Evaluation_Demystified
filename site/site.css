@@ -33,6 +33,7 @@ h4{font-size:19px; font-weight:600; margin:22px 0 7px; color:var(--muted)}
 h5{font-family:var(--serif); font-size:17px; font-weight:600; line-height:1.2;
   margin:20px 0 6px; color:var(--muted)}
 p{margin:0 0 15px}
+.readtime{font-family:var(--mono); font-size:13px; color:var(--muted); margin:4px 0 22px}
 .lede{font-size:20.5px; font-weight:300; color:var(--muted); margin:10px 0 34px;
   max-width:36em; line-height:1.62}
 a{color:var(--accent-text); text-decoration:underline; text-underline-offset:3px;

@@ -43,53 +43,12 @@ REPO_URL = "https://github.com/Sourav692/Agent_Evaluation_Demystified/blob/main/
 
 # section -> [(source under docs/, output slug, nav title, one-line blurb)]
 RENDER = {
-    "Theory": [
-        ("concepts/rag-agent-tool-evaluation.md", "field-guide",
-         "The field guide",
-         "Course 01's companion. The taxonomy, what each check catches and misses, "
-         "LLM-as-judge failure modes, and a debugging loop. Tool-agnostic."),
-        ("concepts/databricks-mlflow-evals.md", "databricks-mlflow",
-         "MLflow &amp; Databricks",
-         "Course 02's companion: the agent under test, concepts by theme, "
-         "32 gotchas as symptom &rarr; cause &rarr; fix, and the numbers."),
-        ("concepts/customer-support-multi-agent-case-study.md", "support-case-study",
-         "Support-system case study",
-         "One multi-tenant support agent evaluated end to end: every stage's checks, "
-         "the offline suite, the release gate, the canary and online signals."),
-        ("concepts/cost-tracking-and-guardrails.md", "cost-and-guardrails",
-         "Cost and guardrails",
-         "The same system's cost: per-request, per-agent and per-tenant attribution, "
-         "budgets, and five guardrail boundaries &mdash; and how cost gates a release."),
-    ],
-    "Audits": [
-        ("guide-audits/openai-eval-guide-coverage-gaps.md", "openai-audit",
-         "OpenAI guide audit",
-         "This repo measured against OpenAI's evaluation guide, per course. "
-         "Every topic badged, with the gap list and the corrections."),
-        ("guide-audits/openai-eval-guide-tutorial.md", "openai-eval-guide-tutorial",
-         "Evaluating LLM systems",
-         "The OpenAI guide in plain language &mdash; 3&ndash;4 lines a concept, "
-         "the notebook that teaches it, and 21 TODOs."),
-    ],
-    "Interview prep": [
-        ("interview-prep/QUESTION_BANK.md", "question-bank",
-         "Evaluation question bank",
-         "35 situational questions, 30 metric questions, 19 long-form cases and "
-         "seven appendices. The readable reference; the drill is the quiz."),
+    # The roadmap leads into Level 0; the mapping is its resource index, after Level 10.
+    "Roadmap": [
         ("study-guide/evaluation-roadmap.md", "roadmap",
          "Evaluation roadmap",
          "The complete path, basic to expert: ten levels with exit checks, then "
          "what an OpenAI round pushes on and the Databricks track as its own ladder."),
-        ("study-guide/evaluation-topic-notebook-mapping.md", "topic-notebook-mapping",
-         "Topic &amp; notebook mapping",
-         "The roadmap's resource index: for every level, which notebook, explainer, "
-         "lab or question teaches each topic, and what running it costs."),
-        ("study-guide/evaluation-templates.md", "evaluation-templates",
-         "Evaluation templates",
-         "Four fill-in documents: a scorecard, a failure-investigation report, an "
-         "acceptance-criteria document and a regression report."),
-    ],
-    "Roadmap explainers": [
         ("roadmap-explainers/00-orientation.md", "00-orientation",
          "Level 0 &middot; Orientation",
          "Decompose the system before measuring it, because one quality score cannot say which stage broke."),
@@ -123,6 +82,50 @@ RENDER = {
         ("roadmap-explainers/10-the-enterprise-harness-end-to-end.md", "10-the-enterprise-harness-end-to-end",
          "Level 10 &middot; The enterprise harness, end to end",
          "Every stage produces the artifact the next one consumes, so a skipped stage does not fail &mdash; it keeps reporting green while measuring nothing."),
+        ("study-guide/evaluation-topic-notebook-mapping.md", "topic-notebook-mapping",
+         "Topic &amp; notebook mapping",
+         "The roadmap's resource index: for every level, which notebook, explainer, "
+         "lab or question teaches each topic, and what running it costs."),
+    ],
+    "Theory": [
+        ("concepts/rag-agent-tool-evaluation.md", "field-guide",
+         "The field guide",
+         "Course 01's companion. The taxonomy, what each check catches and misses, "
+         "LLM-as-judge failure modes, and a debugging loop. Tool-agnostic."),
+        ("concepts/databricks-mlflow-evals.md", "databricks-mlflow",
+         "MLflow &amp; Databricks",
+         "Course 02's companion: the agent under test, concepts by theme, "
+         "32 gotchas as symptom &rarr; cause &rarr; fix, and the numbers."),
+    ],
+    "Case studies": [
+        ("concepts/customer-support-multi-agent-case-study.md", "support-case-study",
+         "Support-system case study",
+         "One multi-tenant support agent evaluated end to end: every stage's checks, "
+         "the offline suite, the release gate, the canary and online signals."),
+        ("concepts/cost-tracking-and-guardrails.md", "cost-and-guardrails",
+         "Cost and guardrails",
+         "The same system's cost: per-request, per-agent and per-tenant attribution, "
+         "budgets, and five guardrail boundaries &mdash; and how cost gates a release."),
+    ],
+    "Interview prep": [
+        ("interview-prep/QUESTION_BANK.md", "question-bank",
+         "Evaluation question bank",
+         "35 situational questions, 30 metric questions, 19 long-form cases and "
+         "seven appendices. The readable reference; the drill is the quiz."),
+        ("study-guide/evaluation-templates.md", "evaluation-templates",
+         "Evaluation templates",
+         "Four fill-in documents: a scorecard, a failure-investigation report, an "
+         "acceptance-criteria document and a regression report."),
+    ],
+    "Audits": [
+        ("guide-audits/openai-eval-guide-coverage-gaps.md", "openai-audit",
+         "OpenAI guide audit",
+         "This repo measured against OpenAI's evaluation guide, per course. "
+         "Every topic badged, with the gap list and the corrections."),
+        ("guide-audits/openai-eval-guide-tutorial.md", "openai-eval-guide-tutorial",
+         "Evaluating LLM systems",
+         "The OpenAI guide in plain language &mdash; 3&ndash;4 lines a concept, "
+         "the notebook that teaches it, and 21 TODOs."),
     ],
 }
 
@@ -136,7 +139,7 @@ COPY = {
          "Seven stages ordered by what the round tests, with time estimates and "
          "a 2&ndash;3 day fast path."),
     ],
-    "Interactive labs": [
+    "Labs": [
         ("interactive-labs/00-evaluation-index.html", "The surface map",
          "Pipeline, what breaks where, reference-based vs referenceless."),
         ("interactive-labs/01-deterministic-retrieval-metrics.html",
@@ -156,6 +159,10 @@ COPY = {
          "Five of nine metrics never move; task success reports a clean pass on 40% waste."),
     ],
 }
+
+# Copied pages that are read rather than used: they get a reading time (the labs and
+# the drill are interactive).
+READ_TIME_COPIED = {"study-guide/evaluation-study-plan.html"}
 
 # Deliberate omissions. Printed on every build so nothing disappears quietly.
 SKIP = [
@@ -177,7 +184,9 @@ SITE_PAGES = [
     ("CHANGELOG.md", "changelog", "Changelog", "What changed on the site, newest first."),
 ]
 
-SECTION_ORDER = ["Theory", "Interview prep", "Audits", "Interactive labs", "Roadmap explainers"]
+SECTION_ORDER = ["Roadmap", "Theory", "Case studies", "Labs", "Interview prep", "Audits"]
+# Index anchors from the earlier five sections, still linked from outside: kept as aliases.
+SECTION_ALIASES = {"Roadmap": "roadmap-explainers", "Labs": "interactive-labs"}
 
 
 # --------------------------------------------------------------------------
@@ -1138,14 +1147,14 @@ def practise_it(slug, html, group, pos):
     for nb in notebooks:
         if not os.path.exists(os.path.join(ROOT, nb)):
             sys.exit("PRACTICE names a missing path for %s: %s" % (slug, nb))
-    lab_title = {copied_name(src)[:-5]: t for src, t, _ in COPY["Interactive labs"]}
+    lab_title = {copied_name(src)[:-5]: t for src, t, _ in COPY["Labs"]}
     lab_links = ['<a href="%s.html">%s</a>' % (l, lab_title[l]) for l in labs]
     nb_items = "".join('<li><a href="%s%s">%s</a></li>' % (REPO_URL, nb, notebook_label(nb)) for nb in notebooks)
     parts = []
     if lab_links:
         parts.append("<p><b>In the browser, free:</b> %s.</p>" % " &middot; ".join(lab_links))
     parts.append("<p><b>Run it</b> (notebooks in the repository):</p><ul>%s</ul>" % nb_items)
-    if pos < len(group) - 1:
+    if pos < len(group) - 1 and group[pos + 1][1] in PRACTICE:
         parts.append('<p><b>Next:</b> <a href="%s.html">%s &rarr;</a></p>' % (group[pos + 1][1], group[pos + 1][2]))
     section = ('<h2 id="practise-it">Practise it</h2><div class="practise">%s</div>\n' % "".join(parts))
     jump = ('<p class="practise-jump">Practise it: %s</p>'
@@ -1153,6 +1162,27 @@ def practise_it(slug, html, group, pos):
                                              % (len(notebooks), "" if len(notebooks) == 1 else "s")]))
     html = re.sub(r"(<p>\u25f7[^\n]*?(?:\n[^\n<]*)*?</p>)", lambda m: m.group(1) + "\n" + jump, html, count=1)
     return html.replace('<h2 id="references">', section + '<h2 id="references">', 1)
+
+
+UNCOUNTED = re.compile(r"<(pre|script|style)\b.*?</\1>", re.S)
+
+
+def read_time(html):
+    """'◷ 21 min read' at 230 words a minute; past 90 minutes, in hours to the half."""
+    words = len(re.sub(r"<[^>]+>", " ", UNCOUNTED.sub(" ", html)).split())
+    minutes = max(1, round(words / 230))
+    if minutes <= 90:
+        return "\u25f7 %d min read" % minutes
+    return "\u25f7 about %s h read" % ("%g" % (round(minutes / 30) / 2))
+
+
+def add_read_time(html):
+    """Under the H1, unless the Markdown already states its own time (the explainers)."""
+    if "\u25f7" in html:
+        return html
+    line = '<p class="readtime">%s</p>' % read_time(html)
+    out, n = re.subn(r"(<h1\b.*?</h1>)", lambda m: m.group(1) + "\n" + line, html, count=1, flags=re.S)
+    return out if n else line + "\n" + html
 
 
 def chapter_row(group, pos, title, extra=""):
@@ -1318,6 +1348,7 @@ def build():
         html, examples = worked_examples(html)
         if slug in PRACTICE:
             html = practise_it(slug, html, *seq)
+        html = add_read_time(html)
         html, refs = fold_references(html)
         html, tables = tablecards(html)
         rail, sections = docnav(html)
@@ -1377,6 +1408,9 @@ def build():
                 raise SystemExit("expected one </body> to attach the footer to: %s" % src)
             theory = ('<a class="theory" href="%s.html">Theory: Level %d</a>' % levels[group[pos][1]]
                       if group[pos][1] in levels else "")
+            if src in READ_TIME_COPIED:  # a reading page: its H1 sits in a dark masthead
+                main = re.search(r"<main\b.*?</main>", text, re.S)
+                theory += '<span class="readtime">%s</span>' % read_time(main.group(0))
             bar = header(top_nav(section), chapter_row(group, pos, title, theory), toc=False, cls="site-bar flat")
             text, n = BODY_OPEN.subn(lambda m: m.group(1) + "\n" + SKIP_LINK + "\n" + bar, text, count=1)
             if not n:
@@ -1397,7 +1431,7 @@ def build():
             # Explainer cards carry the level's topics instead of a word count:
             # "what is in here" is the thing a reader is choosing on, and a
             # length was never the reason to open one rather than another.
-            if section == "Roadmap explainers":
+            if slug in PRACTICE:
                 items.append('<li><a href="%s.html">%s</a><p>%s</p>%s</li>'
                              % (slug, title, blurb, topics_html(slug, topics)))
                 continue
@@ -1410,8 +1444,9 @@ def build():
                          % (copied_name(src), title,
                             badge_for(os.path.join(DIST, copied_name(src))), blurb))
         if items:
-            cards.append('<section id="%s"><h2>%s</h2><ul class="cards">%s</ul></section>'
-                         % (section.lower().replace(" ", "-"), section, "".join(items)))
+            alias = ('<span id="%s"></span>' % SECTION_ALIASES[section]) if section in SECTION_ALIASES else ""
+            cards.append('<section id="%s">%s<h2>%s</h2><ul class="cards">%s</ul></section>'
+                         % (section.lower().replace(" ", "-"), alias, section, "".join(items)))
 
     # The first screen names the reader, the promise and one thing to press
     # (ON-01); the secondary button is the interview lane (ON-05). Copy is the

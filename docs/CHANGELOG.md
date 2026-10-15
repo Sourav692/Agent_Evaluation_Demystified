@@ -4,6 +4,10 @@ What changed on the site, newest first. One entry per change a reader would noti
 
 ## 2026-10-16
 
+- The top menu has six sections: Roadmap, Theory, Case studies, Labs, Interview prep and
+  Audits. The case study and its cost companion have their own section, and the roadmap
+  sits with its eleven levels, leading into Level 0.
+- Every reading page now shows its reading time under the title.
 - The drill, the study plan and the six labs now carry the site's own header. Each lab
   links the previous and next lab and its theory level ("Theory: Level 1").
 - Every page now starts with a "Skip to content" link (press Tab to see it), and anything

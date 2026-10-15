@@ -21,6 +21,7 @@ Rules, one function each:
   practise     every roadmap explainer has its "Practise it" section (lab or notebook links)
   names        each index card title is the short form of its page's H1 (a lab's eyebrow)
   chrome       the site header (<header class="site-bar">), on copied pages too
+  readtime     every reading page (rendered pages, the study plan) shows a "\u25f7" reading time
   skip         a "Skip to content" link to #main (the link rule checks #main exists)
   tokens       the drill, study plan and labs link assets/tokens.css and write no colour
                the tokens define as a hex literal (use the variable)
@@ -34,7 +35,7 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from build import COPY, DIST, RENDER, REPO_URL, SITE_PAGES, copied_name  # noqa: E402
+from build import COPY, DIST, PRACTICE, RENDER, REPO_URL, SITE_PAGES, copied_name  # noqa: E402
 
 SCRIPT = re.compile(r"<script\b.*?</script>", re.S)
 HEAD_TAGS = ['property="og:title"', 'property="og:description"', 'property="og:image"',
@@ -108,7 +109,7 @@ def answers(name, html, ctx):
     return [] if items == folded else ["%d of %d Check Yourself answers shown inline" % (items - folded, items)]
 
 
-EXPLAINERS = {slug + ".html" for _, slug, _, _ in RENDER.get("Roadmap explainers", [])}
+EXPLAINERS = {slug + ".html" for slug in PRACTICE}
 
 
 def practise(name, html, ctx):
@@ -144,7 +145,7 @@ def names(name, html, ctx):
 
 TOKENS_CSS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "tokens.css")
 TOKEN_HEX = {h.upper() for h in re.findall(r"#[0-9a-fA-F]{6}\b", open(TOKENS_CSS, encoding="utf-8").read())}
-TOKEN_PAGES = {copied_name(s) for s, *_ in COPY["Interactive labs"]} | {
+TOKEN_PAGES = {copied_name(s) for s, *_ in COPY["Labs"]} | {
     "evaluation-round-drill.html", "evaluation-study-plan.html"}
 
 
@@ -160,11 +161,19 @@ def chrome(name, html, ctx):
     return [] if re.search(r'<header class="site-bar[ "]', html) else ["no site header"]
 
 
+READING = ({slug + ".html" for g in RENDER.values() for _, slug, *_ in g}
+           | {slug + ".html" for _, slug, *_ in SITE_PAGES} | {"evaluation-study-plan.html"})
+
+
+def readtime(name, html, ctx):
+    return [] if name not in READING or "\u25f7" in html else ["no reading time"]
+
+
 def skip(name, html, ctx):
     return [] if '<a class="skip" href="#main">' in html else ["no Skip to content link"]
 
 
-RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc, answers, practise, names, chrome, skip, tokens]
+RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc, answers, practise, names, chrome, readtime, skip, tokens]
 
 
 def context(pages):
@@ -223,7 +232,8 @@ def self_test():
     assert names("index.html", card % "The self-quiz drill", {"pages": {"b.html": "<h1>The Evaluation Round</h1>"}})
     assert not names("index.html", card % "Level 4 &middot; Judges &amp; the humans",
                      {"pages": {"b.html": "<h1>Judges, and the Humans Who Validate Them</h1>"}})
-    lab = copied_name(COPY["Interactive labs"][0][0])
+    assert readtime("about.html", "<h1>x</h1>", None) and not readtime("about.html", "<p>\u25f7 2 min read</p>", None)
+    lab = copied_name(COPY["Labs"][0][0])
     assert tokens(lab, '<link href="assets/tokens.css"><style>a{color:#9a6a12}</style>', None)
     assert tokens(lab, "<p>x</p>", None)
     assert not tokens(lab, '<link href="assets/tokens.css"><style>a{color:var(--text)} b{color:#fff}</style>', None)
