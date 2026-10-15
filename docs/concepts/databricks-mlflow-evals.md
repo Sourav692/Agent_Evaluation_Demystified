@@ -8,9 +8,7 @@ The notebooks already carry **~15,900 words of explanatory markdown**, about 60%
 their content. The theory is not missing from them, and **this file does not repeat it.**
 
 Mirroring those explanations here would create two copies of ~63 pages of prose, and
-duplicated prose drifts. This repo has already been bitten by exactly that: `CLAUDE.md`
-records that `README.md`'s tables "have historically drifted from `NOTEBOOK_INDEX.md`".
-A per-notebook theory file would be the same mistake with more pages.
+duplicated prose drifts. A per-notebook theory file would be the same mistake with more pages.
 
 What the notebooks genuinely *cannot* do is **random access**. They are sequential: to look
 up "when do I use quadratic weighted kappa?" you first have to know it lives in Phase 7.
@@ -699,7 +697,7 @@ compute, but they need per-chunk relevance labels — the most expensive labelli
 | `FaithfulnessMetric`, RAGAS `faithfulness`        | Judge      | —                                 | **yes**      |
 | `AnswerRelevancyMetric`, RAGAS `answer_relevancy` | Judge      | —                                 | **yes**      |
 | `HallucinationMetric`                               | Judge      | **yes** — reference context | no                 |
-| RAGAS`answer_correctness`                           | Judge      | **yes** — reference answer  | no                 |
+| RAGAS `answer_correctness`                          | Judge      | **yes** — reference answer  | no                 |
 | Custom`GEval` rubrics                               | Judge      | either — follows the rubric       | follows the rubric |
 
 ### B.3 Naming map — same idea, three vocabularies

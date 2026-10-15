@@ -472,9 +472,7 @@ calibrates a judge for the other thousand.
 ## References
 
 All content above was drawn only from material already in this repository. Nothing here was
-invented, and no external source was consulted. This page is the restyled edition of
-`org/03-ground-truth.md`; its content is the same, with platform API surface replaced by what each
-mechanism does.
+invented, and no external source was consulted.
 
 **Notebook:**
 

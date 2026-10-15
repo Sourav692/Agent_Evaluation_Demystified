@@ -12,11 +12,11 @@ Rules, one function each:
   one-h1       exactly one <h1>
   build-note   the old "Generated from the Markdown" footer is gone
   repo-path    no docs/... path shown as text (code span outside a link, <pre>, <script>),
-               nor as the text of a link to one of the site's own pages
+               nor (docs/ path or bare .md name) as the text of a link to a site page
   blob-link    no GitHub blob link to a doc the site serves itself
   link         every relative <a href> resolves to a built file, and its #fragment to an id
   cdn-pin      every jsDelivr npm URL names an exact x.y.z version
-  pandoc       no literal \\$ or spaced --- in page text (Pandoc's escape and em dash)
+  pandoc       no literal \\$ or --- in page text (Pandoc's escape and em dash)
 
 Stdlib only.
 """
@@ -54,7 +54,7 @@ def repo_path(name, html, ctx):
     text = re.sub(r"<(pre|script|a)\b.*?</\1>", "", html, flags=re.S)
     shown = ["%s shown as text" % p for p in re.findall(r"<code>(docs/[^<]*)</code>", text)]
     # a link to one of the site's own pages should read as its title, not its repo path
-    site = re.findall(r'<a href="([^":#]+\.html)[^"]*"><code>(docs/[^<]*)</code></a>',
+    site = re.findall(r'<a href="([^":#]+\.html)[^"]*"><code>(docs/[^<]*|[^<\s/]+\.md)</code>[^<]*</a>',
                       SCRIPT.sub("", html))
     return shown + ["%s is the link text for %s" % (p, h) for h, p in site]
 
@@ -89,7 +89,7 @@ CODE_ZONES = re.compile(r"<(pre|code|script|style)\b.*?</\1>", re.S)
 def pandoc(name, html, ctx):
     text = CODE_ZONES.sub("", html)
     return (["%d literal \\$" % text.count("\\$")] if "\\$" in text else []) + \
-           (["literal --- in %r" % m for m in re.findall(r".{0,30}\s---\s.{0,30}", text)])
+           (["literal --- in %r" % m for m in re.findall(r".{0,30}[\s\w]---[\s\w].{0,30}", text)])
 
 
 RULES = [head, one_h1, build_note, repo_path, blob_link, link, cdn_pin, pandoc]
@@ -131,8 +131,10 @@ def self_test():
     for rule, html in cases.items():
         hits = [e for e in check({"a.html": html, "b.html": b}) if e.startswith("a.html: %s:" % rule)]
         assert hits, "rule %s did not fire" % rule
-    site_link = ok + '<p><a href="b.html#s"><code>docs/b.md</code></a></p>'
-    assert any("repo-path" in e for e in check({"a.html": site_link, "b.html": b}))
+    for text in ("<code>docs/b.md</code>", "<code>b.md</code>, Part 5"):
+        site_link = ok + '<p><a href="b.html#s">%s</a></p>' % text
+        assert any("repo-path" in e for e in check({"a.html": site_link, "b.html": b})), text
+    assert any("pandoc" in e for e in check({"a.html": ok + "<p>layer---tenant</p>", "b.html": b}))
     # what each rule must leave alone
     quiet = ok + ("<pre><code>docs/x.md</code></pre><a href=\"y\"><code>docs/x.md</code></a>"
                   "<script>s='<code>docs/x.md</code><h1>'</script>"

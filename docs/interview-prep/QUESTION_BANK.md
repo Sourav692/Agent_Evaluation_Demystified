@@ -21,7 +21,6 @@ and conversational evaluation).
 **Two interactive companions, built from this file:**
 [`evaluation-study-plan.html`](../study-guide/evaluation-study-plan.html) orders it into a reading path;
 [`evaluation-round-drill.html`](evaluation-round-drill.html) hides every answer for self-quizzing.
-This Markdown is the canonical text — edit here, not there.
 
 ---
 
@@ -3167,7 +3166,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 
 *The metric, taught in full: [field guide §6.1](../concepts/rag-agent-tool-evaluation.md#61-deterministic-retrieval-metrics-four-numbers-that-are-supposed-to-disagree).*
 
-#### Q1 — Your support RAG serves 30k queries/day. Leadership asks for "one number" for retrieval quality on the exec dashboard. What do you put there, and what do you say about the request?
+#### 10.1 Q1 — Your support RAG serves 30k queries/day. Leadership asks for "one number" for retrieval quality on the exec dashboard. What do you put there, and what do you say about the request?
 
 **What a strong answer covers:**
 
@@ -3176,7 +3175,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Proposes recall@K on the dashboard with precision@K and MRR one click away, rather than refusing the request outright
 - Notes that the number is only meaningful against a golden set that tracks the live query distribution, and commits to a refresh cadence
 
-#### Q2 — Retrieval recall@5 is 0.94 on your eval set, but users keep reporting wrong answers for queries containing product SKUs like SKU-88213. Walk through the diagnosis.
+#### 10.1 Q2 — Retrieval recall@5 is 0.94 on your eval set, but users keep reporting wrong answers for queries containing product SKUs like SKU-88213. Walk through the diagnosis.
 
 **What a strong answer covers:**
 
@@ -3185,7 +3184,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Names the likely mechanism: dense embeddings blur rare literal tokens, so exact-ID queries need a sparse/BM25 channel
 - Proposes adding the failing query shape to the golden set permanently, so the fix is regression-protected
 
-#### Q3 — Your team wants to raise K from 5 to 20 "to be safe." Argue for or against, with the specific evidence you'd collect first.
+#### 10.1 Q3 — Your team wants to raise K from 5 to 20 "to be safe." Argue for or against, with the specific evidence you'd collect first.
 
 **What a strong answer covers:**
 
@@ -3194,7 +3193,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Raises the quality risk, not just the cost: long noisy contexts make the generator likelier to ground on the wrong chunk
 - Offers the alternative that usually wins — retrieve wide, rerank, and pass a small K to the model
 
-#### Q4 — How would you know your retrieval eval set has gone stale, without waiting for a customer to complain?
+#### 10.1 Q4 — How would you know your retrieval eval set has gone stale, without waiting for a customer to complain?
 
 **What a strong answer covers:**
 
@@ -3203,7 +3202,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Treats the golden set as versioned infrastructure alongside the index, refreshed from sampled real logs on a schedule
 - Notes the specific trap: metrics that never move are more often a dead eval set than a stable system
 
-#### Q5 — MRR is 0.50 and flat across every K you try. What is that telling you, and what would you change?
+#### 10.1 Q5 — MRR is 0.50 and flat across every K you try. What is that telling you, and what would you change?
 
 **What a strong answer covers:**
 
@@ -3220,7 +3219,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 
 *The metric, taught in full: [field guide §6.2](../concepts/rag-agent-tool-evaluation.md#62-llm-judged-retrieval-three-metrics-because-there-are-three-failures).*
 
-#### Q1 — You're standing up retrieval evaluation for a customer-facing KB assistant with no labelled data and a launch in three days. Which of the three contextual metrics do you ship, and what do you tell the team you can't see?
+#### 10.2 Q1 — You're standing up retrieval evaluation for a customer-facing KB assistant with no labelled data and a launch in three days. Which of the three contextual metrics do you ship, and what do you tell the team you can't see?
 
 **What a strong answer covers:**
 - Ships Contextual Relevancy first, because it's the only one that needs no `expected_output` and can run over real traffic immediately
@@ -3228,7 +3227,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Proposes hand-labelling a small set (30–50 queries) in parallel to unlock precision and recall for CI, rather than treating labels as all-or-nothing
 - Names a cheap compensating signal for coverage in the meantime — abstention rate, or answer length collapse
 
-#### Q2 — Contextual Precision drops from 0.91 to 0.62 after a release. Recall and relevancy are unchanged. What shipped?
+#### 10.2 Q2 — Contextual Precision drops from 0.91 to 0.62 after a release. Recall and relevancy are unchanged. What shipped?
 
 **What a strong answer covers:**
 - Reads the signature correctly: same chunks retrieved, different order — so the retrieval set is intact and the *ranking* changed
@@ -3236,7 +3235,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Notes what recall being flat rules out: nothing was lost from the candidate set
 - Proposes diffing the ranked lists for the same queries pre- and post-release as the fastest confirmation
 
-#### Q3 — Your Contextual Recall scores cluster tightly around 0.5, the default threshold. Why is that dangerous, and what would you do?
+#### 10.2 Q3 — Your Contextual Recall scores cluster tightly around 0.5, the default threshold. Why is that dangerous, and what would you do?
 
 **What a strong answer covers:**
 - Identifies the flakiness: LLM judges are non-deterministic, so cases at the threshold flip between runs and CI becomes unreliable
@@ -3244,7 +3243,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Proposes plotting the score distribution and setting the threshold in a sparse region, or requiring N-of-M runs for near-threshold cases
 - Connects it back to a broader rule: never treat `metric.score` as an exact value; treat it as a noisy estimate
 
-#### Q4 — How do you validate that the judge itself is any good, before you let it gate a deploy?
+#### 10.2 Q4 — How do you validate that the judge itself is any good, before you let it gate a deploy?
 
 **What a strong answer covers:**
 - Treats the judge as a classifier: hand-label a set, then measure the judge's own precision and recall against those human labels
@@ -3252,7 +3251,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Tests judge-model sensitivity by running the same cases through a weaker and a stronger model and comparing
 - Notes that a judge weaker than the task will be systematically noisy, and that the reason strings are the fastest way to spot a miscalibrated rubric
 
-#### Q5 — A stakeholder wants "one retrieval health number" for a weekly report. What do you give them?
+#### 10.2 Q5 — A stakeholder wants "one retrieval health number" for a weekly report. What do you give them?
 
 **What a strong answer covers:**
 - Resists the straight average, and explains concretely what it hides — the reordering case where precision halves and the mean barely moves
@@ -3260,7 +3259,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Alternatively reports pass rates per metric against thresholds, which is more interpretable than an averaged score
 - Keeps the three sub-scores one click away, since the fix depends entirely on *which* one failed
 
-#### Q6 — Recall@5 is 0.95 on the failing cases and the right chunk is in every retrieved set, yet the answers still miss the fact. What happened between retrieval and generation, and how do you test it?
+#### 10.2 Q6 — Recall@5 is 0.95 on the failing cases and the right chunk is in every retrieved set, yet the answers still miss the fact. What happened between retrieval and generation, and how do you test it?
 
 **What a strong answer covers:**
 - Separates *retrieved* from *seen*: scores the final prompt, not the retriever's output — chunk-inclusion rate and truncation events against the token budget
@@ -3268,7 +3267,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Checks any compression or summarising step for dropped qualifiers, dates and units, by re-running the failures with it switched off
 - Looks for conflicting sources in the same context — an old and a new policy — then asks which precedence rule (source authority, effective date) the system is meant to apply, and tests that rule ([field guide §1.2b](../concepts/rag-agent-tool-evaluation.md#12b-context-construction--retrieved-is-not-the-same-as-seen))
 
-#### Q7 — The assistant launches in German and Japanese alongside English. How do you evaluate retrieval across languages?
+#### 10.2 Q7 — The assistant launches in German and Japanese alongside English. How do you evaluate retrieval across languages?
 
 **What a strong answer covers:**
 - Reports recall per language, never pooled — an English-heavy average hides a language sitting at half the recall
@@ -3285,7 +3284,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 
 *The metric, taught in full: [field guide §6.3](../concepts/rag-agent-tool-evaluation.md#63-generator-metrics-faithful-relevant-and-completely-wrong).*
 
-#### Q1 — Your production RAG monitors Faithfulness and Answer Relevancy on live traffic. Both sit above 0.95 for a month. Then a customer proves the assistant has been giving wrong compliance guidance the whole time. How is that possible, and what do you add?
+#### 10.3 Q1 — Your production RAG monitors Faithfulness and Answer Relevancy on live traffic. Both sit above 0.95 for a month. Then a customer proves the assistant has been giving wrong compliance guidance the whole time. How is that possible, and what do you add?
 
 **What a strong answer covers:**
 - Identifies the mechanism precisely: both metrics are referenceless, so a document that is itself wrong produces a perfectly faithful, perfectly relevant, wrong answer
@@ -3293,7 +3292,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Proposes reference-based coverage for the high-stakes slice: a curated golden set for compliance queries, checked with Answer Correctness
 - Adds the upstream fix too — index freshness monitoring and source-level review, since the root cause is the knowledge base, not the model
 
-#### Q2 — Faithfulness is 0.62 and Answer Relevancy is 0.97 on a set of failing cases. Where do you look first?
+#### 10.3 Q2 — Faithfulness is 0.62 and Answer Relevancy is 0.97 on a set of failing cases. Where do you look first?
 
 **What a strong answer covers:**
 - Reads it as a grounding problem, not a retrieval or prompt-comprehension problem: the model is answering the right question and inventing while it does
@@ -3301,7 +3300,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Looks at decoding and prompt constraints: temperature, explicit "answer only from the context" instruction, and whether abstention is even an allowed output
 - Uses the per-claim verdicts rather than the aggregate score, since the unsupported claims name the failure directly
 
-#### Q3 — A teammate proposes replacing your LLM-judged Answer Correctness with embedding cosine similarity to cut cost by 90%. Make the case either way.
+#### 10.3 Q3 — A teammate proposes replacing your LLM-judged Answer Correctness with embedding cosine similarity to cut cost by 90%. Make the case either way.
 
 **What a strong answer covers:**
 - Names the specific weakness with a concrete example: an answer saying O(1) where the truth is O(h) scores ~0.83 because the two are topically adjacent
@@ -3309,7 +3308,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Proposes the tiered design rather than the swap: similarity on everything, judged correctness on the cases similarity flags plus a random sample
 - Quantifies what "90% cheaper" is actually buying, and whether the failure it lets through is one the product can absorb
 
-#### Q4 — How would you design an Answer Correctness rubric for a medical Q&A assistant, and what makes evaluation_steps better than criteria here?
+#### 10.3 Q4 — How would you design an Answer Correctness rubric for a medical Q&A assistant, and what makes evaluation_steps better than criteria here?
 
 **What a strong answer covers:**
 - Writes explicit, ordered steps rather than one sentence, so the judge's procedure is auditable and reviewable by a domain expert
@@ -3317,7 +3316,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Combines multiple test-case fields in one rubric: agreement with `expected_output` *and* grounding in `retrieval_context`
 - Notes that a vague criteria string produces a vague judge, and that in a regulated domain the rubric is itself a reviewable artifact
 
-#### Q5 — Your Hallucination metric jumps from 0.05 to 0.40 and the team celebrates the improvement. What went wrong?
+#### 10.3 Q5 — Your Hallucination metric jumps from 0.05 to 0.40 and the team celebrates the improvement. What went wrong?
 
 **What a strong answer covers:**
 - Catches the score-direction trap immediately: Hallucination is inverted, so 0.40 is four times worse, not better
@@ -3325,7 +3324,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Suggests guarding against it operationally: name dashboard panels with the direction, or normalise all metrics to higher-is-better before display
 - Then actually investigates the regression: what changed in the trusted context, the retriever, or the generator to quadruple contradictions
 
-#### Q6 — The dashboard reports a 4% hallucination rate and a VP asks what is driving it. What do you need that the single number doesn't give you?
+#### 10.3 Q6 — The dashboard reports a 4% hallucination rate and a VP asks what is driving it. What do you need that the single number doesn't give you?
 
 **What a strong answer covers:**
 - Extracts the answers' claims and labels every failing one as **unsupported**, **contradicted**, **stale** or **inaccessible** — four failures, not one
@@ -3333,7 +3332,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Notes that stale and inaccessible claims pass faithfulness because they *are* grounded, so a faithfulness-derived rate under-counts exactly those two
 - Slices the split by domain, source type, language and prompt/model version before answering what is driving it ([field guide §1.3](../concepts/rag-agent-tool-evaluation.md#13-generation-without-a-reference))
 
-#### Q7 — Users say the assistant gives different answers to what is obviously the same question, phrased differently. How do you measure that, and what do you look at first?
+#### 10.3 Q7 — Users say the assistant gives different answers to what is obviously the same question, phrased differently. How do you measure that, and what do you look at first?
 
 **What a strong answer covers:**
 - Builds paraphrase sets — several phrasings per intent — and scores agreement across them (of the answer, and of the retrieved chunks), not only each phrasing's correctness
@@ -3349,7 +3348,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 
 *The metric, taught in full: [field guide §6.4](../concepts/rag-agent-tool-evaluation.md#64-tool-use-the-metric-is-only-as-strict-as-its-constructor).*
 
-#### Q1 — Your travel agent reports 0.92 tool correctness in CI. A customer's flight was booked for the wrong date and the test suite was green. Explain how, and what you change.
+#### 10.4 Q1 — Your travel agent reports 0.92 tool correctness in CI. A customer's flight was booked for the wrong date and the test suite was green. Explain how, and what you change.
 
 **What a strong answer covers:**
 - Identifies the likely cause immediately: the metric was configured with name-only matching, so argument values were never compared
@@ -3357,7 +3356,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Goes further than the fix: adds a deterministic schema validator so a malformed or out-of-range date fails before execution, not after
 - Points out the general lesson — a metric score is meaningless without its configuration attached, so the config belongs in the report
 
-#### Q2 — You're monitoring a production agent with no expected trajectories. What tool-level signal can you actually get?
+#### 10.4 Q2 — You're monitoring a production agent with no expected trajectories. What tool-level signal can you actually get?
 
 **What a strong answer covers:**
 - Rules out `ToolCorrectnessMetric` correctly: it is reference-based and there is nothing to compare against
@@ -3365,7 +3364,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Adds the free deterministic layer regardless: schema validation, duplicate-call detection, error-rate per tool — none of which need a reference
 - Notes that end-state verification is the strongest available signal in production, because it cannot be fooled by a fluent output
 
-#### Q3 — Would you set should_exact_match=True? Argue both sides with a concrete scenario.
+#### 10.4 Q3 — Would you set should_exact_match=True? Argue both sides with a concrete scenario.
 
 **What a strong answer covers:**
 - For CI against a fixed regression suite: yes — order and completeness matter, and a deviation is a real change worth failing on
@@ -3373,7 +3372,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Raises the middle ground: exact matching only for the subset of tasks with genuinely canonical trajectories, looser matching elsewhere
 - Mentions the consequence of the binary output — you lose the gradient, so you can no longer tell a near-miss from a total failure
 
-#### Q4 — Your agent scores 1.00 on tool correctness and 0.45 on task completion. What's happening?
+#### 10.4 Q4 — Your agent scores 1.00 on tool correctness and 0.45 on task completion. What's happening?
 
 **What a strong answer covers:**
 - Reads it as the mechanics being right while the outcome is wrong — every call valid, the user's actual goal unmet
@@ -3381,7 +3380,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Proposes reading the `tools_called` list alongside the original request to find which requirement has no corresponding call
 - Suggests a custom `GEval` rubric that enumerates the product's specific constraints, since the generic task-completion prompt won't encode them
 
-#### Q5 — How would you catch an agent that calls a payment tool twice for the same request?
+#### 10.4 Q5 — How would you catch an agent that calls a payment tool twice for the same request?
 
 **What a strong answer covers:**
 - Deterministic duplicate detection on `(tool, arguments)` pairs within a single trace — no judge needed, catches it instantly
@@ -3389,7 +3388,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Argues for idempotency keys at the tool boundary as the real fix, since evaluation catches it after the fact and the money has already moved
 - Adds end-state verification against the payment system of record, because the agent's own summary will report one charge either way
 
-#### Q6 — An agent calls a text-to-SQL tool to answer analytics questions. How do you evaluate whether the SQL it generated is correct?
+#### 10.4 Q6 — An agent calls a text-to-SQL tool to answer analytics questions. How do you evaluate whether the SQL it generated is correct?
 
 **What a strong answer covers:**
 - Compares result sets, not SQL strings — two different queries can be equally right, and string matching fails in both directions
@@ -3406,7 +3405,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 
 *The metric, taught in full: [field guide §6.5](../concepts/rag-agent-tool-evaluation.md#65-agent-trajectory-task-success-is-not-enough).*
 
-#### Q1 — Your refund agent reports 99.2% task success and per-request cost has tripled in six weeks. Quality complaints are flat. Where do you look?
+#### 10.5 Q1 — Your refund agent reports 99.2% task success and per-request cost has tripled in six weeks. Quality complaints are flat. Where do you look?
 
 **What a strong answer covers:**
 - Recognises immediately that outcome metrics are saturated and structurally blind to the change — success rate cannot move when the task still completes
@@ -3414,7 +3413,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Names plausible causes that preserve success while inflating cost — a prompt change that encourages re-verification, a tool whose error rate rose so retries increased, a new tool the model reaches for speculatively
 - Proposes step-wise accuracy and cost efficiency as standing dashboard metrics, since success rate alone will never alert
 
-#### Q2 — Would you use exact-sequence trajectory matching or fuzzy set matching for a production support agent? Defend it.
+#### 10.5 Q2 — Would you use exact-sequence trajectory matching or fuzzy set matching for a production support agent? Defend it.
 
 **What a strong answer covers:**
 - Chooses fuzzy for production and explains why with the lab's own case: a typo'd first call plus a duplicate lookup would fail an exact match on a run that did the right things
@@ -3422,7 +3421,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Notes what fuzzy matching gives up: order-dependent bugs, like issuing a refund before checking eligibility, pass a set-based check
 - Proposes covering that gap explicitly with an ordering constraint on the specific tool pairs where sequence is safety-critical, rather than making the whole match strict
 
-#### Q3 — An agent reports "I've issued your refund of $45." How do you verify that without trusting the sentence?
+#### 10.5 Q3 — An agent reports "I've issued your refund of $45." How do you verify that without trusting the sentence?
 
 **What a strong answer covers:**
 - Goes straight to end-state verification against the system of record — read the order row, check `refund_issued` and `refund_amount`
@@ -3430,7 +3429,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Proposes a before/after diff of the underlying table scoped to the agent run, so the check is independent of both the agent and the tool wrapper
 - Notes this is the one metric an LLM cannot talk its way past, which is why it should carry the most weight in any agent that moves money
 
-#### Q4 — Recovery rate on your dashboard reads 1.00 and has for months. Is that good?
+#### 10.5 Q4 — Recovery rate on your dashboard reads 1.00 and has for months. Is that good?
 
 **What a strong answer covers:**
 - Questions the denominator first: if there were no errors, the correct value is `None`/`n/a`, and a displayed 1.00 means the metric is being computed wrongly
@@ -3438,7 +3437,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Proposes reporting error count alongside recovery rate, so the two are never read apart
 - Distinguishes the failure modes it should be separating: genuine self-correction versus blind retry with identical bad arguments
 
-#### Q5 — You have no gold trajectories and no budget to write them. What can you still measure?
+#### 10.5 Q5 — You have no gold trajectories and no budget to write them. What can you still measure?
 
 **What a strong answer covers:**
 - Lists the reference-free step metrics that need nothing: redundant-call detection, step-wise accuracy, recovery rate, cost proxy, per-tool error rate

@@ -601,9 +601,7 @@ measured has been found. Both are progress. Arguing from the dashboard is not.
 ## References
 
 All content above was drawn only from material already in this repository. Nothing here was
-invented, and no external source was consulted. This page is the restyled edition of
-`org/04-judges-and-the-humans-who-validate-them.md`; its content is the same, with library class
-names replaced by what each judge shape does.
+invented, and no external source was consulted.
 
 **Notebook:**
 

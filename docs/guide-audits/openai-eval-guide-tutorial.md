@@ -23,8 +23,9 @@ each concept lands on something you have already met rather than a fresh abstrac
 
 ## How to work through it — the TODO tracker
 
-Every concept ends with a `- [ ] TODO` line. Tick it off as you go: this file *is* the
-tracker, so commit it as you work and `git log` becomes your study history.
+Every concept ends with a `- [ ] TODO` line. Tick it off as you go in your own clone of the
+repository: there this file *is* the tracker, so commit it as you work and `git log` becomes
+your study history.
 
 The TODOs are deliberately **not** "read the notebook". Each asks you to produce something
 small — a number you measured, a threshold you changed, a check you watched fail — because

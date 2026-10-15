@@ -1,7 +1,8 @@
 # About
 
 Maintained by **Sourav Banerjee**.
-<!-- OWNER: one line on your background in evaluation goes here (owner-questions F10). -->
+<!-- OWNER: replace the next line with one line on your background in evaluation (owner-questions F10). -->
+A note on the maintainer's background in evaluation will be added here.
 
 This site is the written half of a hands-on course in evaluating RAG systems and agents.
 The runnable half is the notebooks in the

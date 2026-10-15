@@ -347,9 +347,11 @@ def linkify_code_paths(html):
 
 # Once a repo path links a page the site serves, the path itself is a build
 # internal: "Docs: docs/concepts/databricks-mlflow-evals.md" reads better as
-# "Docs: MLflow & Databricks". The page's nav title replaces the path; paths to
-# files the site doesn't serve (notebooks, folders) stay as written.
-SITE_LINK = re.compile(r'(<a href="([^"#]+\.html)(?:#[^"]*)?">)<code>docs/[^<]*</code>(</a>)')
+# "Docs: MLflow & Databricks". The page's nav title replaces the path -- a docs/
+# path or a bare file name (`databricks-mlflow-evals.md`, Part 5); text after
+# the code span stays. Paths to files the site doesn't serve stay as written.
+SITE_LINK = re.compile(
+    r'(<a href="([^"#]+\.html)(?:#[^"]*)?">)<code>(?:docs/[^<]*|[^<\s/]+\.md)</code>([^<]*</a>)')
 
 
 def titlify_site_links(html):
@@ -365,7 +367,7 @@ def titlify_site_links(html):
 
 # Two concept docs were converted by Pandoc and keep its conventions: `\$` (so
 # GitHub doesn't read `$2,900 ... $0.029` as maths -- the escape must stay in
-# the source), `---` for an em dash and `1--5` for an en dash. Python-Markdown
+# the source), `---` for an em dash (spaced or not) and `1--5` for an en dash. Python-Markdown
 # knows none of them and prints them literally. Outside <pre>, <code> and
 # <script> they become what Pandoc would have printed.
 PANDOC_SKIP = re.compile(r"(<pre\b.*?</pre>|<code\b.*?</code>|<script\b.*?</script>)", re.S)
@@ -374,7 +376,7 @@ PANDOC_SKIP = re.compile(r"(<pre\b.*?</pre>|<code\b.*?</code>|<script\b.*?</scri
 def pandoc_typography(html):
     parts = PANDOC_SKIP.split(html)
     for i in range(0, len(parts), 2):  # odd indexes are the skipped zones
-        t = re.sub(r"(\s)---(\s)", "\\1\u2014\\2", parts[i].replace("\\$", "$"))
+        t = re.sub(r"(\s|\w)---(\s|\w)", "\\1\u2014\\2", parts[i].replace("\\$", "$"))
         parts[i] = re.sub(r"(\d)--(\d)", "\\1\u2013\\2", t)
     return "".join(parts)
 

@@ -618,9 +618,7 @@ longer a platform — it is eight harnesses sharing a logo.**
 ## References
 
 All content above was drawn only from material already in this repository. Nothing here was
-invented, and no external source was consulted. This page is the restyled edition of
-`org/09-the-harness-as-a-product.md`; its content is the same, with model and library product names
-replaced by what each choice does.
+invented, and no external source was consulted.
 
 **Notebooks and worksheets:**
 

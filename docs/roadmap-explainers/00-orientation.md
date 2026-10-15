@@ -388,9 +388,7 @@ that same gate.
 ## References
 
 All content above was drawn only from material already in this repository. Nothing here was
-invented, and no external source was consulted. This page is the restyled edition of
-`org/00-orientation.md`; its content is the same, minus a framework-comparison section and a
-notebook cost-tag glossary, both of which described tooling rather than decomposition.
+invented, and no external source was consulted.
 
 **Notebook:**
 

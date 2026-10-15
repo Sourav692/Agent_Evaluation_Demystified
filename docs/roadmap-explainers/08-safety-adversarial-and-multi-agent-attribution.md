@@ -625,9 +625,7 @@ once, not planned. And a narrowed blast radius: one segment, one category, inter
 ## References
 
 All content above was drawn only from material already in this repository. Nothing here was
-invented, and no external source was consulted. This page is the restyled edition of
-`org/08-safety-adversarial-and-multi-agent-attribution.md`; its content is the same, with library
-class names replaced by what each mechanism does.
+invented, and no external source was consulted.
 
 **Notebooks:**
 

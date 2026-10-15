@@ -447,6 +447,4 @@ rather than absorbed.
 All content above was drawn only from material already in this repository. Nothing here was
 invented, no external source was consulted, and **this file introduces no concept, number or
 worked example that one of the ten level explainers does not already carry.** It is a synthesis,
-and each section names the level it condenses. This page is the restyled edition of
-`org/10-the-enterprise-harness-end-to-end.md`; its content is the same, with library class names
-replaced by what each mechanism does.
+and each section names the level it condenses.

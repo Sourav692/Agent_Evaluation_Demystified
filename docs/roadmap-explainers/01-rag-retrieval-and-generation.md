@@ -627,8 +627,7 @@ the index is.
 ## References
 
 All content above was drawn only from material already in this repository. Nothing here was
-invented, and no external source was consulted. This page is the restyled edition of
-`org/01-rag-retrieval-and-generation.md`; its content is the same. The body names the field vocabulary (`expected_output`, `retrieval_context`, `GEval`) where it aids understanding, but deliberately avoids any framework's API surface or feature tour. The sources below name the libraries they use; that is provenance, not curriculum.
+invented, and no external source was consulted. The body names the field vocabulary (`expected_output`, `retrieval_context`, `GEval`) where it aids understanding, but deliberately avoids any framework's API surface or feature tour. The sources below name the libraries they use; that is provenance, not curriculum.
 
 **Notebook:**
 

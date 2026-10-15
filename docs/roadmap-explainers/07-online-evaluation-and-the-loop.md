@@ -499,10 +499,7 @@ worth refusing to miss.
 ## References
 
 All content above was drawn only from material already in this repository. Nothing here was
-invented, and no external source was consulted. This page is the restyled edition of
-`org/07-online-evaluation-and-the-loop.md`; its content is the same, including that edition's
-table of where each named tool helps online (Section 2) and its drift check by total variation
-distance (Section 7).
+invented, and no external source was consulted.
 
 **Notebook:**
 

@@ -425,8 +425,7 @@ wrong.
 ## References
 
 All content above was drawn only from material already in this repository. Nothing here was
-invented, and no external source was consulted. This page is the restyled edition of
-`org/05-statistics-and-stratified-reporting.md`; its content is the same. Two retired pages have
+invented, and no external source was consulted. Two retired pages have
 since been merged into it: the plain-English stratified-reporting explainer from
 `docs/interview-prep/`, and the sampling-resolution section of the online-versus-offline
 concepts page (Section 6). The rest of that page now lives in

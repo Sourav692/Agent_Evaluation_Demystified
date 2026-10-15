@@ -447,9 +447,7 @@ convincing to a user, and to a judge, than a missing answer.
 ## References
 
 All content above was drawn only from material already in this repository. Nothing here was
-invented, and no external source was consulted. This page is the restyled edition of
-`org/02-agents-tools-conversations-trajectories-outcomes.md`; its content is the same, with library
-class names replaced by what each check does.
+invented, and no external source was consulted.
 
 **Notebook:**
 

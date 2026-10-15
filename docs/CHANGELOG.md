@@ -5,6 +5,8 @@ What changed on the site, newest first. One entry per change a reader would noti
 ## 2026-10-15
 
 - Diagrams load as you scroll to them, so long pages show their text sooner.
+- The metric questions in the question bank are numbered by section (10.1 Q1, 10.2 Q1), so
+  no two questions share a number. Explainer references no longer cite a file that doesn't exist.
 - Links to another page on the site read as that page's title, not a repository path.
 - The cost and case-study pages show dollar amounts, dashes and their cost tables
   correctly.
