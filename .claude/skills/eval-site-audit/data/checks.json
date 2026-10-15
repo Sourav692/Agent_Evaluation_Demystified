@@ -333,6 +333,15 @@
       "dimension": "credibility"
     },
     {
+      "id": "PQ-11",
+      "lens": "PQ",
+      "title": "Cited sources exist",
+      "verify": "scan+read",
+      "pass_when": "Every file, page or section a page names as its source exists where it says (no paths to moved or deleted files)",
+      "severity": "low",
+      "dimension": "credibility"
+    },
+    {
       "id": "PR-01",
       "lens": "PR",
       "title": "Custom domain",

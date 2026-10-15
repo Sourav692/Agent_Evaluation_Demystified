@@ -99,7 +99,7 @@ Two page families exist by construction (rendered from Markdown, copied standalo
 | depth | CT-07, CT-08 |
 | practice | FV-02, FV-03, CT-05, CT-06, CT-09 |
 | grounding | CT-03, CT-04, CT-10 |
-| credibility | PQ-10, PR-05, PR-14, PR-15 |
+| credibility | PQ-10, PQ-11, PR-05, PR-14, PR-15 |
 | navigation | IA-01 to IA-09 |
 | onboarding | ON-01 to ON-06 |
 | template | FV-01, PQ-01 to PQ-05, PQ-09 |
