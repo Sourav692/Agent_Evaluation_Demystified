@@ -93,3 +93,16 @@ C="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 "$C" --headless=new --hide-scrollbars --default-background-color=00000000 --window-size=32,32 \
   --screenshot="$PWD/site/assets/favicon-32.png" "file://$PWD/site/assets/favicon.svg"
 ```
+
+## The output check
+
+`site/check_dist.py` runs after every build, on Vercel and in the docs-sync workflow, so a
+page that breaks a rule never deploys. It checks every page in `site/dist/` for share tags,
+canonical and description, exactly one `<h1>`, no `docs/…` path shown as text, no GitHub
+link to a doc the site serves itself, no dead link or `#fragment`, and exact versions on
+CDN URLs. Each failure prints `<file>: <rule>: <detail>`.
+
+```sh
+python3 site/check_dist.py --self-test   # each rule fires on a small broken page
+python3 site/check_dist.py               # the real build
+```

@@ -1,7 +1,8 @@
 # docs/ — keep the generated-by-hand things in step with their sources.
 #
-# Three checks, all free, stdlib only, no API key and no network. None of them
-# can spend money, and none touch the course-03 release gate.
+# Five checks, all free, no API key. The site build installs markdown from PyPI;
+# the rest are stdlib only. None of them can spend money, and none touch the
+# course-03 release gate.
 #
 #   drill-sync      QUESTION_BANK.md is canonical; evaluation-round-drill.html
 #                   carries the same 35 questions and 19 cases as a quiz. They
@@ -19,6 +20,11 @@
 #   page-dates      site/page-dates.json holds each published page's last-commit
 #                   date. Vercel can't compute it (no git history), so it is
 #                   stamped by the pre-commit hook; this catches a skipped hook.
+#
+#   site-output     builds the site and runs site/check_dist.py over it: share
+#                   tags, one <h1>, no repo path as text, no dead link or
+#                   #fragment, pinned CDN URLs. Vercel runs the same check, so a
+#                   page that fails it never deploys. Installs markdown==3.7.
 
 name: docs-sync
 
@@ -31,6 +37,7 @@ on:
       - '.github/scripts/check_index_coverage.py'
       - '.github/workflows/docs-sync.yml'
       - 'site/**'
+      - 'vercel.json'
   pull_request:
     paths:
       - 'docs/**'
@@ -39,6 +46,7 @@ on:
       - '.github/scripts/check_index_coverage.py'
       - '.github/workflows/docs-sync.yml'
       - 'site/**'
+      - 'vercel.json'
 
 jobs:
   docs-consistency:
@@ -60,3 +68,11 @@ jobs:
 
       - name: Page dates match git history
         run: python3 site/stamp_dates.py --check
+
+      - name: The built site keeps its promises
+        run: |
+          python3 -m venv /tmp/sitebuild   # the runner's python refuses a global pip install
+          /tmp/sitebuild/bin/pip install --quiet -r site/requirements.txt
+          /tmp/sitebuild/bin/python site/build.py
+          /tmp/sitebuild/bin/python site/check_dist.py --self-test
+          /tmp/sitebuild/bin/python site/check_dist.py
