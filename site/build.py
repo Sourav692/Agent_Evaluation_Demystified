@@ -22,11 +22,14 @@ The skip list is the "nothing is repeated" rule, made explicit. Measured
 """
 import glob
 import io
+import json
 import os
 import re
 import shutil
 import sys
 from html import escape
+
+from head import head_tags
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(ROOT, "docs")
@@ -983,6 +986,8 @@ def sitebar():
 
 
 BODY_OPEN = re.compile(r"(<body[^>]*>)", re.I)
+HEAD_CLOSE = re.compile(r"</head>", re.I)
+OWN_DESC = re.compile(r'<meta name="description" content="([^"]*)">\n?', re.I)
 
 
 def badge_for(html_path):
@@ -1020,7 +1025,7 @@ def chapter_row(group, pos, title):
             '<span class="ends">%s</span></div>' % (title, "".join(ends)))
 
 
-def shell(title, body, nav, blurb="", is_index=False, diagrams=0, qa=0, rail=0,
+def shell(title, body, nav, head, is_index=False, diagrams=0, qa=0, rail=0,
           chapter=""):
     home = "" if is_index else '<a class="home" href="index.html">&larr; All documents</a>'
     return """<!doctype html>
@@ -1029,7 +1034,7 @@ def shell(title, body, nav, blurb="", is_index=False, diagrams=0, qa=0, rail=0,
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>%s</title>
-<meta name="description" content="%s">
+%s
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Spline+Sans+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -1055,7 +1060,7 @@ def shell(title, body, nav, blurb="", is_index=False, diagrams=0, qa=0, rail=0,
 </footer>%s
 </body>
 </html>
-""" % (title, blurb, nav, chapter, home, body,
+""" % (title, head, nav, chapter, home, body,
        (MERMAID_SCRIPT if diagrams else "") + (QA_SCRIPT if qa else "")
        + (DOCNAV_SCRIPT if rail else ""))
 
@@ -1121,6 +1126,7 @@ def build():
 
     rendered, copied = [], []
     linked_paths = 0
+    dates = json.load(io.open(os.path.join(ROOT, "site", "page-dates.json"), encoding="utf-8"))
 
     for section in SECTION_ORDER:
         group = RENDER.get(section, [])
@@ -1148,8 +1154,10 @@ def build():
             rail, sections = docnav(html)
             article = '<article class="doc">%s</article>' % html
             body = '<div class="withnav">%s%s</div>' % (rail, article) if rail else article
-            page = shell(re.sub("<[^>]+>", "", title), body,
-                         top_nav(section), re.sub("<[^>]+>", "", blurb),
+            title_text = re.sub("<[^>]+>", "", title)
+            page = shell(title_text, body, top_nav(section),
+                         head_tags(slug + ".html", title_text, re.sub("<[^>]+>", "", blurb),
+                                   dates.get("docs/" + src)),
                          diagrams=diagrams, qa=questions, rail=sections,
                          chapter=chapter_row(group, pos, title))
             io.open(os.path.join(DIST, slug + ".html"), "w", encoding="utf-8").write(page)
@@ -1167,6 +1175,17 @@ def build():
                 text)
             text, paths = linkify_code_paths(text)
             linked_paths += paths
+            # The page's own <title> (more specific than the nav title) and its own
+            # description, when it has one, become the share tags. The original
+            # description goes, so it isn't there twice.
+            own_title = re.search(r"<title>(.*?)</title>", text, re.S).group(1).strip()
+            desc = OWN_DESC.search(text)
+            text = OWN_DESC.sub("", text)
+            tags = head_tags(copied_name(src), own_title, desc.group(1) if desc else blurb,
+                             dates.get("docs/" + src))
+            text, n = HEAD_CLOSE.subn(lambda m: tags + "\n" + m.group(0), text)
+            if n != 1:
+                raise SystemExit("expected one </head> to attach the head tags to: %s" % src)
             text, n = BODY_OPEN.subn(lambda m: m.group(1) + "\n" + sitebar(), text, count=1)
             if not n:
                 raise SystemExit("no <body> to attach the nav bar to: %s" % src)
@@ -1215,7 +1234,9 @@ interactive labs. The notebooks live in
 
     io.open(os.path.join(DIST, "index.html"), "w", encoding="utf-8").write(
         shell("Agent Evaluation Demystified", body, top_nav(None),
-              "Written companions to a hands-on course in evaluating RAG systems and agents.",
+              head_tags("index.html", "Agent Evaluation Demystified",
+                        "Written companions to a hands-on course in evaluating RAG "
+                        "systems and agents.", kind="website"),
               is_index=True))
 
     # ---- report
