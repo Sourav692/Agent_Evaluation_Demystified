@@ -4,6 +4,20 @@ What changed on the site, newest first. One entry per change a reader would noti
 
 ## 2026-10-15
 
+- Added an [About](about.md) page and this changelog.
+- Every page now has a footer naming the maintainer and the date the page last changed,
+  with links to edit it on GitHub or report an issue.
+- Shared links show a preview card with the site's image; pages carry a canonical URL.
+- Unknown addresses show a page-not-found page with links back into the site.
+- Added `robots.txt` and `sitemap.xml`.
+- Section links (`#…`) now land on the right heading, on the site and on GitHub alike.
+  Section ids changed to GitHub's form, so an old site link to a section with a dash
+  in its title may land at the top of the page.
+- No page scrolls sideways on a phone; wide lab tables scroll inside their own box.
+- Fonts are served from the site itself instead of Google Fonts.
+- Each long document has one main heading; its parts sit one level below.
+- Lab 03's code uses DeepEval 4's `SingleTurnParams`.
+- The study plan's drill links open the drill instead of GitHub.
 - Repository paths written as code now link to the file on GitHub.
 - Added a share preview image and a favicon.
 - Published the support-system case study and its cost and guardrails companion.
