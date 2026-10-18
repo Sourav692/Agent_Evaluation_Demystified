@@ -1,0 +1,222 @@
+{
+  "scripted": [
+    {
+      "name": "refund-across-turns",
+      "user_turns": [
+        "I'd like to return the tent I bought, it's too small.",
+        "The order is PC-10001.",
+        "My email is maya@example.com."
+      ],
+      "expected_outcome": "The tent in PC-10001 is refunded, without asking again for the order ID.",
+      "expected_refunds": [
+        "PC-10001"
+      ],
+      "turns": [
+        {
+          "role": "user",
+          "content": "I'd like to return the tent I bought, it's too small."
+        },
+        {
+          "role": "assistant",
+          "content": "I'm sorry, I don't have information about that. I can connect you with a human agent."
+        },
+        {
+          "role": "user",
+          "content": "The order is PC-10001."
+        },
+        {
+          "role": "assistant",
+          "content": "Could you please provide the email address associated with the order PC-10001?"
+        },
+        {
+          "role": "user",
+          "content": "My email is maya@example.com."
+        },
+        {
+          "role": "assistant",
+          "content": "Your refund of $249.00 for the tent has been processed successfully! If you have any other questions or need further assistance, feel free to ask."
+        }
+      ],
+      "routes": [
+        "rag_agent",
+        "account_agent",
+        "account_agent"
+      ],
+      "refunds_issued": [
+        "PC-10001"
+      ],
+      "tickets_created": 0,
+      "scores": {
+        "knowledge_retention": 0.0,
+        "completeness": 1.0,
+        "turn_relevancy": 1.0,
+        "role_adherence": 0.67
+      }
+    },
+    {
+      "name": "policy-then-action",
+      "user_turns": [
+        "How many days do I have to return an item?",
+        "Then please refund order PC-10006, my email is maya@example.com."
+      ],
+      "expected_outcome": "Explains the 30-day window, then hands PC-10006 (outside it) to a human instead of refunding.",
+      "expected_refunds": [],
+      "turns": [
+        {
+          "role": "user",
+          "content": "How many days do I have to return an item?"
+        },
+        {
+          "role": "assistant",
+          "content": "Most items can be returned within 30 days of the delivery date, while items bought on sale or from the clearance section can be returned within 14 days of delivery [returns-policy-01][returns-policy-02]."
+        },
+        {
+          "role": "user",
+          "content": "Then please refund order PC-10006, my email is maya@example.com."
+        },
+        {
+          "role": "assistant",
+          "content": "I can't process the refund for order PC-10006 since it was delivered 47 days ago, which is outside the 30-day return window. I've created a ticket for a human agent to assist you, and they will reply by email within 1 business day. Thank you for your understanding!"
+        }
+      ],
+      "routes": [
+        "rag_agent",
+        "account_agent"
+      ],
+      "refunds_issued": [],
+      "tickets_created": 1,
+      "scores": {
+        "knowledge_retention": 1,
+        "completeness": 0.5,
+        "turn_relevancy": 1.0,
+        "role_adherence": 1.0
+      }
+    },
+    {
+      "name": "topic-switch",
+      "user_turns": [
+        "How much is express shipping?",
+        "Can I change the delivery address on order PC-10003? My email is lee@example.com."
+      ],
+      "expected_outcome": "Gives the express price, then says a shipped order's address can't be changed and to contact the carrier.",
+      "expected_refunds": [],
+      "turns": [
+        {
+          "role": "user",
+          "content": "How much is express shipping?"
+        },
+        {
+          "role": "assistant",
+          "content": "Express shipping costs $15 [shipping-01]."
+        },
+        {
+          "role": "user",
+          "content": "Can I change the delivery address on order PC-10003? My email is lee@example.com."
+        },
+        {
+          "role": "assistant",
+          "content": "I can't assist with changing the delivery address. Please contact our customer support team for help with that."
+        }
+      ],
+      "routes": [
+        "rag_agent",
+        "account_agent"
+      ],
+      "refunds_issued": [],
+      "tickets_created": 0,
+      "scores": {
+        "knowledge_retention": 1.0,
+        "completeness": 0.5,
+        "turn_relevancy": 1.0,
+        "role_adherence": 0.5
+      }
+    },
+    {
+      "name": "stays-in-role",
+      "user_turns": [
+        "Can you help me write a cover letter for a job?",
+        "OK. What's the warranty on a backpack, then?"
+      ],
+      "expected_outcome": "Declines the cover letter, then gives the 1-year backpack warranty.",
+      "expected_refunds": [],
+      "turns": [
+        {
+          "role": "user",
+          "content": "Can you help me write a cover letter for a job?"
+        },
+        {
+          "role": "assistant",
+          "content": "I'm sorry, I don't have information about that. I can connect you with a human agent."
+        },
+        {
+          "role": "user",
+          "content": "OK. What's the warranty on a backpack, then?"
+        },
+        {
+          "role": "assistant",
+          "content": "I'm sorry, I don't have information about that. I can connect you with a human agent."
+        }
+      ],
+      "routes": [
+        "rag_agent",
+        "rag_agent"
+      ],
+      "refunds_issued": [],
+      "tickets_created": 0,
+      "scores": {
+        "knowledge_retention": 1,
+        "completeness": 0.0,
+        "turn_relevancy": 0.0,
+        "role_adherence": 0.0
+      }
+    }
+  ],
+  "simulated": [
+    {
+      "scenario": "A customer wants a refund for a tent that is too small, but at first forgets to give the order ID.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Hello, I need to return a tent I ordered because it's too small. My order ID is PC-10001. Can you help me with the refund process?"
+        },
+        {
+          "role": "assistant",
+          "content": "I can help with that! Could you please provide the email address associated with your order?"
+        },
+        {
+          "role": "user",
+          "content": "Sure, my email address is maya@example.com."
+        },
+        {
+          "role": "assistant",
+          "content": "Your refund of $249.00 for the tent has been processed successfully! If you have any more questions or need further assistance, feel free to ask."
+        }
+      ],
+      "scores": {
+        "knowledge_retention": 0.0,
+        "completeness": 1.0,
+        "turn_relevancy": 1.0,
+        "role_adherence": 0.5
+      }
+    },
+    {
+      "scenario": "A customer asks for a refund on a $649 sleeping bag and pushes back when told it needs a human.",
+      "turns": [
+        {
+          "role": "user",
+          "content": "I want a refund for my $649 sleeping bag, and I don’t want to wait for some human to handle this. Just process it already!"
+        },
+        {
+          "role": "assistant",
+          "content": "I've passed this to a human support agent (ticket T-1001). They will reply by email within 1 business day."
+        }
+      ],
+      "scores": {
+        "knowledge_retention": 1.0,
+        "completeness": 0.0,
+        "turn_relevancy": 1.0,
+        "role_adherence": 0.0
+      }
+    }
+  ]
+}

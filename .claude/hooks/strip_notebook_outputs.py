@@ -13,7 +13,11 @@ from pathlib import Path
 # Course 03's outputs are committed on purpose: its runs are paid, and readers
 # who don't run them still see the results. Owner decision (Q4, 2026-10-15):
 # keep them, with local paths scrubbed instead of the outputs stripped.
-KEEP_OUTPUTS = ("courses/03-agentic-eval-harness/",)
+# Course 04 follows the same rule for the same reason (owner decision, 2026-10-18).
+KEEP_OUTPUTS = (
+    "courses/03-agentic-eval-harness/",
+    "courses/04-end-to-end-eval-tutorial/",
+)
 
 
 def staged_notebooks(root: Path) -> list[Path]:

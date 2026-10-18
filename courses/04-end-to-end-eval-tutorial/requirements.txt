@@ -1,0 +1,51 @@
+# Course 04 — End-to-End Evaluation Tutorial
+# Exact pins. RAGAS, DeepEval and DeepTeam rename things between minor releases,
+# so the metric code in these notebooks is written against these versions.
+#
+#   uv venv --python 3.12 .venv
+#   uv pip install --python .venv/bin/python -r requirements.txt
+#
+# Always pass --python: the root VIRTUAL_ENV would otherwise receive the install.
+
+# --- evaluation frameworks: the subject of this course ----------------------
+deepeval==4.2.3
+ragas==0.4.3
+deepteam==1.0.10           # red-teaming (safety notebook); built on deepeval
+# deepteam 1.0.10 imports sentry_sdk (deepteam/telemetry.py) without declaring it,
+# so `from deepteam import red_team` fails without this line.
+sentry-sdk==2.72.0
+# ragas 0.4.3's TestsetGenerator (OverlapScoreBuilder) imports rapidfuzz without declaring it;
+# notebook 03 needs it to generate golden-set candidates.
+rapidfuzz==3.14.6
+ranx==0.3.21               # retrieval metrics + significance tests
+
+# --- traces, datasets, experiments, human labels, online evaluators ---------
+# LangSmith (owner decision, 2026-10-18). Pinned to the version langchain-core
+# 1.6.2 already resolves (it requires langsmith>=0.3.45,<1.0.0).
+langsmith==0.14.11
+
+# --- optional: the Langfuse track (open-source alternative to LangSmith) ----
+# langfuse==4.15.4
+
+# --- the system under test --------------------------------------------------
+# Pins below are copied from course 03, where the reasons are tested.
+# 1.6.2, not 1.6.1: langchain-openai==1.6.2 requires langchain-core>=1.6.2.
+langchain-core==1.6.2
+langchain-openai==1.6.2      # ChatOpenAI and OpenAIEmbeddings
+# LOAD-BEARING. ragas 0.4.3 hard-imports langchain_community.chat_models.vertexai,
+# which 0.4.2 deleted. An unpinned resolve breaks `import ragas`.
+langchain-community==0.3.31
+# Pinned, not floated: resolving ragas can pull langgraph back to 1.0.x, which
+# drops langgraph.runtime.ExecutionInfo. If a resolver downgrades it, re-pin it.
+langgraph==1.2.11
+# 2.54.0, not 3.x: ragas 0.4.3 depends on instructor, which caps openai<3.0.0.
+openai==2.54.0
+
+# --- retrieval --------------------------------------------------------------
+chromadb==1.5.9
+
+# --- notebook environment ---------------------------------------------------
+# 6.x, not 7.x: ipykernel 7 deadlocks nbclient part way through an --execute run.
+ipykernel==6.30.1
+python-dotenv==1.2.3
+typing-extensions==4.16.0  # TypedDict for the LangGraph state schema

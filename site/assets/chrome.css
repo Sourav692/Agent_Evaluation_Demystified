@@ -26,9 +26,11 @@
 .site-bar nav a.on{color:var(--text); border-bottom-color:var(--accent)}
 
 .chapter{display:flex; align-items:baseline; gap:18px; flex-wrap:wrap;
-  margin-top:9px; padding-top:9px; border-top:1px solid var(--rule);
+  margin-top:9px; padding-top:5px; border-top:1px solid var(--rule);
   font-family:var(--mono); font-size:12px; line-height:1.4}
 .chapter .here{color:var(--text); font-weight:500}
+/* 24 px tall tap targets (WCAG 2.5.8): the row's links are small mono text. */
+.chapter a{display:inline-block; padding-block:4px}
 .chapter .theory{color:var(--accent-text); text-decoration:none; white-space:nowrap}
 .chapter .theory:hover{text-decoration:underline}
 .chapter .readtime{color:var(--muted)}

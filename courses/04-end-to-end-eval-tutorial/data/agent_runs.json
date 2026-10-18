@@ -1,0 +1,163 @@
+[
+  {
+    "run_id": "5ddbdbc2-a9cd-46b9-8fda-bb1280f08c22",
+    "question": "What does the 'Processing' order status mean?",
+    "route": "rag_agent",
+    "nodes_visited": [
+      "supervisor",
+      "retrieve",
+      "generate"
+    ],
+    "tool_calls": [],
+    "retrieved_chunk_ids": [
+      "orders-01",
+      "orders-02",
+      "orders-04",
+      "shipping-03"
+    ],
+    "contexts": [
+      "Orders — Order statuses\n\"Processing\" means the order is being packed and can still be changed. \"Shipped\" means it has\nleft the warehouse and has a tracking number. \"Delivered\" means the carrier confirmed delivery.\n\"Cancelled\" means the order was stopped before shipping and has been refunded.",
+      "Orders — Changing or cancelling an order\nAn order can be changed or cancelled within 1 hour of being placed, while its status is\n\"Processing\". After that, wait for delivery and start a return instead.",
+      "Orders — Order confirmation\nAn order confirmation email is sent within 15 minutes of purchase. Check the spam folder if it\ndoes not arrive. The order ID starts with \"PC-\" followed by five digits.",
+      "Shipping — Tracking an order\nA tracking link is emailed when the order ships. Tracking can take up to 24 hours to show the\nfirst scan."
+    ],
+    "answer": "The 'Processing' order status means the order is being packed and can still be changed. [orders-01]",
+    "refunds_issued": [],
+    "tickets_created": [],
+    "latency_seconds": 5.54,
+    "slice": "simple"
+  },
+  {
+    "run_id": "d7a23304-d4be-4a42-b7fb-b485076e274e",
+    "question": "I bought a jacket on sale 20 days ago. Can I still return it?",
+    "route": "rag_agent",
+    "nodes_visited": [
+      "supervisor",
+      "retrieve",
+      "generate"
+    ],
+    "tool_calls": [],
+    "retrieved_chunk_ids": [
+      "returns-policy-02",
+      "returns-policy-01",
+      "refunds-01",
+      "product-care-02"
+    ],
+    "contexts": [
+      "Returns Policy — Sale and clearance items\nItems bought on sale or from the clearance section can be returned within 14 days of delivery.\nAfter 14 days, sale items are final sale and cannot be returned or refunded. Sale items that\narrive damaged or defective are covered by the warranty instead (see the warranty policy).",
+      "Returns Policy — Return window\nMost items can be returned within 30 days of the delivery date. The item must be unused, clean,\nand in its original packaging with all tags attached. The 30 days are counted from the day the\ncarrier marks the order as delivered, not from the order date.",
+      "Refunds — When refunds are issued\nA refund is issued once the returned item reaches our warehouse and passes inspection, usually\nwithin 3 business days of arrival. Orders that were never shipped are refunded as soon as they\nare cancelled.",
+      "Product Care — Waterproof jackets\nWash waterproof jackets with a technical cleaner on a cool cycle, then tumble dry on low heat\nfor 20 minutes to restore the water-repellent finish. Re-proof the jacket once a season."
+    ],
+    "answer": "No, you cannot return the jacket because items bought on sale can only be returned within 14 days of delivery. Since it has been 20 days, the sale item is considered final sale and cannot be returned or refunded [returns-policy-02].",
+    "refunds_issued": [],
+    "tickets_created": [],
+    "latency_seconds": 3.28,
+    "slice": "multi_hop"
+  },
+  {
+    "run_id": "6cb04421-a72a-4ccb-b467-b7886b602289",
+    "question": "Can you recommend a good hiking trail near Denver?",
+    "route": "rag_agent",
+    "nodes_visited": [
+      "supervisor",
+      "retrieve",
+      "generate"
+    ],
+    "tool_calls": [],
+    "retrieved_chunk_ids": [
+      "loyalty-program-02",
+      "loyalty-program-01",
+      "warranty-02",
+      "loyalty-program-03"
+    ],
+    "contexts": [
+      "Trailpoints Loyalty Program — Redeeming points\nEvery 500 Trailpoints can be redeemed for $10 off a future order. Points can be combined with\nsale prices but not with other discount codes.",
+      "Trailpoints Loyalty Program — Earning points\nMembers earn 1 Trailpoint for every $1 spent. Sale and clearance items earn half points.\nGift card purchases do not earn points.",
+      "Warranty — Lifetime warranty\nPinecrest-brand trekking poles carry a lifetime warranty. If a pole section breaks during normal\nuse, we replace that section free of charge, for as long as the original buyer owns the poles.",
+      "Trailpoints Loyalty Program — Points expiry\nTrailpoints expire 12 months after they are earned. Returning an item removes the points that\nwere earned on it."
+    ],
+    "answer": "I'm sorry, I don't have information about that. I can connect you with a human agent.",
+    "refunds_issued": [],
+    "tickets_created": [],
+    "latency_seconds": 2.04,
+    "slice": "out_of_scope"
+  },
+  {
+    "run_id": "9a119fe3-8283-4e40-8af4-6d41818dd2ec",
+    "question": "Please refund order PC-10001, my email is maya@example.com. The tent is too small.",
+    "route": "account_agent",
+    "nodes_visited": [
+      "supervisor",
+      "account_agent",
+      "account_tools",
+      "account_agent"
+    ],
+    "tool_calls": [
+      {
+        "name": "issue_refund",
+        "args": {
+          "order_id": "PC-10001",
+          "email": "maya@example.com",
+          "reason": "The tent is too small."
+        }
+      }
+    ],
+    "retrieved_chunk_ids": [],
+    "contexts": [],
+    "answer": "Your refund for order PC-10001 has been processed successfully! An amount of $249.00 will be credited back to your account. If you need any further assistance, feel free to ask!",
+    "refunds_issued": [
+      {
+        "order_id": "PC-10001",
+        "amount": 249.0,
+        "reason": "The tent is too small."
+      }
+    ],
+    "tickets_created": [],
+    "latency_seconds": 2.63,
+    "slice": "tool_required"
+  },
+  {
+    "run_id": "edea9587-a0a3-4043-bbae-b795e1cbb7d3",
+    "question": "I want a refund for order PC-10004, email ana@example.com. The sleeping bag isn't warm enough.",
+    "route": "account_agent",
+    "nodes_visited": [
+      "supervisor",
+      "account_agent",
+      "account_tools",
+      "account_agent",
+      "account_tools",
+      "account_agent"
+    ],
+    "tool_calls": [
+      {
+        "name": "issue_refund",
+        "args": {
+          "order_id": "PC-10004",
+          "email": "ana@example.com",
+          "reason": "The sleeping bag isn't warm enough."
+        }
+      },
+      {
+        "name": "create_ticket",
+        "args": {
+          "summary": "Customer needs a refund for order PC-10004 due to the sleeping bag not being warm enough. Amount is above the $500 limit.",
+          "priority": "normal"
+        }
+      }
+    ],
+    "retrieved_chunk_ids": [],
+    "contexts": [],
+    "answer": "I've created a ticket for your refund request for order PC-10004. A human agent will reply to you via email within 1 business day. Thank you for your patience!",
+    "refunds_issued": [],
+    "tickets_created": [
+      {
+        "ticket_id": "T-1001",
+        "summary": "Customer needs a refund for order PC-10004 due to the sleeping bag not being warm enough. Amount is above the $500 limit.",
+        "priority": "normal"
+      }
+    ],
+    "latency_seconds": 3.64,
+    "slice": "handoff"
+  }
+]

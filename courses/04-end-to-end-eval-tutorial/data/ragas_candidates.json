@@ -1,0 +1,219 @@
+[
+  {
+    "user_input": "How does the process of verifying identity work when discussing or changing an order, and what measures are in place to ensure privacy compliance, especially concerning order confirmation details?",
+    "reference_contexts": [
+      "Account and Privacy — Verifying your identity\nBefore discussing or changing an order, support confirms the order ID and the email address on\nthe order. We never share order details, addresses or payment information with anyone other\nthan the account holder, even if they say they are a family member."
+    ],
+    "reference": "Before discussing or changing an order, support confirms the order ID and the email address on the order. Order details, addresses, or payment information are never shared with anyone other than the account holder, even if they claim to be a family member. This process ensures privacy compliance by protecting sensitive information and confirming the identity of the account holder.",
+    "persona_name": "Privacy Compliance Officer",
+    "query_style": "WEB_SEARCH_LIKE",
+    "query_length": "LONG",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "How can I reset my password for account security?",
+    "reference_contexts": [
+      "Account and Privacy — Password reset\nReset your password from the sign-in page with \"Forgot password\". The reset link expires after\n30 minutes. Support staff cannot see or set passwords."
+    ],
+    "reference": "You can reset your password from the sign-in page by selecting 'Forgot password'. The reset link will expire after 30 minutes.",
+    "persona_name": "Privacy Compliance Officer",
+    "query_style": "WEB_SEARCH_LIKE",
+    "query_length": "SHORT",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "What are the legal requirements for retaining order records when a data deletion request is made?",
+    "reference_contexts": [
+      "Account and Privacy — Deleting your data\nYou can ask us to delete your account and personal data. Deletion is completed within 30 days.\nOrder records needed for tax purposes are kept for 7 years, as the law requires."
+    ],
+    "reference": "Order records needed for tax purposes are kept for 7 years, as the law requires, even when a data deletion request is made.",
+    "persona_name": "Privacy Compliance Officer",
+    "query_style": "PERFECT_GRAMMAR",
+    "query_length": "MEDIUM",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "How do I talk to a real person for refunds over $500?",
+    "reference_contexts": [
+      "Contacting a Human Agent — When the assistant hands over to a human\nThe support assistant passes the conversation to a human agent for: refunds above $500, refunds\noutside the return window, warranty claims, injuries or safety incidents involving a product,\nlegal complaints, and any customer who asks to speak to a person."
+    ],
+    "reference": "The support assistant will pass the conversation to a human agent for refunds above $500, as well as for other specific cases like refunds outside the return window, warranty claims, injuries or safety incidents involving a product, legal complaints, and any customer who asks to speak to a person.",
+    "persona_name": "Customer Support Agent",
+    "query_style": "POOR_GRAMMAR",
+    "query_length": "LONG",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "How long email reply take?",
+    "reference_contexts": [
+      "Contacting a Human Agent — What happens after a handover\nThe assistant creates a support ticket with a short summary, so the customer does not have to\nrepeat themselves. A human agent replies by email within 1 business day; safety incidents are\nanswered within 4 hours."
+    ],
+    "reference": "A human agent replies by email within 1 business day; safety incidents are answered within 4 hours.",
+    "persona_name": "IT Support Specialist",
+    "query_style": "POOR_GRAMMAR",
+    "query_length": "SHORT",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "When can I contakt a human agent?",
+    "reference_contexts": [
+      "Contacting a Human Agent — Support hours\nHuman agents work Monday to Friday, 8 am to 8 pm, and Saturday, 9 am to 5 pm (US Eastern time).\nThe assistant is available at any time."
+    ],
+    "reference": "Human agents work Monday to Friday, 8 am to 8 pm, and Saturday, 9 am to 5 pm (US Eastern time).",
+    "persona_name": "Customer Support Agent",
+    "query_style": "MISSPELLED",
+    "query_length": "SHORT",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "When do the points expire in the Trailpoints Loyalty Program and what happens if you return an item?",
+    "reference_contexts": [
+      "Trailpoints Loyalty Program — Points expiry\nTrailpoints expire 12 months after they are earned. Returning an item removes the points that\nwere earned on it."
+    ],
+    "reference": "In the Trailpoints Loyalty Program, points expire 12 months after they are earned. If you return an item, the points that were earned on it are removed.",
+    "persona_name": "Customer Support Agent",
+    "query_style": "POOR_GRAMMAR",
+    "query_length": "LONG",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "What does the status 'Shipped' indicate about an order?",
+    "reference_contexts": [
+      "Orders — Order statuses\n\"Processing\" means the order is being packed and can still be changed. \"Shipped\" means it has\nleft the warehouse and has a tracking number. \"Delivered\" means the carrier confirmed delivery.\n\"Cancelled\" means the order was stopped before shipping and has been refunded."
+    ],
+    "reference": "The status 'Shipped' means the order has left the warehouse and has a tracking number.",
+    "persona_name": "Customer Support Agent",
+    "query_style": "PERFECT_GRAMMAR",
+    "query_length": "SHORT",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "How can I change or cancel my order if I need to adjust it after placing it, and what should I do if the order is already being processed for delivery?",
+    "reference_contexts": [
+      "Orders — Changing or cancelling an order\nAn order can be changed or cancelled within 1 hour of being placed, while its status is\n\"Processing\". After that, wait for delivery and start a return instead."
+    ],
+    "reference": "An order can be changed or cancelled within 1 hour of being placed, while its status is 'Processing'. If the order is already being processed for delivery, you will need to wait for the delivery and then start a return instead.",
+    "persona_name": "Customer Support Agent",
+    "query_style": "WEB_SEARCH_LIKE",
+    "query_length": "LONG",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "How can a customer change the delivery address for their order if it has not yet shipped, and what steps should they take if the order is already marked as 'Shipped'?",
+    "reference_contexts": [
+      "Orders — Changing the delivery address\nThe delivery address can be changed only before the order ships. Once an order is \"Shipped\",\nthe address cannot be changed by us; the customer can contact the carrier using the tracking\nlink."
+    ],
+    "reference": "A customer can change the delivery address for their order only before it ships. If the order is already marked as 'Shipped', the address cannot be changed by the company. In such cases, the customer should contact the carrier directly using the tracking link provided.",
+    "persona_name": "Customer Support Agent",
+    "query_style": "WEB_SEARCH_LIKE",
+    "query_length": "LONG",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "How long does it take to receive an order confirmation email after purchase?",
+    "reference_contexts": [
+      "Orders — Order confirmation\nAn order confirmation email is sent within 15 minutes of purchase. Check the spam folder if it\ndoes not arrive. The order ID starts with \"PC-\" followed by five digits."
+    ],
+    "reference": "An order confirmation email is sent within 15 minutes of purchase.",
+    "persona_name": "Customer Support Agent",
+    "query_style": "WEB_SEARCH_LIKE",
+    "query_length": "SHORT",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "What is the process for issuing refunds for returned items?",
+    "reference_contexts": [
+      "Refunds — When refunds are issued\nA refund is issued once the returned item reaches our warehouse and passes inspection, usually\nwithin 3 business days of arrival. Orders that were never shipped are refunded as soon as they\nare cancelled."
+    ],
+    "reference": "A refund is issued once the returned item reaches our warehouse and passes inspection, usually within 3 business days of arrival. Orders that were never shipped are refunded as soon as they are cancelled.",
+    "persona_name": "Customer Support Agent",
+    "query_style": "PERFECT_GRAMMAR",
+    "query_length": "MEDIUM",
+    "synthesizer_name": "single_hop_specific_query_synthesizer"
+  },
+  {
+    "user_input": "How can a customer manage their order if they need to change the delivery address after it has been shipped?",
+    "reference_contexts": [
+      "<1-hop>\n\nOrders — Changing or cancelling an order\nAn order can be changed or cancelled within 1 hour of being placed, while its status is\n\"Processing\". After that, wait for delivery and start a return instead.",
+      "<2-hop>\n\nOrders — Changing the delivery address\nThe delivery address can be changed only before the order ships. Once an order is \"Shipped\",\nthe address cannot be changed by us; the customer can contact the carrier using the tracking\nlink.",
+      "<3-hop>\n\nOrders — Order statuses\n\"Processing\" means the order is being packed and can still be changed. \"Shipped\" means it has\nleft the warehouse and has a tracking number. \"Delivered\" means the carrier confirmed delivery.\n\"Cancelled\" means the order was stopped before shipping and has been refunded."
+    ],
+    "reference": "If a customer needs to change the delivery address after the order has been shipped, they cannot change it through the order management system. Instead, they should contact the carrier directly using the tracking link provided, as the order status 'Shipped' indicates it has left the warehouse and is beyond the point where the delivery address can be altered by the company.",
+    "synthesizer_name": "multi_hop_abstract_query_synthesizer"
+  },
+  {
+    "user_input": "How can a customer manage their order and obtain a refund if they decide to cancel it after the processing period?",
+    "reference_contexts": [
+      "<1-hop>\n\nOrders — Changing or cancelling an order\nAn order can be changed or cancelled within 1 hour of being placed, while its status is\n\"Processing\". After that, wait for delivery and start a return instead.",
+      "<2-hop>\n\nRefunds — When refunds are issued\nA refund is issued once the returned item reaches our warehouse and passes inspection, usually\nwithin 3 business days of arrival. Orders that were never shipped are refunded as soon as they\nare cancelled."
+    ],
+    "reference": "A customer can manage their order by waiting for delivery and starting a return if they decide to cancel it after the processing period. A refund will be issued once the returned item reaches the warehouse and passes inspection, usually within 3 business days of arrival.",
+    "synthesizer_name": "multi_hop_abstract_query_synthesizer"
+  },
+  {
+    "user_input": "How do I get a refund for a sale item if it was returned after 14 days?",
+    "reference_contexts": [
+      "<1-hop>\n\nRefunds — When refunds are issued\nA refund is issued once the returned item reaches our warehouse and passes inspection, usually\nwithin 3 business days of arrival. Orders that were never shipped are refunded as soon as they\nare cancelled.",
+      "<2-hop>\n\nReturns Policy — Return window\nMost items can be returned within 30 days of the delivery date. The item must be unused, clean,\nand in its original packaging with all tags attached. The 30 days are counted from the day the\ncarrier marks the order as delivered, not from the order date.",
+      "<3-hop>\n\nReturns Policy — Sale and clearance items\nItems bought on sale or from the clearance section can be returned within 14 days of delivery.\nAfter 14 days, sale items are final sale and cannot be returned or refunded. Sale items that\narrive damaged or defective are covered by the warranty instead (see the warranty policy)."
+    ],
+    "reference": "If a sale item is returned after 14 days, it is considered a final sale and cannot be refunded. However, if the sale item arrives damaged or defective, it is covered by the warranty policy instead. Refunds for sale items are only possible if they are returned within 14 days of delivery.",
+    "synthesizer_name": "multi_hop_abstract_query_synthesizer"
+  },
+  {
+    "user_input": "How can a customer track their order and confirm its details if they have not received the order confirmation email?",
+    "reference_contexts": [
+      "<1-hop>\n\nShipping — Tracking an order\nA tracking link is emailed when the order ships. Tracking can take up to 24 hours to show the\nfirst scan.",
+      "<2-hop>\n\nOrders — Order confirmation\nAn order confirmation email is sent within 15 minutes of purchase. Check the spam folder if it\ndoes not arrive. The order ID starts with \"PC-\" followed by five digits."
+    ],
+    "reference": "A customer can track their order by using the tracking link emailed to them once the order ships, although it may take up to 24 hours for the first scan to appear. If the order confirmation email is not received within 15 minutes of purchase, the customer should check their spam folder. The order ID, which starts with 'PC-' followed by five digits, can be used to verify the order details.",
+    "synthesizer_name": "multi_hop_abstract_query_synthesizer"
+  },
+  {
+    "user_input": "How does the returns policy affect the timing of refunds?",
+    "reference_contexts": [
+      "<1-hop>\n\nRefunds — When refunds are issued\nA refund is issued once the returned item reaches our warehouse and passes inspection, usually\nwithin 3 business days of arrival. Orders that were never shipped are refunded as soon as they\nare cancelled.",
+      "<2-hop>\n\nReturns Policy — Return window\nMost items can be returned within 30 days of the delivery date. The item must be unused, clean,\nand in its original packaging with all tags attached. The 30 days are counted from the day the\ncarrier marks the order as delivered, not from the order date.",
+      "<3-hop>\n\nRefunds — How long a refund takes\nRefunds go back to the original payment method. Card refunds appear within 5 to 7 business days\nafter we issue them; PayPal refunds appear within 2 business days. Store credit is available\nimmediately."
+    ],
+    "reference": "The returns policy affects the timing of refunds as a refund is issued once the returned item reaches the warehouse and passes inspection, which usually takes 3 business days after arrival. The return window allows most items to be returned within 30 days of the delivery date, and the refund process begins once the item is received and inspected. Card refunds take 5 to 7 business days to appear after issuance, while PayPal refunds take 2 business days, and store credit is available immediately.",
+    "synthesizer_name": "multi_hop_abstract_query_synthesizer"
+  },
+  {
+    "user_input": "Howw doo I managee myy orderr if I needd a refundd andd whatt aree the stepz involvedd in gettingg itt backk to myy paymentt methodd?",
+    "reference_contexts": [
+      "<1-hop>\n\nOrders — Changing or cancelling an order\nAn order can be changed or cancelled within 1 hour of being placed, while its status is\n\"Processing\". After that, wait for delivery and start a return instead.",
+      "<2-hop>\n\nRefunds — When refunds are issued\nA refund is issued once the returned item reaches our warehouse and passes inspection, usually\nwithin 3 business days of arrival. Orders that were never shipped are refunded as soon as they\nare cancelled.",
+      "<3-hop>\n\nRefunds — How long a refund takes\nRefunds go back to the original payment method. Card refunds appear within 5 to 7 business days\nafter we issue them; PayPal refunds appear within 2 business days. Store credit is available\nimmediately."
+    ],
+    "reference": "To manage your order if you need a refund, you can change or cancel the order within 1 hour of placing it while its status is 'Processing'. If this time has passed, you should wait for delivery and start a return instead. A refund is issued once the returned item reaches our warehouse and passes inspection, usually within 3 business days of arrival. If the order was never shipped, it is refunded as soon as it is cancelled. Refunds go back to the original payment method: card refunds appear within 5 to 7 business days after issuance, PayPal refunds appear within 2 business days, and store credit is available immediately.",
+    "synthesizer_name": "multi_hop_abstract_query_synthesizer"
+  },
+  {
+    "user_input": "Wht happens wen a human agent handover is done?",
+    "reference_contexts": [
+      "<1-hop>\n\nContacting a Human Agent — What happens after a handover\nThe assistant creates a support ticket with a short summary, so the customer does not have to\nrepeat themselves. A human agent replies by email within 1 business day; safety incidents are\nanswered within 4 hours.",
+      "<2-hop>\n\nContacting a Human Agent — When the assistant hands over to a human\nThe support assistant passes the conversation to a human agent for: refunds above $500, refunds\noutside the return window, warranty claims, injuries or safety incidents involving a product,\nlegal complaints, and any customer who asks to speak to a person."
+    ],
+    "reference": "When a human agent handover is done, the assistant creates a support ticket with a short summary to prevent the customer from repeating themselves. A human agent then replies by email within 1 business day, and safety incidents are addressed within 4 hours. The handover occurs for specific cases such as refunds above $500, refunds outside the return window, warranty claims, injuries or safety incidents involving a product, legal complaints, and when a customer requests to speak to a person.",
+    "synthesizer_name": "multi_hop_abstract_query_synthesizer"
+  },
+  {
+    "user_input": "Howw can I manage my order if I need to change or cancel it, and what is the returns policy if I miss the 1-hour window?",
+    "reference_contexts": [
+      "<1-hop>\n\nOrders — Changing or cancelling an order\nAn order can be changed or cancelled within 1 hour of being placed, while its status is\n\"Processing\". After that, wait for delivery and start a return instead.",
+      "<2-hop>\n\nReturns Policy — Return window\nMost items can be returned within 30 days of the delivery date. The item must be unused, clean,\nand in its original packaging with all tags attached. The 30 days are counted from the day the\ncarrier marks the order as delivered, not from the order date."
+    ],
+    "reference": "If you need to change or cancel your order, you can do so within 1 hour of placing it while its status is 'Processing'. If you miss this 1-hour window, you will need to wait for the delivery and then initiate a return. According to the returns policy, most items can be returned within 30 days of the delivery date, provided they are unused, clean, and in their original packaging with all tags attached. The 30-day return window starts from the day the carrier marks the order as delivered.",
+    "synthesizer_name": "multi_hop_abstract_query_synthesizer"
+  },
+  {
+    "user_input": "What is the process for handling refunds above $500 and how does the support assistant facilitate this?",
+    "reference_contexts": [
+      "<1-hop>\n\nRefunds — Refunds the assistant can issue\nThe support assistant can issue a refund only after confirming the order ID and the email\naddress on the order. It can refund up to $500 per order. Refunds above $500, and refunds\noutside the return window, must be handled by a human support agent.",
+      "<2-hop>\n\nContacting a Human Agent — When the assistant hands over to a human\nThe support assistant passes the conversation to a human agent for: refunds above $500, refunds\noutside the return window, warranty claims, injuries or safety incidents involving a product,\nlegal complaints, and any customer who asks to speak to a person."
+    ],
+    "reference": "Refunds above $500 must be handled by a human support agent. The support assistant facilitates this process by passing the conversation to a human agent when such a refund is requested. This ensures that the refund is processed correctly and in accordance with company policies.",
+    "synthesizer_name": "multi_hop_abstract_query_synthesizer"
+  }
+]

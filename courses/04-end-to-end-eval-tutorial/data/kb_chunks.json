@@ -1,0 +1,157 @@
+[
+  {
+    "chunk_id": "account-and-privacy-01",
+    "doc_id": "account-and-privacy",
+    "text": "Account and Privacy — Verifying your identity\nBefore discussing or changing an order, support confirms the order ID and the email address on\nthe order. We never share order details, addresses or payment information with anyone other\nthan the account holder, even if they say they are a family member."
+  },
+  {
+    "chunk_id": "account-and-privacy-02",
+    "doc_id": "account-and-privacy",
+    "text": "Account and Privacy — Password reset\nReset your password from the sign-in page with \"Forgot password\". The reset link expires after\n30 minutes. Support staff cannot see or set passwords."
+  },
+  {
+    "chunk_id": "account-and-privacy-03",
+    "doc_id": "account-and-privacy",
+    "text": "Account and Privacy — Deleting your data\nYou can ask us to delete your account and personal data. Deletion is completed within 30 days.\nOrder records needed for tax purposes are kept for 7 years, as the law requires."
+  },
+  {
+    "chunk_id": "contact-and-escalation-01",
+    "doc_id": "contact-and-escalation",
+    "text": "Contacting a Human Agent — When the assistant hands over to a human\nThe support assistant passes the conversation to a human agent for: refunds above $500, refunds\noutside the return window, warranty claims, injuries or safety incidents involving a product,\nlegal complaints, and any customer who asks to speak to a person."
+  },
+  {
+    "chunk_id": "contact-and-escalation-02",
+    "doc_id": "contact-and-escalation",
+    "text": "Contacting a Human Agent — What happens after a handover\nThe assistant creates a support ticket with a short summary, so the customer does not have to\nrepeat themselves. A human agent replies by email within 1 business day; safety incidents are\nanswered within 4 hours."
+  },
+  {
+    "chunk_id": "contact-and-escalation-03",
+    "doc_id": "contact-and-escalation",
+    "text": "Contacting a Human Agent — Support hours\nHuman agents work Monday to Friday, 8 am to 8 pm, and Saturday, 9 am to 5 pm (US Eastern time).\nThe assistant is available at any time."
+  },
+  {
+    "chunk_id": "loyalty-program-01",
+    "doc_id": "loyalty-program",
+    "text": "Trailpoints Loyalty Program — Earning points\nMembers earn 1 Trailpoint for every $1 spent. Sale and clearance items earn half points.\nGift card purchases do not earn points."
+  },
+  {
+    "chunk_id": "loyalty-program-02",
+    "doc_id": "loyalty-program",
+    "text": "Trailpoints Loyalty Program — Redeeming points\nEvery 500 Trailpoints can be redeemed for $10 off a future order. Points can be combined with\nsale prices but not with other discount codes."
+  },
+  {
+    "chunk_id": "loyalty-program-03",
+    "doc_id": "loyalty-program",
+    "text": "Trailpoints Loyalty Program — Points expiry\nTrailpoints expire 12 months after they are earned. Returning an item removes the points that\nwere earned on it."
+  },
+  {
+    "chunk_id": "orders-01",
+    "doc_id": "orders",
+    "text": "Orders — Order statuses\n\"Processing\" means the order is being packed and can still be changed. \"Shipped\" means it has\nleft the warehouse and has a tracking number. \"Delivered\" means the carrier confirmed delivery.\n\"Cancelled\" means the order was stopped before shipping and has been refunded."
+  },
+  {
+    "chunk_id": "orders-02",
+    "doc_id": "orders",
+    "text": "Orders — Changing or cancelling an order\nAn order can be changed or cancelled within 1 hour of being placed, while its status is\n\"Processing\". After that, wait for delivery and start a return instead."
+  },
+  {
+    "chunk_id": "orders-03",
+    "doc_id": "orders",
+    "text": "Orders — Changing the delivery address\nThe delivery address can be changed only before the order ships. Once an order is \"Shipped\",\nthe address cannot be changed by us; the customer can contact the carrier using the tracking\nlink."
+  },
+  {
+    "chunk_id": "orders-04",
+    "doc_id": "orders",
+    "text": "Orders — Order confirmation\nAn order confirmation email is sent within 15 minutes of purchase. Check the spam folder if it\ndoes not arrive. The order ID starts with \"PC-\" followed by five digits."
+  },
+  {
+    "chunk_id": "product-care-01",
+    "doc_id": "product-care",
+    "text": "Product Care — Tents\nDry a tent completely before storing it, to prevent mildew. Clean it with cold water and a soft\nsponge; never machine-wash a tent or use detergent, which strips the waterproof coating."
+  },
+  {
+    "chunk_id": "product-care-02",
+    "doc_id": "product-care",
+    "text": "Product Care — Waterproof jackets\nWash waterproof jackets with a technical cleaner on a cool cycle, then tumble dry on low heat\nfor 20 minutes to restore the water-repellent finish. Re-proof the jacket once a season."
+  },
+  {
+    "chunk_id": "product-care-03",
+    "doc_id": "product-care",
+    "text": "Product Care — Sleeping bags\nStore sleeping bags loose in a large cotton sack, never compressed in the stuff sack. Down bags\ncan be machine-washed on a gentle cycle with down wash, then tumble-dried on low with two clean\ntennis balls to break up clumps."
+  },
+  {
+    "chunk_id": "refunds-01",
+    "doc_id": "refunds",
+    "text": "Refunds — When refunds are issued\nA refund is issued once the returned item reaches our warehouse and passes inspection, usually\nwithin 3 business days of arrival. Orders that were never shipped are refunded as soon as they\nare cancelled."
+  },
+  {
+    "chunk_id": "refunds-02",
+    "doc_id": "refunds",
+    "text": "Refunds — How long a refund takes\nRefunds go back to the original payment method. Card refunds appear within 5 to 7 business days\nafter we issue them; PayPal refunds appear within 2 business days. Store credit is available\nimmediately."
+  },
+  {
+    "chunk_id": "refunds-03",
+    "doc_id": "refunds",
+    "text": "Refunds — Shipping costs\nOriginal shipping charges are not refunded, unless the item arrived damaged, defective, or was\nthe wrong item. Return shipping is free with the prepaid label."
+  },
+  {
+    "chunk_id": "refunds-04",
+    "doc_id": "refunds",
+    "text": "Refunds — Refunds the assistant can issue\nThe support assistant can issue a refund only after confirming the order ID and the email\naddress on the order. It can refund up to $500 per order. Refunds above $500, and refunds\noutside the return window, must be handled by a human support agent."
+  },
+  {
+    "chunk_id": "returns-policy-01",
+    "doc_id": "returns-policy",
+    "text": "Returns Policy — Return window\nMost items can be returned within 30 days of the delivery date. The item must be unused, clean,\nand in its original packaging with all tags attached. The 30 days are counted from the day the\ncarrier marks the order as delivered, not from the order date."
+  },
+  {
+    "chunk_id": "returns-policy-02",
+    "doc_id": "returns-policy",
+    "text": "Returns Policy — Sale and clearance items\nItems bought on sale or from the clearance section can be returned within 14 days of delivery.\nAfter 14 days, sale items are final sale and cannot be returned or refunded. Sale items that\narrive damaged or defective are covered by the warranty instead (see the warranty policy)."
+  },
+  {
+    "chunk_id": "returns-policy-03",
+    "doc_id": "returns-policy",
+    "text": "Returns Policy — Items that cannot be returned\nGift cards, personalised or engraved items, opened fuel canisters, and worn underwear or socks\ncannot be returned for hygiene and safety reasons. These items are marked \"non-returnable\" on\nthe product page."
+  },
+  {
+    "chunk_id": "returns-policy-04",
+    "doc_id": "returns-policy",
+    "text": "Returns Policy — How to start a return\nStart a return from the Orders page of your account, or ask the support assistant with your\norder ID and the email address used on the order. You will receive a prepaid return label by\nemail within one business day. Drop the parcel at any partner carrier location."
+  },
+  {
+    "chunk_id": "shipping-01",
+    "doc_id": "shipping",
+    "text": "Shipping — Shipping options\nStandard shipping takes 3 to 5 business days and is free on orders over $75; below $75 it\ncosts $6.95. Express shipping takes 1 to 2 business days and costs $15. Orders placed before\n2 pm on a business day ship the same day."
+  },
+  {
+    "chunk_id": "shipping-02",
+    "doc_id": "shipping",
+    "text": "Shipping — International shipping\nWe ship to Canada, the United Kingdom and the European Union. International orders take 7 to 14\nbusiness days. Import duties and taxes are paid by the customer on delivery."
+  },
+  {
+    "chunk_id": "shipping-03",
+    "doc_id": "shipping",
+    "text": "Shipping — Tracking an order\nA tracking link is emailed when the order ships. Tracking can take up to 24 hours to show the\nfirst scan."
+  },
+  {
+    "chunk_id": "shipping-04",
+    "doc_id": "shipping",
+    "text": "Shipping — Lost or missing packages\nIf tracking shows no movement for 10 business days, or a package marked delivered cannot be\nfound, contact support. We open a carrier claim and send a replacement or a refund once the\nclaim is confirmed, usually within 5 business days."
+  },
+  {
+    "chunk_id": "warranty-01",
+    "doc_id": "warranty",
+    "text": "Warranty — Standard warranty\nTents, backpacks and sleeping bags carry a 1-year warranty against manufacturing defects,\ncounted from the delivery date. The warranty covers broken zips, seam failures and faulty\nbuckles. It does not cover wear and tear, accidents, or damage from misuse."
+  },
+  {
+    "chunk_id": "warranty-02",
+    "doc_id": "warranty",
+    "text": "Warranty — Lifetime warranty\nPinecrest-brand trekking poles carry a lifetime warranty. If a pole section breaks during normal\nuse, we replace that section free of charge, for as long as the original buyer owns the poles."
+  },
+  {
+    "chunk_id": "warranty-03",
+    "doc_id": "warranty",
+    "text": "Warranty — Making a warranty claim\nTo make a claim, contact support with the order ID and photos that show the defect. We reply\nwithin 2 business days with a repair, a replacement, or store credit. Warranty claims are\nhandled by a human support agent."
+  }
+]
