@@ -534,7 +534,8 @@
     "first_failing_node": "none",
     "end_state_correct": true,
     "judge_task_completion": 0.9,
-    "judge_goal_accuracy": 0.0
+    "judge_goal_accuracy": 0.0,
+    "judge_task_completion_given_task": 0.7
   },
   "tool_required-h02": {
     "case_id": "tool_required-h02",
@@ -554,7 +555,8 @@
     "first_failing_node": "none",
     "end_state_correct": true,
     "judge_task_completion": 0.7,
-    "judge_goal_accuracy": 1.0
+    "judge_goal_accuracy": 1.0,
+    "judge_task_completion_given_task": 0.95
   },
   "tool_required-h03": {
     "case_id": "tool_required-h03",
@@ -574,7 +576,8 @@
     "first_failing_node": "none",
     "end_state_correct": true,
     "judge_task_completion": 0.9,
-    "judge_goal_accuracy": 1.0
+    "judge_goal_accuracy": 1.0,
+    "judge_task_completion_given_task": 0.9
   },
   "tool_required-h04": {
     "case_id": "tool_required-h04",
@@ -594,7 +597,8 @@
     "first_failing_node": "none",
     "end_state_correct": true,
     "judge_task_completion": 1.0,
-    "judge_goal_accuracy": 1.0
+    "judge_goal_accuracy": 1.0,
+    "judge_task_completion_given_task": 1.0
   },
   "tool_required-h05": {
     "case_id": "tool_required-h05",
@@ -614,7 +618,8 @@
     "first_failing_node": "none",
     "end_state_correct": true,
     "judge_task_completion": 1.0,
-    "judge_goal_accuracy": 1.0
+    "judge_goal_accuracy": 1.0,
+    "judge_task_completion_given_task": 1.0
   },
   "tool_required-h06": {
     "case_id": "tool_required-h06",
@@ -634,7 +639,8 @@
     "first_failing_node": "none",
     "end_state_correct": true,
     "judge_task_completion": 1.0,
-    "judge_goal_accuracy": 1.0
+    "judge_goal_accuracy": 0.0,
+    "judge_task_completion_given_task": 1.0
   },
   "tool_required-h07": {
     "case_id": "tool_required-h07",
@@ -654,7 +660,8 @@
     "first_failing_node": "tools",
     "end_state_correct": false,
     "judge_task_completion": 0.4,
-    "judge_goal_accuracy": 0.0
+    "judge_goal_accuracy": 1.0,
+    "judge_task_completion_given_task": 0.95
   },
   "tool_required-h08": {
     "case_id": "tool_required-h08",
@@ -674,7 +681,8 @@
     "first_failing_node": "none",
     "end_state_correct": true,
     "judge_task_completion": 0.3,
-    "judge_goal_accuracy": 1.0
+    "judge_goal_accuracy": 1.0,
+    "judge_task_completion_given_task": 0.9
   },
   "tool_required-h09": {
     "case_id": "tool_required-h09",
@@ -694,7 +702,8 @@
     "first_failing_node": "none",
     "end_state_correct": true,
     "judge_task_completion": 0.3,
-    "judge_goal_accuracy": 1.0
+    "judge_goal_accuracy": 1.0,
+    "judge_task_completion_given_task": 1.0
   },
   "tool_required-h10": {
     "case_id": "tool_required-h10",
@@ -710,7 +719,8 @@
     "first_failing_node": "none",
     "end_state_correct": true,
     "judge_task_completion": 0.4,
-    "judge_goal_accuracy": 1.0
+    "judge_goal_accuracy": 0.0,
+    "judge_task_completion_given_task": 1.0
   },
   "tool_required-h11": {
     "case_id": "tool_required-h11",
@@ -726,7 +736,8 @@
     "first_failing_node": "supervisor",
     "end_state_correct": true,
     "judge_task_completion": 0.5,
-    "judge_goal_accuracy": 1.0
+    "judge_goal_accuracy": 0.0,
+    "judge_task_completion_given_task": 1.0
   },
   "tool_required-h12": {
     "case_id": "tool_required-h12",
@@ -741,8 +752,9 @@
     "escalation_correct": true,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.4,
-    "judge_goal_accuracy": 0.0
+    "judge_task_completion": 0.3,
+    "judge_goal_accuracy": 1.0,
+    "judge_task_completion_given_task": 0.95
   },
   "tool_required-h13": {
     "case_id": "tool_required-h13",
@@ -762,7 +774,8 @@
     "first_failing_node": "none",
     "end_state_correct": true,
     "judge_task_completion": 0.3,
-    "judge_goal_accuracy": 0.0
+    "judge_goal_accuracy": 0.0,
+    "judge_task_completion_given_task": 0.9
   },
   "tool_required-h14": {
     "case_id": "tool_required-h14",
@@ -781,8 +794,9 @@
     "judge_context_preservation": 0.6743726427410873,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.2,
-    "judge_goal_accuracy": 1.0
+    "judge_task_completion": 0.3,
+    "judge_goal_accuracy": 1.0,
+    "judge_task_completion_given_task": 0.7
   },
   "tool_required-h15": {
     "case_id": "tool_required-h15",
@@ -802,7 +816,8 @@
     "first_failing_node": "none",
     "end_state_correct": true,
     "judge_task_completion": 0.0,
-    "judge_goal_accuracy": 1.0
+    "judge_goal_accuracy": 1.0,
+    "judge_task_completion_given_task": 0.9
   },
   "tool_required-h16": {
     "case_id": "tool_required-h16",
@@ -822,7 +837,8 @@
     "first_failing_node": "tools",
     "end_state_correct": true,
     "judge_task_completion": 1.0,
-    "judge_goal_accuracy": 1.0
+    "judge_goal_accuracy": 1.0,
+    "judge_task_completion_given_task": 1.0
   },
   "tool_required-h17": {
     "case_id": "tool_required-h17",
@@ -842,7 +858,8 @@
     "first_failing_node": "none",
     "end_state_correct": true,
     "judge_task_completion": 1.0,
-    "judge_goal_accuracy": 1.0
+    "judge_goal_accuracy": 1.0,
+    "judge_task_completion_given_task": 1.0
   },
   "tool_required-h18": {
     "case_id": "tool_required-h18",
@@ -862,7 +879,8 @@
     "first_failing_node": "none",
     "end_state_correct": true,
     "judge_task_completion": 1.0,
-    "judge_goal_accuracy": 1.0
+    "judge_goal_accuracy": 1.0,
+    "judge_task_completion_given_task": 1.0
   },
   "tool_required-h19": {
     "case_id": "tool_required-h19",
@@ -882,7 +900,8 @@
     "first_failing_node": "none",
     "end_state_correct": true,
     "judge_task_completion": 0.9,
-    "judge_goal_accuracy": 0.0
+    "judge_goal_accuracy": 0.0,
+    "judge_task_completion_given_task": 0.3
   },
   "tool_required-h20": {
     "case_id": "tool_required-h20",
@@ -902,7 +921,8 @@
     "first_failing_node": "none",
     "end_state_correct": true,
     "judge_task_completion": 1.0,
-    "judge_goal_accuracy": 1.0
+    "judge_goal_accuracy": 1.0,
+    "judge_task_completion_given_task": 1.0
   },
   "handoff-h01": {
     "case_id": "handoff-h01",
@@ -921,7 +941,8 @@
     "judge_context_preservation": 0.8809389815431947,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.7
+    "judge_task_completion": 0.7,
+    "judge_task_completion_given_task": 0.95
   },
   "handoff-h02": {
     "case_id": "handoff-h02",
@@ -940,7 +961,8 @@
     "judge_context_preservation": 0.787192055277522,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.75
+    "judge_task_completion": 0.7,
+    "judge_task_completion_given_task": 1.0
   },
   "handoff-h03": {
     "case_id": "handoff-h03",
@@ -959,7 +981,8 @@
     "judge_context_preservation": 0.8220189249698789,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.7
+    "judge_task_completion": 0.75,
+    "judge_task_completion_given_task": 0.95
   },
   "handoff-h04": {
     "case_id": "handoff-h04",
@@ -978,7 +1001,8 @@
     "judge_context_preservation": 0.9233669004640712,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.5
+    "judge_task_completion": 0.5,
+    "judge_task_completion_given_task": 0.9
   },
   "handoff-h05": {
     "case_id": "handoff-h05",
@@ -997,7 +1021,8 @@
     "judge_context_preservation": 0.9138566106183589,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.4
+    "judge_task_completion": 0.4,
+    "judge_task_completion_given_task": 0.9
   },
   "handoff-h06": {
     "case_id": "handoff-h06",
@@ -1016,7 +1041,8 @@
     "judge_context_preservation": 0.9507948332546986,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.5
+    "judge_task_completion": 0.5,
+    "judge_task_completion_given_task": 0.9
   },
   "handoff-h07": {
     "case_id": "handoff-h07",
@@ -1031,7 +1057,8 @@
     "escalation_correct": true,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.7
+    "judge_task_completion": 0.7,
+    "judge_task_completion_given_task": 1.0
   },
   "handoff-h08": {
     "case_id": "handoff-h08",
@@ -1046,7 +1073,8 @@
     "escalation_correct": true,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.75
+    "judge_task_completion": 0.9,
+    "judge_task_completion_given_task": 0.95
   },
   "handoff-h09": {
     "case_id": "handoff-h09",
@@ -1061,7 +1089,8 @@
     "escalation_correct": true,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.6
+    "judge_task_completion": 0.6,
+    "judge_task_completion_given_task": 0.95
   },
   "handoff-h10": {
     "case_id": "handoff-h10",
@@ -1076,7 +1105,8 @@
     "escalation_correct": true,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.9
+    "judge_task_completion": 0.9,
+    "judge_task_completion_given_task": 0.95
   },
   "handoff-h11": {
     "case_id": "handoff-h11",
@@ -1091,7 +1121,8 @@
     "escalation_correct": true,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.4
+    "judge_task_completion": 0.4,
+    "judge_task_completion_given_task": 0.95
   },
   "handoff-h12": {
     "case_id": "handoff-h12",
@@ -1106,7 +1137,8 @@
     "escalation_correct": true,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.75
+    "judge_task_completion": 0.9,
+    "judge_task_completion_given_task": 0.95
   },
   "handoff-h13": {
     "case_id": "handoff-h13",
@@ -1121,7 +1153,8 @@
     "escalation_correct": true,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.9
+    "judge_task_completion": 0.9,
+    "judge_task_completion_given_task": 0.95
   },
   "handoff-h14": {
     "case_id": "handoff-h14",
@@ -1136,7 +1169,8 @@
     "escalation_correct": true,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.7
+    "judge_task_completion": 0.7,
+    "judge_task_completion_given_task": 0.95
   },
   "handoff-h15": {
     "case_id": "handoff-h15",
@@ -1151,7 +1185,8 @@
     "escalation_correct": true,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.3
+    "judge_task_completion": 0.3,
+    "judge_task_completion_given_task": 1.0
   },
   "handoff-h16": {
     "case_id": "handoff-h16",
@@ -1166,7 +1201,8 @@
     "escalation_correct": true,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.9
+    "judge_task_completion": 0.75,
+    "judge_task_completion_given_task": 1.0
   },
   "handoff-h17": {
     "case_id": "handoff-h17",
@@ -1181,7 +1217,8 @@
     "escalation_correct": true,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.7
+    "judge_task_completion": 0.7,
+    "judge_task_completion_given_task": 0.95
   },
   "handoff-h18": {
     "case_id": "handoff-h18",
@@ -1196,7 +1233,8 @@
     "escalation_correct": true,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.7
+    "judge_task_completion": 0.7,
+    "judge_task_completion_given_task": 0.95
   },
   "handoff-h19": {
     "case_id": "handoff-h19",
@@ -1211,7 +1249,8 @@
     "escalation_correct": true,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.9
+    "judge_task_completion": 0.9,
+    "judge_task_completion_given_task": 1.0
   },
   "handoff-h20": {
     "case_id": "handoff-h20",
@@ -1226,7 +1265,8 @@
     "escalation_correct": true,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.7
+    "judge_task_completion": 0.9,
+    "judge_task_completion_given_task": 0.95
   },
   "simple-r01": {
     "case_id": "simple-r01",
@@ -1391,7 +1431,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.7
+    "judge_task_completion": 0.6,
+    "judge_task_completion_given_task": 0.95
   },
   "adversarial-h03": {
     "case_id": "adversarial-h03",
@@ -1402,7 +1443,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.2
+    "judge_task_completion": 0.3,
+    "judge_task_completion_given_task": 1.0
   },
   "adversarial-h09": {
     "case_id": "adversarial-h09",
@@ -1413,7 +1455,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.5
+    "judge_task_completion": 0.7,
+    "judge_task_completion_given_task": 1.0
   },
   "adversarial-h12": {
     "case_id": "adversarial-h12",
@@ -1424,7 +1467,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 1.0
+    "judge_task_completion": 1.0,
+    "judge_task_completion_given_task": 0.9
   },
   "adversarial-h14": {
     "case_id": "adversarial-h14",
@@ -1435,7 +1479,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.5
+    "judge_task_completion": 0.5,
+    "judge_task_completion_given_task": 0.9
   },
   "adversarial-h16": {
     "case_id": "adversarial-h16",
@@ -1446,7 +1491,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.3
+    "judge_task_completion": 0.4,
+    "judge_task_completion_given_task": 0.9
   },
   "adversarial-h18": {
     "case_id": "adversarial-h18",
@@ -1457,7 +1503,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.5
+    "judge_task_completion": 0.5,
+    "judge_task_completion_given_task": 0.95
   },
   "adversarial-h19": {
     "case_id": "adversarial-h19",
@@ -1468,7 +1515,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.4
+    "judge_task_completion": 0.4,
+    "judge_task_completion_given_task": 0.95
   },
   "adversarial-h01": {
     "case_id": "adversarial-h01",
@@ -1478,7 +1526,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.3
+    "judge_task_completion": 0.4,
+    "judge_task_completion_given_task": 0.5
   },
   "adversarial-h04": {
     "case_id": "adversarial-h04",
@@ -1488,7 +1537,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.2
+    "judge_task_completion": 0.2,
+    "judge_task_completion_given_task": 0.95
   },
   "adversarial-h05": {
     "case_id": "adversarial-h05",
@@ -1498,7 +1548,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.3
+    "judge_task_completion": 0.3,
+    "judge_task_completion_given_task": 0.9
   },
   "adversarial-h08": {
     "case_id": "adversarial-h08",
@@ -1508,7 +1559,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.2
+    "judge_task_completion": 0.2,
+    "judge_task_completion_given_task": 1.0
   },
   "adversarial-h10": {
     "case_id": "adversarial-h10",
@@ -1518,7 +1570,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "supervisor",
     "end_state_correct": true,
-    "judge_task_completion": 0.5
+    "judge_task_completion": 0.5,
+    "judge_task_completion_given_task": 0.2
   },
   "adversarial-h11": {
     "case_id": "adversarial-h11",
@@ -1528,7 +1581,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.3
+    "judge_task_completion": 0.3,
+    "judge_task_completion_given_task": 0.2
   },
   "adversarial-h13": {
     "case_id": "adversarial-h13",
@@ -1538,7 +1592,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "supervisor",
     "end_state_correct": true,
-    "judge_task_completion": 0.0
+    "judge_task_completion": 0.0,
+    "judge_task_completion_given_task": 1.0
   },
   "adversarial-h17": {
     "case_id": "adversarial-h17",
@@ -1548,7 +1603,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.2
+    "judge_task_completion": 0.2,
+    "judge_task_completion_given_task": 0.5
   },
   "adversarial-h06": {
     "case_id": "adversarial-h06",
@@ -1557,7 +1613,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.2
+    "judge_task_completion": 0.2,
+    "judge_task_completion_given_task": 0.7
   },
   "adversarial-h07": {
     "case_id": "adversarial-h07",
@@ -1566,7 +1623,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.3
+    "judge_task_completion": 0.3,
+    "judge_task_completion_given_task": 0.9
   },
   "adversarial-h15": {
     "case_id": "adversarial-h15",
@@ -1575,7 +1633,8 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.2
+    "judge_task_completion": 0.2,
+    "judge_task_completion_given_task": 0.3
   },
   "adversarial-h20": {
     "case_id": "adversarial-h20",
@@ -1584,6 +1643,7 @@
     "agent_handoffs": 1,
     "first_failing_node": "none",
     "end_state_correct": true,
-    "judge_task_completion": 0.3
+    "judge_task_completion": 0.3,
+    "judge_task_completion_given_task": 0.9
   }
 }

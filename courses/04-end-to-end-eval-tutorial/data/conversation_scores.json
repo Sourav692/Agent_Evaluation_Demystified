@@ -86,7 +86,7 @@
       "refunds_issued": [],
       "tickets_created": 1,
       "scores": {
-        "knowledge_retention": 1,
+        "knowledge_retention": 1.0,
         "completeness": 0.5,
         "turn_relevancy": 1.0,
         "role_adherence": 1.0
@@ -115,7 +115,7 @@
         },
         {
           "role": "assistant",
-          "content": "I can't assist with changing the delivery address. Please contact our customer support team for help with that."
+          "content": "Your order PC-10003 has already been shipped. Unfortunately, I can't change the delivery address at this stage. If you need further assistance, please let me know!"
         }
       ],
       "routes": [
@@ -181,7 +181,7 @@
         },
         {
           "role": "assistant",
-          "content": "I can help with that! Could you please provide the email address associated with your order?"
+          "content": "I'll need the email address associated with your order to assist you with the refund. Could you please provide that?"
         },
         {
           "role": "user",
@@ -189,7 +189,7 @@
         },
         {
           "role": "assistant",
-          "content": "Your refund of $249.00 for the tent has been processed successfully! If you have any more questions or need further assistance, feel free to ask."
+          "content": "Your refund of $249.00 for the tent has been successfully processed! If you have any more questions or need further assistance, feel free to ask."
         }
       ],
       "scores": {
