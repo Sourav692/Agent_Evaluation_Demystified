@@ -64,7 +64,9 @@ jobs:
         run: python3 .github/scripts/check_index_coverage.py
 
       - name: Every relative link resolves
-        run: python3 .claude/skills/link-check/scripts/check_links.py docs
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/Sourav692/skills/main/skills/link-check/scripts/check_links.py -o "$RUNNER_TEMP/check_links.py"
+          python3 "$RUNNER_TEMP/check_links.py" docs
 
       - name: Page dates match git history
         run: python3 site/stamp_dates.py --check

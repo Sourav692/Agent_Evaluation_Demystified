@@ -116,7 +116,8 @@ Databricks workspace.
 
 ## Notebooks
 
-Follow the formatting contract in @.claude/skills/format-notebook/SKILL.md when creating or
+Follow the formatting contract in the `format-notebook` skill (sourav-skills plugin, install with
+`claude plugin marketplace add Sourav692/skills && claude plugin install sourav-skills@sourav692`) when creating or
 editing notebooks — heading structure, `# ====` section banners, import order, emoji conventions.
 
 **Clear all outputs and reset `execution_count` to null before committing a notebook.** A git
@@ -145,7 +146,7 @@ never edit `site/dist/`), make sure the file is registered in `RENDER`, `COPY` o
 locally with `uv run --no-project --with markdown python3 site/build.py` (no python here has
 `markdown` installed; `site/dist/` is gitignored), run the three free docs gates
 (`.github/scripts/check_index_coverage.py`, `.github/scripts/check_drill_sync.py`,
-`.claude/skills/link-check/scripts/check_links.py docs`), then commit and push to `main`.
+the `link-check` skill's `scripts/check_links.py docs`), then commit and push to `main`.
 Confirm with `vercel ls eval-demystified` (status `● Ready`) or `curl -sI https://eval-demystified.vercel.app`.
 
 Pushing is outward-facing: it publishes. Ask before pushing unless the user asked for the

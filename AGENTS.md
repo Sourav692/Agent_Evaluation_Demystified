@@ -20,7 +20,7 @@ uv run --no-project --with markdown==3.7 python3 site/build.py
 python3 -m http.server -d site/dist 8000
 python3 .github/scripts/check_index_coverage.py
 python3 .github/scripts/check_drill_sync.py
-python3 .claude/skills/link-check/scripts/check_links.py docs
+curl -sSfL https://raw.githubusercontent.com/Sourav692/skills/main/skills/link-check/scripts/check_links.py | python3 - docs
 ```
 
 The final three commands verify index coverage, question-bank/drill consistency, and relative links.

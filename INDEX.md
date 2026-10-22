@@ -561,7 +561,7 @@ opening only when you want to see how something used to be organised.
 This index names **sections**, not line numbers, so it survives edits to a document's body. It
 breaks when a section is renumbered or a file is renamed. If you move or rename anything under
 `docs/` or `courses/`, re-check this file along with the folder READMEs —
-`python3 .claude/skills/link-check/scripts/check_links.py` catches broken links but not a
+the `link-check` skill's `scripts/check_links.py` catches broken links but not a
 section reference that has silently become wrong.
 
 A new file under `docs/` needs three registrations, or something fails: a row or section here
