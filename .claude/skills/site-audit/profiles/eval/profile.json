@@ -1,0 +1,19 @@
+{
+  "own": "eval-demystified",
+  "labels": {
+    "coverage": "Evaluation coverage",
+    "depth": "Explanation depth",
+    "grounding": "Hands-on grounding",
+    "progress": "Findability and progress"
+  },
+  "site_names": {
+    "eval-demystified": "Agent Evaluation Demystified",
+    "hamel-evals": "Hamel Husain — evals posts and FAQ",
+    "eugene-yan": "Eugene Yan — eval writing",
+    "evidently-guide": "Evidently AI — LLM evaluation guide",
+    "deepeval-docs": "DeepEval docs",
+    "openai-evals-guide": "OpenAI evaluation guides",
+    "deeplearning-ai": "DeepLearning.AI eval short courses"
+  },
+  "start": "data/start.json"
+}

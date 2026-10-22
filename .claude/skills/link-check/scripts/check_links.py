@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """Report relative markdown links whose targets do not exist.
 
-Usage: check_links.py [path ...]    (defaults to the repo root)
-Exit code 1 if any link is broken, else 0.
+Usage: check_links.py [--html] [path ...]    (defaults to the repo root)
+  --html   also check href="..." links, and scan .html files as well as .md
+
+A link is broken when its target is missing, or when it exists only with different
+letter case (macOS ignores case, GitHub does not), judged against the paths git knows
+(tracked plus untracked, non-ignored). Exit code 1 if any link is broken, else 0.
 """
 import re
 import subprocess
@@ -15,7 +19,8 @@ from urllib.parse import unquote
 LINK_RE = re.compile(
     r"\[[^\]]*\]\(\s*((?:[^()\s\\]|\\.|\([^()\s]*\))+)\s*(?:\"[^\"]*\")?\s*\)"
 )
-SKIP_PREFIXES = ("http://", "https://", "mailto:", "#", "tel:", "data:")
+HREF_RE = re.compile(r'href="([^"]+)"')
+SKIP_PREFIXES = ("http://", "https://", "mailto:", "#", "tel:", "data:", "javascript:")
 
 
 def repo_root() -> Path:
@@ -26,18 +31,28 @@ def repo_root() -> Path:
     return Path(out.stdout.strip())
 
 
-def tracked_markdown(root: Path, scopes: list[Path]) -> list[Path]:
+def git_paths(root: Path, *patterns: str) -> list[str]:
+    """Tracked plus untracked, non-ignored paths (repo-relative, exact case)."""
     out = subprocess.run(
-        ["git", "ls-files", "-z", "--", "*.md"],
+        ["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", *patterns],
         cwd=root, capture_output=True, text=True, check=True,
     )
-    files = [root / p for p in out.stdout.split("\0") if p]
-    # Untracked .md files are worth checking too (e.g. a brand-new index).
-    extra = subprocess.run(
-        ["git", "ls-files", "-z", "--others", "--exclude-standard", "--", "*.md"],
-        cwd=root, capture_output=True, text=True, check=True,
-    )
-    files += [root / p for p in extra.stdout.split("\0") if p]
+    return [p for p in out.stdout.split("\0") if p]
+
+
+def known_paths(root: Path) -> set[str]:
+    """Every file git knows plus all of their parent folders, in exact case."""
+    known = set()
+    for f in git_paths(root):
+        while f:
+            known.add(f)
+            f = f.rpartition("/")[0]
+    return known
+
+
+def tracked_markdown(root: Path, scopes: list[Path], html: bool = False) -> list[Path]:
+    patterns = ["*.md", "*.html"] if html else ["*.md"]
+    files = [root / p for p in git_paths(root, *patterns)]
     if scopes:
         files = [f for f in files if any(_within(f, s) for s in scopes)]
     return sorted(set(files))
@@ -51,7 +66,7 @@ def _within(path: Path, parent: Path) -> bool:
         return False
 
 
-def check(md: Path, root: Path) -> list[tuple[int, str]]:
+def check(md: Path, root: Path, known: set[str], html: bool = False) -> list[tuple[int, str]]:
     broken = []
     try:
         lines = md.read_text(encoding="utf-8").splitlines()
@@ -65,7 +80,8 @@ def check(md: Path, root: Path) -> list[tuple[int, str]]:
             continue
         if in_fence:
             continue
-        for raw in LINK_RE.findall(line):
+        targets = LINK_RE.findall(line) + (HREF_RE.findall(line) if html else [])
+        for raw in targets:
             target = raw.split("#", 1)[0]
             if not target or target.startswith(SKIP_PREFIXES):
                 continue
@@ -74,20 +90,31 @@ def check(md: Path, root: Path) -> list[tuple[int, str]]:
             resolved = (base / target.lstrip("/")).resolve()
             if not resolved.exists():
                 broken.append((lineno, raw))
+                continue
+            try:
+                rel = resolved.relative_to(root.resolve()).as_posix()
+            except ValueError:
+                continue  # outside the repo: existence is all we can check
+            if rel and rel != "." and rel not in known:
+                broken.append((lineno, f"{raw}  (case mismatch, or not tracked by git)"))
     return broken
 
 
 def main() -> int:
     root = repo_root()
-    scopes = [Path(a).resolve() for a in sys.argv[1:]]
+    args = sys.argv[1:]
+    html = "--html" in args
+    scopes = [Path(a).resolve() for a in args if a != "--html"]
     for s in scopes:
         if not s.exists():
             print(f"error: no such path: {s}", file=sys.stderr)
             return 2
 
+    known = known_paths(root)
+    files = tracked_markdown(root, scopes, html)
     total = 0
-    for md in tracked_markdown(root, scopes):
-        broken = check(md, root)
+    for md in files:
+        broken = check(md, root, known, html)
         if not broken:
             continue
         print(f"\n{md.relative_to(root)}")
@@ -95,7 +122,7 @@ def main() -> int:
             print(f"  line {lineno}: {target}")
             total += 1
 
-    scanned = len(tracked_markdown(root, scopes))
+    scanned = len(files)
     if total:
         print(f"\n{total} broken link(s) across {scanned} markdown file(s).")
         return 1

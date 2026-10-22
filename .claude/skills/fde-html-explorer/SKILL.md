@@ -1,13 +1,11 @@
 ---
 name: fde-html-explorer
-description: Create a standalone HTML explorer for an FDE system-design or architecture interview case. Use for spoken explanations, clickable diagrams, numbered flows, component responsibilities, failure scenarios, and compact revision. Save a local HTML file by default.
+description: Create a standalone HTML explorer for any FDE system-design or architecture interview use case. Use for simple spoken explanations, clickable diagrams, numbered request or event flows, component responsibilities, failure scenarios, and compact interview revision. Produce a downloadable HTML file by default rather than deploying with Sites.
 ---
 
 # FDE HTML Explorer
 
 Turn a system-design case into an interactive interview workbench. Deliver **one standalone `.html` file**, with content, CSS, JavaScript, and diagrams embedded. Keep it close to a guided conversation, not a textbook.
-
-This is a project skill. Invoke it in Claude Code with `/fde-html-explorer` and a case name or source file paths. The example in `references/enterprise_rag_fde_explorer.html` shows the format; it is illustrative, not a source for a new case.
 
 ## Output contract
 
@@ -15,7 +13,7 @@ This is a project skill. Invoke it in Claude Code with `/fde-html-explorer` and 
 - Use the bundled renderer to preserve this format. Adapt content and topology; do not force every system into the same seven-component chain.
 - Support one system by default and a system selector when several are requested.
 - Do not create, update, publish, or deploy a Site unless separately requested. Do not imply a local HTML file has authentication or access control.
-- Save the completed HTML at the path the user requests, or in the current project directory when no path is given. Return its path and what was tested.
+- Save the completed HTML through the environment's normal file-saving workflow. Return its link and what was tested.
 
 ## 1. Ground the case
 
@@ -76,12 +74,12 @@ Use the bundled inline SVG renderer. Do not use generated imagery or a network-l
 
 ## 6. Build the HTML
 
-Read [the content contract](references/data-contract.md). Write temporary JSON following it. Use plain strings, not executable HTML.
+Read [the content contract](references/data-contract.md). [references/enterprise_rag_fde_explorer.html](references/enterprise_rag_fde_explorer.html) shows a finished explorer; use it for format only, not as a source of facts. Write temporary JSON following it. Use plain strings, not executable HTML.
 
-From the repository root run:
+From this skill directory run:
 
 ```bash
-python3 .claude/skills/fde-html-explorer/scripts/build_explorer.py \
+python3 scripts/build_explorer.py \
   --data /absolute/path/case-content.json \
   --output /absolute/path/use_case_fde_explorer.html
 ```

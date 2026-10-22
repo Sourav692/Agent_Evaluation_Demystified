@@ -1,0 +1,19 @@
+{
+  "own": "forward-deployed",
+  "labels": {
+    "coverage": "FDE coverage",
+    "depth": "Worked-solution depth",
+    "grounding": "Real-loop grounding",
+    "progress": "Progress and filters"
+  },
+  "site_names": {
+    "forward-deployed": "Forward Deployed",
+    "hello-interview": "Hello Interview",
+    "aced": "Aced (ex-Exponent)",
+    "bytebytego": "ByteByteGo",
+    "tech-interview-handbook": "Tech Interview Handbook",
+    "roadmap-sh": "roadmap.sh",
+    "deeplearning-ai": "DeepLearning.AI"
+  },
+  "baseline": "data/baseline-2026-10-09.json"
+}
