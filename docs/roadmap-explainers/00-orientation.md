@@ -2,11 +2,11 @@
 
 *Decompose the system before measuring it, because one quality score cannot say which stage broke.*
 
-◷ 17 min read, about 3 h with its notebook · Level 0 · the entry point. Nothing here is executable. It is the vocabulary and the decision rules every
+◷ 18 min read, about 3 h with its notebook · Level 0 · the entry point. Nothing here is executable. It is the vocabulary and the decision rules every
 later level uses.
 
-"Evaluate the AI system" sounds like one task. It is five, each failing differently and each wanting a different fix, so the first decision is which
-layer is being measured, before any choice of metric.
+"Evaluate the AI system" sounds like one task. It is five. Each fails differently and each wants a different fix. The first decision is which layer
+is being measured. The metric comes after.
 
 > **Who this is for.** No library knowledge is assumed. Every technical term is defined in plain words the first time it appears, and the page
 > explains what gets measured rather than what computes it. Learning evaluation end to end? This is step one of [the
@@ -17,14 +17,13 @@ layer is being measured, before any choice of metric.
 
 ## 1. Separate the Five Things You Can Evaluate
 
-A chatbot that searches documents and answers a question is a small assembly line. It searches, writes an answer, and, if it is an agent, calls tools
-in some order, across many turns, before it finally does the thing the user wanted.
+A chatbot that searches documents and answers a question is a small assembly line. It searches and writes an answer. If it is an agent, it also calls
+tools in some order, across many turns, before it does the thing the user wanted.
 
-**Each stage fails for a different reason, and the fix for one does nothing for another.** One blunt "is it good?" check cannot say which stage broke.
-The time then goes into fixing the wrong thing.
+- **Each stage fails for its own reason.** The fix for one does nothing for another.
+- **One blunt check hides the stage.** An "is it good?" score cannot say which stage broke. The time then goes into fixing the wrong thing.
 
-Take a support agent that searches a knowledge base and can issue refunds. Its work breaks into five layers, and a wrong final answer could come from
-any of them:
+Take a support agent that searches a knowledge base and can issue refunds. A wrong final answer could come from any of its five layers:
 
 | Layer | The question it answers | A concrete symptom |
 | --- | --- | --- |
@@ -34,8 +33,10 @@ any of them:
 | **④ Trajectory** | Was the *sequence* of steps sensible? | It checks the same order three times before acting |
 | **⑤ Outcome** | Did the real-world result actually happen? | It says "refund issued" but no refund exists in the system |
 
-**Mechanics ≠ process ≠ outcome.** Calling the right tool with the right arguments does not mean the steps came in a sound order. A sound order does
-not mean the user's goal was met. Check all three separately.
+**Mechanics ≠ process ≠ outcome.** The right tool with the right arguments does not mean the steps came in a sound order. A sound order does not mean
+the user's goal was met. Check all three separately.
+
+This diagram shows the five layers in the order a run passes through them.
 
 ```mermaid
 flowchart LR
@@ -63,9 +64,12 @@ flowchart LR
     style O1 fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
 ```
 
-**Outcome verification is the strongest check of the five.** A model writes *"Your refund of $45 has been issued"* just as fluently whether or not a
-refund happened. A judge reading only that sentence can be fooled by confident, wrong prose. **A system of record reads the event itself, so it cannot
-be talked into a wrong verdict.**
+**Outcome verification is the one check fluent text cannot fool.** A **system of record** is the real store the action changes, such as the refunds
+database.
+
+- **Fluent text proves nothing.** A model writes *"Your refund of $45 has been issued"* just as fluently whether or not a refund happened.
+- **A judge can be fooled.** A judge reading only that sentence can be fooled by confident, wrong prose.
+- **A system of record cannot.** It reads the event itself. No prose can talk it into a wrong verdict.
 
 > **A sixth behaviour sits across the five layers rather than in them: conversational quality.** An agent can pass every layer-check on every
 > individual turn and still fail the dialogue by forgetting what was said three turns ago, drifting off-topic, or over-advising.
@@ -74,7 +78,7 @@ That failure only shows up *across* turns. Level 2 picks it up properly.
 
 ### What breaks where, at a glance
 
-The same five layers, read as a troubleshooting table: symptom on the left, what catches it and what that costs on the right.
+The same five layers as a troubleshooting table. Each column is a layer. Each row is the symptom, what catches it, what that costs and what it needs.
 
 | | ① Retrieval (no labels) | ① Retrieval (with labels) | ② Generation | ③ Tool use | ④ Trajectory |
 | --- | --- | --- | --- | --- | --- |
@@ -88,24 +92,28 @@ The same five layers, read as a troubleshooting table: symptom on the left, what
 
 ## 2. Ask Whether the Check Needs an Answer Key
 
-This distinction decides *where* a check can run.
+This distinction decides *where* a check can run. A **reference** is the answer key: a correct output a person wrote down before the system ran.
 
-A **reference-based** check compares the output to something a person wrote *before the system ran*: the correct answer, chunk list, or tool call. It
-is precise, and perfect for automated testing. Someone maintains that answer key, so it scales to a curated set, never to live traffic. A
-**referenceless** check judges using only what the run itself produced. Faithfulness compares the answer to the passages just retrieved. It scales to
-any real question at zero labelling cost. It is less precise, and only as good as whatever is judging.
+| | Reference-based | Referenceless |
+| --- | --- | --- |
+| **Compares the output to** | Something a person wrote *before the system ran*: the correct answer, chunk list, or tool call | Only what the run itself produced. Faithfulness compares the answer to the passages just retrieved |
+| **Precision** | Precise. Perfect for automated testing | Less precise. Only as good as whatever is judging |
+| **Scale** | A curated set, never live traffic. Someone maintains that answer key | Any real question, at zero labelling cost |
 
-> **A common trap.** "Referenceless" means no *human-written correct answer* is involved. It does *not* mean "reads nothing." Faithfulness reads the
+> **An easy trap.** "Referenceless" means no *human-written correct answer* is involved. It does *not* mean "reads nothing." Faithfulness reads the
 > question, the answer and the retrieved passages. It never reads a pre-written answer key.
 
-**The mechanical test settles it every time.** Could this check score a brand-new question from a real user, with zero human preparation? If yes, it
-is referenceless and can run in production. **Nobody has written a right answer for a question that has not been asked yet**, so a check needing one
-can never run on live traffic, however good it is.
+**The mechanical test settles it.** Could this check score a brand-new question from a real user, with zero human preparation?
 
-> **This split cuts across the five layers, not along them.** One retrieval metric compares the passages to the *question* (referenceless); its
-> neighbour compares the same passages to the *expected answer* (reference-based).
+- **Yes.** It is referenceless and can run in production.
+- **No.** It needs a right answer written in advance. **Nobody has written a right answer for a question that has not been asked yet.** A check needing one can never run on live traffic, however good it is.
+
+> **This split cuts across the five layers, not along them.** One retrieval metric compares the passages to the *question*. That one is
+> referenceless. Its neighbour compares the same passages to the *expected answer*. That one is reference-based.
 
 *Which layer is this?* and *does it need a reference?* are two independent questions.
+
+This diagram shows the one question that sorts a check into either kind.
 
 ```mermaid
 flowchart TD
@@ -116,19 +124,22 @@ flowchart TD
     style FREE fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
 ```
 
-**Mature setups run both:** reference-based checks in CI against a curated test set, referenceless checks on live traffic. Each covers a gap the other
-cannot.
+**Mature setups run both.** **CI** (continuous integration) is the set of tests that runs on every code change.
+
+- **Reference-based checks run in CI** against a curated test set.
+- **Referenceless checks run on live traffic.**
+
+Each covers a gap the other cannot.
 
 ### The blind spot in word-overlap scores
 
-Before anyone used an LLM to judge text, quality was scored by counting overlapping words against a reference answer. These three still come up
-constantly:
+Before anyone used an LLM to judge text, quality was scored by counting words shared with a reference answer. These three still come up:
 
 | Metric | What it actually measures | What it was built for |
 | --- | --- | --- |
 | **BLEU** | How many chunks of words ("n-grams") in the answer also appear in the reference | Machine translation |
 | **ROUGE-L** | The longest run of matching words shared between the answer and the reference | Summarization |
-| **BERTScore** | The same idea, but matching by meaning (via embeddings) instead of exact words, so a paraphrase can still count | Anything where wording varies |
+| **BERTScore** | The same idea, but matching by meaning instead of exact words. It uses embeddings, lists of numbers that stand for meaning. A paraphrase can still count | Anything where wording varies |
 
 Take this reference answer: *"Refunds are available within 14 days of renewal."*
 
@@ -138,59 +149,68 @@ Take this reference answer: *"Refunds are available within 14 days of renewal."*
 | "Refunds are **not** available within 14 days of renewal." | 0.94 | 0.66 | ❌ **No** |
 | "You can get your money back up to two weeks after the renewal date." | 0.09 | 0.00 | ✅ Yes |
 
-One inserted word flips the meaning entirely, and it costs six points of ROUGE-L. A completely correct paraphrase that shares almost no wording scores
-0.09. **The metric reliably ranks the false answer ten times higher than the true one.**
+- **One inserted word flips the meaning.** It costs six points of ROUGE-L.
+- **A correct paraphrase collapses the score.** It shares almost no wording and scores 0.09.
+- **The ranking comes out backwards.** The metric ranks the false answer ten times higher than the true one.
 
 > **These metrics score how similar the wording looks. They cannot tell a true statement from a false one that uses the same words.**
 
-BERTScore fixes half of it. Row three's paraphrase is rescued; row two is not, because "available" and "not available" sit close in embedding space
-too. Negation, numbers, dates and conditions are where every similarity-based metric breaks down, and that is most of what a support answer has to get
-right.
+**BERTScore fixes half of it.**
 
-**Reach for them** where the output is templated or extractive, or where a regression test only needs to know *whether the output changed*. They also
-earn their place where the score has been measured against human judgment on real data. **Do not treat them as correctness.** A well-known guide's
-"ROUGE-L ≥ 0.40" summarization threshold reads as *"the summary is drawn from the source text"*, which is a formatting check. Where an answer key
-exists and correctness matters, later levels reach for a judge with an explicit rubric instead.
+- **Row three is rescued.** The paraphrase now counts.
+- **Row two is not.** "Available" and "not available" sit close in embedding space too.
+- **Similarity breaks on the details.** Negation, numbers, dates and conditions are where every similarity-based metric breaks down. That is most of what a support answer has to get right.
+
+**Reach for them** in three places:
+
+- **Templated or extractive output.** The answer reuses fixed or copied wording.
+- **Change detection.** A regression test only needs to know *whether the output changed*.
+- **Validated use.** The score has been measured against human judgment on real data.
+
+**Do not treat them as correctness.**
+
+- **Read thresholds as format checks.** A published guide's "ROUGE-L ≥ 0.40" summarization threshold reads as *"the summary is drawn from the source text"*. That is a formatting check.
+- **Use a judge for truth.** Where an answer key exists and correctness matters, later levels use a judge with an explicit rubric instead.
 
 ---
 
 ## 3. Treat the Judge as an Instrument, Not an Oracle
 
-Most referenceless checks work by handing the output to a second LLM and asking it to judge quality against a rubric. It is the only practical way to
-score open-ended text at scale. Treating the judge's number as ground truth is a common mistake in evaluation work.
+Most referenceless checks hand the output to a second LLM, the **judge**, and ask it to score quality against a **rubric** (a written scoring guide).
+It is the only practical way to score open-ended text at scale. Treating the judge's number as ground truth is a common mistake in evaluation work.
 
-**The same input can come back with two different scores.** A judged score is a noisy estimate. Never gate a release on a single row. Agreement
-matters more than the average. A judge that rates everything highly has a beautiful average and is useless. Watch how often it agrees with a human on
-the *same* case. **Nobody validates the validator by default.** An unvalidated judge detects *that something changed*. It cannot certify *that it is
-good*.
+- **Scores are noisy.** The same input can come back with two different scores. A judged score is an estimate. Never gate a release on a single row.
+- **Agreement beats the average.** A judge that rates everything highly has a beautiful average and is useless. Watch how often it agrees with a human on the *same* case.
+- **Nobody validates the validator by default.** An unvalidated judge detects *that something changed*. It cannot certify *that it is good*.
+- **Fluent text can fool it.** A judge can be fooled by confident, fluent, wrong text. Outcome verification covers that case. That is why layer ⑤ sits at the end of Section 1's chain.
 
-A judge can also be fooled by confident, fluent, wrong text. Outcome verification covers that case, which is why layer ⑤ sits at the end of Section
-1's chain.
+Four operational details cause further surprises:
 
-Four operational details cause most of the remaining surprises:
-
-- **Judge capability.** A weaker model gives noisier scores; the judge usually needs to be at least as capable as the system it grades.
+- **Judge capability.** A weaker model gives noisier scores. The judge usually needs to be at least as capable as the system it grades.
 - **Rubric precision.** The precision put into the rubric is the precision that comes back.
-- **Cost.** Five checks over 500 test cases is 2,500+ calls, which makes the reference-based/referenceless split a budget decision.
+- **Cost.** Five checks over 500 test cases is 2,500+ calls. That makes the reference-based/referenceless split a budget decision.
 - **Score direction.** "Hallucination" 0.9 means a *lot* of hallucination. Check direction before wiring a threshold.
 
 ---
 
 ## 4. Reach for Code Before Reaching for a Judge
 
-Every new check comes down to one question, asked twice.
-
-A **scorer** is one automatic check: it looks at a single case and answers one yes/no or numeric question about it. There are only two ways to build
-one.
+Every new check comes down to one question, asked twice. A **scorer** is one automatic check. It looks at a single case and answers one yes/no or
+numeric question about it. There are only two ways to build one.
 
 | | How it works | What it costs |
 | --- | --- | --- |
-| **Code** | An ordinary program: `if amount > 500: fail` | Nothing — free and instant |
+| **Code** | An ordinary program: `if amount > 500: fail` | Nothing. Free and instant |
 | **A judge** | A second LLM reads the case and gives a verdict | One API call, per case, per check |
 
-Every named metric in every library is one of these two, wearing a framework's naming on top. Some libraries ship a catalog of named measurements,
-others hand over a scoring function and a trace to read. Neither shape lets anyone skip this decision or Section 2's. They only change how the answer
-gets expressed.
+Every named metric in every library is one of these two, under a framework's name. Libraries come in two shapes:
+
+- **A catalog.** The library ships named measurements.
+- **A function and a trace.** The library hands over a scoring function and a **trace** (the step-by-step record of a run) to read.
+
+Neither shape skips this decision or Section 2's. They only change how the answer gets expressed.
+
+This diagram shows the two questions in the order to ask them.
 
 ```mermaid
 flowchart TD
@@ -202,31 +222,30 @@ flowchart TD
     style CODE fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
 ```
 
-**An agent needs the "path" question because it can reach a good answer through a terrible process.** Refunding money without checking anything and
-getting lucky produces a perfectly nice reply. Judge only the final answer and that never surfaces.
+- **An agent needs the "path" question.** It can reach a good answer through a terrible process. Refunding money without checking anything, and getting lucky, produces a nice reply. Judge only the final answer and that never surfaces.
+- **Some judges need the paperwork.** To decide "did this follow our refund policy?", a judge needs the policy text handed to it. It cannot fetch the policy itself. It is the same judge, with someone bringing it the paperwork first.
 
-Sometimes a judge needs information it does not have. To decide "did this follow our refund policy?", it needs the policy text handed to it, because
-it cannot go fetch it. That is the same judge with someone bringing it the paperwork first.
-
-> **The case for "code first" is reliability.** When a code-based score changes, behaviour changed. When a judged score changes, you cannot always
+> **The case for "code first" is reliability.** When a code-based score changes, behaviour changed. When a judged score changes, nobody can always
 > tell the system getting worse from the judge having a bad day.
 
-Every judge added trades some of that certainty for a measurement not otherwise available. And a judged score can never *certify* the thing it was
-used to optimize toward, because that is asking the judge to grade its own homework.
+- **Each judge costs some certainty.** It buys a measurement not otherwise available.
+- **A judged score cannot certify its own target.** If the system was optimized toward that score, asking the judge to confirm success is asking it to grade its own homework.
 
-**Once a judge is needed, make it *choose*.** Models are far better at picking between options than at generating an unanchored score:
+**Once a judge is needed, make it *choose*.** Ask it to pick between options, not to produce an unanchored score:
 
 | Ask it this | Not this | Why |
 | --- | --- | --- |
-| "Which of these two replies is better?" | "Rate this out of ten" | A bare number has no anchor and drifts between runs; the other reply *is* the anchor |
-| "Which of these four categories?" | "Describe what went wrong" | A closed set can be counted and compared; prose cannot |
+| "Which of these two replies is better?" | "Rate this out of ten" | A bare number has no anchor and drifts between runs. The other reply *is* the anchor |
+| "Which of these four categories?" | "Describe what went wrong" | A closed set can be counted and compared. Prose cannot |
 | A yes/no decision tree ("did it cite? → is the citation right?") | "Judge the overall quality" | Each step has a real right answer, and the path explains the verdict |
 
 ---
 
 ## 5. Climb the Scorer Ladder Only When Forced
 
-This is about how *sophisticated* a check needs to be. Start at the cheapest rung that answers the question, and climb only when forced.
+This is about how *sophisticated* a check needs to be. Start at the cheapest rung that answers the question. Climb only when forced.
+
+This diagram shows the four rungs, cheapest first.
 
 ```mermaid
 flowchart TD
@@ -239,29 +258,45 @@ flowchart TD
     style R4 fill:#EDE3CE,stroke:#9A6A12,color:#0E2226
 ```
 
-**Rung 2 to rung 3 changes the standard.** The evidence and the cost per call stay the same. The climb happens because a generic "is this complete?"
-rubric does not know a particular answer needs a budget breakdown and a day-by-day itinerary.
+- **Rung 2 to rung 3 changes the standard.** The evidence and the cost per call stay the same. A generic "is this complete?" rubric does not know a particular answer needs a budget breakdown and a day-by-day itinerary. That gap is why teams climb.
+- **Rung 3 to rung 4 is the expensive jump.** It changes what evidence the judge sees. Make it only when the answer is not visible in the final output. **No rubric can extract these from finished text.** The judge has to be shown the whole run:
+  - Did it take a sensible path?
+  - Did it recover from an earlier error?
+  - Did it ask permission before acting?
 
-**Rung 3 to rung 4 is the expensive jump**, because it changes what evidence the judge sees. Make it only when the answer is not visible in the final
-output. Did it take a sensible path? Did it recover from an earlier error? Did it ask permission before acting? **No rubric can extract those from
-finished text.** The judge has to be shown the whole run.
+Two overspends to avoid:
 
-**A common overspend is paying for rung 4 where rung 1 would do.** Code counts redundant calls, loops, steps and error-then-retry patterns directly.
-Paying a large-prompt judge to count duplicate tool calls is how evaluation budgets disappear. Another is rung 3 for something a plain regex would
-settle.
+- **Rung 4 where rung 1 would do.** Code counts redundant calls, loops, steps and error-then-retry patterns directly. Paying a large-prompt judge to count duplicate tool calls is how evaluation budgets disappear.
+- **Rung 3 where a regex would do.** A custom rubric for something a plain regex would settle.
 
-A judged rung costs a real call per case every time it runs, which is why judged runs worth repeating get cached and replayed rather than re-scored.
+A judged rung costs a real call per case every time it runs. Judged runs worth repeating get cached and replayed rather than re-scored.
 
 ---
 
 ## 6. Decide Where a Check Can Run Before Building It
 
-Sections 2 and 5 meet when a system goes live. Does this check need an answer key? If yes, it runs offline only. What does it cost per case? A free
-deterministic check can run on every production request. A judged one costs a call each time, so it gets sampled.
+Sections 2 and 5 meet when a system goes live. Two questions place each check:
 
-**A reference-based check skips every unlabeled production request, and a dashboard reports that as health.** 100% "skipped" is not 100% "passed", but
-it reads that way at a glance. That is why mature teams run reference-based checks in CI against a curated set and referenceless checks against
-sampled live traffic, rather than picking one and calling it done.
+- **Does it need an answer key?** If yes, it runs offline only.
+- **What does it cost per case?** A free deterministic check can run on every production request. A judged one costs a call each time. It gets sampled.
+
+This diagram shows how the two questions route a check.
+
+```mermaid
+flowchart TD
+    K{"Needs an<br/>answer key?"}
+    K -->|"Yes"| OFF["Offline only<br/>CI, curated set"]
+    K -->|"No"| C{"Cost per case?"}
+    C -->|"Free, deterministic"| ALL["Every production request"]
+    C -->|"One judge call"| SAMP["Sampled live traffic"]
+    style ALL fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
+```
+
+**A reference-based check skips every unlabeled production request, and a dashboard reports that as health.** 100% "skipped" is not 100% "passed".
+It reads that way at a glance. Setups that work run both, rather than picking one and calling it done:
+
+- **Reference-based checks** run in CI against a curated set.
+- **Referenceless checks** run against sampled live traffic.
 
 ---
 
@@ -278,9 +313,11 @@ A system-design round on evaluation scores how the problem gets broken down, acr
 | **Judgment under pressure** | Agrees with whatever's asked | Pushes back with a reason and a different plan |
 
 **The highest-signal behaviour is treating evaluation as part of the design from the start.** A piece of the system whose measurement cannot be
-described is a piece that has not finished being designed.
+described has not finished being designed.
 
 ### The eight-step spine for any "design an evaluation" question
+
+This diagram shows the eight steps. Step 8 loops back to step 2.
 
 ```mermaid
 flowchart TD
@@ -294,32 +331,28 @@ flowchart TD
     H["8 · Close the loop<br/>production monitoring finds new problems;<br/>the offline gate stops them recurring"] --> B
 ```
 
-Two lines are worth having ready when drawing this out loud.
+Have two lines ready when drawing this out loud:
 
-**"Online discovers; offline prevents recurrence."** A problem caught only by a live dashboard gets fixed once. Turned into a permanent offline test,
-it protects every release after.
-
-**"The gate is the only thing allowed to deploy."** A prompt a person wrote and a prompt a machine optimized go through the same check. Nothing skips
-it for being machine-generated. An optimized prompt deserves *more* scrutiny, since it was tuned against a metric living inside that same gate.
+- **"Online discovers; offline prevents recurrence."** A problem caught only by a live dashboard gets fixed once. Turned into a permanent offline test, it protects every release after.
+- **"The gate is the only thing allowed to deploy."** A prompt a person wrote and a prompt a machine optimized go through the same check. Nothing skips it for being machine-generated. An optimized prompt deserves *more* scrutiny. It was tuned against a metric inside that same gate.
 
 ---
 
 ## Key Takeaways
 
-- Five layers (retrieval, generation, tool mechanics, trajectory, outcome) fail differently, and mechanics, process and outcome each need checking
-  separately.
-- Whether a check needs a pre-written answer key decides where it can run, and that split cuts across the five layers rather than along them.
-- Word-overlap scores rank a negated answer above a correct paraphrase, so they measure wording, not truth.
-- A judged score is a noisy estimate; watch agreement with a human on the same case, not the average.
-- Code before a judge, because a code score that moves means behaviour moved. A judge can never certify what it was used to optimize.
-- Start at the cheapest rung that answers the question; the classic overspend is a trace-reading judge counting something code could count for free.
+- Five layers (retrieval, generation, tool mechanics, trajectory, outcome) fail differently. Mechanics, process and outcome each need their own check.
+- Whether a check needs a pre-written answer key decides where it can run. That split cuts across the five layers rather than along them.
+- Word-overlap scores rank a negated answer above a correct paraphrase. They measure wording, not truth.
+- A judged score is a noisy estimate. Watch agreement with a human on the same case, not the average.
+- Code before a judge: a code score that moves means behaviour moved. A judge can never certify what it was used to optimize.
+- Start at the cheapest rung that answers the question. The overspend to avoid is a trace-reading judge counting something code could count for free.
 
 ## Check Yourself
 
 1. An agent replies "Your refund of $45 has been issued" and the sentence is fluent, grounded and on-topic. Which layer is still unchecked, and why
-   can no judge settle it? **Outcome. A judge reads a description of the event; only the system of record reads the event.**
+   can no judge settle it? **Outcome. A judge reads a description of the event. Only the system of record reads the event.**
 2. A teammate proposes running answer-correctness checks on live production traffic. What is wrong with the plan? **Correctness needs a reference
-   written before the run. Nobody wrote one for a question that has not been asked yet, so the check silently skips every real request.**
+   written before the run. Nobody wrote one for a question that has not been asked yet. The check silently skips every real request.**
 3. ROUGE-L scores a wrong answer 0.94 and a correct paraphrase 0.09. What does that tell you about what it measures? **Wording similarity, not truth.
    One inserted negation barely moves it, and a full paraphrase collapses it.**
 4. A judge's average score is 0.93 and stable month over month. Why is that not yet evidence of quality? **A judge that rates everything highly has a
@@ -355,6 +388,9 @@ notebook cost-tag glossary, both of which described tooling rather than decompos
 - `docs/study-guide/evaluation-topic-notebook-mapping.md`: Level 0's resource table and the per-notebook cost keys, which stay in that document rather
   than being restated here.
 
-**Limitations.** This file was written by reading the repository's own material, not by running any notebook or calling any API, so producing it cost
-nothing, consistent with this project's rule against executing anything that spends money without being asked. It does not independently verify any
-vendor's documentation.
+**Limitations.** Written from the repository's own material without running any notebook or calling any API. It does not verify any vendor's
+documentation.
+
+---
+
+**Next:** [Level 1, RAG: Retrieval and Generation](01-rag-retrieval-and-generation.md)

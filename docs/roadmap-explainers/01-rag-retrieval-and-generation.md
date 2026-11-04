@@ -2,30 +2,44 @@
 
 *Evaluate retrieval and generation as two separate systems, because a generator cannot be judged on evidence it never received.*
 
-◷ 26 min · Level 1 · [Level 0](00-orientation.md) is the prerequisite. This page builds on its five-surface map and the reference-based/referenceless
+◷ 27 min read · Level 1 · [Level 0](00-orientation.md) is the prerequisite. This page builds on its five-surface map and the reference-based/referenceless
 split.
 
-A wrong answer is not evidence that the model hallucinated. If the retriever never fetched the chunk holding the fact, the generator answered
-faithfully from a context that did not contain it. The two failures want opposite fixes: chunking and reranking on one side, prompt and model on the
-other.
+A wrong answer does not prove the model hallucinated. The retriever may never have fetched the chunk holding the fact. The generator then answered
+faithfully from a context that did not contain it. The two failures want opposite fixes:
+
+- **Retrieval failure.** Fix chunking and reranking.
+- **Generation failure.** Fix the prompt and the model.
 
 > **Who this is for.** No library knowledge is assumed. Field names such as `expected_output` and `retrieval_context` appear because they are the
-> shared vocabulary of this work, and each is defined in plain words the first time it shows up. The page does not explain any particular framework's
-> API. It covers what gets measured, whichever library computes it.
+> shared vocabulary of this work. Each is defined in plain words the first time it shows up. The page does not explain any framework's API. It
+> covers what gets measured, whichever library computes it.
 
 ---
 
 ## 1. Evaluate the Two Halves Separately
 
-A RAG (Retrieval-Augmented Generation) system answers in two steps: it **retrieves** chunks from a document store, then **generates** an answer using
-those chunks as its only source of truth.
+A RAG (Retrieval-Augmented Generation) system answers in two steps. It **retrieves** chunks from a document store. Then it **generates** an answer,
+using those chunks as its only source of truth.
 
-**Every generation metric is bounded by retrieval.** Measure the generator while retrieval is broken and the number describes retrieval, not the
-generator. Score the two halves apart first.
+Terms used on this page:
 
-**And retrieval is bounded by ingestion.** A document that never reached the index (dropped by the loader, mangled by the parser or OCR, or embedded
-with a different model than the query) shows up as a retrieval failure that no retriever change can fix. Count, checksum and spot-check the index
-before tuning anything ([field guide, upstream checks](../concepts/field-guide/02-rag-retrieval.md#2-did-the-evidence-ever-reach-the-index)).
+- **Chunk**: a short passage cut from a document so it can be searched.
+- **`retrieval_context`**: the chunks that came back for one query.
+- **`actual_output`**: the answer the generator wrote.
+- **Judge**: an LLM that scores another model's output.
+- **Reference**: a correct answer a person wrote before the system ran. Its field name is `expected_output`.
+
+Two limits shape every score on this page:
+
+- **Retrieval bounds every generation metric.** Measure the generator while retrieval is broken, and the number describes retrieval instead. Score
+  the two halves apart first.
+- **Ingestion bounds retrieval.** Ingestion is the job that loads documents into the index. A document can miss the index three ways: the loader
+  dropped it, the parser or OCR mangled it, or it was embedded with a different model than the query. Each one shows up as a retrieval failure that
+  no retriever change can fix. Count, checksum and spot-check the index before tuning anything
+  ([field guide, upstream checks](../concepts/field-guide/02-rag-retrieval.md#2-did-the-evidence-ever-reach-the-index)).
+
+This diagram shows the two boxes and the field each one produces.
 
 ```mermaid
 flowchart LR
@@ -38,30 +52,51 @@ flowchart LR
     style G fill:#EDE3CE,stroke:#9A6A12
 ```
 
-Retrieval metrics (Sections 2–3) score the box on the left. Did the right chunks come back, in a good order? Generation metrics (Sections 4–5) score
-the box on the right. Given whatever *did* come back, is the answer any good? Every metric here draws from exactly one box, so a score table names the
-half to go fix.
+Each metric draws from exactly one box. A score table therefore names the half to go fix.
 
-Within each half the metrics split again on Level 0's line: does the check need a human-written **label** or **reference answer**? Sections 2 and 4
-need one; Sections 3 and, partly, 5 do not.
+- **Retrieval metrics (Sections 2–3)** score the box on the left. Did the right chunks come back, in a good order?
+- **Generation metrics (Sections 4–5)** score the box on the right. Given whatever *did* come back, is the answer any good?
 
-Sections 2, 4 and 5 reuse one toy question so the two-step failure stays visible: *"What is the time complexity of deleting a node from a binary
-search tree (BST)?"* The fact ("O(h), where h is the tree's height") either gets found or it does not. The answer either sticks to what was found or
-it does not.
+Within each half the metrics split again on Level 0's line. Does the check need a human-written **label** or **reference answer**?
+
+- **Sections 2 and 5** need one.
+- **Section 4** does not.
+- **Section 3** is split. Two of its three checks need a reference.
+
+Sections 2, 4 and 5 reuse one toy question. It keeps the two-step failure visible: *"What is the time complexity of deleting a node from a binary
+search tree (BST)?"*
+
+- **Retrieval.** The fact ("O(h), where h is the tree's height") either gets found or it does not.
+- **Generation.** The answer either sticks to what was found or it does not.
 
 ---
 
 ## 2. Count What the Retriever Found, Before Any Judge
 
-Did the retriever find the right chunks, and put them near the top? This is pure arithmetic over labelled ground truth: a query, the chunk IDs
-returned in rank order, and the IDs a human wrote down once as *actually* relevant. No judge, no key, no cost. It caps everything measured downstream.
+Did the retriever find the right chunks, and put them near the top? This check is pure arithmetic over labelled ground truth. It needs no judge and
+no API key, and it costs nothing. What it measures caps everything downstream.
 
-**The four metrics** are Precision@K (noise), Recall@K (missing evidence), MRR (Mean Reciprocal Rank: how early the first relevant hit lands) and
-nDCG@K (normalized Discounted Cumulative Gain: ranking quality when relevance is graded 0–3). Definitions and formulas are in the [field guide, retrieval with labels](../concepts/field-guide/02-rag-retrieval.md#3-retrieval-with-labels) and its
-[worked retrieval lab](../concepts/field-guide/02-rag-retrieval.md#32-four-metrics-four-questions). **nDCG's ideal ranking
-includes relevant chunks the retriever never returned**, so it stays capped below 1.0 however the retrieved chunks are reordered.
+The inputs:
+
+- **The query.**
+- **The returned chunk IDs**, in rank order.
+- **The relevant IDs**, which a human wrote down once.
+
+The four metrics:
+
+- **Precision@K** measures noise.
+- **Recall@K** measures missing evidence.
+- **MRR** (Mean Reciprocal Rank) measures how early the first relevant hit lands.
+- **nDCG@K** (normalized Discounted Cumulative Gain) measures ranking quality when relevance is graded 0–3.
+
+Definitions and formulas are in the [field guide, retrieval with labels](../concepts/field-guide/02-rag-retrieval.md#3-retrieval-with-labels) and its
+[worked retrieval lab](../concepts/field-guide/02-rag-retrieval.md#32-four-metrics-four-questions).
+
+**nDCG's ideal ranking includes relevant chunks the retriever never returned.** It stays capped below 1.0, however the retrieved chunks are reordered.
 
 ### The worked example
+
+This diagram shows what came back for the BST query, with each chunk's relevance grade.
 
 ```mermaid
 flowchart LR
@@ -78,13 +113,17 @@ flowchart LR
     style R4 fill:#D9E3DB,stroke:#2F6B4F
 ```
 
-`chunk_5` is labelled relevant, graded 3, and never returned. **Precision and MRR cannot see a chunk that never came back. Recall and nDCG can, so
-they are the only metrics that show the ceiling.**
+`chunk_5` is labelled relevant, graded 3, and never returned.
 
-At K=5, four numbers fall out. **Precision@5 = 0.40**: 2 of the 5 retrieved chunks were relevant (`chunk_1`, `chunk_2`), 3 were noise. **Recall@5 =
-0.67**: 2 of the 3 relevant chunks that exist were found, and `chunk_5` was missed entirely. **MRR = 0.50**: the first relevant chunk, `chunk_1`,
-landed at rank 2, so 1/2. **nDCG@5 = 0.51**: the graded penalty for `chunk_1` (grade 3) ranking below `chunk_3` (grade 0) is far larger than a swap
-between two similarly-graded chunks.
+- **Precision and MRR cannot see a chunk that never came back.**
+- **Recall and nDCG can.** They are the only metrics that show the ceiling.
+
+At K=5, four numbers fall out:
+
+- **Precision@5 = 0.40.** 2 of the 5 retrieved chunks were relevant (`chunk_1`, `chunk_2`). 3 were noise.
+- **Recall@5 = 0.67.** 2 of the 3 relevant chunks that exist were found. `chunk_5` was missed entirely.
+- **MRR = 0.50.** The first relevant chunk, `chunk_1`, landed at rank 2. That gives 1/2.
+- **nDCG@5 = 0.51.** `chunk_1` (grade 3) ranks below `chunk_3` (grade 0). That costs far more than a swap between two similarly-graded chunks.
 
 What happens as K moves from 1 to 5:
 
@@ -96,9 +135,11 @@ What happens as K moves from 1 to 5:
 | 4 | 0.50        | 0.67     | 0.50 | 0.51   |
 | 5 | 0.40        | 0.67     | 0.50 | 0.51   |
 
-Three shapes in that table are diagnostic. Precision is not monotonic, so a precision number quoted without its K means nothing. A flat, low MRR is a
-*ranking* problem, so reach for a reranker rather than a larger K. Recall and nDCG flatlining together means a chunk is not reachable at all. Raising
-K then buys tokens and latency and nothing else.
+Three shapes in that table are diagnostic:
+
+- **Precision is not monotonic.** A precision number quoted without its K means nothing.
+- **A flat, low MRR is a *ranking* problem.** Reach for a reranker rather than a larger K.
+- **Recall and nDCG flatline together.** A chunk is not reachable at all. Raising K then buys tokens and latency and nothing else.
 
 ### Reading the four together
 
@@ -107,42 +148,58 @@ K then buys tokens and latency and nothing else.
 | Low recall, any precision           | The answer isn't in the prompt at all     | Chunking, embedding model, hybrid search, query rewriting |
 | Good recall, low MRR                | It's in the prompt, but buried            | Reranker / cross-encoder                                  |
 | Good recall, falling precision      | K is too large for this query             | Dynamic K, or retrieve wide and rerank narrow             |
-| Good recall and MRR, low nDCG       | Ranking ignores *degrees* of usefulness | Graded labels + a ranking-aware retriever                 |
-| Everything good, answer still wrong | Retrieval is fine; the bug is downstream  | Sections 4–5's generation metrics                        |
+| Good recall and MRR, low nDCG       | Ranking ignores *degrees* of usefulness   | Graded labels and a ranking-aware retriever               |
+| Everything good, answer still wrong | Retrieval is fine. The bug is downstream  | Sections 4–5's generation metrics                         |
 
 ### When to use it, and when not to
 
-**Reach for them** on day one of any eval setup, to compare retrievers or chunk sizes repeatably, and for a CI gate that will never flake. Arithmetic
-cannot disagree with itself the way a judge can. **Don't rely on them alone** without hand-labelled relevant chunk IDs, where relevance is genuinely
-query-dependent, or where the golden set is stale. A stale set stays green while the real system drifts.
+**Reach for them** in three places:
+
+- **Day one** of any eval setup.
+- **Comparing retrievers or chunk sizes** repeatably.
+- **A CI gate that will never flake.** Arithmetic cannot disagree with itself the way a judge can.
+
+**Don't rely on them alone** in three cases:
+
+- **No hand-labelled relevant chunk IDs exist.**
+- **Relevance depends on the query.**
+- **The golden set is stale.** A stale set stays green while the real system drifts.
 
 ---
 
 ## 3. Ask a Judge Three Questions, Not One
 
-Section 2's question again (is retrieval working?), but with an LLM judge standing in for the hand-labelled IDs that don't scale to production
-traffic. Ask it three separate questions. Two of the three need a reference answer, `expected_output`, written before the system ran.
+Section 2's question again: is retrieval working? This time an LLM judge stands in for the hand-labelled IDs, which don't scale to production
+traffic. Ask it three separate questions. Two of them need `expected_output`, written before the system ran.
 
-**A retriever can fail any one of the three while passing the other two.** So all three are reported and never averaged: precision can halve while the
+**A retriever can fail any one of the three while passing the other two.** Report all three and never average them. Precision can halve while the
 average barely moves, and nobody investigates.
 
-Precision cares about **order** (are relevant chunks ranked above noise?). Recall cares about **coverage** (does the context hold everything the
-expected answer needs?). Relevancy cares about **signal-to-noise** (how much of what came back is on-topic?). Only Relevancy runs without
-`expected_output`. Definitions are in the [field guide, retrieval without labels](../concepts/field-guide/02-rag-retrieval.md#4-retrieval-without-labels); the
+| Metric | Cares about | The question it asks | Runs without `expected_output`? |
+| --- | --- | --- | --- |
+| **Contextual Precision** | **Order** | Are relevant chunks ranked above noise? | No |
+| **Contextual Recall** | **Coverage** | Does the context hold everything the expected answer needs? | No |
+| **Contextual Relevancy** | **Signal-to-noise** | How much of what came back is on-topic? | Yes |
+
+Definitions are in the [field guide, retrieval without labels](../concepts/field-guide/02-rag-retrieval.md#4-retrieval-without-labels). The
 formulas are in the [worked judged-retrieval lab](../concepts/field-guide/02-rag-retrieval.md#41-three-checks-for-three-failures).
 
-Two naming traps sit here. Contextual Precision is rank-weighted: a relevant chunk near the top counts for more, so reordering chunks moves Precision
-while leaving Relevancy untouched. Contextual Relevancy is unweighted like Section 2's Precision@K, but it is judged per statement inside each chunk
-rather than per chunk, so a verbose chunk holding one relevant sentence drags it down, and the chunker moves the score as much as the retriever does.
+Three naming traps sit here:
 
-**Context recall checks the retrieved context against `expected_output`, the reference answer, not against what the generator actually said
-(`actual_output`).** It asks "was enough fetched to *support* the full expected answer?", regardless of whether the generator used all of it.
+- **Contextual Precision is rank-weighted.** A relevant chunk near the top counts for more. Reordering chunks moves Precision and leaves Relevancy
+  untouched.
+- **Contextual Relevancy is unweighted**, like Section 2's Precision@K. But the judge rates each statement inside a chunk, not each chunk. A verbose
+  chunk holding one relevant sentence drags the score down. The chunker moves it as much as the retriever does.
+- **Context recall checks the retrieved context against `expected_output`, the reference answer.** It does not check against what the generator
+  said (`actual_output`). It asks "was enough fetched to *support* the full expected answer?", whether or not the generator used all of it.
 
 ### The judge produces verdicts; arithmetic does the scoring
 
-The judge's only job is to label each chunk (or statement) relevant/irrelevant, or each claim supported/unsupported. Everything after that is
-deterministic math. The same verdicts always produce the same score. Two judge runs can still disagree, because the *verdicts themselves* are
-non-deterministic (Level 0, Section 3).
+The judge has one job. It labels each chunk (or statement) relevant or irrelevant, or each claim supported or unsupported. Everything after that is
+deterministic math.
+
+- **Same verdicts, same score.** The arithmetic never changes.
+- **Two judge runs can still disagree.** The *verdicts themselves* are non-deterministic (Level 0, Section 3).
 
 ### One query, four retrieval outcomes
 
@@ -150,14 +207,17 @@ Question: *"What is Apache Spark used for?"*
 
 | Scenario                                          | Contextual Precision | Contextual Recall | Contextual Relevancy | What moved                            |
 | ------------------------------------------------- | -------------------- | ----------------- | -------------------- | ------------------------------------- |
-| Healthy retrieval                                 | 1.00                 | 1.00              | 0.67                 | — (baseline)                         |
+| Healthy retrieval                                 | 1.00                 | 1.00              | 0.67                 | Nothing (baseline)                    |
 | **Bad ranking** (same chunks, reordered)    | **0.58**       | 1.00              | 0.67                 | Precision alone                       |
 | **Thin coverage** (one perfect chunk only)  | 1.00                 | **0.50**    | 1.00                 | Recall alone                          |
 | **Noise dilution** (1 relevant of 4 chunks) | **0.33**       | 1.00              | **0.25**       | Relevancy, dragging Precision with it |
 
-Healthy retrieval scores only 0.67 on Relevancy, so a perfect 1.00 usually means K was set too small. Thin coverage scores 1.00 on two of three, so
-running Relevancy alone makes a real coverage gap look perfect. Relevancy and Precision fail together under noise dilution but decouple under bad
-ranking: noise ranked *above* signal is both failures at once, a reordering only one.
+What the table shows:
+
+- **Healthy retrieval scores only 0.67 on Relevancy.** A perfect 1.00 can mean K was set too small.
+- **Thin coverage scores 1.00 on two of three.** Running Relevancy alone makes a real coverage gap look perfect.
+- **Noise dilution fails Relevancy and Precision together.** Noise ranked *above* signal is both failures at once.
+- **Bad ranking fails Precision alone.** A reordering is only one failure, and the two metrics decouple.
 
 ### Deciding which of the three to run
 
@@ -176,60 +236,91 @@ flowchart TD
     style REL fill:#EDE3CE,stroke:#9A6A12
 ```
 
-Coverage is checked before ranking because there is no point tuning a reranker over a context that never contained the answer.
+Coverage is checked before ranking. There is no point tuning a reranker over a context that never contained the answer.
 
 ### The threshold trap
 
-The "thin coverage" scenario lands context recall at exactly **0.50**, which is also the most common default pass threshold.
+The "thin coverage" scenario lands context recall at exactly **0.50**. That is also DeepEval's default pass threshold.
 
-> **A score sitting exactly on its threshold is a coin toss.** The judge is non-deterministic, so one flipped claim-level verdict on a re-run flips
+> **A score sitting exactly on its threshold is a coin toss.** The judge is non-deterministic. One flipped claim-level verdict on a re-run flips
 > the whole case.
 
-Either move the threshold off where scores cluster, or re-run near-threshold cases and take a majority.
+Two fixes:
+
+- **Move the threshold** off where scores cluster.
+- **Re-run near-threshold cases** and take a majority.
 
 ### When to use it, and when not to
 
-**Reach for them** on production traffic with no labelled chunk IDs, or where the golden set misses the query shapes real users send. **Stay with
-Section 2** for a hard CI pass/fail line, for head-to-head retriever comparisons, and at volume. Three contextual metrics over 500 test cases is
-1,500+ judge calls, before generation is measured at all.
+**Reach for them** in two places:
+
+- **Production traffic** with no labelled chunk IDs.
+- **Query shapes the golden set misses**, the ones real users send.
+
+**Stay with Section 2** in three places:
+
+- **A hard CI pass/fail line.**
+- **Head-to-head retriever comparisons.**
+- **High volume.** Three contextual metrics over 500 test cases is 1,500+ judge calls, before generation is measured at all.
 
 ---
 
 ## 4. Score the Answer With No Reference, and Know What That Cannot See
 
-Given whatever *was* retrieved, is the answer any good when no human-written reference exists for the query being scored? These are the checks that
-can run against live production traffic.
+Given whatever *was* retrieved, is the answer any good? These checks work when no human-written reference exists for the query. They can run
+against live production traffic.
 
-Three checks, three reference points: **Answer relevancy** compares the answer to the `input`, **Faithfulness** to the `retrieval_context`, and
-**Hallucination** to a separately supplied, trusted `context`. Definitions are in the [field guide, checks that need no reference](../concepts/field-guide/03-rag-generation.md#3-checks-that-need-no-reference).
+Each check holds the answer up against a different thing:
+
+| Check | Compares the answer to |
+| --- | --- |
+| **Answer relevancy** | The `input`, the user's question |
+| **Faithfulness** | The `retrieval_context` |
+| **Hallucination** | A separately supplied, trusted `context` |
+
+Definitions are in the [field guide, checks that need no reference](../concepts/field-guide/03-rag-generation.md#3-checks-that-need-no-reference).
 
 > **"Referenceless" does not mean "compares against nothing."** A reference is a correct answer a person wrote *before* the system ran.
-> `retrieval_context` is not one: the pipeline produced it while answering. The mechanical test: could this metric score a brand-new query with zero
+> `retrieval_context` is not one. The pipeline produced it while answering. The mechanical test: could this metric score a brand-new query with zero
 > human preparation?
 
-In production, report two of these as **rates** a dashboard can trend: the **unsupported-claim rate** (claims no retrieved source supports ÷ all
-claims) and the **contradiction rate** (claims a source the system had contradicts ÷ all claims). The first tracks the generator inventing; the second
-tracks conflict handling, and they move for different reasons.
+In production, report two of these as **rates** a dashboard can trend:
 
-Hallucination is the partial exception. Its trusted source is human-curated, so it needs a maintained corpus: no *per-query* answer key, but not free
-either. Source material says what is *true*, not what this answer *should have said*.
+- **Unsupported-claim rate**: claims no retrieved source supports ÷ all claims. It tracks the generator inventing.
+- **Contradiction rate**: claims that a source the system had contradicts ÷ all claims. It tracks conflict handling.
 
-The judge doesn't score the answer as one blob. It decomposes first: Faithfulness and Hallucination into *claims*, Answer Relevancy into *statements*.
-The score is a ratio over those verdicts (formulas in the field guide's
-[claim decomposition section](../concepts/field-guide/03-rag-generation.md#2-claim-decomposition)). An answer can have three grounded
-*claims* and only one on-topic *statement*.
+The two rates move for different reasons.
 
-**Hallucination's score runs backwards.** A *higher* score means *more* hallucination, the opposite convention from Faithfulness and Answer Relevancy.
-Always check a new metric's score direction rather than assuming.
+**Hallucination is the partial exception.** Its trusted source is human-curated. It needs a maintained corpus: no *per-query* answer key, but not
+free either. Source material says what is *true*, not what this answer *should have said*.
+
+**The judge splits the answer up before scoring it.**
+
+- **Faithfulness and Hallucination** split it into *claims*.
+- **Answer Relevancy** splits it into *statements*.
+- **The score is a ratio** over those verdicts (formulas in the field guide's
+  [claim decomposition section](../concepts/field-guide/03-rag-generation.md#2-claim-decomposition)).
+
+An answer can have three grounded *claims* and only one on-topic *statement*.
+
+**Hallucination's score runs backwards.** A *higher* score means *more* hallucination. Faithfulness and Answer Relevancy use the opposite
+convention. Always check a new metric's score direction rather than assuming.
 
 ### Telling the three failures apart
 
-An answer can be wrong in three different ways. Only two are visible to any referenceless metric. It can be **faithful but irrelevant**: perfectly
-grounded, but answering a different question than the one asked. It can be **relevant but unfaithful**: addressing the question while inventing facts
-that aren't in the context. Or it can be **faithful to bad context**, accurately reflecting retrieved chunks that were themselves wrong.
+An answer can be wrong in three different ways. Only two are visible to any referenceless metric.
 
-**Faithfulness is defined relative to the retrieved context, so it cannot ask whether that context was true.** Neither can Answer Relevancy. Only a
-reference-based check (Section 5) can. The blind spot comes from the definition, so no tuning closes it.
+| Failure | What it looks like | Seen by referenceless metrics? |
+| --- | --- | --- |
+| **Faithful but irrelevant** | Grounded, but answers a different question than the one asked | Yes |
+| **Relevant but unfaithful** | Addresses the question while inventing facts that aren't in the context | Yes |
+| **Faithful to bad context** | Accurately reflects retrieved chunks that were themselves wrong | No |
+
+The third row is a blind spot by definition:
+
+- **Faithfulness is defined relative to the retrieved context.** It cannot ask whether that context was true.
+- **Answer Relevancy cannot ask either.**
+- **Only a reference-based check (Section 5) can.** The blind spot comes from the definition, and no tuning closes it.
 
 ```mermaid
 flowchart TD
@@ -245,44 +336,59 @@ flowchart TD
     style AC fill:#DADCD6,stroke:#3C4E51
 ```
 
-**Faithfulness and Hallucination differ in their baseline.** Faithfulness's moves with every query's retrieval; Hallucination's is a fixed curated
-corpus. Use Faithfulness to police the generator; use Hallucination against an independent trusted source, regardless of what retrieval returned. The
-side-by-side table is in [field guide, checks that need no reference](../concepts/field-guide/03-rag-generation.md#3-checks-that-need-no-reference), along with the four-way split
-of "hallucination" (unsupported, contradicted, stale, inaccessible) that tells you which team owns a failing claim.
+**Faithfulness and Hallucination differ in their baseline.**
+
+- **Faithfulness** checks against each query's retrieval, which moves every time. Use it to police the generator.
+- **Hallucination** checks against a fixed curated corpus. Use it against an independent trusted source, whatever retrieval returned.
+
+The side-by-side table is in [field guide, checks that need no reference](../concepts/field-guide/03-rag-generation.md#3-checks-that-need-no-reference).
+It also holds the four-way split of "hallucination": unsupported, contradicted, stale, inaccessible. That split names the team that owns a failing
+claim.
 
 ### When to use it, and when not to
 
-Reach for referenceless metrics to monitor production traffic where nobody writes reference answers, to catch decoding-level failures (invention,
-over-claiming, drifting off the question), or wherever volume matters, since they scale to any input at zero labelling cost. Watch two traps: semantic
-similarity standing in for correctness (Section 5), and vague `GEval` criteria (Section 6).
+**Reach for referenceless metrics** in three places:
 
-**A cheaper alternative for answer relevancy specifically.** Relevancy can also be scored with embedding cosine similarity instead of a judge call. It
-is cheaper and faster, but misses the subtler "technically similar wording, wrong answer" cases a judge would catch. Section 5 draws the same tradeoff
-out fully.
+- **Production traffic** where nobody writes reference answers.
+- **Decoding-level failures**: invention, over-claiming, drifting off the question.
+- **High volume.** They scale to any input at zero labelling cost.
+
+**Watch two traps:** semantic similarity standing in for correctness (Section 5), and vague `GEval` criteria (Section 6).
+
+**A cheaper option for answer relevancy.** Embedding cosine similarity can score relevancy with no judge call.
+
+- **Gain:** it is cheaper and faster.
+- **Loss:** it misses the subtler cases a judge would catch, where the wording is close and the answer is wrong.
+
+Section 5 draws out the same tradeoff in full.
 
 **What each metric in this level structurally cannot catch**, gathered in one place:
 
 | Metric                                                | Cannot catch                                                                                 |
 | ----------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| Contextual Precision / Recall / Relevancy (Section 3) | See Section 3's own triage table; each of the three is blind to the other two's failure mode |
-| Answer Relevancy                                      | A confidently wrong answer *to the right question*                                         |
+| Contextual Precision / Recall / Relevancy (Section 3) | See Section 3's own triage table. Each of the three is blind to the other two's failure mode |
+| Answer Relevancy                                      | A confidently wrong answer *to the right question*                                           |
 | Faithfulness                                          | Context that was itself wrong                                                                |
 | Hallucination                                         | Anything outside the one curated context you supplied                                        |
 | Answer Correctness (Section 5)                        | Any query with no written reference to check against                                         |
-| Semantic Similarity (Section 5)                       | Wrong numbers and facts; it measures topic, not truth                                        |
+| Semantic Similarity (Section 5)                       | Wrong numbers and facts. It measures topic, not truth                                        |
 
 ---
 
 ## 5. Check Correctness Against a Reference
 
-**Is the answer actually correct**, against a known-good reference? Section 4's metrics never ask, and this is the only place in Level 1 that catches
+**Is the answer actually correct**, against a known-good reference? Section 4's metrics never ask. This is the only place in Level 1 that catches
 "faithful to bad context."
 
-Answer correctness has no single off-the-shelf definition ([field guide, checks against a reference](../concepts/field-guide/03-rag-generation.md#5-checks-against-a-reference)). "Factually right" is task-specific, so the pattern is a
-`GEval`-style rubric you write (Section 6), not a metric you import. Answer Semantic Similarity is plain embedding cosine similarity, with no LLM
-judge at all. That makes it cheap, fast, and weak on a subtly wrong fact: two answers sit close in embedding space while disagreeing on the one number
-that matters. Both need `expected_output`. That is the cost side of Level 0's tradeoff: exact, but only as scalable as the reference answers can be
-kept current.
+Two metrics sit here, and both need `expected_output`:
+
+- **Answer Correctness** has no single off-the-shelf definition
+  ([field guide, checks against a reference](../concepts/field-guide/03-rag-generation.md#5-checks-against-a-reference)). "Factually right" is
+  task-specific. The pattern is a `GEval`-style rubric you write (Section 6), not a metric you import.
+- **Answer Semantic Similarity** is plain embedding cosine similarity, with no LLM judge at all. It is cheap and fast, and weak on a subtly wrong
+  fact. Two answers can sit close in embedding space while disagreeing on the one number that matters.
+
+That is the cost side of Level 0's tradeoff. Reference-based checks are exact, but only as scalable as the reference answers can be kept current.
 
 ### The same four answers, now with reference-based scores added
 
@@ -295,53 +401,76 @@ Question: *"What is the time complexity of deleting a node from a BST?"* Referen
 | Relevant but unfaithful           | 1.00             | 0.50           | 0.50             | 0.40               | 0.91                |
 | **Faithful to bad context** | **1.00**   | **1.00** | **1.00**   | **0.10**     | 0.83                |
 
-In the last row, retrieval returned a chunk claiming BST deletion is O(1), and the generator repeated it accurately.
+In the last row, retrieval returned a chunk claiming BST deletion is O(1). The generator repeated it accurately.
 
 > **Both referenceless metrics report a perfect score on an answer that is false.** Only Answer Correctness catches it, at 0.10.
 
-Semantic Similarity scores that same false answer **0.83**, because embeddings measure *topic* and "constant time" sits close to "logarithmic time".
-Pair it with a judged correctness check; never substitute it for one.
+Semantic Similarity scores that same false answer **0.83**. Embeddings measure *topic*, and an answer that says O(1) sits close to a reference that
+says O(h). Pair it with a judged correctness check. Never substitute it for one.
 
 ### Two ways to write the correctness rubric
 
-A rubric-based judge takes one of two shapes, never both at once. **`criteria`** is a one-line statement (*"determine whether actual_output is
-factually correct relative to expected_output, focusing on whether key facts match — wording may differ"*), which the judge expands into its own steps
-internally. **`evaluation_steps`** is an ordered procedure you write (*"1. list the statements in actual_output, 2. check each is relevant to input, 3.
-check each agrees with expected_output, 4. check each is grounded in retrieval_context, 5. penalize anything invented"*), weaving question, reference
-and retrieved context into one rubric. `evaluation_steps` is the more controllable of the two: the procedure is written down instead of invented per
-run.
+A rubric-based judge takes one of two shapes, never both at once:
+
+- **`criteria`** is a one-line statement. The judge expands it into its own steps internally. Example: *"determine whether actual_output is
+  factually correct relative to expected_output, focusing on whether key facts match (wording may differ)"*.
+- **`evaluation_steps`** is an ordered procedure you write. It weaves question, reference and retrieved context into one rubric. Example: *"1. list
+  the statements in actual_output, 2. check each is relevant to input, 3. check each agrees with expected_output, 4. check each is grounded in
+  retrieval_context, 5. penalize anything invented"*.
+
+`evaluation_steps` is the more controllable of the two. The procedure is written down instead of invented per run.
 
 ### When to use it, and when not to
 
-**Reach for them** where the feared failure is *wrongness* rather than *ungroundedness*: every index-corruption and stale-document case Section 4
-cannot see. Also for gating CI on a controlled test set, and for comparing prompt or model versions against a fixed reference. **Watch two traps:**
-semantic similarity standing in for correctness, and a `criteria` line too vague to say what should fail.
+**Reach for them** where the feared failure is *wrongness* rather than *ungroundedness*:
+
+- **Every index-corruption and stale-document case** Section 4 cannot see.
+- **Gating CI** on a controlled test set.
+- **Comparing prompt or model versions** against a fixed reference.
+
+**Watch two traps:** semantic similarity standing in for correctness, and a `criteria` line too vague to say what should fail.
 
 ---
 
 ## 6. Write the Rubric, or the Judge Writes It for You
 
-**For every `GEval` rubric, either the test is written down or the judge invents one per run.**
+`GEval` is a judge driven by a rubric written in plain language. Give it no written steps, and the judge invents its own test on each run.
+
+This diagram shows the two paths a rubric can take.
+
+```mermaid
+flowchart LR
+    A["One-sentence criteria"] --> B["Judge invents<br/>its own steps"]
+    B --> C["Different steps<br/>on every run"]
+    C --> D["Same answer,<br/>different scores"]
+    E["Explicit steps"] --> F["Judge follows<br/>the written procedure"]
+    F --> G["Scores that vary<br/>far less"]
+
+    style G fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
+```
 
 | You give the judge                                                                                                             | What happens                                                                                       | Result                                                  |
 | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| One sentence: *"check the answer is accurate"*                                                                               | The judge has to invent its own evaluation steps, and invents slightly different ones on every run | The same answer gets different scores on different runs |
-| Explicit steps: *"1. every figure appears in the context, 2. it answers the question asked, 3. no advice beyond the policy"* | The judge follows the procedure you wrote                                                          | The same answer gets the same score every time          |
+| One sentence: *"check the answer is accurate"*                                                                                 | The judge has to invent its own evaluation steps, and invents slightly different ones on every run | The same answer gets different scores on different runs |
+| Explicit steps: *"1. every figure appears in the context, 2. it answers the question asked, 3. no advice beyond the policy"*   | The judge follows the procedure you wrote                                                          | The same answer's score varies far less between runs    |
 
-Write explicit steps whenever a one-liner won't pin down what should fail. Steps also check several things in one pass (relevance, agreement with a
-reference, grounding) instead of three separate metrics.
+How to use it:
 
-**A vague rubric never errors.** The numbers wobble from run to run with nothing pointing at the rubric as the cause, so it fails as noise. **If the
-rubric's author cannot say precisely what would make an answer fail, neither can the judge.**
+- **Write explicit steps** whenever a one-liner won't pin down what should fail.
+- **Let one rubric check several things.** Steps cover relevance, agreement with a reference and grounding in one pass, instead of three separate
+  metrics.
+- **Expect no error from a vague rubric.** The numbers wobble from run to run, and nothing points at the rubric as the cause. It fails as noise.
+- **List what should make an answer fail**, then write one step for each.
 
-Hand a human grader "mark this fairly" instead of a marking scheme and five graders return five different grades, every one individually defensible.
+Human graders behave the same way. Give five of them "mark this fairly" instead of a marking scheme, and they return five different grades. Each
+grade is defensible on its own.
 
 ---
 
 ## 7. Gate the Pipeline, Don't Only Score It Afterwards
 
-Sections 2–5 all score output after the fact. Context relevance and faithfulness can instead run inside the pipeline, gating generation on bad
-retrieval before a user ever sees the answer.
+Sections 2–5 all score output after the fact. Context relevance and faithfulness can instead run inside the pipeline. There they gate generation on
+bad retrieval before a user sees the answer.
 
 ```mermaid
 flowchart LR
@@ -353,25 +482,33 @@ flowchart LR
     style CF fill:#EDE3CE,stroke:#9A6A12
 ```
 
-**A score computed after generation can only describe the answer; a score computed before it can change the answer.** The relevance check runs
-*before* generation, so a real system can branch on it, asking a clarifying question instead of generating a plausible answer from noise. Building the
-same two checks from raw judge calls also shows what a packaged context-relevance score is doing underneath.
+**Timing decides what a score can do.**
 
-The worked example retrieves three chunks for the BST question, one deliberately off-topic (a fact about Python lists). The mock judge flags it
-`irrelevant` and filters it out *before* generation runs. The answer scores **Faithfulness 1.00**. Only supporting chunks ever reached the generator,
-so it had nothing to hallucinate from.
+- **After generation**, a score can only describe the answer.
+- **Before generation**, a score can change the answer. A real system can branch on the relevance check. It can ask a clarifying question instead
+  of generating a plausible answer from noise.
+
+Building the same two checks from raw judge calls also shows what a packaged context-relevance score does underneath.
+
+The worked example:
+
+- **Three chunks** come back for the BST question. One is deliberately off-topic, a fact about Python lists.
+- **The mock judge** flags it `irrelevant` and filters it out *before* generation runs.
+- **The answer scores Faithfulness 1.00.** Only supporting chunks reached the generator. It had nothing to hallucinate from.
 
 > **Prototype against mocked judges first.** Same graph, byte-identical output, zero cost. Debug the pipeline's *shape* before a real judge is
 > involved.
 
-Swapping in live judges is where non-determinism appears: the same graph run twice can extract slightly different claims. Hence a temperature of zero,
-and tracking judge agreement itself rather than trusting a single pass.
+Live judges bring non-determinism. The same graph run twice can extract slightly different claims. Two habits follow:
+
+- **Set the temperature to zero.**
+- **Track judge agreement itself** rather than trusting a single pass.
 
 ---
 
 ## 8. Build the System and Synthesize Its Golden Set
 
-Sections 2–6 used hand-constructed test cases and Section 7 used fixture data in a toy graph. The capstone does the real thing:
+Sections 2–6 used hand-constructed test cases. Section 7 used fixture data in a toy graph. The capstone does the real thing:
 
 ```mermaid
 flowchart TD
@@ -388,85 +525,123 @@ flowchart TD
     style TC fill:#D9E3DB,stroke:#2F6B4F
 ```
 
-**Hand-writing reference answers doesn't scale past a handful of examples.** A synthesizer generates question/expected-answer pairs directly from the
-documents instead, evolved along chosen dimensions such as requiring multi-step reasoning or information from more than one chunk. That yields a
-labelled eval set with no reference answer written by hand. Spot-check the output anyway, since a generated question is only as good as the process
-that produced it.
+**Hand-writing reference answers doesn't scale past a handful of examples.** A synthesizer generates question and expected-answer pairs straight
+from the documents instead.
+
+- **It evolves them along chosen dimensions**, such as needing multi-step reasoning or information from more than one chunk.
+- **The result is a labelled eval set** with no reference answer written by hand.
+- **Spot-check the output anyway.** A generated question is only as good as the process that produced it.
 
 > **Build each test case by running the live retriever, not by reusing the source document.** That is the difference between testing the deployed
 > pipeline and testing whether the generator writes well given hand-picked perfect context.
 
-Run the whole suite (retrieval and generation, reference-based and referenceless) over every golden question. The result is an aggregate table: mean,
-min and max per metric. That is how a RAG quality report gets read.
+Run the whole suite over every golden question: retrieval and generation, reference-based and referenceless. The result is an aggregate table of
+mean, min and max per metric. That is how a RAG quality report gets read.
 
 ### The batch pattern
 
-**A hand-built test case teaches what a metric does. It says nothing about the system.** Turning one scored example into a real evaluation is always
-the same shape:
+**A hand-built test case teaches what a metric does. It says nothing about the system.** Turning one scored example into a real evaluation takes
+the same steps each time.
 
-> dataset of inputs → call the **live** system once per row → score the real response → write the score back beside its input
+This diagram shows the loop, one row at a time.
 
-A parametrized test runner is the simplest way to run it. Read the questions from a file, call the live system once per row, score the response, write
-the score back beside its question, and assert a floor. One eval row becomes one test, so the runner is both batch engine and pass/fail reporter, with
-no separate harness loop to maintain. Because each score lands next to the input that produced it, a bad number is one click from its cause.
+```mermaid
+flowchart LR
+    D["Dataset of inputs"] --> S["Call the live system<br/>once per row"]
+    S --> SC["Score the<br/>real response"]
+    SC --> W["Write the score back<br/>beside its input"]
+    W --> F["Assert a floor"]
+
+    style S fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
+```
+
+A parametrized test runner is one simple way to run it. It reads the questions from a file and runs the loop above.
+
+- **One eval row becomes one test.** The runner is both batch engine and pass/fail reporter. There is no separate harness loop to maintain.
+- **Each score lands next to the input that produced it.** A bad number is one click from its cause.
 
 ---
 
 ## 9. Read the Table by Pattern, Not by Headline
 
-Read a table of per-metric scores by pattern. Low Contextual Precision with everything else high is a ranking problem (Section 3). Low Faithfulness
-with high Contextual Relevancy is the generator inventing despite good retrieval (Section 4).
+Read a table of per-metric scores by pattern:
 
-**An 85% average with one category at zero and an 85% average spread evenly are two different systems reporting one number.** Slice by query category,
-tenant, intent or document type before concluding the system is fine.
+- **Low Contextual Precision, everything else high**: a ranking problem (Section 3).
+- **Low Faithfulness with high Contextual Relevancy**: the generator invents despite good retrieval (Section 4).
+
+**Two systems can report the same 85% average.** One has a category at zero. The other spreads the 85% evenly. Slice by query category, tenant,
+intent or document type before concluding the system is fine.
 
 ---
 
 ## 10. Run Retrieval as an Operation, Not a One-Off Score
 
-Sections 2–9 score a retriever at one moment. In production the corpus changes underneath it every day, and a retriever that passed last month can
-fail today with no code change at all. Four habits keep the numbers honest over time.
+Sections 2–9 score a retriever at one moment. In production the corpus changes underneath it every day. A retriever that passed last month can fail
+today with no code change at all. Four habits keep the numbers honest over time.
 
-**Freshness is measurable.** Section 4's "faithful to bad context" is most often *stale* context, and staleness has three tests:
+**Measure freshness.** Stale context is one cause of Section 4's "faithful to bad context". Staleness has three tests:
 
 | Test                           | What it measures                                                                                    | Fails when                                                                                        |
 | ------------------------------ | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| **Time-to-index**        | Time from a source document changing to the new version being retrievable from the serving index    | It exceeds the freshness target set per corpus; a pricing page and an archive need different ones |
-| **Effective-date cases** | Golden cases whose right answer depends on which version of a document was in force on a given date | The answer cites the superseded version, or blends old and new                                    |
-| **Stale-source refusal** | Cases where the only matching source is expired or archived                                         | The system answers from it without saying it is out of date                                       |
+| **Time-to-index**              | Time from a source document changing to the new version being retrievable from the serving index    | It exceeds the freshness target set per corpus. A pricing page and an archive need different ones |
+| **Effective-date cases**       | Golden cases whose right answer depends on which version of a document was in force on a given date | The answer cites the superseded version, or blends old and new                                    |
+| **Stale-source refusal**       | Cases where the only matching source is expired or archived                                         | The system answers from it without saying it is out of date                                       |
 
-**Diff a document sync before promoting the index.** Compare the incoming batch with what is live: documents added, removed and changed,
-near-duplicates of existing chunks, and new pages that contradict old ones. Promote only after the diff is reviewed, so a bad sync is caught as a
-change rather than discovered later as a quality drop.
+**Diff a document sync before promoting the index.** Compare the incoming batch with what is live:
 
-**Version the retriever like a model.** Record the chunking strategy, embedding model, index build, reranker and access-filter version with every eval
-run and every production trace. Without that record a score change cannot be attributed. A prompt version gets pinned for the same reason, and the
-retriever is the half of the system that changes most often.
+- **Documents** added, removed and changed.
+- **Near-duplicates** of existing chunks.
+- **New pages** that contradict old ones.
 
-**Watch retrieval-health metrics beside the quality scores.** They are cheap, mostly deterministic, and each one points at a single component:
+Promote only after the diff is reviewed. A bad sync is then caught as a change, not discovered later as a quality drop.
+
+This diagram shows the sync gate.
+
+```mermaid
+flowchart LR
+    B["Incoming<br/>document batch"] --> D["Diff against<br/>the live index"]
+    L["Live index"] --> D
+    D --> R{"Diff reviewed?"}
+    R -->|no| H["Hold the sync"]
+    R -->|yes| P["Promote<br/>the new index"]
+
+    style R fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
+```
+
+**Version the retriever like a model.** Record these with every eval run and every production trace:
+
+- **Chunking strategy.**
+- **Embedding model.**
+- **Index build.**
+- **Reranker.**
+- **Access-filter version.**
+
+Without that record, a score change cannot be attributed. A prompt version gets pinned for the same reason. The retriever needs the same record.
+
+**Watch retrieval-health metrics beside the quality scores.** They are cheap and mostly deterministic. Each one points at a single component:
 
 | Metric                                                      | What it tells you                                                                                                                                                                                                    |
 | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Access-filter pass rate**                           | Share of retrievals whose results all sit inside the user's permissions. Anything under 100% is a security defect, not a quality dip                                                                                 |
-| **Embedding freshness**                               | Share of indexed vectors built from the current version of their document. Falls when re-embedding lags behind edits                                                                                                 |
-| **Duplicate-chunk rate**                              | How often near-identical chunks take several top-K slots and crowd out distinct evidence, usually an ingestion bug                                                                                                   |
-| **Query-rewrite impact**                              | Recall@K for the rewritten query against the user's original. A rewrite that lowers recall is changing the user's intent                                                                                             |
-| **Reranker delta**                                    | Rank of the relevant chunk (or MRR) before and after reranking. A negative delta means the reranker is optimising the wrong signal                                                                                   |
-| **Similarity-threshold drop rate and no-result rate** | How often a query loses candidates to the similarity cutoff, and how often it returns nothing. A rising no-result rate after a re-embed or threshold change is a retrieval outage that quality scores only see later |
-| **Retriever comparison per query class**              | Recall@K for dense, lexical and hybrid retrieval, split by query class (codes and IDs, natural questions, multilingual). Lexical usually wins on exact identifiers; an average hides that                            |
-| **Metadata-filter health**                            | Null rate of each filter field against the source system, and recall with versus without the tenant/region/version filter. A filter that silently drops the right document looks like a retrieval miss               |
+| **Access-filter pass rate**                                 | Share of retrievals whose results all sit inside the user's permissions. Anything under 100% is a security defect, not a quality dip                                                                                 |
+| **Embedding freshness**                                     | Share of indexed vectors built from the current version of their document. Falls when re-embedding lags behind edits                                                                                                 |
+| **Duplicate-chunk rate**                                    | How often near-identical chunks take several top-K slots and crowd out distinct evidence. A sign of an ingestion bug                                                                                                 |
+| **Query-rewrite impact**                                    | Recall@K for the rewritten query against the user's original. A rewrite that lowers recall is changing the user's intent                                                                                             |
+| **Reranker delta**                                          | Rank of the relevant chunk (or MRR) before and after reranking. A negative delta means the reranker is optimising the wrong signal                                                                                   |
+| **Similarity-threshold drop rate and no-result rate**       | How often a query loses candidates to the similarity cutoff, and how often it returns nothing. A rising no-result rate after a re-embed or threshold change is a retrieval outage that quality scores only see later |
+| **Retriever comparison per query class**                    | Recall@K for dense, lexical and hybrid retrieval, split by query class (codes and IDs, natural questions, multilingual). Lexical can win on exact identifiers. An average hides that                                 |
+| **Metadata-filter health**                                  | Null rate of each filter field against the source system, and recall with versus without the tenant/region/version filter. A filter that silently drops the right document looks like a retrieval miss               |
 
 ---
 
 ## 11. Rehearse the Decomposition Questions
 
-Sections 1–10 answered the conceptual questions. These are the follow-ups that arrive once an interviewer has a score table on screen. Each is a
-decomposition problem in a dashboard's clothing: name the layer that failed, then name the evidence that would prove it.
+Sections 1–10 answered the conceptual questions. These follow-ups arrive once an interviewer has a score table on screen. Each answer names the
+layer that failed, then the evidence that would prove it.
 
 **"Leadership wants one number for retrieval quality on an exec dashboard. What do you put there, and what do you say about the request?"**
 
-Recall@K, with precision@K and MRR one click away. Then say out loud that a healthy recall figure is perfectly compatible with the right chunk sitting
-at rank 8 under noise. One number cannot carry a two-failure system, so the dashboard carries the ceiling and links to the diagnosis.
+Recall@K, with precision@K and MRR one click away. Then say out loud that a healthy recall figure is compatible with the right chunk sitting at rank
+8 under noise. One number cannot carry a two-failure system. The dashboard carries the ceiling and links to the diagnosis.
 
 **"Context precision drops from 0.91 to 0.62 after a release. Coverage and relevance are unchanged. What shipped?"**
 
@@ -483,35 +658,35 @@ structural. The fix is reference-based coverage on the high-stakes slice, plus m
 
 ## Key Takeaways
 
-- Retrieval and generation are scored as two separate systems, because every generation metric is capped by what retrieval returned.
-- Deterministic retrieval metrics are arithmetic over hand-labelled IDs: free, un-flaky, and the right first CI gate, but blind to a chunk that never
-  came back unless you read Recall and nDCG.
-- The three LLM-judged retrieval metrics answer three different questions (order, coverage, signal-to-noise), and averaging them hides the one that
+- Retrieval and generation are scored as two separate systems. Every generation metric is capped by what retrieval returned.
+- Deterministic retrieval metrics are arithmetic over hand-labelled IDs. They are free, un-flaky, and the right first CI gate. Only Recall and nDCG
+  see a chunk that never came back.
+- The three LLM-judged retrieval metrics answer three different questions: order, coverage, signal-to-noise. Averaging them hides the one that
   moved.
-- Referenceless generation metrics scale to live traffic but are structurally blind to an answer that is faithful to a wrong context.
-- Only a reference-based check catches "faithful to bad context"; Semantic Similarity measures topic, not truth, and scored a false answer 0.83.
-- A rubric you did not write is a rubric the judge invents differently on every run.
-- Evaluation moved inside the pipeline can change the answer rather than only describe it.
-- Synthesizing a golden set from your own documents is what makes reference-based evaluation affordable, and a hand-built test case only ever teaches
-  the metric, so test cases must be built from live retrieval, not the source document.
-- Read the score table by pattern and slice it before concluding; an average hides a category sitting at zero.
-- A retrieval score is only good until the corpus changes: test freshness, version the retriever, and watch the health metrics that point at one
-  component each.
+- Referenceless generation metrics scale to live traffic. They are structurally blind to an answer that is faithful to a wrong context.
+- Only a reference-based check catches "faithful to bad context". Semantic Similarity measures topic, not truth, and scored a false answer 0.83.
+- With no written evaluation steps, the judge invents its own on every run, and the scores wobble.
+- Evaluation moved inside the pipeline can change the answer, not only describe it.
+- Synthesizing a golden set from the system's own documents makes reference-based evaluation affordable. A hand-built test case only teaches the
+  metric. Build test cases from live retrieval, not the source document.
+- Read the score table by pattern, and slice it before concluding. An average hides a category sitting at zero.
+- A retrieval score holds only until the corpus changes. Test freshness, version the retriever, and watch the health metrics that each point at one
+  component.
 
 ## Check Yourself
 
 1. Recall@5 is 0.67 and raising K to 20 doesn't move it. What does that tell you, and what would you *not* spend time on? **The relevant chunk isn't
-   reachable at all: a retrieval/chunking or embedding problem. Don't tune the reranker; MRR wasn't the failure.**
-2. Why can Precision@K fall as K rises while Recall@K cannot? **Precision divides by K, so adding noise dilutes it; recall divides by the fixed number
-   of relevant chunks that exist, so more retrieval can only help or tie.**
-3. Contextual Relevancy is 1.00. Why might that be bad news? **It usually means K was set too small: one perfect chunk and nothing else, which scores
+   reachable at all: a retrieval/chunking or embedding problem. Don't tune the reranker. MRR wasn't the failure.**
+2. Why can Precision@K fall as K rises while Recall@K cannot? **Precision divides by K, and adding noise dilutes it. Recall divides by the fixed
+   number of relevant chunks that exist. More retrieval can only help or tie.**
+3. Contextual Relevancy is 1.00. Why might that be bad news? **It can mean K was set too small: one perfect chunk and nothing else. That scores
    perfectly on relevancy while coverage quietly fails.**
 4. Faithfulness is 1.00 and Answer Relevancy is 1.00, and the answer is still wrong. How? **Retrieval returned a chunk that was itself wrong.
    Faithfulness is defined relative to that context, so it cannot ask whether the context was true.**
 5. Which single metric in this level would have caught question 4's failure, and what does it cost? **Answer correctness. It costs a human-written
    reference answer for every query checked.**
-6. Why is a judged score that wobbles between runs usually a rubric problem rather than a model problem? **A vague rubric makes the judge invent its
-   own evaluation steps, and it invents slightly different ones each run. A vague rubric never errors; it fails as noise.**
+6. A judged score wobbles between runs. Why look at the rubric before the model? **A vague rubric makes the judge invent its own evaluation steps,
+   and it invents slightly different ones each run. A vague rubric never errors. It fails as noise.**
 7. What does running the relevance check *before* generation buy that scoring afterwards cannot? **The ability to branch: ask a clarifying question or
    refuse, instead of generating a plausible answer from noise.**
 8. Why must capstone test cases be built from live retrieval rather than the golden set's source document? **Otherwise you are testing whether the
@@ -562,7 +737,9 @@ feature tour. The sources below name the libraries they use; that is provenance,
 - `docs/study-guide/evaluation-topic-notebook-mapping.md`: used for the resource list and cost tags (all Level 1 notebooks are tagged `key`, meaning
   they make live `OPENAI_API_KEY` calls when actually run; this file was written without running any of them).
 
-**Limitations.** This file was written by reading the repository's own notebooks, field guide, labs, and question bank, without running any notebook
-or calling any API. No cost was incurred producing it, consistent with this project's rule against executing anything that spends money without being
-asked. It does not independently verify DeepEval's, RAGAS's, or LangGraph's own upstream documentation; every description of what those libraries do
-is this repository's own characterization, not a review of the vendors' docs.
+**Limitations.** Written from the repository's own notebooks, field guide, labs and question bank without running any notebook or calling any API. It
+does not verify the upstream documentation of DeepEval, RAGAS or LangGraph. Every description of what those libraries do is this repository's own.
+
+---
+
+**Next:** [Level 2, Agents: Tools, Conversations, Trajectories, Outcomes](02-agents-tools-conversations-trajectories-outcomes.md) · **Previous:** [Level 0, Orientation: What There Is to Evaluate](00-orientation.md)

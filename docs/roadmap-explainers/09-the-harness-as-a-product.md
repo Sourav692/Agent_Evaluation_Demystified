@@ -2,32 +2,42 @@
 
 *A harness that only computes numbers is not yet a product, because nobody has agreed what the numbers must reach or who signs off on them.*
 
-◷ 30 min · Level 9 · No new metric here. This level sits *above* every metric from Levels 0–8.
+◷ 32 min read · Level 9 · No new metric here. This level sits *above* every metric from Levels 0–8.
 
-Every earlier level answered "is this number right?" This one asks whether the *system producing the number* is trustworthy, reproducible, and
-affordable to keep running.
+Every earlier level asked whether a number was right. This level asks about the *system producing the number*. Is it trustworthy? Is it
+reproducible? Is it affordable to keep running?
 
 > **Who this is for.** No library knowledge is assumed. Every technical term is defined in plain words the first time it appears.
 
-A judge that hangs for four minutes. A gate threshold nobody negotiated. A scorer that silently stops applying to half a dataset. **None of these show
-up as a wrong metric.** They show up as a suite reporting green while measuring nothing, or a bill nobody budgeted for.
+Some failures never show up as a wrong metric:
 
-Two running examples carry this level. **Lumen Cloud** is the cloud-hosting support assistant. It is where the *mechanics* get worked out: which model
-judges, how verdicts are cached, what happens when something breaks. **TelcoAssist** is the telecom agent. It is where the *discipline* gets worked
-out: deciding what "good" means, in writing, before any agent code exists.
+- **A judge that hangs** for four minutes.
+- **A gate threshold** nobody negotiated.
+- **A scorer that silently stops applying** to half a dataset.
 
-Both agents are small on purpose. The point is the harness wrapped around them, and whether it would still be worth trusting six months from now.
+They show up as a suite that reports green while it measures nothing. Or as a bill nobody budgeted for.
+
+Two running examples carry this level.
+
+| Example | What it is | What it works out |
+|---|---|---|
+| **Lumen Cloud** | The cloud-hosting support assistant | The *mechanics*: which model judges, how verdicts are cached, what happens when something breaks |
+| **TelcoAssist** | The telecom agent | The *discipline*: deciding what "good" means, in writing, before any agent code exists |
+
+Both agents are small on purpose. The subject is the harness wrapped around them. The test is whether it would still be worth trusting six months
+from now.
 
 ---
 
 ## 1. Keep the Measuring Instrument Honest
 
-**A judge is an instrument, and an instrument that behaves unpredictably is worse than useless, because it produces numbers that look fine.**
+A **judge** is the model that scores the agent's answers. Treat it as a measuring instrument. An unpredictable instrument still produces numbers that
+look fine. Nobody can tell which ones are wrong.
 
 ### Run the judge on a different model than the agent
 
-Lumen Cloud's replies are written by a small, fast, cheap model, called live every time. Judging one golden case three times with *that same model* as
-the judge produced this:
+Lumen Cloud's replies are written by a small, fast, cheap model, called live every time. One golden case was judged three times with *that same
+model* as the judge. A **golden case** is a test case with a human-written correct answer. The three calls produced this:
 
 | Call | Result | Time |
 |---|---|---|
@@ -35,14 +45,14 @@ the judge produced this:
 | 2 | ok, score 0.50 (same input, same code) | 93.0 s |
 | 3 | retry error (the run stops here) | 248.0 s |
 
-Nothing crashed and nothing was rate-limited. A raw API call at that same moment took 1.0 s. Two separate things were going wrong, and each needed its
+Nothing crashed and nothing was rate-limited. A raw API call at that same moment took 1.0 s. Two separate things were going wrong. Each needed its
 own fix.
 
-**The judge model rambled.** A small model can fall into a repetition loop when forced to answer in a strict JSON shape, and keeps generating until it
-hits its output limit. **It arrives as a 90-second wait, with no error attached.**
-
-**The library's async path hung.** Asynchronous scoring is often on by default, so every measurement runs its own event loop. An event loop is what
-wakes a paused network call back up. When it broke, the request sat there with nobody waking it. The library's own timeout never fired either.
+- **The judge model rambled.** A small model can fall into a repetition loop when forced to answer in a strict JSON shape. It keeps generating until
+  it hits its output limit. It arrives as a 90-second wait, with no error attached.
+- **The library's async path hung.** Asynchronous scoring can be on by default. Then every measurement runs its own event loop. An **event loop** is
+  what wakes a paused network call back up. When it broke, the request sat there with nothing to wake it. The library's own timeout never fired
+  either.
 
 | Change | Fixes | Measured result |
 |---|---|---|
@@ -50,15 +60,30 @@ wakes a paused network call back up. When it broke, the request sat there with n
 | Synchronous scoring | the hang | 12 of 12 cases at ~2.8 s, against 3 stalls in 12 on the async path |
 | A bounded wrapper around every judge call | whatever's left | a stuck call is killed at 60 s, retried 3 times, then fails loudly |
 
-The cheap model still writes the support replies. That is the thing being measured, and it stays cheap on purpose. The judge is picked for steadiness
-instead. It is the same trade as buying a ruler that does not bend, even if it costs a little more.
+This diagram shows the bounded wrapper from the last row.
 
-> **A failed eval run tells you something and ends; a hung one tells you nothing and never ends.** A hang does far more damage inside CI, where it
-> blocks every other pull request behind it, than inside a notebook someone is watching.
+```mermaid
+flowchart LR
+    C["Judge call"] --> W{"Finished<br/>within 60 s?"}
+    W -- "yes" --> S["Score"]
+    W -- "no" --> K["Kill the call"]
+    K --> R{"Retried<br/>3 times?"}
+    R -- "no" --> C
+    R -- "yes" --> F["Fail loudly"]
+    style F fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
+```
+
+The cheap model still writes the support replies. That is the thing being measured, and it stays cheap on purpose. The judge is picked for steadiness
+instead.
+
+> **A failed eval run tells you something and ends. A hung one tells you nothing and never ends.** A hang does far more damage inside CI than inside
+> a notebook someone is watching. In CI it blocks every other pull request behind it.
+
+**CI** (continuous integration) is the set of automated checks that run on every proposed change.
 
 ### Cache judge verdicts to make runs comparable, not to save money
 
-A single cached verdict looks like this:
+A **verdict** is the judge's score for one input. A single cached verdict looks like this:
 
 ```json
 { "metric": "argument_correctness",
@@ -67,7 +92,7 @@ A single cached verdict looks like this:
   "score": 0.0 }
 ```
 
-The filename on disk is a hash of the whole object, so the cache key moves only when the input moves. A mode setting decides what happens on a cache
+The filename on disk is a hash of the whole object. The cache key moves only when the input moves. A mode setting decides what happens on a cache
 miss.
 
 ```mermaid
@@ -79,20 +104,26 @@ flowchart TD
     Q -- "mode = record<br/>(ignores the cache entirely)" --> J2["Re-judge everything,<br/>overwrite what's cached —<br/>used after changing a rubric or judge model"]
 ```
 
-**The cache's job is to make two runs comparable.** A judge asked the same question twice will not always answer identically. A release gate reacts to
-*differences* between a baseline and a candidate. If the judge is the thing drifting, every difference becomes a false alarm. A release blocked by a
-false alarm is how teams learn to ignore the gate.
+**The cache's job is to make two runs comparable.**
+
+- **A judge is not perfectly repeatable.** Asked the same question twice, it will not always answer the same way.
+- **A release gate reacts to differences.** It compares a **baseline** (the last accepted run) with a **candidate** (the change under test).
+- **A drifting judge creates false alarms.** If the judge is the thing drifting, every difference becomes a false alarm.
+- **False alarms wear the gate down.** A release blocked by a false alarm is how teams learn to ignore the gate.
 
 *The analogy:* weighing yourself on a scale that reads slightly differently each time. You can still lose weight. You can never prove it from the
 readings alone.
 
-Not every notebook spends money. Several make no model calls at all, because they only read files earlier notebooks wrote. One file always costs
-money, on purpose: the release-gate test script. It is run deliberately, never swept up by a bare test command at the root.
+Not every notebook spends money.
+
+- **Several notebooks make no model calls at all.** They only read files that earlier notebooks wrote.
+- **One file always costs money, on purpose.** It is the release-gate test script. Someone runs it deliberately. A bare test command at the root
+  never sweeps it up.
 
 ### Build a fault switch for every check
 
-Every notebook opens with a dictionary of faults, all off by default. A "break it" section flips exactly one, so the metric meant to catch that
-failure can be watched catching it.
+Every notebook opens with a dictionary of faults, all off by default. A "break it" section flips exactly one. The reader then watches the metric
+meant to catch that failure catch it.
 
 | Fault | Breaks | Caught by |
 |---|---|---|
@@ -109,55 +140,90 @@ failure can be watched catching it.
 | Retry loop | efficiency and cost | step efficiency, and the cost ceiling |
 | Verbose prompt | cost only | the cost ceiling |
 
-**No fault raises an exception.** Every one returns a fluent, confident, wrong conversation with a normal 200 status code. **A metric nobody has
-watched fail on a deliberately broken case is a metric nobody yet trusts**, which is the entire reason the switches exist.
+**No fault raises an exception.** Every one returns a fluent, confident, wrong conversation with a normal 200 status code. The switches exist for one
+reason. **A metric nobody has watched fail on a deliberately broken case is a metric nobody yet trusts.**
 
 ### Count which guardrail rules ever decide a case
 
-A fault switch proves a *metric* can fail. A rule-based guardrail needs the same proof for every *rule*. Access policies and safety policies are
-usually lists of rules (deny if the region does not match, deny if the clearance is too low, deny by default), and a test suite can pass while one of
-those rules has never been exercised.
+A fault switch proves a *metric* can fail. A rule-based **guardrail** (a check that blocks an unsafe action) needs the same proof for every *rule*.
+Access and safety policies can be written as lists of rules:
 
-**A rule shadowed by a stricter rule never fires.** If every test case that would trip "deny outside the user's region" also trips "deny above the
-user's clearance", which runs first, the region rule never decides anything. The suite is green. The region rule could be deleted, or broken, and no
-test would notice. The fix is per-rule coverage. For each rule, log how many cases it was the *deciding* rule for, and treat zero as a gap. Then write
-a case that passes every stricter rule and fails only this one.
+- deny if the region does not match
+- deny if the clearance is too low
+- deny by default
 
-**A false alarm is a label-quality bug, not a near miss.** Sometimes a guardrail test fires, and the investigation shows the system was right and the
-test was wrong. The expected label said "must not see", but the user had been reassigned to that case since the data was written. Or a label confused
-"not relevant to this question" with "not allowed to see it". Fix the label. Add a check that the test fixtures still match current permissions.
-Record the alarm and its cause where the team can see them. **A false security alarm does more harm than no alarm**, because each one teaches the team
-to ignore the next.
+A test suite can pass while one of those rules has never been exercised.
+
+**A rule shadowed by a stricter rule never fires.** Say the clearance rule runs first. Every test case that would trip "deny outside the user's
+region" also trips "deny above the user's clearance". Then the region rule never decides anything. The suite is green. The region rule could be
+deleted, or broken, and no test would notice.
+
+This diagram shows why the region rule never gets a turn.
+
+```mermaid
+flowchart LR
+    T["Test case"] --> C{"Above the user's<br/>clearance?"}
+    C -- "yes" --> D1["Denied by the<br/>clearance rule"]
+    C -- "no" --> R{"Outside the<br/>user's region?"}
+    R -- "yes" --> D2["Denied by the<br/>region rule"]
+    R -- "no" --> N["Next rule"]
+    style D2 fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
+```
+
+The fix is **per-rule coverage**:
+
+1. **Count deciding cases.** For each rule, log how many cases it was the *deciding* rule for.
+2. **Treat zero as a gap.** A rule that never decides is unproven.
+3. **Write the missing case.** It passes every stricter rule and fails only this one.
+
+**Treat a false alarm as a label-quality bug.** Sometimes a guardrail test fires, and the investigation shows the system was right and the test was
+wrong. Two ways it happens:
+
+- **A stale label.** The expected label said "must not see", but the user had been reassigned to that case since the data was written.
+- **A confused label.** The label mixed up "not relevant to this question" with "not allowed to see it".
+
+The response has three steps:
+
+- **Fix the label.**
+- **Add a check** that the test fixtures still match current permissions.
+- **Record the alarm and its cause** where the team can see them.
+
+A false security alarm can do more harm than no alarm. Each one teaches the team to ignore the next.
 
 ---
 
 ## 2. Choose Conventions That Keep Every Number Traceable
 
-Course 03 makes an architectural choice easy to mistake for sloppiness until the reason is visible.
+Course 03 makes an architectural choice. It is easy to mistake for sloppiness until the reason is visible.
 
-**All logic lives inside the notebook.** There is no importable package and no shared source folder. When two notebooks need the same helper, each
-defines it again, on purpose. In return, any notebook opens alone, with everything that produced its numbers visible. Nothing is hidden in a file to
-go find.
+- **All logic lives inside the notebook.** There is no importable package and no shared source folder. When two notebooks need the same helper, each
+  defines it again, on purpose. In return, any notebook opens alone, with everything that produced its numbers visible. Nothing is hidden in a file
+  to go find.
+- **Notebooks hand off through files, never through imports.** One writes a trajectories file. The next reads it. Nothing passes as an object in
+  memory or a shared module.
+- **No pandas, no numpy, no scipy, no matplotlib.** Grouping is a standard-library dictionary. Statistics come from the standard library only. The
+  **bootstrap** test estimates uncertainty by resampling the results many times. Anyone who cannot write it in ten lines of plain Python
+  does not know what it is claiming.
+- **Simple, educational Python throughout.** That means dicts, lists, plain functions and loops. No clever abstractions to look up before a cell can
+  be read.
+- **Judge verdicts are cached.** A score cannot drift while nothing about the system changed.
 
-**Notebooks hand off through files, never through imports.** One writes a trajectories file; the next reads it. Nothing passes as an object in memory
-or a shared module.
+This deliberately reverses course 02, as the table shows.
 
-**No pandas, no numpy, no scipy, no matplotlib.** Grouping is a standard-library dictionary. Statistics come from the standard library only, because
-if you cannot write the bootstrap resampling test in ten lines of plain Python, you do not know what it is claiming.
+| | Course 02 | Course 03 |
+|---|---|---|
+| Code | Shares mutable modules and reuses names defined in an earlier phase | Redefines each helper in every notebook that needs it |
+| Order | Order-dependent | Any notebook opens on its own |
+| Matches | A production codebase | A course to dip into out of order |
 
-**Simple, educational Python throughout**, meaning dicts, lists, plain functions and loops. No clever abstractions to look up before a cell can be
-read. And judge verdicts are cached, so a score cannot drift while nothing about the system changed.
-
-This deliberately reverses course 02, which shares mutable modules and reuses names defined in an earlier phase. That makes course 02 order-dependent.
-Any course-03 notebook opens on its own. **Neither convention is universally more correct.** Shared state matches a production codebase. Duplication
-matches a course to dip into out of order. Make the choice deliberately and state it.
+**Neither convention is universally more correct.** Make the choice deliberately and state it.
 
 ---
 
 ## 3. Decide "Good" Before the Code Exists
 
-A strategy worksheet is deliberately code-light. Its only job is forcing every evaluation decision *before* a line of the agent's code exists. Writing
-the strategy after the agent already looks like it works is how the standard anti-patterns happen.
+A **strategy worksheet** is deliberately code-light. Its only job is forcing every evaluation decision *before* a line of the agent's code exists.
+Writing the strategy after the agent already looks like it works is how the standard anti-patterns happen.
 
 | Anti-pattern | How skipping strategy causes it |
 |---|---|
@@ -168,8 +234,9 @@ the strategy after the agent already looks like it works is how the standard ant
 
 ### Write the agent as a contract, not yet code
 
-The spec is a plain dictionary, deliberately not a class, so it reads as a specification for what gets built next. TelcoAssist answers plan, billing
-and troubleshooting questions from an internal knowledge base. It has tools for account lookup, network status, and, with consent, opening a ticket.
+The spec is a plain dictionary, deliberately not a class. It reads as a specification for what gets built next. TelcoAssist answers plan, billing
+and troubleshooting questions from an internal knowledge base. It has tools for account lookup and network status. With consent, it can also open a
+ticket.
 
 | Tool | Type | What it does |
 |---|---|---|
@@ -182,40 +249,54 @@ and troubleshooting questions from an internal knowledge base. It has tools for 
 
 ### Align on what to evaluate before any scorer exists
 
+A **dimension** is one quality the agent gets scored on. The worksheet ranks each one before any scorer exists.
+
 | Dimension | Priority | Rationale |
 |---|---|---|
 | Safety | must-have | Table stakes, always on, non-negotiable |
 | Correctness | must-have | The knowledge base is controlled, so ground-truth facts are cheap to write |
-| Groundedness | must-have | This is a RAG agent, so an ungrounded answer is the likeliest real failure |
+| Groundedness | must-have | This is a RAG agent, and an ungrounded answer is a likely real failure |
 | Relevance | must-have | Catches an answer grounded in a *retrieved* document that doesn't address the question |
 | Domain guidelines | must-have | Never give financial or legal advice beyond the facts on file |
 | Tool-call correctness | must-have | Did it look up the account only when the question needed account data? |
-| Conciseness / tone | nice-to-have | Matters for a real product; not blocking for a teaching agent |
+| Conciseness / tone | nice-to-have | Matters for a real product, but not blocking for a teaching agent |
 
 **"Must-have" and "blocking" are two different axes, on purpose.** A dimension can matter without being a ship-blocker.
 
-Domain guidelines is also where regulated-advice risk lives. A question that drifts into medical or legal territory, such as *"can I cancel my
-contract while I'm in hospital?"*, needs the factual answer *plus* a caveat that this is not legal or medical advice, and a pointer to someone who can
-give it. The check runs both ways. The caveat appears when the question calls for it, and does not get bolted onto every billing answer. Level 8's
-attack classes do not name regulated advice as a surface of its own, so here it is a guideline the judge scores.
+Domain guidelines is also where regulated-advice risk lives. Take *"can I cancel my contract while I'm in hospital?"*. The question drifts into
+medical or legal territory. The answer needs three parts:
+
+- **The factual answer.**
+- **A caveat** that this is not legal or medical advice.
+- **A pointer** to someone who can give that advice.
+
+The check runs both ways. The caveat appears when the question calls for it. It does not get bolted onto every billing answer. Level 8's attack
+classes do not name regulated advice as a surface of its own. Here it is a guideline the judge scores.
 
 ### Leave a gap visibly empty rather than silently absent
 
-The scenario seeds cover happy-path questions, edge cases, adversarial prompts, domain questions and, originally, an empty multi-turn category,
-because the agent had no conversation memory yet.
+The **scenario seeds** are the starting categories of test cases:
 
-Leaving it visibly empty documented a scoping decision. It beat quietly having no multi-turn tests because nobody thought of them. It still was not
-enough. The empty category concealed a whole class of failure that could not even be *expressed* yet: an agent taking a write action nobody asked for,
-because consent happens *between* turns.
+- **Happy-path questions.**
+- **Edge cases.**
+- **Adversarial prompts.**
+- **Domain questions.**
+- **Multi-turn**, originally an empty category, because the agent had no conversation memory yet.
 
-> **A documented gap is better than a silent one, and still not the same as a covered one.** Writing the gap down bought honesty, and it is easy to
-> mistake that for coverage for a long time.
+Leaving it visibly empty documented a scoping decision. That beat having no multi-turn tests because nobody thought of them. It still was not
+enough. The empty category hid a whole class of failure that could not even be *expressed* yet. That failure is an agent taking a write action
+nobody asked for. It needs more than one turn, because consent happens *between* turns.
+
+> **A documented gap is better than a silent one, and still not the same as a covered one.** Writing the gap down bought honesty. That honesty is
+> easy to mistake for coverage, for a long time.
 
 ### Set the pass/fail bar before there is anything to measure
 
+A **gate** is a pass/fail threshold a release must clear. The worksheet sets every gate before there is a number to compare.
+
 | Gate | Threshold | Blocking? | Why |
 |---|---|---|---|
-| Safety | 1.00 | yes | Zero tolerance; any failure blocks ship |
+| Safety | 1.00 | yes | Zero tolerance. Any failure blocks ship |
 | Account protection | 1.00 | yes | Disclosing another customer's data is unrecoverable |
 | Approval gate | 1.00 | yes | A write nobody asked for is a trust breach, not a quality miss |
 | Groundedness | 0.90 | yes | The RAG agent's core promise |
@@ -225,20 +306,36 @@ because consent happens *between* turns.
 | Correctness | 0.85 | yes | High bar, but 100% is unrealistic given judge noise |
 | Relevance | 0.85 | yes | An on-topic but ungrounded answer is still a failure |
 | Context retention | 0.85 | yes | Re-asking what the customer already said is the most visible multi-turn failure |
-| Conciseness | 0.70 | **no** | Informational only; tracked, never blocks a release |
+| Conciseness | 0.70 | **no** | Informational only. Tracked, never blocks a release |
 
-Several were added *after* phases turned out to have scorers measuring things that gated nothing. It happened twice in the same track. Account
-protection and escalation were added once the offline-evaluation and custom-scorer phases (2–3) had scorers for both and no gate. Tool selection,
-approval gate and context retention were added for the same reason a second time, once multi-turn support existed. **Adding a scorer does not add a
-gate.** A scorer with no entry in the gates table is informational by default. It gets measured and reported, and it blocks nothing.
+Several gates were added *after* phases turned out to have scorers measuring things that gated nothing. It happened twice in the same track:
+
+- **First time.** The offline-evaluation and custom-scorer phases (2–3) had scorers for account protection and escalation, and no gate for either.
+  Both gates were added.
+- **Second time.** Tool selection, approval gate and context retention were added for the same reason, once multi-turn support existed.
+
+**Adding a scorer does not add a gate.** A scorer with no entry in the gates table is informational by default. It gets measured and reported, and it
+blocks nothing.
 
 Three of the gates resolve only on conversation runs. On a single-turn run they report "not measured", never zero. **A gate has a scope of
 applicability, exactly the way a scorer does.**
 
+This diagram shows what happens to a scorer's number on the way to a release decision.
+
+```mermaid
+flowchart TD
+    S["Scorer produces a number"] --> Q{"Entry in the<br/>gates table?"}
+    Q -- "no" --> I["Informational:<br/>measured, reported,<br/>blocks nothing"]
+    Q -- "yes" --> A{"Does the gate apply<br/>to this run?"}
+    A -- "no: a conversation gate<br/>on a single-turn run" --> N["Report: not measured"]
+    A -- "yes" --> B["Compare with the threshold,<br/>block if the gate is blocking"]
+    style I fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
+```
+
 ### Map the worksheet onto the five-step workflow
 
-OpenAI's evaluation guide describes evaluation as a five-step loop. The worksheet answers the first and third steps outright, and every later phase of
-the course 02 track answers one of the others.
+OpenAI's evaluation guide describes evaluation as a five-step loop. The worksheet answers the first and third steps outright. Every later phase of the
+course 02 track answers one of the others.
 
 | Step in the guide | Where it happens in this track |
 |---|---|
@@ -248,27 +345,33 @@ the course 02 track answers one of the others.
 | 4. Run, compare, iterate | Prompt versioning and regression detection (Phase 5) |
 | 5. Evaluate continuously, for every change | Online production monitoring (Phase 6) |
 
-Only steps 1 and 3 happen before any code, and they are the worksheet's whole job. Steps 2, 4 and 5 need a running agent, while steps 1 and 3 decide
-what that agent will be judged on.
+Only steps 1 and 3 happen before any code. They are the worksheet's whole job. Steps 2, 4 and 5 need a running agent. Steps 1 and 3 decide what that
+agent will be judged on.
 
 ### Tell a disciplined non-goal from a blind spot
 
-Two original non-goals were revised later: no multi-turn conversations, no write-capable tools. Both were written to keep the *agent* minimal. Each
-turned out to constrain the *evaluation* instead.
+A **non-goal** is something a plan says it will not do. Two original non-goals were revised later: no multi-turn conversations, and no write-capable
+tools. Both were written to keep the *agent* minimal. Each turned out to constrain the *evaluation* instead.
 
-With exactly one tool, tool-selection accuracy could not be measured. With no conversation memory, "the agent took a write action without being asked"
-could not be expressed.
+- **One tool.** With exactly one tool, tool-selection accuracy could not be measured.
+- **No memory.** With no conversation memory, "the agent took a write action without being asked" could not be expressed.
 
-The two non-goals that were *kept* (no authentication, no autonomous escalation routing) still constrain the agent without hiding any evaluation
-concept. **A non-goal that limits the agent is discipline; one that silently limits what you can measure is a blind spot**, and the difference is
-often invisible until the machinery that would reveal it already exists.
+The two non-goals that were *kept* (no authentication, no autonomous escalation routing) still constrain the agent. They hide no evaluation concept.
+
+**A non-goal that limits the agent is discipline. One that silently limits what the team can measure is a blind spot.** The difference can stay invisible
+until the machinery that would reveal it already exists.
 
 ---
 
 ## 4. Name What the Harness Still Doesn't Do
 
-The courses can compute almost every number a launch needs. They have almost none of the apparatus for agreeing what those numbers must reach, who
-signs off, or how the result gets explained to someone who never opens a notebook. That gap is what "the harness as a product" means.
+The courses can compute almost every number a launch needs. They have almost none of the apparatus for three other jobs:
+
+- **Agreeing** what those numbers must reach.
+- **Naming** who signs off.
+- **Explaining** the result to someone who never opens a notebook.
+
+That gap is what "the harness as a product" means.
 
 ### Size the dataset by deployment stage
 
@@ -279,23 +382,31 @@ signs off, or how the result gets explained to someone who never opens a noteboo
 | Production launch | 300–1,000+ | Regression testing, segmentation, controlled rollout gates |
 | Mature system | growing | Add from incidents, feedback, new documents |
 
-This repo argues from statistical detection limits instead. That is the *stronger* argument. It also means a customer asking "how many examples do you
-need?" gets no direct answer here.
+This repo argues from statistical detection limits instead (Level 5). That is the *stronger* argument. It also means a customer who asks "how many
+examples do you need?" gets no direct answer here.
 
 ### The largest gap: acceptance criteria and sign-off
 
-"Good answers" is not an acceptance criterion. A launch needs measurable thresholds and named sign-off owners. 85% of tier-1 questions answered
-correctly. An approved source cited in 95% of grounded answers. 100% pass on tenant-permission tests. Median latency under 4 seconds.
+"Good answers" is not an acceptance criterion. A launch needs measurable thresholds and named sign-off owners. Four examples:
 
-Five rules go with it. Define pass/fail metrics *before* the pilot ends. Separate launch blockers from the improvement backlog. Document residual risk
-and escalation rules. Assign named sign-off owners across business, security, data and technical. And tie metrics to customer outcomes: deflection,
-handle time, compliance evidence, adoption.
+- **Correctness.** 85% of tier-1 questions answered correctly.
+- **Citations.** An approved source cited in 95% of grounded answers.
+- **Permissions.** 100% pass on tenant-permission tests.
+- **Latency.** Median latency under 4 seconds.
+
+Five rules go with it:
+
+1. **Define pass/fail metrics** *before* the pilot ends.
+2. **Separate launch blockers** from the improvement backlog.
+3. **Document residual risk** and escalation rules.
+4. **Assign named sign-off owners** across business, security, data and technical.
+5. **Tie metrics to customer outcomes:** deflection, handle time, compliance evidence, adoption.
 
 > **No notebook or gate config in this repository records a sign-off.** The gate config holds real thresholds, chosen by engineers rather than
-> negotiated with a customer. The [acceptance-criteria template](../study-guide/evaluation-templates.md) is the document a sign-off would go on;
-> nothing in the courses fills one in yet. **A threshold nobody agreed to is an opinion with a number attached.**
+> negotiated with a customer. The [acceptance-criteria template](../study-guide/evaluation-templates.md) is the document a sign-off would go on.
+> Nothing in the courses fills one in yet. **A threshold nobody agreed to is an opinion with a number attached.**
 
-Closing this gap *reframes* work that already exists rather than building new measurement.
+Closing this gap *reframes* work that already exists. It needs no new measurement.
 
 ### A dashboard has more than one audience
 
@@ -311,7 +422,8 @@ readers could make sense of any given table.
 
 ### The staged canary ladder
 
-A change earns full rollout one stage at a time. Every stage has a required score to advance and an explicit trigger to roll back.
+A **canary** is a release shown to a small share of traffic first. A change earns full rollout one stage at a time. Every stage has a required score
+to advance and an explicit trigger to roll back.
 
 ```mermaid
 flowchart TD
@@ -322,13 +434,17 @@ flowchart TD
     E["50% rollout<br/>need: stable cost and latency<br/>rollback on: latency or cost threshold breach"] --> F["Full rollout<br/>need: customer sign-off<br/>rollback on: critical incident, acceptance failure"]
 ```
 
-Level 7's single paired canary exists. What is missing is the *ladder*, meaning staged exposure, a per-stage gate, and the blast-radius reasoning
-deciding how far a change travels before it earns the next stage.
+Level 7's single paired canary exists. What is missing is the *ladder*:
+
+- **Staged exposure.** Traffic grows one step at a time.
+- **A per-stage gate.** Each step has its own score to clear.
+- **Blast-radius reasoning.** The **blast radius** is how many users a bad change can reach. This reasoning decides how far a change travels before
+  it earns the next stage.
 
 ### One core-metrics list, sliced four ways
 
-Four audiences need four views, and all four should draw from the same short list of numbers, so that nobody argues over whose figure is right. A
-workable core list for a RAG agent:
+Four audiences need four views. All four should draw from the same short list of numbers. Then nobody argues over whose figure is right. A workable
+core list for a RAG agent:
 
 - **Overall:** pass rate against the acceptance criteria, and regression failures against the last release.
 - **Answer quality:** correctness, groundedness, hallucination rate, citation accuracy.
@@ -338,12 +454,16 @@ workable core list for a RAG agent:
 - **Operations:** latency at p50 and p95, cost per answer, tokens per answer.
 - **Users:** explicit feedback, and production incidents traced back to an answer.
 
-**Every number carries four tags: workflow, document category, prompt version and model version.** Workflow shows *where* users are blocked. Document
-category shows whether failures cluster in one kind of source, such as scanned contracts or a recently migrated wiki. Prompt version and model version
-tie a change in any metric to the change that caused it.
+**Every number carries four tags: workflow, document category, prompt version and model version.**
 
-The tags have to be written when the score is recorded, not added later. A score stored without its prompt version can never be sliced by prompt
-version. A result that cannot be sliced reproduces the problem from Level 5: an average that hides the failing segment.
+| Tag | What it shows |
+|---|---|
+| Workflow | *Where* users are blocked |
+| Document category | Whether failures cluster in one kind of source, such as scanned contracts or a recently migrated wiki |
+| Prompt version and model version | Which change caused a change in any metric |
+
+Write the tags when the score is recorded. They cannot be added later. A score stored without its prompt version can never be sliced by prompt
+version. A result that cannot be sliced brings back the problem from Level 5: an average that hides the failing segment.
 
 ### Explain the result to someone who never opens a notebook
 
@@ -361,10 +481,16 @@ NEXT        Fix refund-policy retrieval this sprint, re-run the suite, report th
 ASK         Confirm that 90% is still the bar, and who signs off.
 ```
 
-**Never promise 100%.** No suite can show that a generative system will never be wrong, and a promise of perfection turns the first visible failure
-into a broken commitment. Promise the controls instead: the thresholds, the escalation rules, human review on high-risk cases, and how fast a failure
-gets detected and rolled back. Readiness against a target, named risks and dated next actions is also the scorecard template's layout ([evaluation
-templates](../study-guide/evaluation-templates.md)), so the summary and the detail never drift apart.
+**Never promise 100%.** No suite can show that a generative system will never be wrong. A promise of perfection turns the first visible failure into
+a broken commitment. Promise the controls instead:
+
+- **The thresholds.**
+- **The escalation rules.**
+- **Human review** on high-risk cases.
+- **Detection and rollback speed:** how fast a failure gets detected and rolled back.
+
+Readiness against a target, named risks and dated next actions is also the scorecard template's layout ([evaluation
+templates](../study-guide/evaluation-templates.md)). The summary and the detail never drift apart.
 
 ---
 
@@ -377,36 +503,45 @@ templates](../study-guide/evaluation-templates.md)), so the summary and the deta
                                ×  every single change
 ```
 
-**It is a recurring per-change cost, not a one-off**, and that reframe is most of the answer.
+**It is a recurring per-change cost, not a one-off.** That reframe is most of the answer.
 
 | Lever | Why it saves |
 |---|---|
 | Push work down the cost ladder | If a rule can decide it, a judge should never see it. Rules are free *and* reproducible |
-| Split the suite by purpose | A cheap fast set on every change; the expensive full set only before a release |
+| Split the suite by purpose | A cheap fast set on every change, and the expensive full set only before a release |
 | Cheaper judge for informational metrics | Save the strong model for the blocking gates |
-| Sample online, never offline | Offline coverage should be total; production traffic need not be |
+| Sample online, never offline | Offline coverage should be total. Production traffic need not be |
 | Smoke-test before the full run | A typo in a rubric is cheaper to find on 3 cases than on 500 |
 
-In many suites, a third to a half of the checks are rule-decidable. Moving them out of the judge cuts the bill and makes those checks perfectly
-reproducible as a side effect.
+In many suites, a third to a half of the checks are rule-decidable. Moving them out of the judge cuts the bill. As a side effect, it makes those
+checks perfectly reproducible.
 
-**A cost that often goes unbudgeted is maintaining ground truth.** Labels go stale as the product changes, and somebody has to own re-labelling. That
-line item can quietly kill an evaluation programme. The API bill is visible and survivable; the labelling debt is neither. *The analogy:* everyone
-budgets for building the gym. Nobody budgets for cleaning it, and that decides whether it is still open next year.
+**A cost that often goes unbudgeted is maintaining ground truth.** Labels go stale as the product changes. Somebody has to own re-labelling. That line
+item can quietly kill an evaluation programme. The API bill is visible and survivable. The labelling debt is neither.
 
-A concrete bill makes the same point. A system modelled at 2 calls × 3,000 tokens per request actually ran at 5 calls × 9,600 tokens. Nobody chose a
-pricier model. The agent took more steps than modelled (two redundant calls plus one blind retry), and each step carried more context.
+*The analogy:* everyone budgets for building the gym. Nobody budgets for cleaning it, and that decides whether it is still open next year.
+
+A concrete bill makes the same point. Nobody chose a pricier model.
+
+| | Modelled | Actual run | Why |
+|---|---|---|---|
+| Calls per request | 2 calls | 5 calls | More steps than modelled: two redundant calls plus one blind retry |
+| Tokens per call | 3,000 tokens | 9,600 tokens | Each step carried more context |
 
 > **Step count usually beats model price.** An agent averaging five calls where two would do is a 2.5× problem no model swap fixes.
 
-That is where Level 2's trajectory metrics earn their keep, because redundant calls and blind retries are directly priced. Context growth is a silent
-multiplier too. Every turn appends history and every retrieval appends chunks, so tokens-per-turn is a *trend*. The average stays comfortable while
-turn 8 quietly costs four times what turn 1 did.
+Two drivers explain bills like this one:
 
-Two more levers. **Route by tier.** A cheap model handles classification, routing and extraction, and the expensive model is reserved for genuine
-reasoning. The routing decision itself has to be gated, though, because a misrouted hard query costs more than the saving. **Cache by layer.** An
-embedding cache, a retrieval cache, an exact-match response cache and a prefix cache for the system prompt are four separate decisions, each with its
-own staleness risk.
+- **Extra steps.** Level 2's trajectory metrics earn their keep here. Redundant calls and blind retries are directly priced.
+- **Context growth.** It is a silent multiplier. Every turn appends history, and every retrieval appends chunks. Tokens-per-turn is a *trend*. The
+  average stays comfortable while turn 8 quietly costs four times what turn 1 did.
+
+Two more levers:
+
+- **Route by tier.** A cheap model handles classification, routing and extraction. The expensive model is kept for genuine reasoning. The routing
+  decision itself has to be gated, though. A misrouted hard query costs more than the saving.
+- **Cache by layer.** An embedding cache, a retrieval cache, an exact-match response cache and a prefix cache for the system prompt are four separate
+  decisions. Each has its own staleness risk.
 
 > **Your eval bill is production cost too.** Deterministic scorers are free and run on 100% of traffic. Judged scorers cost one call per row per
 > metric. Trace-based judges cost one *large* call, because the whole trajectory becomes the prompt.
@@ -415,13 +550,16 @@ own staleness risk.
 
 | Who | Owns | Because |
 |---|---|---|
-| Domain experts | The standard (what counts as a good answer) | It's a business judgment; if engineers define quality, you get *measurable* quality, not *good* quality |
+| Domain experts | The standard (what counts as a good answer) | It's a business judgment. If engineers define quality, you get *measurable* quality, not *good* quality |
 | Engineers | The mechanism (instrumentation, harness, gates, pipeline) | And the obligation to keep checks meaning what they say as the system changes |
 
-An evaluation team disconnected from shipping becomes an *approval queue*. It has no context for borderline cases, delivery treats it as an obstacle,
-and the first hard deadline sets the precedent for going around it.
+An evaluation team cut off from shipping becomes an *approval queue*:
 
-> **Independence in the standard, integration in the mechanism.** Experts outside the build team define the bar; the check runs where the code
+- **It has no context** for borderline cases.
+- **Delivery treats it as an obstacle.**
+- **The first hard deadline** sets the precedent for going around it.
+
+> **Independence in the standard, integration in the mechanism.** Experts outside the build team define the bar. The check runs where the code
 > actually ships.
 
 > **Evaluation only its author understands stops being trusted the moment they leave.** Write down what each gate protects and why the bar sits where
@@ -432,31 +570,43 @@ end of the corridor just slows service.
 
 ### Is the harness itself still working, six months later?
 
-A suite is a claim about the system, and claims expire. A suite can keep running, keep reporting green, and have stopped measuring anything real
+A suite is a claim about the system, and claims expire. A suite can keep running and keep reporting green. It may have stopped measuring anything real
 months earlier. **A perfect system and a broken suite look identical on a dashboard.**
 
-Five things to watch. **Does it ever fail?** Settle it by pushing a known-bad candidate through on a schedule. **Do failures get overridden?** A
-rising override rate means the gates no longer match what the team believes. It is the earliest warning that a suite is turning decorative. **Do
-production incidents later show up as eval failures?** If they keep arriving from a direction the suite does not cover, that is coverage, not
-sensitivity. **Is the judge still agreeing with people?** Models change underneath a suite. **Has the system outgrown its checks?** New tools,
-channels or segments can silently invalidate a metric.
+Five things to watch:
 
-The trap is reading stability as health. "Metrics stay stable" is exactly what a broken scorer, an unstarted monitor and a gate wired to nothing all
-look like from outside. *The analogy:* a smoke alarm that has never gone off. Either nothing has ever burned, or the battery died in March, and the
-only way to know is to press the button.
+| Question | How to tell |
+|---|---|
+| **Does it ever fail?** | Push a known-bad candidate through on a schedule |
+| **Do failures get overridden?** | A rising override rate means the gates no longer match what the team believes. It is the earliest warning that a suite is turning decorative |
+| **Do production incidents later show up as eval failures?** | If they keep arriving from a direction the suite does not cover, that is a coverage problem, not a sensitivity problem |
+| **Is the judge still agreeing with people?** | Models change underneath a suite |
+| **Has the system outgrown its checks?** | New tools, channels or segments can silently invalidate a metric |
+
+The trap is reading stability as health. "Metrics stay stable" is exactly what three broken things look like from outside: a broken scorer, an
+unstarted monitor and a gate wired to nothing.
+
+*The analogy:* a smoke alarm that has never gone off. Either nothing has ever burned, or the battery died in March, and the only way to know is to
+press the button.
 
 ### Building a platform for eight teams, not one suite
 
-**Teams own what "good" means; the platform owns the mechanism.**
+**Teams own what "good" means. The platform owns the mechanism.**
 
-**Draw the shared line first.** Shared: tracing schema and span contracts, the scorer library, dataset storage and versioning, gate execution, the
-trace warehouse, and judge access with cost accounting. Per-team: rubrics, thresholds, domain expectations.
+**Draw the shared line first.**
 
-**The span-type contract is the platform's real API.** If teams instrument inconsistently, no shared scorer works for any of them, so instrumentation
-ships as a *library*, never a document people are trusted to follow.
+| Layer | What belongs there |
+|---|---|
+| **Shared** | Tracing schema and span contracts, the scorer library, dataset storage and versioning, gate execution, the trace warehouse, and judge access with cost accounting |
+| **Per-team** | Rubrics, thresholds, domain expectations |
 
-**Every scorer declares its own prerequisites.** Does it need expected answers? A retriever span? A tool span? Is it reference-free? That declaration
-turns Level 7's eligibility test into a lookup, instead of a discovery made in production.
+Two rules hold the shared layer together:
+
+- **The span-type contract is the platform's real API.** A **span** is one recorded step in a trace, such as a retriever call or a tool call. If
+  teams instrument inconsistently, no shared scorer works for any of them. Instrumentation ships as a *library*, never a document people are trusted
+  to follow.
+- **Every scorer declares its own prerequisites.** Does it need expected answers? A retriever span? A tool span? Is it reference-free? That
+  declaration turns Level 7's eligibility test into a lookup, instead of a discovery made in production.
 
 In a concrete run, a shared 120-row dataset mixes 60 factual rows carrying expected facts and 60 behavioural rows carrying guidelines instead:
 
@@ -470,39 +620,52 @@ THE RUN COMPLETES.  The dashboard shows two healthy-looking metrics.
 Nothing crashed. The harness caught each exception, logged it, and finished. The symptom is log noise plus a metric quietly computed over half the
 data.
 
+This diagram follows the correctness scorer through the same run.
+
+```mermaid
+flowchart LR
+    D["120 rows"] --> F["60 factual rows<br/>with expected facts"]
+    D --> B["60 behavioural rows<br/>with guidelines"]
+    F --> S["Correctness: scored"]
+    B --> E["Correctness: ERRORED"]
+    E --> X["Left out of<br/>the denominator"]
+    S --> M["Mean over 60 rows<br/>looks healthy"]
+    style X fill:#D9E3DB,stroke:#2F6B4F,color:#0E2226
+```
+
 > **An errored row vanishes from the denominator entirely, counted as neither a pass nor a fail**, and a mean silent about the rows it never saw looks
 > identical to a healthy one.
 
-**Wrap an inapplicable scorer so it returns nothing for a row it does not apply to, rather than a "skip" verdict.** Nothing correctly excludes the
-row. A skip verdict gets counted as a *non-pass*, quietly deflating the score for rows that were never applicable.
+Three fixes follow:
 
-**Normalize the output shape in one shared helper every scorer routes through.** There is rarely built-in normalization, so half the scorers break the
-first time one team's code returns a plain string instead of a dictionary.
-
-**Treat infrastructure needs as day-one constraints.** A prompt registry or a managed evaluation dataset typically needs a SQL-backed store rather
-than a file backend, from the start.
+- **Wrap an inapplicable scorer so it returns nothing for a row it does not apply to.** Do not return a "skip" verdict. Returning nothing correctly
+  excludes the row. A skip verdict gets counted as a *non-pass*. It quietly deflates the score for rows that were never applicable.
+- **Normalize the output shape in one shared helper every scorer routes through.** Built-in normalization may not exist. Without it, half the scorers
+  break the first time one team's code returns a plain string instead of a dictionary.
+- **Treat infrastructure needs as day-one constraints.** A prompt registry or a managed evaluation dataset can need a SQL-backed store rather than a
+  file backend, from the start.
 
 > *"A shared scorer library is worthless without a shared tracing contract underneath it."*
 
-The killer follow-up is worth rehearsing. *"Team 6 says your scorers don't fit their agent. How much customisation do you allow?"* Rubrics and
-thresholds are fully theirs. Span contracts and gate semantics are not negotiable, **because the moment gate semantics fork across teams, you have
-eight harnesses sharing a logo instead of a platform.**
+Rehearse the follow-up. *"Team 6 says your scorers don't fit their agent. How much customisation do you allow?"* Rubrics and thresholds are fully
+theirs. Span contracts and gate semantics are not negotiable. **The moment gate semantics fork across teams, you have eight harnesses sharing a logo
+instead of a platform.**
 
 ---
 
 ## Key Takeaways
 
-- A judge is an instrument: run it on a steadier model than the agent, make scoring synchronous, and bound every call, because a hung run tells you
-  nothing and never ends.
+- A judge is an instrument. Run it on a steadier model than the agent, make scoring synchronous, and bound every call. A hung run tells you nothing
+  and never ends.
 - Cache judge verdicts to make two runs comparable, not to save money. A drifting judge turns every difference into a false alarm.
 - A metric nobody has watched fail on a deliberately broken case is a metric nobody yet trusts.
-- Harness conventions are a deliberate choice: duplication buys a notebook you can open alone, shared modules buy a production-shaped codebase.
+- Harness conventions are a deliberate choice. Duplication buys a notebook you can open alone. Shared modules buy a production-shaped codebase.
 - Decide every dimension, threshold and dataset category before the agent exists, and keep "must-have" separate from "blocking".
-- Adding a scorer does not add a gate; a documented gap is better than a silent one and still not coverage.
-- A threshold nobody agreed to is an opinion with a number attached. Sign-off is the largest gap between a harness and a product.
-- A guardrail rule that never decides a test case is unproven, and a false alarm is a label bug that teaches people to ignore alarms.
+- Adding a scorer does not add a gate. A documented gap is better than a silent one, and still not coverage.
+- A threshold nobody agreed to is an opinion with a number attached. Sign-off is the gap between a harness and a product.
+- A guardrail rule that never decides a test case is unproven. A false alarm is a label bug that teaches people to ignore alarms.
 - Step count beats model price, and the cost nobody budgets for is maintaining ground truth.
-- An errored row vanishes from the denominator, so a metric computed over half a dataset looks exactly like a healthy one.
+- An errored row vanishes from the denominator. A metric computed over half a dataset then looks exactly like a healthy one.
 
 ## Check Yourself
 
@@ -546,6 +709,9 @@ names replaced by what each choice does.
 - `docs/study-guide/evaluation-roadmap.md`, for Level 9's topic list and goal statement.
 - `docs/study-guide/evaluation-topic-notebook-mapping.md`, for Level 9's resource table.
 
-**Limitations.** This file was written by reading the repository's own material, not by running any notebook or calling any API. No cost was incurred
-producing it, consistent with this project's rule against executing anything that spends money without being asked. The timing figures in Section 1
-are the course README's own recorded measurements, not reproduced here. It does not independently verify any vendor's documentation.
+**Limitations.** Written from the repository's own material without running any notebook or calling any API. The timing figures in Section 1 are the
+course README's own recorded measurements, not reproduced here. It does not verify any vendor's documentation.
+
+---
+
+**Next:** [Level 10, The Enterprise Harness, End to End](10-the-enterprise-harness-end-to-end.md) · **Previous:** [Level 8, Safety, Adversarial Testing, and Multi-Agent Attribution](08-safety-adversarial-and-multi-agent-attribution.md)

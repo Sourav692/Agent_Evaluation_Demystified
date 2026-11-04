@@ -14,7 +14,7 @@ Prose. Nothing here executes.
 ## concepts/
 
 - [`field-guide/`](concepts/field-guide/00-introduction.md): the field guide to course 01, an
-  introduction plus eight beginner-level parts. They cover the taxonomy, a what-breaks-where
+  introduction plus beginner-level parts 1–8. They cover the taxonomy, a what-breaks-where
   triage table, every check as what it catches and misses, LLM-as-judge failure modes, what each check looks
   like on a live system, a debugging loop and a cheat sheet. The worked lab behind each interactive lab sits inside
   the part it deepens. Tool-agnostic, with no framework APIs and nothing to run.
