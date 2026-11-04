@@ -58,7 +58,7 @@ From the outside, every failure looks the same: a user gets a bad answer. Inside
 | It contradicts what we know to be true | **Hallucination** | Index repair |
 | It faithfully repeated something false | Only **Answer Correctness** | Reference curation |
 
-- These are the most confused metrics in the entire space, because they look identical from the user's side.
+- They are easy to confuse, because they look identical from the user's side.
 - Each one gets its own section below.
 
 ## 2. Claim decomposition
@@ -69,7 +69,6 @@ The judge does not score the answer as one blob. It breaks the answer into small
 
 **Statement**: one unit of what the answer says, used to check whether it is on topic.
 
-- Think of a teacher marking an essay sentence by sentence instead of giving one mark for the whole page.
 - In the running example, *"Refunds go back to your original card"* is one claim. *"They arrive within a day"* is another.
 
 This diagram shows faithfulness scored claim by claim on the running example.
@@ -93,7 +92,7 @@ The three referenceless metrics are all ratios over these pieces:
 - **Two different splits.** Faithfulness and Answer Relevancy use different decompositions of the same text: factual claims versus statements.
 - **They can disagree.** An answer can have three grounded claims and only one on-topic statement.
 - **A separate source.** Hallucination checks a separately supplied `context`, not `retrieval_context`. That is the reason it can catch what Faithfulness cannot.
-- **Same verdicts, same score.** All three are ratios over judge verdicts. The verdicts themselves are non-deterministic, so a rerun can move the score.
+- **Ratios over sampled verdicts.** All three are ratios over judge verdicts. The verdicts themselves are non-deterministic. A rerun can move the score.
 
 ## 3. Checks that need no reference
 
@@ -110,7 +109,6 @@ These checks can run on live traffic, because both sides of each comparison come
 **Answer relevancy**: the share of the answer's statements that address the question.
 
 - It compares the answer to the `input`, the user's question, and nothing else.
-- Like a teacher asking "did you answer the question I set?" before reading for accuracy.
 - Running example: a reply that explains how to cancel a plan, when the customer asked about refunds, scores low.
 
 ### 3.2 Faithfulness
@@ -159,7 +157,7 @@ flowchart TD
 ```
 
 - `actual_output` is DeepEval's name for the answer being scored.
-- The blind spot comes from the definition, so no amount of tuning removes it. Faithfulness is defined relative to the retrieved context, so it cannot evaluate that context.
+- The blind spot comes from the definition. Faithfulness is defined relative to the retrieved context, so it cannot evaluate that context, and no amount of tuning changes that.
 
 ### 3.5 Faithfulness vs hallucination
 
@@ -171,7 +169,7 @@ People often confuse these two. Both look for invented facts, but they hold the 
 | **Changes per query?** | Yes. The baseline moves with retrieval | No. The baseline is fixed |
 | **Score direction** | Higher is better | Higher is worse |
 | **Catches** | A generator inventing things beyond what it was given | An answer that contradicts known truth, however it got there |
-| **Blind to** | Retrieved context that was itself wrong, so a wrong chunk faithfully repeated | Nothing retrieval-specific, since it never looks at retrieval. It misses anything outside your curated context |
+| **Blind to** | Retrieved context that was itself wrong: a wrong chunk, faithfully repeated, passes | Nothing retrieval-specific, since it never looks at retrieval. It misses anything outside your curated context |
 | **Needs** | Nothing extra | A maintained trusted corpus |
 | **Runs on production traffic** | Yes | Only where you have trusted context |
 | **Reach for it when** | You want to police the generator | You have independent truth and want to police the answer |
@@ -229,27 +227,26 @@ These checks compare the answer to a written reference answer.
 
 **Answer correctness**: whether the answer agrees with the reference on the facts that matter for your task.
 
-- Like marking an exam against the answer sheet, where the teacher decides which points earn marks.
-- There's rarely a generic correctness check you can drop in, and that's by design. What counts as "right" is specific to your task, so you write a rubric (section 6).
+- A generic correctness check rarely fits. What counts as "right" depends on your task, and you write that down as a rubric (section 7).
 - **Answer Correctness has no DeepEval class.** The recommended pattern is a custom `GEval` rubric.
 - **`GEval`**: DeepEval's class for a judged metric you define yourself. You write what to check, and a judge scores against it.
 - You write it in one of two styles: `criteria` (one sentence) or `evaluation_steps` (an explicit procedure).
 
 ### 5.2 Semantic similarity
 
-**Embedding**: a list of numbers that stands for a text's meaning, so texts on similar topics get nearby lists.
+**Embedding**: a list of numbers that stands for a text's meaning. Texts on similar topics get nearby lists.
 
 **Semantic similarity** (the lab calls it **Answer Semantic Similarity**): the embedding distance between the answer and the reference, scored as plain cosine similarity.
 
 - No LLM call. It is fast and cheap.
 - It measures *topical* closeness. It does not measure factual agreement.
 - Two answers can be close and disagree on the number that matters.
-- Running example: *"Refunds go to your original card"* and *"Refunds go to store credit"* are about the same topic, so they score as close.
+- Running example: *"Refunds go to your original card"* and *"Refunds go to store credit"* are about the same topic. They score as close.
 - Pair it with a judged check. Don't substitute it for one.
 
 ## 6. Worked example, four answers to one question
 
-*Interactive lab: [`03-generator-metrics.html`](../../interactive-labs/03-generator-metrics.html). Open it in a browser and change the inputs. It shows four answers to one question; the fourth scores 1.00 on both referenceless metrics while being flatly false.*
+*Interactive lab: [`03-generator-metrics.html`](../../interactive-labs/03-generator-metrics.html). Open it in a browser and change the inputs. It shows four answers to one question. The fourth scores 1.00 on both referenceless metrics while being false.*
 
 The lab uses its own question, kept verbatim so the numbers match the notebooks.
 
@@ -269,14 +266,14 @@ How to read the last row:
 - The retriever returned a chunk claiming BST deletion is O(1).
 - The generator repeated it accurately.
 - Every claim is supported by the context it was given, and the answer directly addresses the question.
-- So both referenceless metrics report a perfect score, Faithfulness 1.00 and Answer Relevancy 1.00, on an answer that is simply false.
+- Both referenceless metrics report a perfect score, Faithfulness 1.00 and Answer Relevancy 1.00, on an answer that is false.
 - No referenceless metric catches a corrupted knowledge base.
 - Hallucination (1.00, the worst score) and Correctness (0.10) both flag it, because each holds the answer against a source of truth.
 
 The Semantic Similarity column is its own warning:
 
 - It gives **0.83** to an answer that says O(1) where the truth is O(h).
-- Embeddings measure topic, and "constant time" and "logarithmic time" are topically adjacent.
+- Embeddings measure topic. Two statements about the cost of BST deletion sit close together whichever complexity they give.
 - The relevant-but-unfaithful answer still scores 0.91 on similarity.
 
 ## 7. Writing a rubric that works
@@ -285,13 +282,12 @@ The Semantic Similarity column is its own warning:
 
 - It is the marking scheme you hand a grader.
 - Hand five graders "mark this fairly" instead of a marking scheme and you get five different marks, every one of them defensible.
-
-You are either writing the test, or letting the judge write it for you.
+- An LLM judge without steps does the same thing across runs.
 
 | You give it | What happens | Result |
 | --- | --- | --- |
 | **One sentence**, "check the answer is accurate" | The judge has to invent the steps, and invents different ones each run | Same answer, different scores |
-| **Explicit steps**, "1. every figure appears in the context, 2. it answers the question asked, 3. no advice beyond the policy" | The judge follows yours | Same answer, same score |
+| **Explicit steps**, "1. every figure appears in the context, 2. it answers the question asked, 3. no advice beyond the policy" | The judge follows yours | Same answer, scores that vary far less |
 
 This diagram shows why the two kinds of rubric give different stability.
 
@@ -300,14 +296,14 @@ flowchart LR
     V["One-sentence rubric"] --> J1["Judge invents<br/>its own steps"]
     J1 --> S1["Same answer,<br/>different scores"]
     E["Explicit steps"] --> J2["Judge follows<br/>your steps"]
-    J2 --> S2["Same answer,<br/>same score"]
+    J2 --> S2["Same answer,<br/>steadier scores"]
 ```
 
 - **When to write steps.** Write them whenever a one-liner doesn't pin down what should fail.
 - **Several checks in one pass.** Steps let you check relevance, agreement with the reference and grounding at once.
 - **A vague rubric never errors.** Nothing goes red. You get numbers that wobble, with no signal saying the rubric is the cause.
-- **Specificity in, specificity out.** The specificity you put into a `GEval` rubric is the specificity you get back. One-line criteria produce one-line thinking.
-- **The test.** If you can't say what would make it fail, neither can the judge.
+- **Steps reduce variance but do not remove it.** The verdicts are still sampled (section 2). Check a new rubric on answers you have already graded, both clear passes and clear failures, before trusting its scores.
+- **Start from the failures.** List what should make an answer fail, then write one step for each.
 
 Running example, written as steps: 1. every refund rule in the reply appears in the retrieved articles, 2. it answers the refund question asked, 3. it promises nothing beyond the refund policy.
 
@@ -341,17 +337,17 @@ flowchart TD
 
 **Watch out for:**
 
-- **Semantic Similarity as a correctness proxy.** It will happily score a wrong number at 0.83. Pair it with a judged correctness check; never substitute it.
+- **Semantic Similarity as a correctness proxy.** It scores a wrong number at 0.83. Pair it with a judged correctness check. Never substitute it for one.
 - **Vague `GEval` criteria.** See section 7.
 - **Cost compounding.** Five judged metrics over 500 test cases is 2,500+ judge calls per run, before agents enter the picture.
 
 ## Key Takeaways
 
 - Three referenceless metrics have three reference points. Relevancy sees the question, Faithfulness sees the retrieved context, Hallucination sees a trusted source. None of them sees whether the retrieved context was true.
-- Faithful and wrong is a real, common state that referenceless metrics cannot see. It is the reason a mature suite runs reference-based metrics somewhere, even if only on a curated slice.
+- Faithful and wrong is a failure that referenceless metrics cannot see. It is the reason a mature suite runs reference-based metrics somewhere, even if only on a curated slice.
 - Hallucination runs inverted. Check every metric's score direction before reading it.
 - Split a failing claim into unsupported, contradicted, stale or inaccessible, because each has a different owner. Score citations claim by claim.
-- Semantic similarity measures topic. A 0.83 for a factually opposite answer is what embeddings do, so never use it alone as a correctness check.
+- Semantic similarity measures topic. It gave 0.83 to a factually opposite answer. Never use it alone as a correctness check.
 - Write the correctness rubric yourself, as explicit steps. There is no generic "is it right" class because "right" is a property of your task, not of language.
 
 ## Check Yourself
@@ -361,9 +357,9 @@ flowchart TD
 2. Between two runs, the Hallucination score goes up. Did the answers get better or worse?
    **Worse. Hallucination runs inverted: a higher score means more claims contradict the trusted context.**
 3. An answer says BST deletion is O(1) and scores 0.83 on semantic similarity against a reference that says O(h). Why so high?
-   **Semantic similarity is embedding closeness. It measures topic, and "constant time" and "logarithmic time" are topically adjacent, so it misses the factual disagreement.**
+   **Semantic similarity is embedding closeness. It measures topic. Two claims about the cost of BST deletion sit close together whichever complexity they give, and the score misses the factual disagreement.**
 4. A claim comes from a refund article that was replaced last quarter. Does faithfulness flag it, and who fixes it?
-   **No. The claim is grounded in what was retrieved, so it passes faithfulness. It is a stale claim, and index freshness owns the fix, not the model.**
+   **No. The claim is grounded in what was retrieved, and it passes faithfulness. It is a stale claim, and index freshness owns the fix, not the model.**
 5. Your correctness rubric reads "check the answer is accurate". Scores wobble across runs, but nothing errors. What is wrong?
    **The rubric is too vague, so the judge invents different steps each run. Write explicit steps that say what should fail.**
 
