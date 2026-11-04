@@ -400,7 +400,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 | | Covers |
 |---|---|
 | **Sections** | 1. Accept That Production Has No Ground Truth · 2. Score Consistency and Shape Instead of Correctness · 3. Sample the Judges, Never the Free Checks · 4. Alert on Shape, Not on Quality · 5. Drill the Alerts to Learn What They Miss · 6. Ask Whether the New Build Beats the Old One · 7. Turn Every Finding Into a Permanent Test · 8. Trace Live, and Judge the Tool's Own Output · 9. Rehearse the Online Questions · Key Takeaways · Check Yourself · References |
-| **Note** | Every check that needs an answer key dies at deployment, and it dies silently — reporting "skipped" rather than failing. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `archive/roadmap-explainers-org/`. |
+| **Note** | Every check that needs an answer key dies at deployment, and it dies silently, reporting "skipped" rather than failing. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `archive/roadmap-explainers-org/`. |
 
 ### `archive/roadmap-explainers-org/08-safety-adversarial-and-multi-agent-attribution.md` — original edition of Level 8, superseded
 
@@ -439,7 +439,7 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 | | Covers |
 |---|---|
 | **Sections** | 1. Write the Contract Before Any Code Exists (Stage ①) · 2. Build the Golden Set, and Know How It Lies (Stage ②) · 3. Score Every Layer Separately (Stage ③) · 4. Choose the Scorer, and Read the Numbers Honestly (Stage ③b) · 5. Wire the Gate Into CI (Stage ④) · 6. Measure Production Without an Answer Key (Stage ⑤) · 7. Close the Loop With Human Labels (Stage ⑥) · 8. Check That the Harness Itself Still Works · 9. Scan the Traps · 10. Build in This Order · 11. Keep the One-Page Card · Key Takeaways · Check Yourself · References |
-| **Note** | Every stage produces the artifact the next one consumes, so a skipped stage does not fail — it keeps reporting green while measuring nothing. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `archive/roadmap-explainers-org/`. |
+| **Note** | Every stage produces the artifact the next one consumes, so a skipped stage keeps reporting green while measuring nothing. In the house format: trade-off tagline, reading time, imperative headings, argument-carrying prose, key takeaways and a self-check. The original edition is kept unpublished under `archive/roadmap-explainers-org/`. |
 
 ### Folder indexes
 

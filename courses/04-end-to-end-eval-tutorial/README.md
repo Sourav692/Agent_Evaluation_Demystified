@@ -144,5 +144,5 @@ output tokens). Re-measure from LangSmith's cost tracking once the notebooks exi
 | 14 | 200 simulated traces, 10% judged | ~1 |
 | **Total** | | **≈ 30–35** |
 
-Notebooks 04–05 are the biggest lever: running both RAGAS and DeepEval on a 20-case subset, and
-one framework on the full set, roughly halves their cost.
+Notebooks 04–05 were the biggest lever, so they now run DeepEval on every case and RAGAS on a
+20-case subset only to compare the two (notebook 08 already did); the table above predates that.

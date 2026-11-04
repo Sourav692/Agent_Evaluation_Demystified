@@ -256,7 +256,7 @@ function render(){
   if(i===0){
     c.className='callout';
     c.innerHTML=`<b>Task success ✓. End-state verified ✓. Trajectory match ✓. Step-wise accuracy ${m.stepwise.toFixed(2)}.</b>
-      Two of five steps were waste — one error, one redundant lookup — so the task cost 40% more calls than it needed to.
+      Two of five steps were waste — one error, one redundant lookup — so 40% of its calls were wasted.
       Every outcome metric reports a clean pass. Recovery of ${m.recovery.toFixed(2)} is the genuinely good news here: the one error was noticed and corrected rather than retried blindly.`;
   } else if(i===3){
     c.className='callout good';
