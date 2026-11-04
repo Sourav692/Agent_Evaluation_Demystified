@@ -13,12 +13,11 @@ Prose. Nothing here executes.
 
 ## concepts/
 
-- [`rag-agent-tool-evaluation.md`](concepts/rag-agent-tool-evaluation.md) — the field
-  guide to course 01: the taxonomy, a what-breaks-where triage table, every check as
-  what-it-catches / what-it-misses / when-to-reach-for-it, LLM-as-judge failure modes, what
-  each check looks like on a live system, a debugging loop, a one-page cheat sheet, and
-  **Part 6**, the worked narrative behind each of the six interactive labs. Tool-agnostic —
-  no framework APIs, no code, nothing to run.
+- [`field-guide/`](concepts/field-guide/00-introduction.md): the field guide to course 01, an
+  introduction plus eight beginner-level parts. They cover the taxonomy, a what-breaks-where
+  triage table, every check as what it catches and misses, LLM-as-judge failure modes, what each check looks
+  like on a live system, a debugging loop and a cheat sheet. The worked lab behind each interactive lab sits inside
+  the part it deepens. Tool-agnostic, with no framework APIs and nothing to run.
 - [`databricks-mlflow-evals.md`](concepts/databricks-mlflow-evals.md) — the companion to
   course 02, in five parts: the agent under test, concepts by theme, 32 gotchas as
   symptom → cause → fix, the numbers and decision rules, and online vs offline — what each

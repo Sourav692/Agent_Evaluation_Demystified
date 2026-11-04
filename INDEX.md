@@ -8,7 +8,7 @@ Everything here is prose or notebooks. Nothing on this page executes.
 **Everything under `docs/` is also served at https://eval-demystified.vercel.app** — Vercel
 project `eval-demystified`, built from `main` by `site/build.py`, so a push to `main` updates
 the site. The rendered pages keep these section numbers; the URL slugs are the second field of
-each `RENDER` / `COPY` entry in `site/build.py` (the field guide is `field-guide.html`, the
+each `RENDER` / `COPY` entry in `site/build.py` (the field guide is `field-guide.html` and its parts `field-guide-0N-*.html`, the
 question bank `question-bank.html`, the roadmap `roadmap.html`, the drill
 `evaluation-round-drill.html`).
 
@@ -20,7 +20,7 @@ question bank `question-bank.html`, the roadmap `roadmap.html`, the drill
 
 | Short name | Is this file | What it is |
 |---|---|---|
-| **Field guide** | [`docs/concepts/rag-agent-tool-evaluation.md`](docs/concepts/rag-agent-tool-evaluation.md) | Course 01 theory. Tool-agnostic: what each check catches and misses, no framework APIs |
+| **Field guide** | [`docs/concepts/field-guide/`](docs/concepts/field-guide/00-introduction.md): an introduction plus eight parts | Course 01 theory. Tool-agnostic: what each check catches and misses, no framework APIs |
 | **Question bank** | [`docs/interview-prep/QUESTION_BANK.md`](docs/interview-prep/QUESTION_BANK.md) | 35 questions + 30 metric questions + 19 cases + appendices |
 | **Databricks ref** | [`docs/concepts/databricks-mlflow-evals.md`](docs/concepts/databricks-mlflow-evals.md) | Course 02 theory. Framework-specific: MLflow scorers, gotchas, the numbers |
 | **Drill page** | [`docs/interview-prep/evaluation-round-drill.html`](docs/interview-prep/evaluation-round-drill.html) | The self-quiz. Open in a browser |
@@ -28,57 +28,56 @@ question bank `question-bank.html`, the roadmap `roadmap.html`, the drill
 | **Cost doc** | [`docs/concepts/cost-tracking-and-guardrails.md`](docs/concepts/cost-tracking-and-guardrails.md) | The same system's cost tracking, budgets and guardrails |
 | **Online/offline** | [`docs/concepts/databricks-mlflow-evals.md`, Part 5](docs/concepts/databricks-mlflow-evals.md#part-5--online-vs-offline) | The two regimes and what flows between them; the sampling-resolution argument is in explainer 05 §6 |
 
-`§` is a section number inside that file — **§1.1** is the field guide's section 1.1, **§6.1**
-its section 6.1. Jump to the section rather than scrolling. `lab 0N-…` means
+`§` is a section number inside that file. Jump to the section rather than scrolling. `lab 0N-…` means
 [`docs/interactive-labs/`](docs/interactive-labs/)`0N-*.html`.
 
 ### Retrieval
 
 | Looking for | Go to |
 |---|---|
-| Precision@K, Recall@K, MRR, nDCG — formulas and what each catches | Field guide **§1.1**; worked through with real numbers in **§6.1** |
-| Why four metrics instead of one, and the recall plateau | Field guide **§6.1**; interactive `01-deterministic-retrieval-metrics.html` |
-| Contextual Precision / Recall / Relevancy (judged, no labels) | Field guide **§1.2**, worked in **§6.2**; lab `02-…` |
-| Which retrieval metrics need an answer key | Field guide **§0.2** |
+| Precision@K, Recall@K, MRR, nDCG — formulas and what each catches | [RAG retrieval: Retrieval with labels](docs/concepts/field-guide/02-rag-retrieval.md#3-retrieval-with-labels); worked through with real numbers in [RAG retrieval: Four metrics, four questions](docs/concepts/field-guide/02-rag-retrieval.md#32-four-metrics-four-questions) |
+| Why four metrics instead of one, and the recall plateau | [RAG retrieval: Four metrics, four questions](docs/concepts/field-guide/02-rag-retrieval.md#32-four-metrics-four-questions); interactive `01-deterministic-retrieval-metrics.html` |
+| Contextual Precision / Recall / Relevancy (judged, no labels) | [RAG retrieval: Retrieval without labels](docs/concepts/field-guide/02-rag-retrieval.md#4-retrieval-without-labels), worked in [RAG retrieval: Three checks for three failures](docs/concepts/field-guide/02-rag-retrieval.md#41-three-checks-for-three-failures); lab `02-…` |
+| Which retrieval metrics need an answer key | [The map: Question One, Does the Check Need an Answer Key?](docs/concepts/field-guide/01-the-map.md#4-question-one-does-the-check-need-an-answer-key) |
 | Retrieval metric interview questions | Question bank **§10.1**, **§10.2** |
 
 ### Generation
 
 | Looking for | Go to |
 |---|---|
-| Faithfulness, answer relevancy, hallucination (no reference needed) | Field guide **§1.3**, worked in **§6.3**; lab `03-…` |
-| Answer correctness, `GEval`, semantic similarity (reference needed) | Field guide **§1.4** |
-| Writing a rubric that doesn't produce a vague judge | Field guide **§1.5**; MLflow version in Databricks ref **Part 4** |
-| "Faithful, relevant, and completely wrong" — the failure no referenceless metric sees | Field guide **§6.3** |
+| Faithfulness, answer relevancy, hallucination (no reference needed) | [RAG generation: Checks that need no reference](docs/concepts/field-guide/03-rag-generation.md#3-checks-that-need-no-reference), worked in [RAG generation: Worked example, four answers to one question](docs/concepts/field-guide/03-rag-generation.md#6-worked-example-four-answers-to-one-question); lab `03-…` |
+| Answer correctness, `GEval`, semantic similarity (reference needed) | [RAG generation: Checks against a reference](docs/concepts/field-guide/03-rag-generation.md#5-checks-against-a-reference) |
+| Writing a rubric that doesn't produce a vague judge | [RAG generation: Writing a rubric that works](docs/concepts/field-guide/03-rag-generation.md#7-writing-a-rubric-that-works); MLflow version in Databricks ref **Part 4** |
+| "Faithful, relevant, and completely wrong" — the failure no referenceless metric sees | [RAG generation: Worked example, four answers to one question](docs/concepts/field-guide/03-rag-generation.md#6-worked-example-four-answers-to-one-question) |
 
 ### Tools, trajectory, outcome
 
 | Looking for | Go to |
 |---|---|
-| Tool selection, argument correctness, strict vs loose matching | Field guide **§2.2**, worked in **§6.4**; lab `04-…` |
-| Task completion vs tool mechanics — why both | Field guide **§2.3** |
-| The nine trace-level trajectory checks | Field guide **§3.1**, worked in **§6.5**; lab `05-…` |
-| End-state verification (reading the system of record) | Field guide **§3.1**, **§0.1b** |
-| Multi-turn conversation, and why per-turn rates multiply | Field guide **§2.1**; question bank **Q26**, **Q27** |
-| Multi-agent systems and handoff attribution | Field guide **Part 5**; question bank **Case 8** |
+| Tool selection, argument correctness, strict vs loose matching | [Conversations, tools and task completion: Tool Use](docs/concepts/field-guide/05-conversations-tools-and-task-completion.md#2-tool-use), worked in [Conversations, tools and task completion: Worked example, six traces scored three ways](docs/concepts/field-guide/05-conversations-tools-and-task-completion.md#24-worked-example-six-traces-scored-three-ways); lab `04-…` |
+| Task completion vs tool mechanics — why both | [Conversations, tools and task completion: Task Completion](docs/concepts/field-guide/05-conversations-tools-and-task-completion.md#3-task-completion) |
+| The nine trace-level trajectory checks | [Agent trajectory: The Nine Checks Table](docs/concepts/field-guide/06-agent-trajectory.md#31-the-nine-checks-table), worked in [Agent trajectory: The Worked Example, One Refund Run](docs/concepts/field-guide/06-agent-trajectory.md#2-the-worked-example-one-refund-run); lab `05-…` |
+| End-state verification (reading the system of record) | [Agent trajectory: The Nine Checks Table](docs/concepts/field-guide/06-agent-trajectory.md#31-the-nine-checks-table), [The map: What Breaks Where, the Triage Table](docs/concepts/field-guide/01-the-map.md#3-what-breaks-where-the-triage-table) |
+| Multi-turn conversation, and why per-turn rates multiply | [Conversations, tools and task completion: Multi-turn Conversations](docs/concepts/field-guide/05-conversations-tools-and-task-completion.md#1-multi-turn-conversations); question bank **Q26**, **Q27** |
+| Multi-agent systems and handoff attribution | [Production and multi-agent: Real Systems With Many Agents](docs/concepts/field-guide/07-production-and-multi-agent.md#5-real-systems-with-many-agents); question bank **Case 8** |
 
 ### Choosing and running checks
 
 | Looking for | Go to |
 |---|---|
-| **What breaks where** — one row per surface, symptom → metric → cost | Field guide **§0.1b** |
-| Reference-based vs referenceless, and why it decides offline/online | Field guide **§0.2** |
+| **What breaks where** — one row per surface, symptom → metric → cost | [The map: What Breaks Where, the Triage Table](docs/concepts/field-guide/01-the-map.md#3-what-breaks-where-the-triage-table) |
+| Reference-based vs referenceless, and why it decides offline/online | [The map: Question One, Does the Check Need an Answer Key?](docs/concepts/field-guide/01-the-map.md#4-question-one-does-the-check-need-an-answer-key) |
 | Deterministic scorer or LLM judge? | Notebook `00_Evaluation_Landscape` **§4**; drill page Stage 01 |
-| LLM-as-judge failure modes | Field guide **§0.3** |
-| Cost ladder — cheapest thing that answers the question | Field guide **§0.4** |
+| LLM-as-judge failure modes | [The map: LLM as Judge, the Failure Modes](docs/concepts/field-guide/01-the-map.md#6-llm-as-judge-the-failure-modes) |
+| Cost ladder — cheapest thing that answers the question | [The map: The Cost Ladder](docs/concepts/field-guide/01-the-map.md#7-the-cost-ladder) |
 | Which framework is for what (DeepEval / RAGAS / MLflow / Phoenix) | `docs/interactive-labs/README.md`; notebook `00_…` **§5** |
 
 ### Production and release
 
 | Looking for | Go to |
 |---|---|
-| Offline vs online, and what can never go online | Field guide **§4.1**; question bank **Q18**; online/offline **§1**, **§6** |
-| Sampling rates and alerting | Field guide **§4.2**; Databricks ref **Part 4**; online/offline **§5** (**§5.1** in plain English) |
+| Offline vs online, and what can never go online | [Production and multi-agent: Offline and Online Split Cleanly](docs/concepts/field-guide/07-production-and-multi-agent.md#1-offline-and-online-split-cleanly); question bank **Q18**; online/offline **§1**, **§6** |
+| Sampling rates and alerting | [Production and multi-agent: Sampling and Alerting](docs/concepts/field-guide/07-production-and-multi-agent.md#3-sampling-and-alerting); Databricks ref **Part 4**; online/offline **§5** (**§5.1** in plain English) |
 | Release gating — thresholds *and* no-regression | Question bank **Part 6**, **Case 13**; course 03 notebook **11** (four checks, four scenarios) |
 | A gate as a decision layer rather than another metric | Course 03 notebook **11**; `courses/03-agentic-eval-harness/ci/apply_gate.py` |
 | Stratified reporting — gating on the worst segment, not the mean | Course 03 notebooks **04** and **10** |
@@ -106,21 +105,46 @@ its section 6.1. Jump to the section rather than scrolling. `lab 0N-…` means
 
 ## 2. The documents
 
-### `docs/concepts/rag-agent-tool-evaluation.md` — Field guide (15,900 words)
+### `docs/concepts/field-guide/00-introduction.md` — Field guide (introduction + 8 parts, 28,700 words)
 
-The theory companion to course 01. Tool-agnostic on purpose: no framework APIs, no code.
-**The single best place to look up what a check catches and what it misses.**
+The theory companion to course 01, written for someone who has never evaluated an LLM system. Tool-agnostic on
+purpose: no framework APIs except where a part walks a lab. The introduction, `00-introduction.md`, links the eight
+parts in `docs/concepts/field-guide/`; each worked lab (old Part 6) sits inside the part it deepens.
+**The single best place to look up what a check catches and what it misses.** The single-page edition (until
+2026-11-04) is in `archive/rag-agent-tool-evaluation-FIELD_GUIDE-single-file.md`.
 
-| | Covers |
-|---|---|
-| **Part 0 — The Map** | 0.1 what you can evaluate · 0.1b what breaks where · 0.2 the two questions that decide everything · 0.3 LLM-as-judge failure modes · 0.4 the cost ladder · 0.5 a note on frameworks |
-| **Part 1 — RAG** | 1.1 retrieval with labels · 1.2 retrieval without labels · 1.3 generation without a reference · 1.4 generation against a reference · 1.5 writing a rubric · 1.6 evaluation inside the pipeline · 1.7 running it in batch · 1.8 golden datasets · 1.9 reading the results |
-| **Part 2 — Conversation, tools, task** | 2.1 multi-turn · 2.2 tool use · 2.3 task completion · 2.4 polite tool failure · quick lookup table |
-| **Part 3 — Trajectory** | 3.1 the nine checks · 3.2 three traps · 3.3 what each looks like on a live system |
-| **Part 4 — Production** | 4.1 offline/online split · 4.2 sampling and alerting · 4.3 what tracing adds · 4.4 two genuinely new ideas |
-| **Part 5 — Multi-agent** | Handoff quality, nested traces, attribution |
-| **Part 6 — The worked labs** | 6.1–6.5, the slow narrative version of each interactive lab, against real numbers |
-| **Quick Reference** | Debugging loop · question → measurement · one-page cheat sheet · the five that matter most |
+### `docs/concepts/field-guide/01-the-map.md` — The Map, What You Can Evaluate (5,535 words)
+
+1. The Words You Need First · 2. The Five Things You Can Evaluate · 3. What Breaks Where, the Triage Table · 4. Question One, Does the Check Need an Answer Key? · 5. Question Two, Deterministic or Judged? · 6. LLM as Judge, the Failure Modes · 7. The Cost Ladder · 8. A Note on Frameworks
+
+### `docs/concepts/field-guide/02-rag-retrieval.md` — RAG Retrieval (5,627 words)
+
+1. Where retrieval sits in the pipeline · 2. Did the evidence ever reach the index? · 3. Retrieval with labels · 4. Retrieval without labels · 5. Retrieved is not the same as seen
+
+### `docs/concepts/field-guide/03-rag-generation.md` — RAG Generation (3,471 words)
+
+1. What generation evaluation asks · 2. Claim decomposition · 3. Checks that need no reference · 4. Splitting hallucination and scoring citations · 5. Checks against a reference · 6. Worked example, four answers to one question · 7. Writing a rubric that works · 8. When to use which
+
+### `docs/concepts/field-guide/04-running-rag-evals.md` — Running RAG Evals (2,125 words)
+
+1. Evaluation Inside the Pipeline · 2. Running It in Batch · 3. Golden Datasets · 4. Reading the Results
+
+### `docs/concepts/field-guide/05-conversations-tools-and-task-completion.md` — Conversations, Tools and Task Completion (4,708 words)
+
+1. Multi-turn Conversations · 2. Tool Use · 3. Task Completion · 4. Polite Tool Failure · 5. Quick Lookup
+
+### `docs/concepts/field-guide/06-agent-trajectory.md` — Agent Trajectory (3,446 words)
+
+1. Why the Path Needs Its Own Score · 2. The Worked Example, One Refund Run · 3. The Nine Checks · 4. Four Variants Side by Side · 5. Three Checks Worth a Closer Look · 6. Three Traps · 7. What Each Check Looks Like on a Live System · 8. When to Run the Full Suite and When Not To
+
+### `docs/concepts/field-guide/07-production-and-multi-agent.md` — Production and Multi-Agent Systems (1,909 words)
+
+1. Offline and Online Split Cleanly · 2. Traces and Spans · 3. Sampling and Alerting · 4. Two Ideas That Are New Here · 5. Real Systems With Many Agents
+
+### `docs/concepts/field-guide/08-quick-reference.md` — Quick Reference (1,899 words)
+
+1. The Evaluation Debugging Loop · 2. Question to Measurement · 3. One-Page Cheat Sheet · 4. The Five That Matter Most
+
 
 ### `docs/concepts/databricks-mlflow-evals.md` — Databricks/MLflow reference (11,100 words)
 
@@ -265,7 +289,7 @@ Open in a browser. No build step, no server, no API key.
 ### The five interactive labs
 
 `docs/interactive-labs/0N-*.html` — change the inputs, watch the metrics move. The written
-version of each is field guide **Part 6**; the interview questions are question bank **Part 10**.
+version of each is the worked lab inside field guide parts [RAG retrieval](docs/concepts/field-guide/02-rag-retrieval.md), [RAG generation](docs/concepts/field-guide/03-rag-generation.md), [Conversations, tools and task completion](docs/concepts/field-guide/05-conversations-tools-and-task-completion.md) and [Agent trajectory](docs/concepts/field-guide/06-agent-trajectory.md); the interview questions are question bank **Part 10**.
 
 | Lab | The thing it shows you |
 |---|---|
@@ -460,21 +484,21 @@ that synthesises all ten into one end-to-end mental model and introduces nothing
 
 | Notebook | Covers | Theory in |
 |---|---|---|
-| `00_Evaluation_Landscape` | Taxonomy, reference-based vs referenceless, judge failure modes, **§4 code-vs-judge scorer choice**, tooling map | Field guide Part 0 |
-| `01_Retrieval_Metrics_Deterministic` | Precision@K, Recall@K, MRR, nDCG | §1.1, §6.1 |
-| `02_Retrieval_Metrics_LLM_Judged` | Contextual Precision / Recall / Relevancy | §1.2, §6.2 |
-| `03_Generator_Metrics_Referenceless` | Faithfulness, answer relevancy, hallucination | §1.3, §6.3 |
-| `04_Generator_Metrics_Reference_Based` | Answer correctness via `GEval`, semantic similarity | §1.4 |
-| `05_RAG_Eval_Inside_the_Pipeline` | Evaluation as LangGraph nodes — gates, not after-the-fact scoring | §1.6 |
-| `06_RAGAS_in_Practice` | RAGAS quickstart, multi-metric, the pytest/CI pattern | §1.7 |
-| `07_RAG_Capstone_Build_and_Evaluate` | Build a RAG system, synthesize a golden dataset, run the full suite | §1.8 |
-| `08_MultiTurn_Conversational_Evaluation` | `ConversationalGEval`, turn relevancy, knowledge retention | §2.1 |
-| `09_Tool_Use_Evaluation` | `ToolCorrectnessMetric`, `ArgumentCorrectnessMetric`, `ToolUseMetric` | §2.2, §6.4 |
-| `10_Task_Completion_Evaluation` | `TaskCompletionMetric`, custom rubrics, outcome verification | §2.3 |
-| `11_Same_Evals_with_MLflow` | The same questions via `mlflow.genai.evaluate()` over traces | Field guide Part 2 + Databricks ref |
-| `12_Agent_Trajectory_Evaluation` | The 9-metric trace-level suite on a refund-agent scenario | Part 3, §6.5 |
-| `13_Production_Grade_Agent_Eval_Overview` | Live tracing + offline experiments (Arize Phoenix) | Part 4 |
-| `14_Capstone_CrewAI_Travel_Planner_Eval` | Task completion against a real running 3-agent app | Part 5 |
+| `00_Evaluation_Landscape` | Taxonomy, reference-based vs referenceless, judge failure modes, **§4 code-vs-judge scorer choice**, tooling map | [The map](docs/concepts/field-guide/01-the-map.md) |
+| `01_Retrieval_Metrics_Deterministic` | Precision@K, Recall@K, MRR, nDCG | [RAG retrieval: Retrieval with labels](docs/concepts/field-guide/02-rag-retrieval.md#3-retrieval-with-labels), [RAG retrieval: Four metrics, four questions](docs/concepts/field-guide/02-rag-retrieval.md#32-four-metrics-four-questions) |
+| `02_Retrieval_Metrics_LLM_Judged` | Contextual Precision / Recall / Relevancy | [RAG retrieval: Retrieval without labels](docs/concepts/field-guide/02-rag-retrieval.md#4-retrieval-without-labels), [RAG retrieval: Three checks for three failures](docs/concepts/field-guide/02-rag-retrieval.md#41-three-checks-for-three-failures) |
+| `03_Generator_Metrics_Referenceless` | Faithfulness, answer relevancy, hallucination | [RAG generation: Checks that need no reference](docs/concepts/field-guide/03-rag-generation.md#3-checks-that-need-no-reference), [RAG generation: Worked example, four answers to one question](docs/concepts/field-guide/03-rag-generation.md#6-worked-example-four-answers-to-one-question) |
+| `04_Generator_Metrics_Reference_Based` | Answer correctness via `GEval`, semantic similarity | [RAG generation: Checks against a reference](docs/concepts/field-guide/03-rag-generation.md#5-checks-against-a-reference) |
+| `05_RAG_Eval_Inside_the_Pipeline` | Evaluation as LangGraph nodes — gates, not after-the-fact scoring | [Running RAG evals: Evaluation Inside the Pipeline](docs/concepts/field-guide/04-running-rag-evals.md#1-evaluation-inside-the-pipeline) |
+| `06_RAGAS_in_Practice` | RAGAS quickstart, multi-metric, the pytest/CI pattern | [Running RAG evals: Running It in Batch](docs/concepts/field-guide/04-running-rag-evals.md#2-running-it-in-batch) |
+| `07_RAG_Capstone_Build_and_Evaluate` | Build a RAG system, synthesize a golden dataset, run the full suite | [Running RAG evals: Golden Datasets](docs/concepts/field-guide/04-running-rag-evals.md#3-golden-datasets) |
+| `08_MultiTurn_Conversational_Evaluation` | `ConversationalGEval`, turn relevancy, knowledge retention | [Conversations, tools and task completion: Multi-turn Conversations](docs/concepts/field-guide/05-conversations-tools-and-task-completion.md#1-multi-turn-conversations) |
+| `09_Tool_Use_Evaluation` | `ToolCorrectnessMetric`, `ArgumentCorrectnessMetric`, `ToolUseMetric` | [Conversations, tools and task completion: Tool Use](docs/concepts/field-guide/05-conversations-tools-and-task-completion.md#2-tool-use), [Conversations, tools and task completion: Worked example, six traces scored three ways](docs/concepts/field-guide/05-conversations-tools-and-task-completion.md#24-worked-example-six-traces-scored-three-ways) |
+| `10_Task_Completion_Evaluation` | `TaskCompletionMetric`, custom rubrics, outcome verification | [Conversations, tools and task completion: Task Completion](docs/concepts/field-guide/05-conversations-tools-and-task-completion.md#3-task-completion) |
+| `11_Same_Evals_with_MLflow` | The same questions via `mlflow.genai.evaluate()` over traces | [Conversations, tools and task completion](docs/concepts/field-guide/05-conversations-tools-and-task-completion.md) + Databricks ref |
+| `12_Agent_Trajectory_Evaluation` | The 9-metric trace-level suite on a refund-agent scenario | [Agent trajectory](docs/concepts/field-guide/06-agent-trajectory.md), [Agent trajectory: The Worked Example, One Refund Run](docs/concepts/field-guide/06-agent-trajectory.md#2-the-worked-example-one-refund-run) |
+| `13_Production_Grade_Agent_Eval_Overview` | Live tracing + offline experiments (Arize Phoenix) | [Production and multi-agent](docs/concepts/field-guide/07-production-and-multi-agent.md) |
+| `14_Capstone_CrewAI_Travel_Planner_Eval` | Task completion against a real running 3-agent app | [Production and multi-agent: Real Systems With Many Agents](docs/concepts/field-guide/07-production-and-multi-agent.md#5-real-systems-with-many-agents) |
 
 ### `courses/02-databricks-mlflow-evals/` — 11 notebooks, order-dependent
 

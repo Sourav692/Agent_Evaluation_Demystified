@@ -38,6 +38,7 @@ anything here should be read first. Nothing in `courses/`, `labs/` or `docs/` de
 | `online_vs_offline_evaluation.md` | The online-vs-offline companion to course 02. §5 (sampling resolution) moved to explainer 05 §6; the rest became Part 5 of `docs/concepts/databricks-mlflow-evals.md`. Its old site URL redirects there. Archived 2026-10-15. |
 | `stratified-reporting-explained.html` | A one-table explainer of stratified reporting. Merged into explainer 05; its old site URL redirects there. Archived 2026-10-15. |
 | `openai-eval-guide-tutorial.html` | The hand-built page version of `docs/guide-audits/openai-eval-guide-tutorial.md` (87.7% identical). The site now renders the Markdown under the same URL; only the tick-box tracker is lost. Archived 2026-10-15. |
+| `rag-agent-tool-evaluation-FIELD_GUIDE-single-file.md` | The field guide as one 16,700-word page (Parts 0–6 plus a quick reference), before it was split into the eight beginner-level parts in `docs/concepts/field-guide/` (01 the map → 08 quick reference). Each worked lab from Part 6 was folded into the part it deepens. The introduction, `docs/concepts/field-guide/00-introduction.md`, links the parts and keeps the old site URL (`field-guide.html`). Relative links inside this copy point from `docs/concepts/` and no longer resolve. Archived 2026-11-04. |
 
 Paths quoted inside `TUTORIAL_PLAN.md` were updated to the current layout, but the
 document describes a repository state that no longer exists — read it as history.

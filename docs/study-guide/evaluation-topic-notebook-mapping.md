@@ -16,7 +16,7 @@ workspace. Everything under `docs/` is free.
 | Read / run | Teaches | Cost |
 |---|---|---|
 | [`00_Evaluation_Landscape.ipynb`](../../courses/01-rag-agent-tool-evaluation/00_Evaluation_Landscape.ipynb) | The taxonomy, reference-based vs referenceless, judge failure modes, the code-vs-judge decision (§4), the four-framework map (§5), and §1c — why ROUGE-L scores a false answer 0.94 and a true one 0.09 | none |
-| [Field guide, Part 0](../concepts/rag-agent-tool-evaluation.md) | §0.1b *what breaks where* — one row per surface, symptom → metric → cost. §0.2 the two questions that decide offline vs online. §0.4 the cost ladder | none |
+| [Field guide part 1, the map](../concepts/field-guide/01-the-map.md) | *What breaks where*: one row per surface, symptom → metric → cost. The two questions that decide offline vs online. The cost ladder | none |
 | [`00-evaluation-index.html`](../interactive-labs/00-evaluation-index.html) | The surface map as a page: pipeline, what breaks where, reference-based vs referenceless | none |
 | [Question bank §0.3](../interview-prep/QUESTION_BANK.md) | The five-layer diagram — retrieval, generation, tool mechanics, trajectory, outcome — with end-state verification as the strongest signal | none |
 
@@ -31,8 +31,8 @@ workspace. Everything under `docs/` is free.
 | [`05_RAG_Eval_Inside_the_Pipeline.ipynb`](../../courses/01-rag-agent-tool-evaluation/05_RAG_Eval_Inside_the_Pipeline.ipynb) | Evaluation as LangGraph nodes — gates inside the pipeline, not scoring after it | none (mocked), key (real) |
 | [`06_RAGAS_in_Practice.ipynb`](../../courses/01-rag-agent-tool-evaluation/06_RAGAS_in_Practice.ipynb) | RAGAS as a second opinion on the same case, and the pytest / CI pattern | key |
 | [`07_RAG_Capstone_Build_and_Evaluate.ipynb`](../../courses/01-rag-agent-tool-evaluation/07_RAG_Capstone_Build_and_Evaluate.ipynb) | Build a RAG system, synthesise a golden set, run the whole suite | key |
-| [Field guide, Part 1](../concepts/rag-agent-tool-evaluation.md) | **The companion to this whole level**, §1.1–§1.9 — one section per notebook above, plus the two with no notebook of their own: §1.5 writing a rubric that does not produce a vague judge, and §1.9 reading the results. §1.8 golden datasets is revisited properly at Level 3 | none |
-| [Field guide Part 6, §6.1–6.3](../concepts/rag-agent-tool-evaluation.md) | The slow narrative behind labs 01–03, against the same numbers | none |
+| Field guide parts [2](../concepts/field-guide/02-rag-retrieval.md), [3](../concepts/field-guide/03-rag-generation.md) and [4](../concepts/field-guide/04-running-rag-evals.md) | **The companion to this whole level**: one section per notebook above, plus the two with no notebook of their own: writing a rubric that does not produce a vague judge (part 3), and reading the results (part 4). Golden datasets (part 4) are revisited properly at Level 3 | none |
+| Worked labs in field guide parts [2](../concepts/field-guide/02-rag-retrieval.md) and [3](../concepts/field-guide/03-rag-generation.md) | The slow narrative behind labs 01–03, against the same numbers | none |
 
 ## Level 2 · Agents (tools, conversations, trajectories, outcomes)
 
@@ -42,7 +42,7 @@ workspace. Everything under `docs/` is free.
 | [`10_Task_Completion_Evaluation.ipynb`](../../courses/01-rag-agent-tool-evaluation/10_Task_Completion_Evaluation.ipynb) | `TaskCompletionMetric`, custom rubrics, outcome verification | key |
 | [`08_MultiTurn_Conversational_Evaluation.ipynb`](../../courses/01-rag-agent-tool-evaluation/08_MultiTurn_Conversational_Evaluation.ipynb) | `ConversationalGEval`, turn relevancy, knowledge retention, simulated conversations | key |
 | [`12_Agent_Trajectory_Evaluation.ipynb`](../../courses/01-rag-agent-tool-evaluation/12_Agent_Trajectory_Evaluation.ipynb) + [lab 05](../interactive-labs/05-agent-trajectory-evaluation.html) | The nine trace-level checks on a refund agent. Five of nine never move; task success passes on 40 % waste | none (Parts A–B), key (Part C) |
-| [Field guide Parts 2–3](../concepts/rag-agent-tool-evaluation.md) | §2.1 why per-turn rates multiply · §2.2 strict vs loose matching · §2.4 the polite tool failure · §3.2 the three trajectory traps | none |
+| Field guide parts [5](../concepts/field-guide/05-conversations-tools-and-task-completion.md) and [6](../concepts/field-guide/06-agent-trajectory.md) | Why per-turn rates multiply · strict vs loose matching · the polite tool failure · the three trajectory traps | none |
 | [Databricks ref, Part 4 — `p ** n`](../concepts/databricks-mlflow-evals.md) | At 95 % per turn a conversation is more likely failed than not by turn 14 | none |
 | [`11_Same_Evals_with_MLflow.ipynb`](../../courses/01-rag-agent-tool-evaluation/11_Same_Evals_with_MLflow.ipynb) *(optional)* | The same multi-turn and tool questions as notebooks 08–10, asked again in MLflow — the framework-portability lesson | key |
 
@@ -52,7 +52,7 @@ workspace. Everything under `docs/` is free.
 |---|---|---|
 | [`03_the_golden_set.ipynb`](../../courses/03-agentic-eval-harness/03_the_golden_set.ipynb) | Case anatomy — six expectations, not one · strata by language and intent · the 20 % refusal quota · the datasheet. *Everything downstream is an opinion about this file* | none |
 | [`04_eval_datasets_from_traces.ipynb`](../../courses/02-databricks-mlflow-evals/04_eval_datasets_from_traces.ipynb) | Mining production traces: novelty-targeting over random sampling, threshold over top-k, provenance (`AssessmentSource`), merge by input hash. Mining gives inputs, not labels | key |
-| [Field guide §1.8](../concepts/rag-agent-tool-evaluation.md) | Golden datasets — what to synthesise and what must be authored | none |
+| [Field guide part 4, golden datasets](../concepts/field-guide/04-running-rag-evals.md#3-golden-datasets) | Golden datasets — what to synthesise and what must be authored | none |
 | [Question bank Part 3](../interview-prep/QUESTION_BANK.md) | Q10 day one → month three · Q11 eval set and traffic diverging · Q12 how big · Q13 who writes the labels | none |
 
 ## Level 4 · Judges, and the humans who validate them
@@ -63,7 +63,7 @@ workspace. Everything under `docs/` is free.
 | [`09_human_feedback_and_calibration.ipynb`](../../courses/03-agentic-eval-harness/09_human_feedback_and_calibration.ipynb) | Three kinds of human feedback · Cohen's kappa by hand · the rubber-stamp signal · blinded preference testing | none |
 | [`03_custom_scorers_and_judges.ipynb`](../../courses/02-databricks-mlflow-evals/03_custom_scorers_and_judges.ipynb) | `@scorer`, `make_judge`, the trace-based judge (`{{ trace }}`) — judging *how* the agent worked | key |
 | [`07_judge_alignment_memalign.ipynb`](../../courses/02-databricks-mlflow-evals/07_judge_alignment_memalign.ipynb) | Aligning a judge to expert labels; measuring agreement, never average score; why a falling score is success | workspace |
-| [Field guide §0.3](../concepts/rag-agent-tool-evaluation.md) | LLM-as-judge failure modes | none |
+| [Field guide part 1, LLM as judge](../concepts/field-guide/01-the-map.md#6-llm-as-judge-the-failure-modes) | LLM-as-judge failure modes | none |
 | [Tutorial §4](../guide-audits/openai-eval-guide-tutorial.md) | Code vs judge vs human · the three judge biases · kappa · blinded preference, in 3–4 lines each with a TODO | none |
 | [Question bank Part 4](../interview-prep/QUESTION_BANK.md) | Q14 why believe the number · Q15 20 % disagreement · Q16 when not to use a judge · Q17 judge says 0.9, customer says terrible | none |
 
@@ -95,7 +95,7 @@ workspace. Everything under `docs/` is free.
 | [`12_online_evaluation_and_the_loop.ipynb`](../../courses/03-agentic-eval-harness/12_online_evaluation_and_the_loop.ipynb) | Reference-free metrics · five alerts · incident drills · the canary · the label queue that closes the loop | none |
 | [`06_online_eval_production_monitoring.ipynb`](../../courses/02-databricks-mlflow-evals/06_online_eval_production_monitoring.ipynb) | Traces as tables · sampled live scorers · register *and* start · the mechanical online-eligibility test | workspace |
 | [Databricks reference, Part 5](../concepts/databricks-mlflow-evals.md#part-5--online-vs-offline) | The two regimes, what flows between them, where human alignment fits | none |
-| [Field guide Part 4](../concepts/rag-agent-tool-evaluation.md) | §4.1 what can never go online · §4.2 sampling and alerting · §4.3 what tracing adds | none |
+| [Field guide part 7, production](../concepts/field-guide/07-production-and-multi-agent.md) | What can never go online · sampling and alerting · what tracing adds | none |
 | [`13_Production_Grade_Agent_Eval_Overview.ipynb`](../../courses/01-rag-agent-tool-evaluation/13_Production_Grade_Agent_Eval_Overview.ipynb) *(optional)* | Phoenix end to end on a small support agent: tracing, an LLM judge on the router and a code check on a tool logged back onto spans, the convergence score from stored spans, and an experiment comparing two prompts | key + Phoenix |
 | [Support-system case study, §25–§29](../concepts/customer-support-multi-agent-case-study.md) | The gate, the canary, online checks and product signals walked through on one multi-agent support system | none |
 | [Question bank Part 5, Case 15](../interview-prep/QUESTION_BANK.md) | Q18 offline vs online · Q19 what to sample · Q20 beyond a quality score · Case 15 sets up monitoring | none |
@@ -109,7 +109,7 @@ workspace. Everything under `docs/` is free.
 | [`10_capstone_edge_cases_and_crossref.ipynb`](../../courses/02-databricks-mlflow-evals/10_capstone_edge_cases_and_crossref.ipynb) | Design by attack surface: classes × variants · behavioural boundaries · channel confusion · the polite tool failure · stating N/A with a reason | key |
 | [`09_multiturn_and_tool_selection.ipynb`](../../courses/02-databricks-mlflow-evals/09_multiturn_and_tool_selection.ipynb) | Consent lives between turns · three approval outcomes · gate by prompt, verify by evaluation · gates that must report *not measured*, never 0 | key |
 | [Support-system case study, §2](../concepts/customer-support-multi-agent-case-study.md) | The same harness on an enterprise RAG agent and on a tool-calling multi-agent system, side by side | none |
-| [Field guide Part 5](../concepts/rag-agent-tool-evaluation.md) | Handoff quality, nested traces, attribution | none |
+| [Field guide part 7, multi-agent](../concepts/field-guide/07-production-and-multi-agent.md#5-real-systems-with-many-agents) | Handoff quality, nested traces, attribution | none |
 | [Question bank Part 8, Cases 8, 16, 17](../interview-prep/QUESTION_BANK.md) | Adversarial sets worth having · evidence for legal · "we tested 15 jailbreak strings and passed 12" · "the agent must never do X" | none |
 
 ## Level 9 · The harness as a product
@@ -129,19 +129,19 @@ workspace. Everything under `docs/` is free.
 
 | Follow-up | The answer lives in |
 |---|---|
-| **"You have no labelled data. What do you ship in week one?"** | Referenceless checks first — faithfulness, relevancy, safety, deterministic assertions ([field guide §1.3, §0.2](../concepts/rag-agent-tool-evaluation.md); [course 03 nb 07](../../courses/03-agentic-eval-harness/07_safety_and_policy_checks.ipynb)). Log everything and mine later ([course 02 nb 01](../../courses/02-databricks-mlflow-evals/01_minimal_agent_and_tracing.ipynb) → [nb 04](../../courses/02-databricks-mlflow-evals/04_eval_datasets_from_traces.ipynb)). A small stratified golden set with a refusal quota before the first judge ([course 03 nb 03](../../courses/03-agentic-eval-harness/03_the_golden_set.ipynb)). Spoken form: [Q10](../interview-prep/QUESTION_BANK.md), [Q7](../interview-prep/QUESTION_BANK.md) |
+| **"You have no labelled data. What do you ship in week one?"** | Referenceless checks first — faithfulness, relevancy, safety, deterministic assertions ([field guide, checks that need no reference](../concepts/field-guide/03-rag-generation.md#3-checks-that-need-no-reference) and [answer keys](../concepts/field-guide/01-the-map.md#4-question-one-does-the-check-need-an-answer-key); [course 03 nb 07](../../courses/03-agentic-eval-harness/07_safety_and_policy_checks.ipynb)). Log everything and mine later ([course 02 nb 01](../../courses/02-databricks-mlflow-evals/01_minimal_agent_and_tracing.ipynb) → [nb 04](../../courses/02-databricks-mlflow-evals/04_eval_datasets_from_traces.ipynb)). A small stratified golden set with a refusal quota before the first judge ([course 03 nb 03](../../courses/03-agentic-eval-harness/03_the_golden_set.ipynb)). Spoken form: [Q10](../interview-prep/QUESTION_BANK.md), [Q7](../interview-prep/QUESTION_BANK.md) |
 | **"What's the smallest thing you could launch that produces a measurable business number?"** | Rollout by risk tier — assistive → gated-write → autonomous — not by calendar (Spine step 7; [Case 3](../interview-prep/QUESTION_BANK.md)). End-state verification as the business number where a side effect exists ([§0.3 of the bank](../interview-prep/QUESTION_BANK.md); [course 03 nb 06](../../courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb)). What to challenge when the ask is "launch next week": [Q32](../interview-prep/QUESTION_BANK.md), [Q4](../interview-prep/QUESTION_BANK.md) |
 
 ## OpenAI round — vocabulary mapping
 
 | OpenAI term | The evaluation you already know |
 |---|---|
-| `Handoff` | Routing confusion matrix, handoff integrity, circular-handoff detection, blame attribution — [course 03 nb 06](../../courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb); [field guide Part 5](../concepts/rag-agent-tool-evaluation.md) |
+| `Handoff` | Routing confusion matrix, handoff integrity, circular-handoff detection, blame attribution — [course 03 nb 06](../../courses/03-agentic-eval-harness/06_agent_handoff_and_end_to_end.ipynb); [field guide part 7](../concepts/field-guide/07-production-and-multi-agent.md#5-real-systems-with-many-agents) |
 | `Guardrail` | Assertions that block and are never averaged — [course 03 nb 07](../../courses/03-agentic-eval-harness/07_safety_and_policy_checks.ipynb); approval gating tested rather than assumed — [course 02 nb 09](../../courses/02-databricks-mlflow-evals/09_multiturn_and_tool_selection.ipynb) |
 | `Session` / multi-turn | Session-level vs turn-level, context retention, `p ** n` — [course 01 nb 08](../../courses/01-rag-agent-tool-evaluation/08_MultiTurn_Conversational_Evaluation.ipynb); [course 02 nb 09](../../courses/02-databricks-mlflow-evals/09_multiturn_and_tool_selection.ipynb) |
 | Built-in **file search** | Retrieval metrics with and without labels — Level 1 |
 | Function tools | Tool selection vs argument correctness, strict vs loose — [course 01 nb 09](../../courses/01-rag-agent-tool-evaluation/09_Tool_Use_Evaluation.ipynb); [course 03 nb 05](../../courses/03-agentic-eval-harness/05_tool_call_evaluation.ipynb) |
-| Structured outputs | Deterministic scorers over a parseable output — the cheapest rung of the cost ladder ([field guide §0.4](../concepts/rag-agent-tool-evaluation.md)) |
+| Structured outputs | Deterministic scorers over a parseable output — the cheapest rung of the cost ladder ([field guide, the cost ladder](../concepts/field-guide/01-the-map.md#7-the-cost-ladder)) |
 | Evals as a product surface | A gate that returns *ship / don't ship*, wired to CI — [course 03 nb 11](../../courses/03-agentic-eval-harness/11_the_release_gate_and_ci.ipynb) |
 
 ---

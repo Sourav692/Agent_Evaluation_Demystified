@@ -120,9 +120,10 @@ def practise(name, html, ctx):
 
 
 def words(s):
-    """'Level 4 &middot; Judges &amp; the humans' -> 'judges and the humans' (comparable form)."""
+    """'Level 4 &middot; Judges &amp; the humans' -> 'judges and the humans' (comparable form).
+    'Field guide N &middot; …' prefixes drop the same way."""
     s = html_unescape(re.sub(r"<[^>]+>", "", s)).lower().replace("&", " and ")
-    s = re.sub(r"^level \d+ \W+ ", "", s)
+    s = re.sub(r"^(?:level|field guide) \d+ \W+ ", "", s)
     s = re.sub(r"\bthe\b", " ", re.sub(r"[^a-z0-9 ]+", " ", s.replace("-", "")))
     return " ".join(s.split())
 

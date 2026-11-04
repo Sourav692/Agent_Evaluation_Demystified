@@ -25,7 +25,7 @@ generator. Score the two halves apart first.
 
 **And retrieval is bounded by ingestion.** A document that never reached the index (dropped by the loader, mangled by the parser or OCR, or embedded
 with a different model than the query) shows up as a retrieval failure that no retriever change can fix. Count, checksum and spot-check the index
-before tuning anything ([field guide §1.0](../concepts/rag-agent-tool-evaluation.md#10-upstream-of-retrieval--did-the-evidence-ever-reach-the-index)).
+before tuning anything ([field guide, upstream checks](../concepts/field-guide/02-rag-retrieval.md#2-did-the-evidence-ever-reach-the-index)).
 
 ```mermaid
 flowchart LR
@@ -57,9 +57,8 @@ Did the retriever find the right chunks, and put them near the top? This is pure
 returned in rank order, and the IDs a human wrote down once as *actually* relevant. No judge, no key, no cost. It caps everything measured downstream.
 
 **The four metrics** are Precision@K (noise), Recall@K (missing evidence), MRR (Mean Reciprocal Rank: how early the first relevant hit lands) and
-nDCG@K (normalized Discounted Cumulative Gain: ranking quality when relevance is graded 0–3). Definitions and formulas are in the [field guide
-§1.1](../concepts/rag-agent-tool-evaluation.md#11-retrieval-with-labels-deterministic) and
-[§6.1](../concepts/rag-agent-tool-evaluation.md#61-deterministic-retrieval-metrics-four-numbers-that-are-supposed-to-disagree). **nDCG's ideal ranking
+nDCG@K (normalized Discounted Cumulative Gain: ranking quality when relevance is graded 0–3). Definitions and formulas are in the [field guide, retrieval with labels](../concepts/field-guide/02-rag-retrieval.md#3-retrieval-with-labels) and its
+[worked retrieval lab](../concepts/field-guide/02-rag-retrieval.md#32-four-metrics-four-questions). **nDCG's ideal ranking
 includes relevant chunks the retriever never returned**, so it stays capped below 1.0 however the retrieved chunks are reordered.
 
 ### The worked example
@@ -129,8 +128,8 @@ average barely moves, and nobody investigates.
 
 Precision cares about **order** (are relevant chunks ranked above noise?). Recall cares about **coverage** (does the context hold everything the
 expected answer needs?). Relevancy cares about **signal-to-noise** (how much of what came back is on-topic?). Only Relevancy runs without
-`expected_output`. Definitions are in the [field guide §1.2](../concepts/rag-agent-tool-evaluation.md#12-retrieval-without-labels-judged); the
-formulas are in [§6.2](../concepts/rag-agent-tool-evaluation.md#62-llm-judged-retrieval-three-metrics-because-there-are-three-failures).
+`expected_output`. Definitions are in the [field guide, retrieval without labels](../concepts/field-guide/02-rag-retrieval.md#4-retrieval-without-labels); the
+formulas are in the [worked judged-retrieval lab](../concepts/field-guide/02-rag-retrieval.md#41-three-checks-for-three-failures).
 
 Two naming traps sit here. Contextual Precision is rank-weighted: a relevant chunk near the top counts for more, so reordering chunks moves Precision
 while leaving Relevancy untouched. Contextual Relevancy is unweighted like Section 2's Precision@K, but it is judged per statement inside each chunk
@@ -202,8 +201,7 @@ Given whatever *was* retrieved, is the answer any good when no human-written ref
 can run against live production traffic.
 
 Three checks, three reference points: **Answer relevancy** compares the answer to the `input`, **Faithfulness** to the `retrieval_context`, and
-**Hallucination** to a separately supplied, trusted `context`. Definitions are in the [field guide
-§1.3](../concepts/rag-agent-tool-evaluation.md#13-generation-without-a-reference).
+**Hallucination** to a separately supplied, trusted `context`. Definitions are in the [field guide, checks that need no reference](../concepts/field-guide/03-rag-generation.md#3-checks-that-need-no-reference).
 
 > **"Referenceless" does not mean "compares against nothing."** A reference is a correct answer a person wrote *before* the system ran.
 > `retrieval_context` is not one: the pipeline produced it while answering. The mechanical test: could this metric score a brand-new query with zero
@@ -217,8 +215,8 @@ Hallucination is the partial exception. Its trusted source is human-curated, so 
 either. Source material says what is *true*, not what this answer *should have said*.
 
 The judge doesn't score the answer as one blob. It decomposes first: Faithfulness and Hallucination into *claims*, Answer Relevancy into *statements*.
-The score is a ratio over those verdicts (formulas in
-[§6.3](../concepts/rag-agent-tool-evaluation.md#63-generator-metrics-faithful-relevant-and-completely-wrong)). An answer can have three grounded
+The score is a ratio over those verdicts (formulas in the field guide's
+[claim decomposition section](../concepts/field-guide/03-rag-generation.md#2-claim-decomposition)). An answer can have three grounded
 *claims* and only one on-topic *statement*.
 
 **Hallucination's score runs backwards.** A *higher* score means *more* hallucination, the opposite convention from Faithfulness and Answer Relevancy.
@@ -249,7 +247,7 @@ flowchart TD
 
 **Faithfulness and Hallucination differ in their baseline.** Faithfulness's moves with every query's retrieval; Hallucination's is a fixed curated
 corpus. Use Faithfulness to police the generator; use Hallucination against an independent trusted source, regardless of what retrieval returned. The
-side-by-side table is in [field guide §1.3](../concepts/rag-agent-tool-evaluation.md#13-generation-without-a-reference), along with the four-way split
+side-by-side table is in [field guide, checks that need no reference](../concepts/field-guide/03-rag-generation.md#3-checks-that-need-no-reference), along with the four-way split
 of "hallucination" (unsupported, contradicted, stale, inaccessible) that tells you which team owns a failing claim.
 
 ### When to use it, and when not to
@@ -280,8 +278,7 @@ out fully.
 **Is the answer actually correct**, against a known-good reference? Section 4's metrics never ask, and this is the only place in Level 1 that catches
 "faithful to bad context."
 
-Answer correctness has no single off-the-shelf definition ([field guide
-§1.4](../concepts/rag-agent-tool-evaluation.md#14-generation-against-a-reference)). "Factually right" is task-specific, so the pattern is a
+Answer correctness has no single off-the-shelf definition ([field guide, checks against a reference](../concepts/field-guide/03-rag-generation.md#5-checks-against-a-reference)). "Factually right" is task-specific, so the pattern is a
 `GEval`-style rubric you write (Section 6), not a metric you import. Answer Semantic Similarity is plain embedding cosine similarity, with no LLM
 judge at all. That makes it cheap, fast, and weak on a subtly wrong fact: two answers sit close in embedding space while disagreeing on the one number
 that matters. Both need `expected_output`. That is the cost side of Level 0's tradeoff: exact, but only as scalable as the reference answers can be
@@ -550,12 +547,12 @@ feature tour. The sources below name the libraries they use; that is provenance,
 
 **Docs:**
 
-- `docs/concepts/rag-agent-tool-evaluation.md`, Part 1 (§1.0–§1.9): the compressed reference version of every section above and the canonical metric
-  definitions this page links to, plus §1.0 (upstream ingestion failures), §1.2b (context construction), §1.5 (writing a rubric) and §1.9 (reading
-  results), which have no notebook of their own.
+- `docs/concepts/field-guide/02-rag-retrieval.md`, `docs/concepts/field-guide/03-rag-generation.md` and `docs/concepts/field-guide/04-running-rag-evals.md`
+  (field guide parts 2–4, formerly Part 1): the reference version of every section above and the canonical metric definitions this page links to,
+  plus upstream ingestion failures, context construction, writing a rubric and reading results, which have no notebook of their own.
 - `archive/AI_Engineer_Interview_Kit_RAG_Agents_Production_Failure_Scenarios_FINAL.pdf`: the ingestion failures behind Section 1's upstream note and
   the freshness tests in Section 10.
-- `docs/concepts/rag-agent-tool-evaluation.md`, Part 6 (§6.1–§6.3): the slow narrative version of Sections 2–5, walked against the same numbers used
+- The worked labs inside field guide parts 2 and 3 (formerly Part 6, §6.1–§6.3): the slow narrative version of Sections 2–5, walked against the same numbers used
   above, including the triage tables and the "when to use it / when not to" guidance reused directly in this file.
 - `docs/interactive-labs/01-deterministic-retrieval-metrics.html`, `docs/interactive-labs/02-llm-judged-retrieval-metrics.html`,
   `docs/interactive-labs/03-generator-metrics.html`: the three companion labs; each contributed its scenario table and its own framing of the "what

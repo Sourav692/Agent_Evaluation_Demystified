@@ -3159,13 +3159,13 @@ decay that nothing else catches."
 
 # Part 10 — Metric-level questions from the labs
 
-Narrower than Parts 1–9: these start from a *number* rather than a situation, and are the ones asked when an interviewer has your metrics dashboard on screen. Grouped by evaluation surface. Each is answered in a minute or two. This part asks; it does not re-teach — the metric itself, its mechanism and its worked numbers are in [`rag-agent-tool-evaluation.md`](../concepts/rag-agent-tool-evaluation.md) Part 6, and each section below links to its counterpart.
+Narrower than Parts 1–9: these start from a *number* rather than a situation, and are the ones asked when an interviewer has your metrics dashboard on screen. Grouped by evaluation surface. Each is answered in a minute or two. This part asks; it does not re-teach — the metric itself, its mechanism and its worked numbers are in the worked labs of the [field guide](../concepts/field-guide/00-introduction.md) (parts 2, 3, 5 and 6), and each section below links to its counterpart.
 
 ## 10.1 Deterministic retrieval metrics: four numbers that are supposed to disagree
 
 *Production, real-time framing — the kind asked at OpenAI-, Anthropic-, and Google-caliber interviews.*
 
-*The metric, taught in full: [field guide §6.1](../concepts/rag-agent-tool-evaluation.md#61-deterministic-retrieval-metrics-four-numbers-that-are-supposed-to-disagree).*
+*The metric, taught in full: [field guide, RAG retrieval](../concepts/field-guide/02-rag-retrieval.md#32-four-metrics-four-questions).*
 
 #### 10.1 Q1 — Your support RAG serves 30k queries/day. Leadership asks for "one number" for retrieval quality on the exec dashboard. What do you put there, and what do you say about the request?
 
@@ -3218,7 +3218,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 
 *Production, real-time framing — the kind asked at OpenAI-, Anthropic-, and Google-caliber interviews.*
 
-*The metric, taught in full: [field guide §6.2](../concepts/rag-agent-tool-evaluation.md#62-llm-judged-retrieval-three-metrics-because-there-are-three-failures).*
+*The metric, taught in full: [field guide, RAG retrieval](../concepts/field-guide/02-rag-retrieval.md#41-three-checks-for-three-failures).*
 
 #### 10.2 Q1 — You're standing up retrieval evaluation for a customer-facing KB assistant with no labelled data and a launch in three days. Which of the three contextual metrics do you ship, and what do you tell the team you can't see?
 
@@ -3266,7 +3266,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Separates *retrieved* from *seen*: scores the final prompt, not the retriever's output — chunk-inclusion rate and truncation events against the token budget
 - Tests position sensitivity directly: the same case with the gold chunk first, in the middle and last, so a lost-in-the-middle effect shows up as accuracy by position
 - Checks any compression or summarising step for dropped qualifiers, dates and units, by re-running the failures with it switched off
-- Looks for conflicting sources in the same context — an old and a new policy — then asks which precedence rule (source authority, effective date) the system is meant to apply, and tests that rule ([field guide §1.2b](../concepts/rag-agent-tool-evaluation.md#12b-context-construction--retrieved-is-not-the-same-as-seen))
+- Looks for conflicting sources in the same context — an old and a new policy — then asks which precedence rule (source authority, effective date) the system is meant to apply, and tests that rule ([field guide, context construction](../concepts/field-guide/02-rag-retrieval.md#5-retrieved-is-not-the-same-as-seen))
 
 #### 10.2 Q7 — The assistant launches in German and Japanese alongside English. How do you evaluate retrieval across languages?
 
@@ -3283,7 +3283,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 
 *Production, real-time framing — the kind asked at OpenAI-, Anthropic-, and Google-caliber interviews.*
 
-*The metric, taught in full: [field guide §6.3](../concepts/rag-agent-tool-evaluation.md#63-generator-metrics-faithful-relevant-and-completely-wrong).*
+*The metric, taught in full: [field guide, RAG generation](../concepts/field-guide/03-rag-generation.md#6-worked-example-four-answers-to-one-question).*
 
 #### 10.3 Q1 — Your production RAG monitors Faithfulness and Answer Relevancy on live traffic. Both sit above 0.95 for a month. Then a customer proves the assistant has been giving wrong compliance guidance the whole time. How is that possible, and what do you add?
 
@@ -3331,7 +3331,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Extracts the answers' claims and labels every failing one as **unsupported**, **contradicted**, **stale** or **inaccessible** — four failures, not one
 - Maps each label to an owner: unsupported and contradicted to the generator and its grounding prompt, stale to index freshness, inaccessible to access filtering — handled as a security incident, not a quality dip
 - Notes that stale and inaccessible claims pass faithfulness because they *are* grounded, so a faithfulness-derived rate under-counts exactly those two
-- Slices the split by domain, source type, language and prompt/model version before answering what is driving it ([field guide §1.3](../concepts/rag-agent-tool-evaluation.md#13-generation-without-a-reference))
+- Slices the split by domain, source type, language and prompt/model version before answering what is driving it ([field guide, checks that need no reference](../concepts/field-guide/03-rag-generation.md#3-checks-that-need-no-reference))
 
 #### 10.3 Q7 — Users say the assistant gives different answers to what is obviously the same question, phrased differently. How do you measure that, and what do you look at first?
 
@@ -3347,7 +3347,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 
 *Production, real-time framing — the kind asked at OpenAI-, Anthropic-, and Google-caliber interviews.*
 
-*The metric, taught in full: [field guide §6.4](../concepts/rag-agent-tool-evaluation.md#64-tool-use-the-metric-is-only-as-strict-as-its-constructor).*
+*The metric, taught in full: [field guide, tool use](../concepts/field-guide/05-conversations-tools-and-task-completion.md#24-worked-example-six-traces-scored-three-ways).*
 
 #### 10.4 Q1 — Your travel agent reports 0.92 tool correctness in CI. A customer's flight was booked for the wrong date and the test suite was green. Explain how, and what you change.
 
@@ -3396,7 +3396,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 - Runs the cheap deterministic checks first: does it parse, does it execute, does it touch only governed views and allowed tables, does it return within budget
 - With a reference query, executes both against a fixed data snapshot and compares rows — order-insensitive unless the question asks for an order, with a tolerance on floating-point values
 - Without one, falls back to referenceless signals: a judge reading the question, schema and SQL together; sanity bounds on the result (non-empty, plausible ranges); agreement across regenerations
-- Names it as skill-output evaluation: the tool was chosen and called correctly, and the SQL can still be quietly wrong ([field guide §4.4](../concepts/rag-agent-tool-evaluation.md#44-two-ideas-that-are-genuinely-new))
+- Names it as skill-output evaluation: the tool was chosen and called correctly, and the SQL can still be quietly wrong ([field guide, production](../concepts/field-guide/07-production-and-multi-agent.md#4-two-ideas-that-are-new-here))
 
 ---
 
@@ -3404,7 +3404,7 @@ Narrower than Parts 1–9: these start from a *number* rather than a situation, 
 
 *Production, real-time framing — the kind asked at OpenAI-, Anthropic-, and Google-caliber interviews.*
 
-*The metric, taught in full: [field guide §6.5](../concepts/rag-agent-tool-evaluation.md#65-agent-trajectory-task-success-is-not-enough).*
+*The metric, taught in full: [field guide, agent trajectory](../concepts/field-guide/06-agent-trajectory.md#2-the-worked-example-one-refund-run).*
 
 #### 10.5 Q1 — Your refund agent reports 99.2% task success and per-request cost has tripled in six weeks. Quality complaints are flat. Where do you look?
 

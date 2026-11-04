@@ -103,7 +103,7 @@ called the booking API. **The confident sentence looks identical whether the cal
 
 What you score is a sequence of decisions, then the output. Three checks cover it at three granularities: **tool selection** (reference-based, for
 CI), **argument correctness** (referenceless and judged, for production) and **multi-turn tool use** (across a dialogue). The field guide's
-[§2.2](../concepts/rag-agent-tool-evaluation.md#22-tool-use) defines each one and compares tool-use evaluation with ordinary output scoring. This
+[tool use section](../concepts/field-guide/05-conversations-tools-and-task-completion.md#2-tool-use) defines each one and compares tool-use evaluation with ordinary output scoring. This
 section covers how much the configuration changes the number, which the definitions leave out.
 
 ### Strict vs. loose matching: the same check can score 1.00 or 0.00
@@ -123,7 +123,7 @@ Five of the six are broken in a way that should matter.
 sequence, a silently dropped output and a wrong travel date, all at once.
 
 Both extremes are wrong: too strict fails a harmless extra call, too loose passes an agent that fires every tool on every question. **Demand strict
-ordering only where the order is itself the requirement** ([field guide §2.2, property 1](../concepts/rag-agent-tool-evaluation.md#22-tool-use)).
+ordering only where the order is itself the requirement** ([field guide, how strict the match is](../concepts/field-guide/05-conversations-tools-and-task-completion.md#23-how-strict-is-the-match)).
 
 A selection check can also be handed the list of tools the agent *could* have called. Without it, the check compares called tools to expected tools
 mechanically. With it, a judge also asks whether the agent picked the *best* available tool.
@@ -133,8 +133,7 @@ mechanically. With it, a judge also asks whether the agent picked the *best* ava
 ### Argument correctness: cheap check first, judge second
 
 "Were the arguments right?" is two questions with different prices: *is it well-formed?* (code answers it, free) and *does it make sense for the
-request?* (only a judge answers it). Validate the schema first and spend the judge call only if that passes ([field guide §2.2, property
-2](../concepts/rag-agent-tool-evaluation.md#22-tool-use)).
+request?* (only a judge answers it). Validate the schema first and spend the judge call only if that passes ([field guide, two-pass argument checks](../concepts/field-guide/05-conversations-tools-and-task-completion.md#25-check-arguments-in-two-passes)).
 
 ```python
 # A structurally malformed call is worth zero -- no point spending a judge call
@@ -148,7 +147,7 @@ else:
 
 ### Combine with the minimum, and score doing nothing
 
-Two more rules from the field guide's [§2.2, properties 3 and 4](../concepts/rag-agent-tool-evaluation.md#22-tool-use). **Combine a selection score
+Two more rules from the field guide's [sub-score and no-call rules section](../concepts/field-guide/05-conversations-tools-and-task-completion.md#26-combine-sub-scores-with-the-minimum). **Combine a selection score
 and an argument score with the minimum, not the mean**: right tool plus nonsense arguments is a failed booking, not "half working". **Let the
 expected-tool list be empty**, so restraint ("What's your refund policy?" needs no call) can pass, and a claimed action with no call behind it can
 fail.
@@ -172,7 +171,7 @@ Selection and argument checks both score that run well, because the tools were r
 to catch that the actual requirement, staying under budget, was not met.
 
 A constraint mentioned earlier in a conversation, like that budget, is exactly what gets lost when the check infers the task from the last message, so
-state the task explicitly. The field guide's [§2.3](../concepts/rag-agent-tool-evaluation.md#23-task-completion) covers how to set the check up and
+state the task explicitly. The field guide's [task completion section](../concepts/field-guide/05-conversations-tools-and-task-completion.md#3-task-completion) covers how to set the check up and
 its two escalations: a custom rubric when "done" is domain-specific, and verifying the side effect when the stakes are too high for a judge.
 
 > **A state-based check cannot be fooled by a fluent-but-wrong response.** Use it as the pass/fail gate wherever a checkable outcome exists, and keep
@@ -187,7 +186,7 @@ the ledger cannot be fooled that way, because they hold the event rather than a 
 
 The **polite tool failure** hides underneath all of this. A tool returns `found: false` or an empty payload instead of raising, and the model fills
 the gap with an invented balance. **Neither grounding nor task success reads the tool's own output**, so only a deterministic check on the tool result
-catches it. The field guide's [§2.4](../concepts/rag-agent-tool-evaluation.md#24-failure-mode--polite-tool-failure) walks it end to end.
+catches it. The field guide's [polite tool failure section](../concepts/field-guide/05-conversations-tools-and-task-completion.md#4-polite-tool-failure) walks it end to end.
 
 ### When the output is a query, compare what it returns
 
@@ -286,14 +285,14 @@ Recovery returns `None`, never `1.0`, when there were no errors. That is Section
 
 ### Three traps
 
-The field guide's [§3.2](../concepts/rag-agent-tool-evaluation.md#32-three-traps) names three: a selection scorer that scores 100% for calling
+The field guide's [three traps section](../concepts/field-guide/06-agent-trajectory.md#6-three-traps) names three: a selection scorer that scores 100% for calling
 everything (fail unexpected calls too), exact-sequence matching as the default (fuzzy by default, exact only where order is the requirement), and
 rewarding recovery on its own (pair it with step-wise accuracy).
 
 ### From a hand-built trace to a live system
 
 Hand-computing all nine from a toy trace is how the checks get learned. On a running system the *questions* do not change, only where each answer
-comes from. The field guide's [§3.3](../concepts/rag-agent-tool-evaluation.md#33-what-each-check-looks-like-on-a-live-system) maps all nine to their
+comes from. The field guide's [live-system section](../concepts/field-guide/06-agent-trajectory.md#7-what-each-check-looks-like-on-a-live-system) maps all nine to their
 production source. **An untraceable agent is unevaluable**: every request needs a span per retrieval, per model call and per tool call, carrying
 tokens and latency, or none of the nine has anything to read.
 
@@ -382,7 +381,8 @@ library class names replaced by what each check does.
 
 **Docs:**
 
-- `docs/concepts/rag-agent-tool-evaluation.md`, Part 2 (§2.1–2.4) and Part 3 (§3.1–3.3): the multi-turn arithmetic and consent/stalled framing, the
+- `docs/concepts/field-guide/05-conversations-tools-and-task-completion.md` and `docs/concepts/field-guide/06-agent-trajectory.md` (field guide
+  parts 5–6, formerly Parts 2–3): the multi-turn arithmetic and consent/stalled framing, the
   tool-use properties, the task-completion escalation ladder, the "polite tool failure" mode, the nine trajectory checks, the three traps, and the
   hand-built-trace-to-live-system table. Sections 2–4 now link to these for the definitions rather than restating them.
 - `docs/concepts/databricks-mlflow-evals.md`, Part 4: the conversation-success table used in Section 1.

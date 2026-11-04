@@ -543,7 +543,7 @@ library class names replaced by what each mechanism does.
 
 **Docs:**
 
-- `docs/concepts/rag-agent-tool-evaluation.md`: the scorer-by-level table and the polite tool failure.
+- `docs/concepts/field-guide/05-conversations-tools-and-task-completion.md`: the scorer-by-level table and the polite tool failure.
 - `docs/concepts/databricks-mlflow-evals.md`: nested traces and the compounding arithmetic.
 - `docs/interview-prep/QUESTION_BANK.md`, Cases 8, 16 and 17 plus Q31–Q32: the attack-class table and the two questions, reproduced in full in
   Sections 4 and 6 rather than pointed at.

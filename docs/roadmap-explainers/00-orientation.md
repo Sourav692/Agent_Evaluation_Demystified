@@ -345,7 +345,7 @@ notebook cost-tag glossary, both of which described tooling rather than decompos
 
 **Docs:**
 
-- `docs/concepts/rag-agent-tool-evaluation.md`, Part 0 (§0.1–0.5): the five-layer table, the "what breaks where" triage table (including the "runs in
+- `docs/concepts/field-guide/01-the-map.md` (field guide part 1, formerly Part 0): the five-layer table, the "what breaks where" triage table (including the "runs in
   CI?" row), the two deciding questions, LLM-as-judge failure modes (including "measure agreement, not average"), and the scorer-cost ladder.
 - `docs/interactive-labs/00-evaluation-index.html`: the same five-surface map presented as an interactive page (used to cross-check the triage table
   above; introduced no topic not already covered by the field guide).

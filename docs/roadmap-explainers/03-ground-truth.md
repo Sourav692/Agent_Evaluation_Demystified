@@ -264,7 +264,7 @@ other. Three filters catch most of that. A critic model scores each question for
 threshold. Near-duplicates are removed. And a person spot-checks a sample, then tags the survivors into the same strata as the hand-written cases, so
 a thousand easy English questions cannot pass for coverage.
 
-Two rules from the field guide's [§1.8](../concepts/rag-agent-tool-evaluation.md#18-golden-datasets) apply to every synthetic case, and are not
+Two rules from the field guide's [golden datasets section](../concepts/field-guide/04-running-rag-evals.md#3-golden-datasets) apply to every synthetic case, and are not
 repeated here: spot-check the output, and build each case's retrieval context by running the real retriever. **Hands-on:** course 01's
 [`07_RAG_Capstone_Build_and_Evaluate.ipynb`](../../courses/01-rag-agent-tool-evaluation/07_RAG_Capstone_Build_and_Evaluate.ipynb) generates a golden
 set from its own documents with DeepEval's `Synthesizer`, using two evolution types, and then scores the live pipeline against it.
@@ -395,7 +395,7 @@ each mechanism does.
 
 **Docs:**
 
-- `docs/concepts/rag-agent-tool-evaluation.md`, §1.8: document-grounded synthesis and its perfect-context gotcha.
+- `docs/concepts/field-guide/04-running-rag-evals.md`, golden datasets: document-grounded synthesis and its perfect-context gotcha.
 - `docs/concepts/databricks-mlflow-evals.md`: the managed-dataset model and the curated-versus- mined policy split.
 - `docs/interview-prep/QUESTION_BANK.md`, Part 3 (Q10–Q13): the four questions and their analogies, reproduced in full in Section 8 rather than
   pointed at.

@@ -521,7 +521,7 @@ names replaced by what each judge shape does.
 
 **Docs:**
 
-- `docs/concepts/rag-agent-tool-evaluation.md`, §0.3: the judge failure modes used in Section 1.
+- `docs/concepts/field-guide/01-the-map.md`, LLM as judge: the judge failure modes used in Section 1.
 - `docs/guide-audits/openai-eval-guide-tutorial.md`, §4 (§4.1–§4.6): the code-versus-judge-versus- human flowchart and its cost table in Section 2,
   the three-bias framing and wine-judge analogy, the 12-of-12 verbosity figures, and the blinded-preference rules in Sections 4 and 7.
 - `docs/concepts/databricks-mlflow-evals.md`: scorer cost hierarchy, bias tests, the human-feedback taxonomy, kappa and weighted kappa, alignment, and

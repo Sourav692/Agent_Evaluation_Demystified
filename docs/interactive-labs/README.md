@@ -80,7 +80,7 @@ Nine trace-level metrics on a refund agent with one error, one recovery and one 
 ## The written versions
 
 The prose companions that used to sit beside each lab now live in one place:
-[`docs/concepts/rag-agent-tool-evaluation.md`](../concepts/rag-agent-tool-evaluation.md).
+[the field guide](../concepts/field-guide/00-introduction.md).
 Parts 0–5 are the compressed reference; **Part 6** is the worked narrative for each lab above,
 in the same order. The interview questions that closed each companion moved to
 [`docs/interview-prep/QUESTION_BANK.md`](../interview-prep/QUESTION_BANK.md) Part 10.
@@ -124,7 +124,7 @@ one, because you will meet systems built on each.
 None is "the right one." DeepEval and RAGAS answer *is this output good*; MLflow answers *is it
 good, tracked against my experiment history*; Phoenix answers *is it good, and here is the full
 trace of how it got there*. The field guide deliberately stays tool-agnostic
-([`§0.5`](../concepts/rag-agent-tool-evaluation.md)) — this table is the concrete version.
+([a note on frameworks](../concepts/field-guide/01-the-map.md#8-a-note-on-frameworks)) — this table is the concrete version.
 
 ## Suggested order
 
