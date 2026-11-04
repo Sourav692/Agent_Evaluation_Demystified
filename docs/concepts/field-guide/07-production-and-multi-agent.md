@@ -15,7 +15,7 @@
 The two do different jobs.
 
 - **Offline catches what your dataset contains.** It is reproducible, it can use references, and it can gate a release. It is blind to anything nobody thought to include.
-- **Online exists to find what the dataset didn't.** Real traffic has no answer key, so only referenceless checks run here at all. That is the test from [the map](01-the-map.md).
+- **Online exists to find what the dataset didn't.** Real traffic has no answer key. Only referenceless checks can run here. That is the test from [the map](01-the-map.md).
 - **The loop is the point.** Online discovers, offline prevents recurrence.
 - **A finding that stops at the dashboard helps once.** Carried into a gated offline test, it protects every release after.
 
@@ -34,7 +34,7 @@ flowchart LR
     G --> P
 ```
 
-Think of a restaurant. Complaints from diners are the online signal. Adding the dish to the kitchen's pre-service tasting list is the offline fix, so the next service catches it before a diner does.
+Think of a restaurant. Complaints from diners are the online signal. Adding the dish to the kitchen's pre-service tasting list is the offline fix. The next service catches it before a diner does.
 
 ---
 
@@ -63,7 +63,7 @@ flowchart TD
 
 ### 2.1 What Tracing Adds That Handmade Examples Can't
 
-- **Tracing.** The production version of a hand-rolled trace list, captured by instrumentation.
+- **Tracing.** Every request recorded as spans with their tokens and latency, instead of a trace list written by hand.
 - **Router and tool evaluations.** The same questions as the tool-use checks in [part 5](05-conversations-tools-and-task-completion.md), computed from real spans. A **router** is the step that decides which tool or agent handles a request.
 - **Path-efficiency experiments.** The same question as step-wise accuracy and the cost or efficiency proxy, checks 4 and 9 in [agent trajectory](06-agent-trajectory.md). Here they run through a reusable dataset-plus-evaluator setup that works for any agent, instead of a one-off script over one hand-built trace.
 
@@ -79,9 +79,9 @@ A **judge** is an LLM that scores another model's output, and it costs money per
 
 The rules:
 
-- **Sample judged checks; never sample deterministic ones.** Judges cost per call. Deterministic checks are free, so run them on everything.
+- **Sample judged checks, and never sample deterministic ones.** Judges cost per call. Deterministic checks are free. Run them on everything.
 - **Pick the sample rate from the change you must detect,** instead of a round number that felt affordable.
-- **A small sample can only resolve a large change.** Sampling 5% of 2,000 daily traces gives 100 traces. For a pass rate near 95%, that pins the score to roughly ±4.5 points (a 95% Wilson interval, see [Level 5](../../roadmap-explainers/05-statistics-and-stratified-reporting.md)), so a 2-point drop is invisible in it. Lower pass rates wobble even more.
+- **A small sample can only resolve a large change.** Sampling 5% of 2,000 daily traces gives 100 traces. For a pass rate near 95%, that pins the score to roughly ±4.5 points (a 95% Wilson interval, see [Level 5](../../roadmap-explainers/05-statistics-and-stratified-reporting.md)). A 2-point drop is invisible inside that range. Lower pass rates wobble even more.
 - **An alert set tighter than that resolution fires on noise.** It gets muted within a month, and you are left with monitoring that looks healthy and tells nobody anything.
 - **Your first alert shouldn't be a quality metric.** Trace volume, error-span rate and scorer coverage catch the case where monitoring itself silently stopped.
 
@@ -137,7 +137,7 @@ flowchart LR
 
 ### 5.2 Attribution Requires Nested Traces
 
-**Attribution**: working out which part of the system caused a failure. Like a relay coach rewatching the race to find which baton pass was dropped.
+**Attribution**: working out which part of the system caused a failure.
 
 **Nested trace**: a trace where each level sits inside the one above it. Session, then orchestrator turn, then subagent invocation, then spans. An **orchestrator** is the agent that routes work to the others, and a **subagent** is one of the narrow agents it calls.
 
@@ -159,7 +159,7 @@ flowchart TD
 
 ### 5.3 Score Routing Apart From the Parts
 
-- **Score routing separately from the parts.** Handoff accuracy is usually the first thing to break when a subagent is added.
+- **Score routing separately from the parts.** Handoff accuracy can break first when a subagent is added.
 - **The rubric was written for N agents and now runs against N+1.** A **rubric** is the written scoring guide a judge follows ([RAG generation](03-rag-generation.md)).
 
 ### 5.4 Write the Task Description Explicitly
@@ -185,16 +185,16 @@ flowchart TD
 
 - **Online discovers, offline prevents recurrence.** Carry every online finding into a gated offline test.
 - **Sample judged checks, run deterministic ones on everything,** and size the sample from the change you must detect.
-- **Don't alert tighter than your sample can resolve.** 5% of 2,000 daily traces at a 95% pass rate is about ±4.5 points, so a 2-point drop is invisible.
+- **Don't alert tighter than your sample can resolve.** 5% of 2,000 daily traces at a 95% pass rate is about ±4.5 points. A 2-point drop is invisible at that resolution.
 - **Make the first alerts about monitoring itself:** trace volume, error-span rate, scorer coverage.
 - **Skill evaluation and version comparison** cover a tool's own output quality and whether one deliberate change helped.
-- **Handoffs multiply errors.** Five parts at 90% give about 59% end to end, so score routing on its own.
+- **Handoffs multiply errors.** Five parts at 90% give about 59% end to end. Score routing on its own.
 - **Nested traces turn "quality dropped" into "which subagent, on which turn."**
 
 ## Check Yourself
 
 1. You judge 5% of 2,000 daily traces and a score drops 2 points. Can you see it?
-   **No. At a pass rate near 95%, that sample pins the score to roughly ±4.5 points, so a 2-point drop is invisible, and an alert set that tight fires on noise.**
+   **No. At a pass rate near 95%, that sample pins the score to roughly ±4.5 points. A 2-point drop is invisible, and an alert set that tight fires on noise.**
 2. Which checks should you never sample, and why?
    **Deterministic checks. They are free, so run them on every trace. Only judged checks, which cost per call, get sampled.**
 3. Every subagent scores above 0.9, but the end-to-end score is 0.6. How can both be true?

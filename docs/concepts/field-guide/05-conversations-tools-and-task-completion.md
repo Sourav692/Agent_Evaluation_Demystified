@@ -28,7 +28,7 @@ Three measurements cover the basics. Each one reads more than a single turn.
   - It is judged over a **sliding window**, meaning only the last few turns.
   - The window keeps a long conversation from drowning the check.
 - **Knowledge retention**: whether the system remembers what the user said earlier, for example three turns ago.
-  - The most visible multi-turn failure is re-asking for something the user already supplied.
+  - One visible multi-turn failure is re-asking for something the user already supplied.
   - Running example: the support agent asks for the order number the user gave two messages back.
 - **Whole-dialogue rubric**: your domain criterion applied across the whole arc of the conversation, not to one turn.
   - A **rubric** is a written marking scheme a judge scores against ([RAG generation](03-rag-generation.md)).
@@ -83,9 +83,9 @@ It works like a mystery shopper. The shop gets a script of what to want and how 
 
 ## 2. Tool Use
 
-A **tool** is a function the agent can call, such as an order lookup, and a **tool call** is one such call with its arguments ([the map](01-the-map.md)). Tool use is where agents actually fail.
+A **tool** is a function the agent can call, such as an order lookup, and a **tool call** is one such call with its arguments ([the map](01-the-map.md)).
 
-A travel bot that says *"Your flight is booked!"* is useless if it never called the booking API. The sentence reads exactly the same either way. The checks in this section look underneath that sentence, and the settings that decide whether they see anything at all.
+A travel bot that says *"Your flight is booked!"* is useless if it never called the booking API. The sentence reads exactly the same either way. This section covers the checks that look underneath that sentence, and the settings that decide whether they see anything at all.
 
 ### 2.1 Why tool use needs its own evaluation
 
@@ -151,7 +151,7 @@ Three checks look at tool calls. They differ in how much of the run they read an
   - Leave `available_tools` unset to keep it free and reproducible.
 - **`ArgumentCorrectnessMetric`** is the referenceless counterpart for production.
 
-**Four properties worth carrying around.** The next four sections each take one. Their running example is a travel agent that should call `search_flights`, then `book_flight`.
+**Four properties worth carrying around.** Sections 2.3, 2.5, 2.6 and 2.7 each take one. Their running example is a travel agent that should call `search_flights`, then `book_flight`.
 
 ### 2.3 How strict is the match?
 
@@ -259,9 +259,7 @@ A **sub-score** is one dimension of a combined score, such as tool selection or 
 - **The mean says 0.5**, which reads as "half working". Nothing was half working. The booking failed.
 - **The minimum says 0.0**, which is the truth.
 - **Averaging lets a healthy dimension cover for a broken one.** That is the exact failure you built the metric to catch.
-- **`ToolUseMetric` uses the `min`.** A failure in either dimension pulls the whole score down, so a perfect tool selection with garbage arguments cannot average its way to a pass.
-
-A chain is as strong as its weakest link. Averaging the links tells you nothing about whether the chain holds.
+- **`ToolUseMetric` uses the `min`.** A failure in either dimension pulls the whole score down. A perfect tool selection with garbage arguments cannot average its way to a pass.
 
 ### 2.7 Score doing nothing
 
@@ -364,7 +362,7 @@ flowchart TD
 
 ## 4. Polite Tool Failure
 
-Polite tool failure is the single most under-tested failure in production agents. It is worth being able to walk through end to end.
+Polite tool failure is easy to leave untested in production agents, because the standard checks never read the tool result.
 
 - **Polite tool failure**: a tool fails without raising an error, and the agent covers the gap with invented content.
 - **Soft failure object**: what the tool returns instead of an error.
@@ -454,8 +452,8 @@ Use this table to pick a check from the question you are trying to answer.
 ## References
 
 - [`08_MultiTurn_Conversational_Evaluation.ipynb`](../../../courses/01-rag-agent-tool-evaluation/08_MultiTurn_Conversational_Evaluation.ipynb): course 01's multi-turn conversation notebook.
-- [`09_Tool_Use_Evaluation.ipynb`](../../../courses/01-rag-agent-tool-evaluation/09_Tool_Use_Evaluation.ipynb): tool correctness, argument correctness and the schema-first gate; a source module for section 2.
-- [`10_Task_Completion_Evaluation.ipynb`](../../../courses/01-rag-agent-tool-evaluation/10_Task_Completion_Evaluation.ipynb): judged task completion and custom rubrics; a source module for section 3.
+- [`09_Tool_Use_Evaluation.ipynb`](../../../courses/01-rag-agent-tool-evaluation/09_Tool_Use_Evaluation.ipynb): tool correctness, argument correctness and the schema-first gate. A source module for section 2.
+- [`10_Task_Completion_Evaluation.ipynb`](../../../courses/01-rag-agent-tool-evaluation/10_Task_Completion_Evaluation.ipynb): judged task completion and custom rubrics. A source module for section 3.
 - [Course 01](../../../courses/01-rag-agent-tool-evaluation/): the notebooks this field guide accompanies.
 - [Course 02, notebook 09](../../../courses/02-databricks-mlflow-evals/09_multiturn_and_tool_selection.ipynb): the full turn-compounding argument, with the table.
 - [Interactive lab 04, tool-use evaluation](../../interactive-labs/04-tool-use-evaluation.html): the six traces and three configurations from section 2.4.

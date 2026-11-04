@@ -4,11 +4,11 @@
 
 ◷ 3 min read · Field guide part 0 of 11, the introduction
 
-Companion to the 14 notebooks in [course 01](../../../courses/01-rag-agent-tool-evaluation/). The notebooks show how to express each idea in a
+Companion to the 15 notebooks in [course 01](../../../courses/01-rag-agent-tool-evaluation/). The notebooks show how to express each idea in a
 framework. This guide explains the idea itself, in plain language, before any code.
 
 - **Who it is for.** You know what an LLM and a chatbot are, and you have never evaluated one. Every term is explained the first time it appears.
-- **Tool-agnostic on purpose.** Framework APIs change often; the questions behind them don't. Framework names appear only where a part compares
+- **Tool-agnostic on purpose.** Framework APIs change often, and the questions behind them don't. Framework names appear only where a part compares
   them or walks a lab.
 - **One running example.** A support agent that searches a help centre and can issue refunds. The worked labs keep their own data, so the numbers
   match the notebooks and the [interactive labs](../../interactive-labs/README.md).
@@ -21,8 +21,8 @@ The lessons that walk the same ground in order are [Level 1](../../roadmap-expla
 
 ## The Eleven Parts
 
-The diagram shows the reading order. Parts 2–4 follow a RAG system from search to answer; parts 5–6 follow an agent from one tool call to a whole
-run; part 7 takes both into production. Parts 9–11 are a second track on the same system: what it costs to run, and the
+The diagram shows the reading order. Parts 2–4 follow a RAG system from search to answer. Parts 5–6 follow an agent from one tool call to a whole
+run, and part 7 takes both into production. Parts 9–11 are a second track on the same system: what it costs to run, and the
 guardrails that keep it affordable and safe.
 
 ```mermaid
@@ -54,7 +54,7 @@ flowchart TD
 | [10. Cost guardrails](10-cost-guardrails.md) | How budgets, model routing and tenant caps stop the system overspending |
 | [11. Safety guardrails and evaluation](11-safety-guardrails-and-evaluation.md) | The five places a guardrail sits, what happens when one fires, and how cost joins monitoring and the release gate |
 
-**If you have ten minutes:** part 1, then the task completion section of part 5, then part 6.
+**If you have 45 minutes:** part 1, then the task completion section of part 5, then part 6.
 
 ---
 

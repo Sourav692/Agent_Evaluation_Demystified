@@ -30,7 +30,7 @@ flowchart TD
 | 3. **Check retrieval first** | Did the right chunk come back at all? If the evidence never arrived, nothing downstream matters | [RAG retrieval](02-rag-retrieval.md) |
 | 4. **Check grounding** | Right chunk retrieved, answer ignores it. That is a different bug with a different fix | [RAG generation](03-rag-generation.md) |
 | 5. **Check the tool spans** | Soft failures live here and show up nowhere else | [Conversations, tools and task completion](05-conversations-tools-and-task-completion.md); spans in [production and multi-agent systems](07-production-and-multi-agent.md) |
-| 6. **Check the metric nobody was watching** | The classic case is a requested metric that rose while three others collapsed | This page |
+| 6. **Check the metric nobody was watching** | For example, a requested metric rose while three others collapsed | This page |
 | 7. **Check whether the benchmark is what's wrong** | A benchmark improving while users complain means its distribution doesn't match traffic | This page; stale eval sets in [RAG retrieval](02-rag-retrieval.md) |
 | 8. **Slice everything** | Aggregates hide the thing you need to see | [Running RAG evals](04-running-rag-evals.md) |
 
@@ -77,7 +77,7 @@ Fourteen rules, one line each, with the part that argues for each one.
 | --- | --- |
 | Name the layer before naming a metric. | [The map](01-the-map.md) |
 | Ask whether the check needs an answer key written in advance. That decides offline vs online. | [The map](01-the-map.md) |
-| Climb the cost ladder from the bottom; stop at the rung that answers the question. | [The map](01-the-map.md) |
+| Climb the cost ladder from the bottom, and stop at the rung that answers the question. | [The map](01-the-map.md) |
 | Deterministic where you can, judged where you must, and never gate on a judge you haven't checked against humans. | [The map](01-the-map.md) |
 | Measure judge agreement rather than judge average. | [The map](01-the-map.md) |
 | Mechanics ≠ process ≠ outcome. Score all three. | [Conversations, tools and task completion](05-conversations-tools-and-task-completion.md), [agent trajectory](06-agent-trajectory.md) |
@@ -117,7 +117,7 @@ flowchart LR
     P -->|"does not guarantee"| O["Outcome<br/>the goal was met"]
 ```
 
-**And cutting across all five:** aggregates hide the thing you need to see ([running RAG evals](04-running-rag-evals.md)).
+Across all five layers, aggregates hide the thing you need to see ([running RAG evals](04-running-rag-evals.md)).
 
 ## Key Takeaways
 
@@ -127,8 +127,8 @@ These are the takeaways for the whole field guide.
 - Treat an LLM judge as a noisy estimate rather than an oracle, and stop at the cheapest rung of the cost ladder that answers the question ([the map](01-the-map.md)).
 - Check retrieval before generation, because faithfulness cannot catch an answer that is faithful to bad context ([RAG generation](03-rag-generation.md)).
 - Score mechanics, process and outcome separately: take the minimum of sub-scores, score the absence of a call, and read the tool output ([conversations, tools and task completion](05-conversations-tools-and-task-completion.md)).
-- Verify the system of record wherever a real side effect exists; it is the one signal a fluent sentence cannot defeat ([agent trajectory](06-agent-trajectory.md)).
-- Let online checks find what the dataset missed and offline gates stop it recurring; across agent handoffs, use nested traces to find which subagent broke ([production and multi-agent systems](07-production-and-multi-agent.md)).
+- Verify the system of record wherever a real side effect exists. It is the one signal a fluent sentence cannot defeat ([agent trajectory](06-agent-trajectory.md)).
+- Let online checks find what the dataset missed and offline gates stop it recurring. Across agent handoffs, use nested traces to find which subagent broke ([production and multi-agent systems](07-production-and-multi-agent.md)).
 - Read every score with its configuration and its slice: name-only tool correctness passed four broken traces, and aggregates hide the thing you need to see ([conversations, tools and task completion](05-conversations-tools-and-task-completion.md), [running RAG evals](04-running-rag-evals.md)).
 
 ## Check Yourself
@@ -137,7 +137,7 @@ These are the takeaways for the whole field guide.
 2. You must monitor retrieval on live traffic, and you have no labels. Which of the three contextual metrics can you run? **Contextual Relevancy only. Precision and recall both need `expected_output`, and production has none. See [RAG retrieval](02-rag-retrieval.md).**
 3. An account lookup returns `found: false`. The agent states a plan and balance anyway, and grounding and task success both pass. What catches it? **A deterministic check that reads the tool output and, if it indicates failure, asserts the response doesn't state the facts that tool was supposed to supply. See [conversations, tools and task completion](05-conversations-tools-and-task-completion.md).**
 4. Your dashboard shows a recovery rate of 1.0 for a run with no errors. What is wrong? **The run had nothing to recover from, so recovery rate returns `None`, not 1.0. A 1.0 on an error-free run is indistinguishable from a 1.0 on a run that recovered from three errors. See [agent trajectory](06-agent-trajectory.md).**
-5. You sample 5% of 2,000 daily traces for a judged check. Can it detect a 2-point drop? **No. At a pass rate near 95%, that sample of 100 pins a score to roughly ±4.5 points, so a 2-point drop is invisible in it. Pick the sample rate from the change you must detect. See [production and multi-agent systems](07-production-and-multi-agent.md).**
+5. You sample 5% of 2,000 daily traces for a judged check. Can it detect a 2-point drop? **No. At a pass rate near 95%, that sample of 100 pins a score to roughly ±4.5 points. A 2-point drop is invisible in it. Pick the sample rate from the change you must detect. See [production and multi-agent systems](07-production-and-multi-agent.md).**
 
 ## References
 

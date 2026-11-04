@@ -67,7 +67,6 @@ So the platform needs two production capabilities.
 2. **Guardrails.** Stop unsafe, unauthorized, incorrect, or excessively expensive behavior.
 
 **Cost tracking**: recording what every step of a request used and what it cost, so the totals can be added up later.
-Analogy: an itemised phone bill, with one line per call.
 
 A **guardrail** is a check that can stop or change a risky step before it happens. [Cost guardrails](10-cost-guardrails.md) defines it fully.
 
@@ -173,7 +172,7 @@ flowchart TD
 A **trace** is the step-by-step record of one request, and a **span** is one timed entry inside it, such as one model call ([production and multi-agent systems](07-production-and-multi-agent.md)).
 
 **Request-level cost trace**: one trace per customer request, where every step it caused carries the same ID and its own cost.
-Analogy: a restaurant bill for one table. Every dish that table ordered lands on the same bill, so the total is that table's total.
+Analogy: a restaurant bill for one table. Every dish that table ordered lands on the same bill, and the bill's total is that table's total.
 
 Create one trace for every customer request. Example:
 
@@ -338,7 +337,7 @@ For every tool call, record:
 - Retries
 - Estimated cost
 
-Example. The first two rows are the tools `req_7821` calls; the last three are other tools the platform offers, shown for comparison:
+Example. The first two rows are the tools `req_7821` calls. The last three are other tools the platform offers, shown for comparison:
 
 | Tool | Cost | In `req_7821`? |
 |---|--:|---|
@@ -397,7 +396,6 @@ Grouping by agent helps identify inefficient agent behavior. For example, a risi
 **Attribution** is working out which part of the system caused a failure ([production and multi-agent systems](07-production-and-multi-agent.md)). Cost has its own version.
 
 **Cost attribution**: assigning every cent spent to whoever or whatever caused it, such as a tenant, a request, an agent or a tool.
-Analogy: a shared office with one electricity bill and a meter on each floor, so each company pays for its own floor.
 
 **Cost per request**: total cost divided by the number of requests. It lets a tenant with 50K requests be compared with one with 200K.
 
@@ -410,7 +408,7 @@ For a multi-tenant platform, aggregate cost by tenant.
 | Contoso | 200K | \$4,000 | \$0.020 |
 
 - **Contoso has the largest total,** \$4,000, but the lowest cost per request, \$0.020.
-- **Globex has unusually high cost/request,** \$0.042, so drill down:
+- **Globex has unusually high cost/request,** \$0.042. Drill down:
   1. Globex
   2. Refund Workflow
   3. RAG Agent

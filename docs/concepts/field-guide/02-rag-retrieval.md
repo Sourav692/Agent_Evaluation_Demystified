@@ -137,7 +137,7 @@ The checks, one failure at a time:
 
 ## 3. Retrieval with labels
 
-The cheapest retrieval checks need no judge, no API key and no API call. They are arithmetic over labels a person wrote in advance. They are the cheapest signal in the whole stack, and they cap everything downstream.
+The cheapest retrieval checks need no judge, no API key and no API call. They are arithmetic over labels a person wrote in advance, and what they measure caps every score downstream.
 
 New terms for this section:
 
@@ -147,22 +147,20 @@ New terms for this section:
 - **Rank**: a chunk's position in that list, starting at 1.
 - A **deterministic** check is plain code that gives the same answer on every run ([the map](01-the-map.md)).
 
-Think of a teacher marking a multiple-choice paper against an answer sheet. The marking is fast, free and exact. Someone still had to write the answer sheet first.
-
 Whenever you have labels, these checks are the right first move.
 
 > **Put hard negatives in the eval set.** A **hard negative** is a near-duplicate, confusable document that looks right and isn't. Examples: last year's policy beside this year's, or a sibling product's manual. In the running example, last year's refund policy is a hard negative. Without some of these, the set only tests easy separations, and "high similarity, wrong context" never shows up as a failure.
 
-- **Interactive lab:** [`docs/interactive-labs/01-deterministic-retrieval-metrics.html`](../../interactive-labs/01-deterministic-retrieval-metrics.html). Open it in a browser, drag `K`, and watch precision and recall pull in opposite directions while MRR refuses to move at all.
+- **Interactive lab:** [`docs/interactive-labs/01-deterministic-retrieval-metrics.html`](../../interactive-labs/01-deterministic-retrieval-metrics.html). Open it in a browser, drag `K`, and watch precision and recall pull in opposite directions while MRR does not move at all.
 - **Source notebook:** [`courses/01-rag-agent-tool-evaluation/01_Retrieval_Metrics_Deterministic.ipynb`](../../../courses/01-rag-agent-tool-evaluation/01_Retrieval_Metrics_Deterministic.ipynb).
 
 ### 3.1 Why a wrong answer is not always a hallucination
 
-Every RAG bug report arrives with the same diagnosis attached, "the model hallucinated", and that diagnosis is usually wrong. A **hallucination** is a claim the model made up ([RAG generation](03-rag-generation.md)).
+A RAG bug report can arrive with a diagnosis attached, "the model hallucinated", and that diagnosis may be wrong. A **hallucination** is a claim the model made up ([RAG generation](03-rag-generation.md)).
 
 - **The answer may not have been in the prompt.** If the relevant chunk never entered the prompt, the generator was not hallucinating in any meaningful sense. It answered faithfully from a context that didn't contain the answer.
 - **Generation metrics are bounded by retrieval.** Faithfulness, answer relevancy and every other generation metric ([RAG generation](03-rag-generation.md)) depend on what was retrieved. Measuring them while recall sits at 0.67 tells you nothing about your generator.
-- **The fixes are completely different.** Retrieval failures want chunking, hybrid search or reranking. Generation failures want prompt or model changes. Guessing wrong costs a sprint.
+- **The fixes are different.** Retrieval failures want chunking, hybrid search or reranking. Generation failures want prompt or model changes. Guessing wrong costs a sprint.
 - **Labelled metrics tell the two apart.** A wrong answer can come from a broken retriever or a broken generator. These metrics tell you which, before you spend anything on a judge.
 
 ### 3.2 Four metrics, four questions
@@ -185,7 +183,7 @@ Picture a fishing net. Precision asks how much of the catch is the fish you want
 | **nDCG** | Graded relevance, discounted by position | Relevance isn't binary and several relevant chunks coexist |
 
 - **Needs:** pre-labelled ground truth (`relevant_ids`, `relevance_grades`). That is what makes the four metrics free and deterministic.
-- **Misses:** anything on live traffic. You can't compute Precision@K on a query with no labels, so these metrics stay confined to curated eval sets.
+- **Misses:** anything on live traffic. You can't compute Precision@K on a query with no labels. These metrics stay confined to curated eval sets.
 - **Section 4 closes that gap** with judged metrics that need no chunk labels.
 
 ### 3.3 The four formulas
@@ -279,14 +277,14 @@ A few fixes the triage table names:
 | Good recall, low MRR | It's in the prompt, buried | Reranker or cross-encoder |
 | Good recall, falling precision | K is too large for this query | Dynamic K, or retrieve wide and rerank narrow |
 | Good recall and MRR, low nDCG | Ranking ignores degrees of usefulness | Graded labels plus a ranking-aware retriever |
-| Everything good, answer still wrong | Retrieval is fine, so look at generation | The faithfulness and correctness metrics in [RAG generation](03-rag-generation.md) |
+| Everything good, answer still wrong | Retrieval is fine. Look at generation | The faithfulness and correctness metrics in [RAG generation](03-rag-generation.md) |
 | Answer wrong, unclear which half failed | Settle it with a gold-context swap | Right with gold, wrong with retrieved: retrieval or context construction (section 5). Wrong with both: generation |
 
 ### 3.7 When to use them and when not to
 
 **Use deterministic retrieval metrics when:**
 
-- **You are setting up evaluation for the first time.** This is the most valuable day of work available. No keys, no cost, and it runs on every commit.
+- **You are setting up evaluation for the first time.** Start here. It needs no keys, costs nothing and runs on every commit.
 - **You are comparing retrievers, chunk sizes or embedding models.** The comparison is exact and repeatable, with no judge variance in the way.
 - **You need a CI gate that will not flake.** **CI** runs checks automatically on every code change ([the map](01-the-map.md)). An LLM-judged metric can disagree with itself across runs. This one cannot.
 
@@ -335,7 +333,7 @@ There are three checks because there are three different failures. That is why n
 One blended "retrieval score" hides three bugs:
 
 - **Averaging hides a ranking bug.** Precision halves, the average moves a little, and nobody investigates.
-- **The three failures have completely different fixes.**
+- **The three failures have different fixes.**
   - Bad ranking wants a reranker.
   - Thin coverage wants better chunking or a larger K.
   - Noise dilution wants a tighter retriever or a smaller K.
@@ -353,7 +351,7 @@ Contextual Relevancy = (relevant statements) / (total statements, across every r
 ```
 
 - **Precision is rank-weighted.** A relevant chunk at position 1 contributes `1/1`. The same chunk at position 3 contributes at most `1/3`. That weighting is the whole reason reordering changes the score.
-- **Recall compares the context to `expected_output`.** It ignores `actual_output`, the answer the system gave. It asks whether enough was fetched to support the full answer, independent of whether the generator used it. This trips people up constantly.
+- **Recall compares the context to `expected_output`.** It ignores `actual_output`, the answer the system gave. It asks whether enough was fetched to support the full answer, independent of whether the generator used it. This is easy to get wrong.
 - **Relevancy is the simplest, and the only referenceless one.** No ground truth and no order sensitivity. It measures what fraction of what you retrieved was on topic.
 - **Relevancy is judged per statement, not per chunk.**
   - The judge splits every retrieved chunk into statements and labels each one. The score pools all of them.
@@ -404,7 +402,7 @@ The lab uses one query, *"What is Apache Spark used for?"*, and four retrieval o
 What the four rows show:
 
 - **Reordering alone moves precision.** Three chunks reordered, nothing added and nothing removed, drops precision from 1.00 to 0.58. Recall and relevancy do not move at all.
-- **Healthy retrieval scores 0.67 on relevancy.** That is no defect. Relevancy is a ratio, and a perfect 1.00 usually means K is too small, not that the retriever is flawless.
+- **Healthy retrieval scores 0.67 on relevancy.** That is no defect. Relevancy is a ratio, and a perfect 1.00 can mean K is too small, not that the retriever is flawless.
 - **Thin coverage scores 1.00 on two of three metrics.** Run relevancy alone, the only option without labels, and this broken retriever looks perfect.
 - **Relevancy and precision fail together under noise dilution.** Noise ranked above signal is a ranking failure and a signal-to-noise failure at once. The two metrics decouple under bad ranking instead.
 
@@ -415,7 +413,7 @@ A **threshold** is the score a test case must reach to pass ([RAG generation](03
 Thin coverage scores exactly 0.50 recall against DeepEval's default `threshold=0.5`. That test case sits on the pass or fail line, so:
 
 - One flipped claim verdict on a re-run flips the whole test case.
-- The judge is non-deterministic, so re-running the identical input can produce a different verdict.
+- The judge is non-deterministic. Re-running the identical input can produce a different verdict.
 - Read a score sitting on its threshold as a coin toss, not a pass.
 - In CI, move the threshold away from where your scores cluster.
 - Or run near-threshold cases several times and take the majority.
@@ -426,7 +424,7 @@ Thin coverage scores exactly 0.50 recall against DeepEval's default `threshold=0
 
 - **You have production traffic and no labelled chunk IDs.** Relevancy runs on anything.
 - **Your golden set doesn't cover the query shapes users send**, and hand-labelling every new one is not realistic.
-- **You want a reason alongside the score.** `include_reason=True` returns the judge's justification, which is often more actionable than the number.
+- **You want a reason alongside the score.** `include_reason=True` returns the judge's justification, which can tell you more than the number does.
 
 **Stay with section 3's deterministic metrics when:**
 
@@ -438,7 +436,7 @@ Thin coverage scores exactly 0.50 recall against DeepEval's default `threshold=0
 
 ## 5. Retrieved is not the same as seen
 
-Between the retriever and the generator sits a step most suites never score, building the prompt. The right chunk can be retrieved and still not be seen.
+Between the retriever and the generator sits a step that sections 3 and 4 never score, building the prompt. The right chunk can be retrieved and still not be seen.
 
 New terms for this section:
 
@@ -472,7 +470,7 @@ flowchart LR
 
 | Failure | Mechanism |
 | --- | --- |
-| **Lost in the middle** | Models use evidence at the start and end of a long context more reliably than evidence in the middle |
+| **Lost in the middle** | Models use evidence at the start and end of a long context more reliably than evidence in the middle ([Liu et al., 2023](https://arxiv.org/abs/2307.03172)) |
 | **Chunk ordering** | Merge logic orders by score, time or source and buries the decisive chunk |
 | **Token-budget truncation** | Context overflows the budget and the cut lands on the evidence |
 | **Compression** | A summarising step drops a qualifier, exception, date or unit before the generator sees it |
@@ -506,7 +504,7 @@ flowchart LR
 - **Four labelled metrics, four questions.** Precision catches noise, recall catches misses, MRR catches burial, nDCG catches bad ranking under graded relevance. Any one alone is a blind spot.
 - **A recall plateau is a hard ceiling, and flat, low MRR calls for a reranker.** Past the plateau, a bigger K buys tokens and nothing else. No value of K can promote a chunk already retrieved.
 - **Labelled metrics are free.** Run them on every commit. Save the judge calls for questions arithmetic cannot answer.
-- **Three judged metrics, three failures, three fixes.** Order, coverage, signal-to-noise. Averaging them destroys the diagnosis. Reordering alone drops precision from 1.00 to 0.58, so a retrieval score that ignores ranking isn't measuring ranking.
+- **Three judged metrics, three failures, three fixes.** Order, coverage, signal-to-noise. Averaging them destroys the diagnosis. Reordering alone drops precision from 1.00 to 0.58.
 - **Contextual relevancy is the only judged check that runs without labels.** That makes it the production metric, and the one with the biggest blind spot.
 - **The judge labels and the arithmetic scores.** Validate the labelling before trusting the number, treat a score on its threshold as unresolved, and score the final prompt as well as the retrieval.
 
@@ -525,6 +523,7 @@ flowchart LR
 - [Lab 01, deterministic retrieval metrics](../../interactive-labs/01-deterministic-retrieval-metrics.html) and [Lab 02, LLM-judged retrieval](../../interactive-labs/02-llm-judged-retrieval-metrics.html): the interactive labs behind the worked examples.
 - [The six interactive labs](../../interactive-labs/README.md#interactive-labs): the index of every lab.
 - [The question bank](../../interview-prep/QUESTION_BANK.md), Part 10, sections 10.1 and 10.2: the interview questions on these two labs.
+- Nelson F. Liu et al., ["Lost in the Middle: How Language Models Use Long Contexts"](https://arxiv.org/abs/2307.03172), 2023 (TACL 2024): the source for the lost-in-the-middle row in section 5.1.
 - [Level 1 explainer, RAG retrieval and generation](../../roadmap-explainers/01-rag-retrieval-and-generation.md): the lesson that walks this ground in order.
 
 ---

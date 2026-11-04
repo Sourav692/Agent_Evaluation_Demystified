@@ -97,7 +97,7 @@ sequenceDiagram
 Every check reads from this one trace and the mutated database.
 
 - **No new agent run is needed** to compute any of the nine scores.
-- **A real harness works the same way.** Run once, score many ways.
+- **A real harness works the same way.**
 - **This is what makes trace-level evaluation affordable.** Nine scores come from a single trace.
 
 ---
@@ -116,7 +116,7 @@ Section 4 walks these against the refund trace's real numbers.
 
 | # | Check | What it catches |
 | --- | --- | --- |
-| 1 | **Tool selection accuracy** | Coverage only. Does the called set include the gold set? Loosest of the nine; passes with wrong order and extra calls |
+| 1 | **Tool selection accuracy** | Coverage only. Does the called set include the gold set? Loosest of the nine. Passes with wrong order and extra calls |
 | 2 | **Argument correctness** | Right tool, invalid arguments. The lab and its production table also call this tool call correctness |
 | 3 | **Redundant calls** | A tool-and-arguments pair that already *succeeded* earlier in the same trace |
 | 4 | **Step-wise accuracy** | Fraction of all steps that made real forward progress |
@@ -128,11 +128,11 @@ Section 4 walks these against the refund trace's real numbers.
 
 The checks this part owns, in plain words:
 
-- **Redundant call**: a repeat of a call that already worked, same tool and same arguments. Like asking a librarian the same question twice and getting the same book.
+- **Redundant call**: a repeat of a call that already worked, same tool and same arguments.
 - **Step-wise accuracy**: the share of steps that moved the task forward. Like a recipe where you count the steps that went into the dish, ignoring the spilled egg and the second trip to the fridge.
-- **Recovery rate**: of the steps that failed, the share that a later call to the same tool fixed. Like a driver who misses a turn and reroutes, as opposed to one who keeps circling.
+- **Recovery rate**: of the steps that failed, the share that a later call to the same tool fixed.
 - **End-state verification**: checking the real record the agent changed, ignoring what the agent says it did. Like checking your bank statement instead of trusting the shop's receipt.
-- **Cost or efficiency proxy**: a stand-in for spend that counts wasted steps. Like a taxi meter that ticks for every wrong turn.
+- **Cost or efficiency proxy**: a stand-in for spend that counts wasted steps.
 
 The **system of record** is the database or system where the agent's real effect lands, here the order database ([the map](01-the-map.md)).
 
@@ -178,7 +178,7 @@ Three of the step checks are simple ratios over the trace.
 
 On the refund trace:
 
-- **Step-wise accuracy is 0.60.** Steps 1, 2 and 4 count; step 0 errored and step 3 was redundant. That is 3 of 5.
+- **Step-wise accuracy is 0.60.** Steps 1, 2 and 4 count. Step 0 errored and step 3 was redundant. That is 3 of 5.
 - **Cost efficiency is 0.60.** One redundant call plus one error is 2 wasted steps out of 5.
 - **Recovery rate is 1.00.** One error, and a later `search_orders` call succeeded.
 
@@ -226,12 +226,12 @@ Read the **system of record** instead:
 Why it carries the most weight:
 
 - **It is the strongest signal available.** It reads the system of record, never the sentence the agent wrote about itself.
-- **An LLM cannot talk its way past it.** It is the only check in the suite a fluent sentence cannot defeat.
+- **An LLM cannot talk its way past it.**
 - **High-stakes agents lean on it hardest** for that reason.
 
 ### 5.2 Recovery and Self Correction
 
-For every errored step, check whether a *later* step called the *same tool* and succeeded. That separates three very different behaviours.
+For every errored step, check whether a *later* step called the *same tool* and succeeded. That separates three different behaviours.
 
 - **Recovered.** The agent noticed and corrected the input. Good.
 - **Blind retry.** Same tool, same bad arguments, again and again. Bad, and it looks similar in aggregate logs.
@@ -270,7 +270,7 @@ The lab's trajectory match is **set-based**. Did the tools that ended in `ok` co
 
 Each trap below makes a score look better than the agent deserves.
 
-- **The tool-selection scorer that scores 100% for calling everything.** The commonly published version computes both missing and unexpected tools, then bases the verdict only on the missing ones. **Fail both directions.** An unexpected account lookup is a privacy problem, which is worse than an inefficiency.
+- **The tool-selection scorer that scores 100% for calling everything.** Some versions of this scorer compute both missing and unexpected tools, then base the verdict only on the missing ones. Course 02's [`tool_call_correctness`](../../../courses/02-databricks-mlflow-evals/scorers.py) fails both. **Fail both directions.** An unexpected account lookup is a privacy problem, which is worse than an inefficiency.
 - **Exact-sequence matching as the default.** It fails on a mid-trace typo or a harmless extra lookup even when the agent did the right things. Use fuzzy by default, and exact only where order *is* the requirement.
 - **Rewarding recovery on its own.** A high recovery rate is good. A system that catches and corrects an error differs from one that fails silently. Pair it with step-wise accuracy, or you reward a system that generates errors so it can recover from them.
 
@@ -318,7 +318,7 @@ flowchart LR
 
 ### 7.1 Three Lessons That Outrank Any Row
 
-- **Instrumentation comes first.** An agent you cannot trace is an agent you cannot evaluate. Every request must emit a span per retrieval, per model call and per tool call, with tokens and latency.
+- **Instrumentation comes first.** Every request must emit a span per retrieval, per model call and per tool call, with tokens and latency.
 - **Span type works as a contract.** A grounding check *hard-requires* a span typed as a retrieval. A span with the wrong type breaks the measurement outright, with no partial score.
 - **Queryable traces change incident response.** "It got worse" becomes "retrieval p95 doubled for one tenant starting Tuesday." Here **p95** is the latency 95% of requests beat, and a **tenant** is one customer organisation on a shared system.
 
@@ -330,8 +330,8 @@ flowchart LR
 
 - **The agent takes more than two or three steps,** so there is a path worth grading.
 - **Tools have side effects.** End-state verification stops being optional once money or records move.
-- **Cost or latency is drifting without a visible quality change.** That signature is almost always step-level waste.
-- **You are comparing agent versions.** Outcome checks saturate quickly; step checks keep discriminating.
+- **Cost or latency is drifting without a visible quality change.** That pattern often points to step-level waste.
+- **You are comparing agent versions.** Outcome checks saturate quickly. Step checks keep discriminating.
 
 **Skip it when:**
 
@@ -344,8 +344,8 @@ flowchart LR
 ## Key Takeaways
 
 - **Score the path as well as the outcome.** Nine checks split into outcome checks and step checks, and both run on the same trace.
-- **Five of nine checks were identical across a five-step wasteful run and a three-step clean one.** Outcome checks saturate; step checks keep discriminating.
-- **Read the system of record instead of the agent's summary.** End-state verification is the only check a fluent sentence cannot defeat.
+- **Five of nine checks were identical across a five-step wasteful run and a three-step clean one.** Outcome checks saturate, while step checks keep discriminating.
+- **Read the system of record instead of the agent's summary.** A fluent sentence cannot defeat end-state verification, because it reads the order database.
 - **`None` is a valid metric value.** Recovery rate on a run with no errors is not 1.0.
 - **Run once, score many ways.** Nine scores from a single trace is what makes trace-level evaluation affordable.
 - **Fail tool selection in both directions, match trajectories fuzzily by default, and pair recovery with step-wise accuracy.**

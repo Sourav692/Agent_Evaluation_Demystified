@@ -10,7 +10,7 @@
 
 ## 1. The Words You Need First
 
-Every later part of this guide uses the terms below. Each one gets a plain definition, an everyday comparison, and a line on how it shows up in the running example.
+Every later part of this guide uses the terms below. Each one gets a plain definition, and most also get an everyday comparison and a line on how it shows up in the running example.
 
 **The running example.** A support agent for an online shop. It searches the shop's help centre for policy articles, and it can look up orders and issue refunds.
 
@@ -37,7 +37,6 @@ Every later part of this guide uses the terms below. Each one gets a plain defin
 - **Agent**: an LLM system that decides for itself which actions to take, one step at a time, to reach a goal.
   - Analogy: a new employee given a task and a set of office tools, deciding the order to use them in.
 - **Tool**: a function the agent is allowed to call, such as "look up order" or "issue refund".
-  - Analogy: one of the employee's office tools, like the phone or the till.
 - **Tool call**: one request from the agent to run a tool, with specific inputs.
 - **Arguments**: the inputs passed in a tool call, such as the order ID handed to the refund tool.
 - **Trajectory**: the whole sequence of steps and tool calls the agent made for one request.
@@ -214,7 +213,7 @@ Every check compares the output to something. The only question is where that so
 - **A referenceless check has everything it needs.** Both sides of its comparison came out of that same request: the question, the retrieved chunks and the answer.
 - **The test is mechanical.** Ask: does it need an answer key? If yes, it can never go online, however good it is.
 - **That one question sorts your whole suite** before you write a line of code.
-- **Mature setups run both.** Reference-based checks run in CI, and referenceless checks run on live traffic. Teams use both, side by side.
+- **Mature setups run both.** Reference-based checks run in CI, and referenceless checks run on live traffic.
 
 This decision tree shows where a check is allowed to run.
 
@@ -233,7 +232,6 @@ flowchart TD
 - **Two checks on the same layer can land on opposite sides.** Both of these look at retrieval:
   - One compares the retrieved passages to the *question*. That is referenceless.
   - A close neighbour compares the same passages to the *expected answer*. That is reference-based.
-- **Same chunks, opposite sides of the line.**
 - **So you ask two separate questions about every check.** "Which layer is this?" and "does it need a reference?" are independent.
 
 ### 4.5 Worked Example, One Context and Two Metrics
@@ -290,7 +288,7 @@ The same split appears one layer up, in generation:
 
 - The layer tells you *what broke*.
 - The reference question tells you *where you are allowed to run the check*.
-- Answer only the first, and you build a suite that works beautifully offline and goes dark the moment it meets real traffic.
+- Answer only the first, and you build a suite that works offline and goes dark the moment it meets real traffic.
 - Every metric has a coordinate on each axis: its layer, and whether it needs an answer key written in advance.
 
 This diagram places the four metrics from this example on both axes at once.
@@ -329,7 +327,6 @@ The second question is how the score gets computed: by fixed rules, or by a mode
   - Its score moves on its own, even when nothing changed.
   - Analogy: a food critic. Two visits to the same meal can get different marks.
 - **LLM-as-judge**: using one language model to read another model's output and score it against a written criterion. Most judged checks work this way.
-  - Analogy: a teacher marking essays with a mark scheme. Fast and flexible, but the teacher can be inconsistent or fooled by confident writing.
 
 ### 5.2 Why Reproducibility Decides It
 
@@ -354,7 +351,7 @@ flowchart LR
 
 ## 6. LLM as Judge, the Failure Modes
 
-An LLM judge is the only practical way to score open-ended text. It is still no oracle, and treating it like one is the most common mistake in eval work.
+An LLM judge is the only practical way to score open-ended text. It is still no oracle, and treating it like one is a mistake.
 
 **Oracle**: a source whose answer you accept as true without checking.
 Analogy: a referee whose calls nobody ever checks on replay.
@@ -363,11 +360,11 @@ Analogy: a referee whose calls nobody ever checks on replay.
 | --- | --- | --- |
 | **Judge capability** | A weaker judge produces noisier scores | Use a judge at least as capable as the task, sometimes more capable than the system it grades |
 | **Non-determinism** | Two runs on the same input can disagree, especially near the threshold | Treat one score as a noisy estimate. Never gate on a single row |
-| **Rubric sensitivity** | A vague criterion produces a judge that quietly disagrees with itself | Write the criterion precisely. The specificity you write down is the specificity you get back |
+| **Rubric sensitivity** | A vague criterion produces a judge that quietly disagrees with itself | Write the criterion precisely |
 | **Cost compounds** | Five dimensions (qualities scored) over 500 cases is 2,500+ calls | Treat the answer-key question in section 4 as an operational decision as well as a conceptual one |
 | **Nobody validates the validator** | An unchecked judge gives numbers that are internally consistent and externally unvalidated | Use an unchecked judge to detect *change*. Do not use it to assert *quality* |
 | **Measure agreement, not average** | A judge that rates everything highly scores beautifully and is useless | Measure how often the judge agrees with humans |
-| **Fluent-but-wrong fools it** | It reads text and decides whether it *sounds* right | Verify the real end state. This is the whole argument for end-state verification |
+| **Fluent-but-wrong fools it** | It reads text and decides whether it *sounds* right | Verify the real end state |
 | **Score direction is not a convention** | A check named for the failure it detects runs backwards | Check the direction before wiring anything to a threshold |
 
 Two of these, applied to the support agent:
@@ -421,12 +418,12 @@ flowchart TD
 
 ### 7.2 Stop at the First Rung That Answers
 
-- **The common overspend is rung 4 for a rung 1 question.**
+- **One overspend is rung 4 for a rung 1 question.**
   - Most trace questions need no judgment at all.
   - Redundant calls, cycles, step counts and error-then-retry patterns are all countable.
-  - Paying a large-prompt judge to count duplicate calls is the most common way teams waste evaluation budget.
-- **Rung 4 is for trace questions that genuinely need judgment**, such as whether a sequence was reasonable given an ambiguous request. Anything you could write a query for belongs lower down.
-- **The other common overspend is rung 3 for a rung 1 question**: a judged check for something a regex settles.
+  - Paying a large-prompt judge to count duplicate calls wastes evaluation budget.
+- **Rung 4 is for trace questions that need judgment**, such as whether a sequence was reasonable given an ambiguous request. Anything you could write a query for belongs lower down.
+- **Another is rung 3 for a rung 1 question**: a judged check for something a regex settles.
 - In the example: "did the agent look up the order more than once?" is a count over the trace, so rung 1.
 
 ---
@@ -436,7 +433,7 @@ flowchart TD
 **Evaluation framework**: a library or platform that runs checks for you and reports the scores.
 Analogy: a set of kitchen measuring tools. Different brands, same cups and spoons.
 
-Several evaluation frameworks appear across the notebooks. The only durable fact about them is that they come in two shapes:
+Several evaluation frameworks appear across the notebooks. They come in two shapes:
 
 - **Metric libraries.** Ready-made, named measurements.
   - Fast to start.
@@ -446,7 +443,7 @@ Several evaluation frameworks appear across the notebooks. The only durable fact
   - Usually paired with versioned runs, a trace store and version comparison.
 - **Primitive**: a basic building block you assemble checks from yourself.
 
-Every concept here exists in all of them under some name. None of them lets you skip deciding which question you're asking.
+Every concept here exists in all of them under some name.
 
 ### 8.1 The Four Frameworks in This Repo
 
@@ -460,7 +457,7 @@ The table below sets them side by side. It is a lookup for moving between notebo
 | <br> | DeepEval | RAGAS | MLflow 3 GenAI | Arize Phoenix |
 | --- | --- | --- | --- | --- |
 | **Shape** | Metric library | Metric library, RAG-first | Platform with primitives, plus built-in scorers | Platform: tracing + experiments |
-| **Really for** | Broad catalogue (retrieval, generation, tools, task, conversation) plus custom rubrics; runs under pytest | A second opinion on RAG ([running RAG evals](04-running-rag-evals.md)); the common default in the RAG ecosystem | Evaluation inside experiment tracking: every run versioned, logged, comparable | Instrument a live system, capture every span, run evaluators over the captured traces |
+| **Really for** | Broad catalogue (retrieval, generation, tools, task, conversation) plus custom rubrics, run under pytest | A second opinion on RAG ([running RAG evals](04-running-rag-evals.md)) | Evaluation inside experiment tracking: every run versioned, logged, comparable | Instrument a live system, capture every span, run evaluators over the captured traces |
 | **Unit of evaluation** | `LLMTestCase`; `ConversationalTestCase` for dialogues | `SingleTurnSample` (`user_input`, `response`, `retrieved_contexts`, `reference`) | A dataset row (`inputs` / `outputs` / `expectations`) plus the `Trace` captured for it | A captured span, or an experiment of dataset + task + evaluators |
 | **Sync vs async** | `metric.measure()` sync, `a_measure()` async; `evaluate()` runs cases concurrently by default | Async-first: `await metric.ascore(...)`; `score()` is a sync wrapper that refuses to run inside an event loop | `mlflow.genai.evaluate()`, one blocking call | Tracing is continuous; experiments run as jobs |
 | **The judge** | A `model=` string or model object | An explicit object: `llm_factory(model, client=...)` | Built into each scorer, or your own via `make_judge()` | Whatever model your evaluator calls |
@@ -498,7 +495,7 @@ In one line each:
 3. A dashboard shows a hallucination score of 0.9. Is grounding good?
    **No. A check named for the failure it detects runs backwards, so 0.9 means lots of hallucination.**
 4. You want to know whether the agent called the order-lookup tool twice in a row. Which rung of the cost ladder do you use?
-   **Rung 1, a deterministic count over the trace. Paying a trace-based judge to count duplicate calls is the most common way teams waste evaluation budget.**
+   **Rung 1, a deterministic count over the trace. Paying a trace-based judge to count duplicate calls wastes evaluation budget.**
 5. The agent replies "Your refund has been issued," and a judge rates it highly. What check settles whether the refund happened?
    **End-state verification: read the system of record. A judge decides whether text sounds right, so fluent-but-wrong prose can fool it.**
 

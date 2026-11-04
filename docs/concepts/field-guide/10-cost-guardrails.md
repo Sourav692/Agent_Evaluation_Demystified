@@ -54,7 +54,7 @@ flowchart LR
 
 ## 2. Per-Request Budget
 
-**Per-request budget**: a set of limits that every single request gets for its run. Like a prepaid travel card loaded for one trip: when it hits zero, spending stops.
+**Per-request budget**: a set of limits that every single request gets for its run.
 
 Example limits:
 
@@ -96,7 +96,7 @@ flowchart TD
 
 ## 3. Dynamic Cost Budgets
 
-**Dynamic budget**: a budget whose size depends on the request, chosen before the run starts. Like a hospital that books a short slot for a check-up and a long one for surgery.
+**Dynamic budget**: a budget whose size depends on the request, chosen before the run starts.
 
 Not every request needs the same budget.
 
@@ -141,7 +141,7 @@ On the support platform:
 | Simple FAQ RAG | Medium model |
 | Complex refund reasoning | Strong model |
 
-- **Routing is usually better** than sending every internal agent operation to the most expensive model.
+Routing is usually better than sending every internal agent operation to the most expensive model.
 
 ---
 
@@ -220,9 +220,9 @@ flowchart LR
 
 ## Key Takeaways
 
-- Cost tracking answers "What did we spend?"; cost guardrails answer "How much are we willing to spend?" and act during the run.
+- Cost tracking answers "What did we spend?" Cost guardrails answer "How much are we willing to spend?" and act during the run.
 - Give every request a budget on LLM calls, agent steps, RAG calls, tool calls, tokens, cost and runtime, so one abnormal request cannot consume unlimited resources.
-- Near the budget, restrict expensive operations; at it, stop, fall back or escalate to a human.
+- Near the budget, restrict expensive operations. At it, stop, fall back or escalate to a human.
 - Size budgets by tenant, workflow, customer tier, risk level and task complexity, then enforce them deterministically.
 - Route each task to the cheapest model that can do it, and cap RAG's top K, chunks, context tokens, retrieval attempts and reranking calls.
 - Tenant budgets alert at 80%, restrict at 90%, and apply the contract's configured behaviour at the limit.
@@ -234,7 +234,7 @@ flowchart LR
 2. A request has spent $0.09 against a $0.10 limit. What happens now, and what happens at $0.10?
    **Near the budget, expensive operations are restricted. At $0.10 the request stops, falls back or goes to human escalation.**
 3. "What is your return policy?" and "I was charged twice for three orders and one refund is missing." Should they get the same budget?
-   **No. The first could have a small budget; the second may legitimately need more agents and tools. The budget can vary, but once chosen it is enforced deterministically.**
+   **No. The first could have a small budget, and the second may legitimately need more agents and tools. The budget can vary, but once chosen it is enforced deterministically.**
 4. Which model should handle supervisor classification, and which should handle complex refund reasoning?
    **A small model for supervisor classification, a strong model for complex refund reasoning. Simple FAQ RAG sits in between on a medium model.**
 5. Globex has used 90% of its $5,000 monthly AI budget. What does the policy do?

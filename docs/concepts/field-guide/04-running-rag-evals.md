@@ -38,7 +38,6 @@ There are three reasons to wire the checks in:
 - **It shows what the checks do.** Build grounding out of raw judge calls once, and you see what a ready-made version is doing underneath.
 - **Prototype against mocked judges first.**
   - **Mocked judge**: a stand-in function that returns a fixed verdict instead of calling a model.
-  - It works like a fire drill: the same route out of the building, with no real fire.
   - The pipeline keeps the same structure, gives byte-identical output on every run, and costs nothing.
   - Swap in real judges once the shape is right.
   - That swap is where non-determinism becomes visible. **Non-determinism**: a real judge can give the same input a different score on a different run.
@@ -52,7 +51,6 @@ One scored example teaches you what a check does. It says nothing about your sys
 - **Batch run**: scoring many inputs in one go, one row at a time, and keeping every score.
 - **Dataset**: a table of test inputs, one per row. For the support agent, each row is one customer question.
 - **Live system**: the version that is actually deployed, the one customers talk to.
-- A teacher marking a whole class writes each grade on the paper it belongs to. One graded paper tells you little about the class.
 
 > dataset of inputs → call the **live** system once per row → score the real response → write the score back beside its input
 
@@ -69,7 +67,7 @@ flowchart LR
 The pattern has four properties:
 
 - **Every row hits the live system.** You test what is deployed, rather than a reconstruction of it.
-- **Scores land next to inputs.** A bad number is one click from the input that caused it. That is what turns a dashboard into a diagnosis.
+- **Scores land next to inputs.** A bad number is one click from the input that caused it.
 - **It re-runs on demand.** You need that before you can compare a change against what is live.
 - **A standard test runner gets you this cheaply.**
   - **Test runner**: a tool that runs many small tests and reports which passed and which failed.
@@ -109,7 +107,7 @@ Three more differences catch people out:
   - **Async** code starts a slow task and lets other work run while it waits, like getting a buzzer at a food counter.
   - `await metric.ascore(...)` waits for the result and returns a `MetricResult`. Read its `.value`.
   - DeepEval is synchronous by comparison: `metric.measure(case)`.
-  - An **event loop** is the scheduler that runs async tasks. The sync `score()` wrapper refuses to run inside one, so a notebook cell uses `await` directly.
+  - An **event loop** is the scheduler that runs async tasks. The sync `score()` wrapper does not run inside one, so a notebook cell uses `await` directly.
 - **The judge is an object.**
   - Instead of naming a model in a string, you build it with `llm_factory("gpt-4o-mini", client=AsyncOpenAI())` and pass it as `llm=`.
   - Its `provider=` argument swaps in other vendors.
@@ -137,8 +135,7 @@ flowchart LR
 
 A **reference** is a correct answer a person wrote down before the system ran ([the map](01-the-map.md)). A golden dataset is a whole set of them.
 
-- **Golden dataset**: a set of test questions, each paired with its expected answer, that serves as the answer key for the system.
-- It is like the exam paper and marking scheme a school reuses every year.
+- **Golden dataset**: a set of test questions, each paired with its expected answer, that is the answer key for the system.
 
 Four rules for building one:
 
@@ -203,10 +200,10 @@ flowchart TD
 
 ## Key Takeaways
 
-- Relevance and grounding checks can run as pipeline steps, so the system can branch on them, for example by asking a clarifying question.
-- Prototype in-pipeline checks against mocked judges; the swap to real judges is where non-determinism shows up.
-- A batch run calls the live system once per row and writes each score beside its input, so a bad number leads straight to its cause.
-- A second library is a second opinion: agreement is evidence, disagreement is a judge question worth reading.
+- Relevance and grounding checks can run as pipeline steps. The system can then branch on them, for example by asking a clarifying question.
+- Prototype in-pipeline checks against mocked judges. The swap to real judges is where non-determinism shows up.
+- A batch run calls the live system once per row and writes each score beside its input. A bad number then leads straight to its cause.
+- Use a second library as a second opinion. When two libraries agree on a case, that is evidence. When they disagree, the case is a judge question worth reading.
 - Generate golden datasets from your own documents, spot-check them, and build each case's context by running the retriever.
 - Diagnose by the pattern across metrics, and slice before you conclude, because an aggregate can hide a category at zero.
 
@@ -214,7 +211,7 @@ flowchart TD
 
 1. Your golden dataset passes every faithfulness check, but each case's context was copied from the article its question was generated from. What are you actually testing? **Whether the generator works given perfect context, which nothing in production ever has. Build each case's context by running the retriever on the golden question.**
 2. Contextual precision is low and every other metric is high. Where do you look? **At the ranking. That pattern points to a ranking problem.**
-3. In the RAGAS notebook, Context Precision comes back below Context Recall. What happened to the retrieved chunks? **One irrelevant chunk was ranked above the correct one. Precision is penalised by the noise in the ranking; recall only asks whether the reference's claims are covered, and they are.**
+3. In the RAGAS notebook, Context Precision comes back below Context Recall. What happened to the retrieved chunks? **One irrelevant chunk was ranked above the correct one. Precision is penalised by the noise in the ranking. Recall only asks whether the reference's claims are covered, and they are.**
 4. Two systems both score 85%. Are they equally good? **Not necessarily. One can have a category at zero while the other is spread evenly. Slice by query category, tenant, intent and document type before you conclude.**
 5. Why prototype in-pipeline checks against mocked judges? **Same structure, byte-identical output and zero cost. Swap in real judges once the shape is right, and expect non-determinism to show up at that swap.**
 

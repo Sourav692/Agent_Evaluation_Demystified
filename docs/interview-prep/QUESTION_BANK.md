@@ -3736,7 +3736,7 @@ Nothing broke. The new model **followed the instruction more literally** than th
 
 > An agent told a customer their account plan and balance. The account number didn't exist. The tool returned `{"found": false}`. No error was raised, nothing crashed, nothing alerted. How did this happen and how do you stop it?
 
-**What's being tested:** Recognising **polite tool failure** — the single most under-tested failure mode in production agents.
+**What's being tested:** Recognising **polite tool failure** — a failure that raises no error and trips no alert.
 
 **How you'd talk through it:**
 
@@ -3934,13 +3934,13 @@ Task success isn't wrong. It is **structurally incapable** of seeing waste, beca
 
 **"Redundant call" has a precise definition, and the precision matters.** It's the same tool with the same arguments that **already succeeded** earlier in the trace. Step 4 qualifies. Step 3 does not — retrying a call that *failed* is legitimate behaviour, and a scorer that flags it would punish correct error handling.
 
-**The trap in the usual scorer.** Most published tool-selection scorers compute both missing and unexpected tools, then decide pass/fail on the missing ones alone. An agent that calls **every tool on every request has nothing missing** — and scores 100%. An unexpected account lookup isn't inefficiency, it's a privacy incident.
+**The trap in a common scorer shape.** Some tool-selection scorers compute both missing and unexpected tools, then decide pass/fail on the missing ones alone. An agent that calls **every tool on every request has nothing missing** — and scores 100%. An unexpected account lookup isn't inefficiency, it's a privacy incident.
 
 **The analogy.** A taxi receipt that says only "arrived." You got there, so the trip was a success — while the meter quietly reads four times the fare.
 
 **Why it matters.** Outcome and process are different questions, and an agent can pass one while failing the other in the direction that costs you money.
 
-**The trap in the standard pattern:** The commonly published tool-selection scorer computes both *missing* and *unexpected* tools, then bases the verdict only on the missing ones. An agent that calls **every tool on every request scores 100%**. Fail both directions — an unexpected account lookup is a privacy problem, not an inefficiency.
+**The trap in a common scorer shape:** Some tool-selection scorers compute both *missing* and *unexpected* tools, then bases the verdict only on the missing ones. An agent that calls **every tool on every request scores 100%**. Fail both directions — an unexpected account lookup is a privacy problem, not an inefficiency.
 
 **Killer follow-ups:**
 - *"Is a high recovery rate good or bad?"* → "Genuinely good on its own — an error caught and corrected mid-run is a very different system from one that fails silently or retries blindly with the same bad input. But I'd pair it with step-wise accuracy, or I'm rewarding a system for generating errors so it can recover from them."

@@ -234,7 +234,7 @@ function render(){
     c.className='callout';
     c.innerHTML=`<b>Precision ${P.toFixed(2)}, recall ${R.toFixed(2)}, relevancy ${V.toFixed(2)}.</b>
       Even healthy retrieval scores only ${V.toFixed(2)} on relevancy, because one of three chunks is history trivia.
-      That is not a bug — relevancy is a signal-to-noise ratio, and a perfect 1.00 usually means K is too small rather than retrieval being flawless.`;
+      That is not a bug — relevancy is a signal-to-noise ratio, and a perfect 1.00 can mean K is too small rather than retrieval being flawless.`;
   } else if(i===1){
     c.className='callout warn';
     c.innerHTML=`<b>Same three chunks. Same coverage. Precision fell to ${P.toFixed(2)}.</b>

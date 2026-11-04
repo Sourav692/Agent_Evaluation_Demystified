@@ -962,7 +962,7 @@ a gate depended on dict ordering rather than documented preference.
 **Effect:** A judged scorer could silently outrank the deterministic one meant to take
 precedence.
 
-#### D30. The published tool-selection pattern ignores extra calls
+#### D30. A tool-selection scorer that ignores extra calls
 
 **Bug:** Computing both missing and unexpected tools, then basing the verdict only on
 missing ones.
