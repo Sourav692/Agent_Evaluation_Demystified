@@ -2,7 +2,7 @@
 
 *Run the live system over many cases built from your own documents, keep each score beside its input, and read the scores by pattern and by slice.*
 
-◷ 9 min read · Field guide part 4 of 8 · [Introduction](00-introduction.md)
+◷ 9 min read · Field guide part 4 of 11 · [Introduction](00-introduction.md)
 
 > **Before you start.** This part assumes [the map](01-the-map.md), [RAG retrieval](02-rag-retrieval.md) and [RAG generation](03-rag-generation.md). It takes the metrics from those parts and shows how to run them on a real system.
 

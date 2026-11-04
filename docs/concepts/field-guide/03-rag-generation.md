@@ -2,7 +2,7 @@
 
 *An answer can be fully grounded in what retrieval fetched and still be false, so some check has to compare it against the truth.*
 
-◷ 15 min read · Field guide part 3 of 8 · [Introduction](00-introduction.md)
+◷ 15 min read · Field guide part 3 of 11 · [Introduction](00-introduction.md)
 
 > **Before you start.** This part assumes [the map](01-the-map.md) (judges, references, offline and online checks) and [RAG retrieval](02-rag-retrieval.md) (how the chunks reached the prompt). Retrieval asked whether the right chunks arrived. This part asks whether the answer built on top of them is any good.
 

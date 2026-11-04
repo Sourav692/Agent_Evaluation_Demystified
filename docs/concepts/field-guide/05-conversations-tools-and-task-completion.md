@@ -2,7 +2,7 @@
 
 *A good-looking final reply proves nothing about an agent, so score the conversation, every tool decision and the real outcome separately.*
 
-◷ 20 min read · Field guide part 5 of 8 · [Introduction](00-introduction.md)
+◷ 20 min read · Field guide part 5 of 11 · [Introduction](00-introduction.md)
 
 > **Before you start.** This part assumes [the map](01-the-map.md) for the basic vocabulary (agent, tool, tool call, deterministic and judged checks, answer keys) and [RAG generation](03-rag-generation.md) for rubrics and thresholds. Retrieval and generation checks stop at a single answer. This part covers what an agent does across turns and through its tools.
 

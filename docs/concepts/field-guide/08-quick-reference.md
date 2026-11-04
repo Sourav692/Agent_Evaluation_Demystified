@@ -2,7 +2,7 @@
 
 *When a score looks wrong, work the layers in order, place every check by its layer and its need for an answer key, and slice before you conclude.*
 
-◷ 8 min read · Field guide part 8 of 8 · [Introduction](00-introduction.md)
+◷ 8 min read · Field guide part 8 of 11 · [Introduction](00-introduction.md)
 
 > **Before you start.** This page assumes parts 1 to 7: [the map](01-the-map.md), [RAG retrieval](02-rag-retrieval.md), [RAG generation](03-rag-generation.md), [running RAG evals](04-running-rag-evals.md), [conversations, tools and task completion](05-conversations-tools-and-task-completion.md), [agent trajectory](06-agent-trajectory.md) and [production and multi-agent systems](07-production-and-multi-agent.md). It defines nothing new. Every row links to the part that explains it.
 
@@ -149,4 +149,4 @@ This page draws only on material in this repository. It cites no external source
 
 ---
 
-**Next:** [Introduction](00-introduction.md) · **Previous:** [Production and multi-agent systems](07-production-and-multi-agent.md)
+**Next:** [Cost tracking](09-cost-tracking.md) · **Previous:** [Production and multi-agent systems](07-production-and-multi-agent.md)

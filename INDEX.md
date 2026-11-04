@@ -20,12 +20,12 @@ question bank `question-bank.html`, the roadmap `roadmap.html`, the drill
 
 | Short name | Is this file | What it is |
 |---|---|---|
-| **Field guide** | [`docs/concepts/field-guide/`](docs/concepts/field-guide/00-introduction.md): an introduction plus eight parts | Course 01 theory. Tool-agnostic: what each check catches and misses, no framework APIs |
+| **Field guide** | [`docs/concepts/field-guide/`](docs/concepts/field-guide/00-introduction.md): an introduction plus eleven parts | Course 01 theory. Tool-agnostic: what each check catches and misses, no framework APIs |
 | **Question bank** | [`docs/interview-prep/QUESTION_BANK.md`](docs/interview-prep/QUESTION_BANK.md) | 35 questions + 30 metric questions + 19 cases + appendices |
 | **Databricks ref** | [`docs/concepts/databricks-mlflow-evals.md`](docs/concepts/databricks-mlflow-evals.md) | Course 02 theory. Framework-specific: MLflow scorers, gotchas, the numbers |
 | **Drill page** | [`docs/interview-prep/evaluation-round-drill.html`](docs/interview-prep/evaluation-round-drill.html) | The self-quiz. Open in a browser |
 | **Case study** | [`docs/concepts/customer-support-multi-agent-case-study.md`](docs/concepts/customer-support-multi-agent-case-study.md) | One multi-tenant support system evaluated stage by stage, through the gate, canary and online signals |
-| **Cost doc** | [`docs/concepts/cost-tracking-and-guardrails.md`](docs/concepts/cost-tracking-and-guardrails.md) | The same system's cost tracking, budgets and guardrails |
+| **Cost doc** | Field guide parts [9](docs/concepts/field-guide/09-cost-tracking.md), [10](docs/concepts/field-guide/10-cost-guardrails.md) and [11](docs/concepts/field-guide/11-safety-guardrails-and-evaluation.md) | The same system's cost tracking, budgets and guardrails |
 | **Online/offline** | [`docs/concepts/databricks-mlflow-evals.md`, Part 5](docs/concepts/databricks-mlflow-evals.md#part-5--online-vs-offline) | The two regimes and what flows between them; the sampling-resolution argument is in explainer 05 §6 |
 
 `§` is a section number inside that file. Jump to the section rather than scrolling. `lab 0N-…` means
@@ -105,7 +105,7 @@ question bank `question-bank.html`, the roadmap `roadmap.html`, the drill
 
 ## 2. The documents
 
-### `docs/concepts/field-guide/00-introduction.md` — Field guide (introduction + 8 parts, 28,700 words)
+### `docs/concepts/field-guide/00-introduction.md` — Field guide (introduction + 11 parts, 37,200 words)
 
 The theory companion to course 01, written for someone who has never evaluated an LLM system. Tool-agnostic on
 purpose: no framework APIs except where a part walks a lab. The introduction, `00-introduction.md`, links the eight
@@ -145,6 +145,21 @@ parts in `docs/concepts/field-guide/`; each worked lab (old Part 6) sits inside 
 
 1. The Evaluation Debugging Loop · 2. Question to Measurement · 3. One-Page Cheat Sheet · 4. The Five That Matter Most
 
+### `docs/concepts/field-guide/09-cost-tracking.md` — Cost Tracking (2,662 words)
+
+Parts 9–11 are the cost-and-guardrails track on the support-system case study's platform. Diagram source for the whole
+track: `docs/concepts/cost-tracking-and-guardrails.excalidraw` (rendered as `cost-tracking-and-guardrails.png`).
+
+1. One System, Many Tenants · 2. Where Cost Tracking Sits · 3. One Real Request · 4. The Request-Level Cost Trace · 5. LLM Cost · 6. RAG Cost · 7. Tool Cost · 8. Agent-Level Cost · 9. Tenant-Level Cost Attribution
+
+### `docs/concepts/field-guide/10-cost-guardrails.md` — Cost Guardrails (1,793 words)
+
+1. Guardrails and Cost Guardrails · 2. Per-Request Budget · 3. Dynamic Cost Budgets · 4. Model Routing for Cost Control · 5. RAG Cost Guardrails · 6. Tenant-Level Budget Guardrails
+
+### `docs/concepts/field-guide/11-safety-guardrails-and-evaluation.md` — Safety Guardrails and Evaluation (3,927 words)
+
+1. Five Guardrail Boundaries · 2. Input Guardrails · 3. Agent Guardrails · 4. RAG and Data Guardrails · 5. Tool and Action Guardrails · 6. Agent Recommends, Policy Decides, Executor Acts · 7. Output Guardrails · 8. Deterministic and AI Guardrails · 9. What Happens When a Guardrail Triggers? · 10. Cost, Guardrails and Evaluation in One Architecture · 11. Production Monitoring · 12. Cost in the Release Gate · 13. The Full Mental Model · 14. For the Interview
+
 
 ### `docs/concepts/databricks-mlflow-evals.md` — Databricks/MLflow reference (11,100 words)
 
@@ -169,19 +184,6 @@ end to end. Where the field guide defines each check, this applies all of them t
 | **§17–§24** | Dataset design · instrumentation · the offline suite and metrics · human evaluation and judge calibration · versioned rubrics · candidate vs production · pairwise evaluation |
 | **§25–§30** | The release gate's four checks and scenarios · canary · online deterministic and judged evaluation · product signals · the feedback loop |
 | **§31–§38** | Eval-driven architecture · the complete architecture, offline flow and lifecycle · deterministic vs judged, final view · coverage · the mental model · what to remember, with eight interview mistakes |
-
-### `docs/concepts/cost-tracking-and-guardrails.md` — Cost and guardrails (3,400 words)
-
-The case study's system again, from the cost side. Diagram source:
-`cost-tracking-and-guardrails.excalidraw` (rendered as `cost-tracking-and-guardrails.png`).
-
-| | Covers |
-|---|---|
-| **§1–§4** | Scenario · architecture · one request · its cost trace |
-| **§5–§9** | Cost tracking per LLM call, RAG step, tool and agent · tenant-level attribution |
-| **§10–§15** | Cost guardrails: per-request budgets, dynamic budgets, model routing, RAG cost limits, tenant budgets |
-| **§16–§24** | Five guardrail boundaries: input, agent, RAG/data, tool/action ("agent recommends, policy decides, executor acts"), output · deterministic vs AI guardrails · what happens when one triggers |
-| **§25–§29** | Cost, guardrails and evaluation together · production monitoring · cost as a blocking release check · the mental model |
 
 ### `docs/interview-prep/QUESTION_BANK.md` — Question bank (48,100 words)
 

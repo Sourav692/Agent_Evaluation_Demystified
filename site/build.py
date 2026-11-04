@@ -116,6 +116,15 @@ RENDER = {
         ("concepts/field-guide/08-quick-reference.md", "field-guide-08-quick-reference",
          "Field guide 8 &middot; Quick reference",
          "The debugging loop, question-to-measurement table, cheat sheet and self-check for the whole guide."),
+        ("concepts/field-guide/09-cost-tracking.md", "field-guide-09-cost-tracking",
+         "Field guide 9 &middot; Cost tracking",
+         "What one request costs, traced per LLM call, retrieval step, tool and agent, and attributed to each tenant."),
+        ("concepts/field-guide/10-cost-guardrails.md", "field-guide-10-cost-guardrails",
+         "Field guide 10 &middot; Cost guardrails",
+         "Per-request and dynamic budgets, model routing, retrieval limits and tenant caps that stop a system overspending."),
+        ("concepts/field-guide/11-safety-guardrails-and-evaluation.md", "field-guide-11-safety-guardrails-and-evaluation",
+         "Field guide 11 &middot; Safety guardrails &amp; evaluation",
+         "Five guardrail boundaries, policy before action, what happens when one fires, and cost in monitoring and the release gate."),
         ("concepts/databricks-mlflow-evals.md", "databricks-mlflow",
          "MLflow &amp; Databricks",
          "Course 02's companion: the agent under test, concepts by theme, "
@@ -126,10 +135,6 @@ RENDER = {
          "Support-system case study",
          "One multi-tenant support agent evaluated end to end: every stage's checks, "
          "the offline suite, the release gate, the canary and online signals."),
-        ("concepts/cost-tracking-and-guardrails.md", "cost-and-guardrails",
-         "Cost and guardrails",
-         "The same system's cost: per-request, per-agent and per-tenant attribution, "
-         "budgets, and five guardrail boundaries &mdash; and how cost gates a release."),
     ],
     "Interview prep": [
         ("interview-prep/QUESTION_BANK.md", "question-bank",

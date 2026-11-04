@@ -2,7 +2,7 @@
 
 *Name the layer that broke before you pick a check, because each layer fails for its own reasons and needs its own fix.*
 
-◷ 24 min read · Field guide part 1 of 8 · [Introduction](00-introduction.md)
+◷ 24 min read · Field guide part 1 of 11 · [Introduction](00-introduction.md)
 
 > **Before you start.** This part assumes nothing. If you know what an LLM and a chatbot are, you have enough. Every later part builds on the words defined here.
 

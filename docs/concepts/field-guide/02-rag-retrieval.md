@@ -2,7 +2,7 @@
 
 *Before you blame the model for a wrong answer, check with cheap arithmetic whether the right chunk ever reached the prompt.*
 
-◷ 24 min read · Field guide part 2 of 8 · [Introduction](00-introduction.md)
+◷ 24 min read · Field guide part 2 of 11 · [Introduction](00-introduction.md)
 
 > **Before you start.** This part assumes [the map](01-the-map.md): what a chunk, retriever, generator, judge and reference are. It covers the search half of a RAG system. [RAG generation](03-rag-generation.md) covers the half that writes the answer.
 

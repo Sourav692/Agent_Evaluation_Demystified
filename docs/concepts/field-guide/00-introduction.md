@@ -1,8 +1,8 @@
 # Introduction to the Field Guide on RAG, Agent and Tool Evaluation
 
-*Start here: this introduction sets up the eight parts that explain how to check whether a RAG system or an agent works, one concept at a time.*
+*Start here: this introduction sets up the eleven parts that explain how to check whether a RAG system or an agent works, and what it costs to run safely, one concept at a time.*
 
-◷ 3 min read · Field guide part 0 of 8, the introduction
+◷ 3 min read · Field guide part 0 of 11, the introduction
 
 Companion to the 14 notebooks in [course 01](../../../courses/01-rag-agent-tool-evaluation/). The notebooks show how to express each idea in a
 framework. This guide explains the idea itself, in plain language, before any code.
@@ -19,10 +19,11 @@ The lessons that walk the same ground in order are [Level 1](../../roadmap-expla
 
 ---
 
-## The Eight Parts
+## The Eleven Parts
 
 The diagram shows the reading order. Parts 2–4 follow a RAG system from search to answer; parts 5–6 follow an agent from one tool call to a whole
-run; part 7 takes both into production.
+run; part 7 takes both into production. Parts 9–11 are a second track on the same system: what it costs to run, and the
+guardrails that keep it affordable and safe.
 
 ```mermaid
 flowchart TD
@@ -34,6 +35,9 @@ flowchart TD
     P4 --> P7["7 · Production and multi-agent<br/>what survives going live?"]
     P6 --> P7
     P7 --> P8["8 · Quick reference<br/>cheat sheet and self-check"]
+    P7 --> P9["9 · Cost tracking<br/>what does one request cost?"]
+    P9 --> P10["10 · Cost guardrails<br/>budgets, routing, tenant caps"]
+    P10 --> P11["11 · Safety guardrails and evaluation<br/>what must never happen?"]
 ```
 
 | Part | What it answers |
@@ -46,6 +50,9 @@ flowchart TD
 | [6. Agent trajectory](06-agent-trajectory.md) | Was the sequence of steps sensible, and what does each check look like on a live system? |
 | [7. Production and multi-agent](07-production-and-multi-agent.md) | What changes once real users arrive, and how to find which agent in a team broke |
 | [8. Quick reference](08-quick-reference.md) | The debugging loop, a question-to-measurement table and a one-page cheat sheet |
+| [9. Cost tracking](09-cost-tracking.md) | What one request costs, traced per LLM call, retrieval step, tool and agent, and charged to the right tenant |
+| [10. Cost guardrails](10-cost-guardrails.md) | How budgets, model routing and tenant caps stop the system overspending |
+| [11. Safety guardrails and evaluation](11-safety-guardrails-and-evaluation.md) | The five places a guardrail sits, what happens when one fires, and how cost joins monitoring and the release gate |
 
 **If you have ten minutes:** part 1, then the task completion section of part 5, then part 6.
 

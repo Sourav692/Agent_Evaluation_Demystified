@@ -2,7 +2,7 @@
 
 *Online checks find the failures your dataset missed, offline tests stop them coming back, and in a multi-agent system the handoffs need a score of their own.*
 
-◷ 8 min read · Field guide part 7 of 8 · [Introduction](00-introduction.md)
+◷ 8 min read · Field guide part 7 of 11 · [Introduction](00-introduction.md)
 
 > **Before you start.** This part assumes [the map](01-the-map.md), [conversations, tools and task completion](05-conversations-tools-and-task-completion.md) and [agent trajectory](06-agent-trajectory.md). It moves the checks from those parts onto a running system.
 

@@ -25,6 +25,11 @@
       "source": "/fde-playbook-end-to-end-evaluation.html",
       "destination": "/index.html",
       "permanent": false
+    },
+    {
+      "source": "/cost-and-guardrails.html",
+      "destination": "/field-guide-09-cost-tracking.html",
+      "permanent": true
     }
   ],
   "headers": [

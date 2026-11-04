@@ -1,8 +1,9 @@
 # Support-System Case Study: Evaluating a Multi-Agent Customer Support System
 
 > This page covers the system's quality: every stage's checks, the offline suite, the release
-> gate and the online signals. Its companion, [Cost and guardrails](cost-tracking-and-guardrails.md),
-> covers what the same system costs and the limits that stop it overspending.
+> gate and the online signals. Its companion, field guide parts
+> [9](field-guide/09-cost-tracking.md), [10](field-guide/10-cost-guardrails.md) and
+> [11](field-guide/11-safety-guardrails-and-evaluation.md), covers what the same system costs and the limits that stop it overspending.
 
 # 1. Scenario
 
@@ -2474,4 +2475,5 @@ Important principles:
 
 # References
 
-- [Cost and guardrails](cost-tracking-and-guardrails.md) --- the same system's cost side: attribution, budgets and the limits that stop it overspending.
+- Field guide parts [9, cost tracking](field-guide/09-cost-tracking.md), [10, cost guardrails](field-guide/10-cost-guardrails.md) and
+  [11, safety guardrails and evaluation](field-guide/11-safety-guardrails-and-evaluation.md) --- the same system's cost side: attribution, budgets and the limits that stop it overspending.

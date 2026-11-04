@@ -2,7 +2,7 @@
 
 *An agent can end in the right place by a bad path, so score the steps as well as the outcome.*
 
-◷ 15 min read · Field guide part 6 of 8 · [Introduction](00-introduction.md)
+◷ 15 min read · Field guide part 6 of 11 · [Introduction](00-introduction.md)
 
 > **Before you start.** This part assumes [the map](01-the-map.md) and [conversations, tools and task completion](05-conversations-tools-and-task-completion.md). Part 5 scores a finished interaction. This part scores the path that produced it.
 

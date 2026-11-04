@@ -27,6 +27,6 @@ Prose. Nothing here executes.
   one multi-tenant support system evaluated end to end: every stage's deterministic and judged
   checks, the offline suite, the release gate and its scenarios, the canary, online signals and
   the feedback loop.
-- [`cost-tracking-and-guardrails.md`](concepts/cost-tracking-and-guardrails.md) — the same
+- Field guide parts [9–11](concepts/field-guide/09-cost-tracking.md) — the same
   system's cost: tracking per call, agent and tenant, budgets, five guardrail boundaries, and
   cost as a blocking release check.
