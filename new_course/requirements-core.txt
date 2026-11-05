@@ -1,0 +1,6 @@
+# Core dependencies for every week's offline lab.
+# The labs use only the Python 3.12 standard library. These run the tests, the notebooks
+# and the theory HTML build.
+pytest==9.1.1
+ipykernel==6.30.1    # notebook kernel; 7.x deadlocks nbclient (see course 03)
+markdown==3.7        # tools/build_html.py; same pin as the repository site

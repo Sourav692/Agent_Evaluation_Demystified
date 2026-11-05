@@ -1,0 +1,29 @@
+{
+  "traffic_version": "traffic-v1",
+  "label": "SIMULATED: synthetic requests replayed against datasets/world.json. Not production traffic.",
+  "seed": 13,
+  "days": 14,
+  "requests_per_day": 400,
+  "topic_mix": {
+    "baseline": {"damaged": 0.40, "late": 0.12, "final_sale": 0.05, "high_value": 0.08,
+                 "already_refunded": 0.07, "no_order_number": 0.18, "other_customer": 0.10},
+    "clearance_sale": {"damaged": 0.25, "late": 0.08, "final_sale": 0.40, "high_value": 0.05,
+                       "already_refunded": 0.04, "no_order_number": 0.12, "other_customer": 0.06}
+  },
+  "phases": [{"first_day": 4, "last_day": 6, "mix": "clearance_sale"}],
+  "identity_in_message_rate": 0.30,
+  "card_number_in_message_rate": 0.05,
+  "gateway_timeout_rate": 0.08,
+  "feedback_rate": 0.30,
+  "thumbs_down_given_outcome": {
+    "refund_created": 0.05, "existing_refund_returned": 0.25, "refund_denied": 0.60,
+    "escalated_to_human": 0.25, "clarification_requested": 0.30, "access_denied": 0.40,
+    "refund_failed": 0.85, "escalation_failed": 0.85
+  },
+  "versions": {
+    "v2.2": {"agent": "stable_key", "note": "tool agent v2's decisions; retries a timed-out create_refund once with a stable idempotency key"},
+    "v2.3": {"agent": "no_retry", "note": "the same decisions with the retry removed, to cut p95 latency"}
+  },
+  "initial_version": "v2.2",
+  "deploys": [{"day": 9, "hour": 10, "version": "v2.3"}]
+}

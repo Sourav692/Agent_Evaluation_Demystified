@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 4 · Retrieval evaluation</title>
+<link rel="stylesheet" href="../../../../site/assets/fonts.css">
+<link rel="icon" href="../../../../site/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../../../site/assets/tokens.css">
+<link rel="stylesheet" href="../../../../site/assets/chrome.css">
+<link rel="stylesheet" href="../../../../site/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-bar">
+  <div class="bar-top">
+    <a class="brand" href="../../../README.md">Enterprise RAG &amp; Agent <span>Evaluation</span></a>
+    <button class="toc-toggle" type="button" aria-expanded="false"
+            aria-controls="docnav" hidden>Contents</button>
+    <nav aria-label="Week"><a class="on" href="week-04-retrieval-evaluation-theory.html">Theory</a><a href="../handson/week-04-retrieval-evaluation-handson.md">Hands-on</a><a href="../handson/week-04-retrieval-evaluation-handson.ipynb">Notebook</a><a href="../dataset/README.md">Dataset</a></nav>
+  </div>
+  <div class="chapter"><span class="here">Week 4 &middot; Retrieval evaluation</span><span class="ends"><a class="prev" href="../../week-03-judges-and-human-calibration/theory/week-03-judges-and-human-calibration-theory.html">&larr; Week 3 &middot; Model judges and human calibration</a><a class="next" href="../../week-05-answer-quality-and-evidence/theory/week-05-answer-quality-and-evidence-theory.html">Week 5 &middot; Answer quality and evidence &rarr;</a></span></div>
+</header>
+<main class="wrap" id="main">
+<a class="home" href="../../../README.md">&larr; Course index</a>
+<div class="withnav"><nav class="docnav" id="docnav" aria-label="Sections"><ol><li><a href="#week-4-theory-retrieval-evaluation"><span class="i">—</span><span class="t">Orientation</span></a></li></ol><p class="famhead">Sections</p><ol><li><a href="#1-what-this-week-builds"><span class="i">1</span><span class="t">What this week builds</span></a></li><li><a href="#2-two-searches-that-fail-before-any-answer-is-written"><span class="i">2</span><span class="t">Two searches that fail before any answer is written</span></a></li><li><a href="#3-the-search-half-of-a-rag-system"><span class="i">3</span><span class="t">The search half of a RAG system</span></a></li><li><a href="#4-relevance-labels"><span class="i">4</span><span class="t">Relevance labels</span></a></li><li><a href="#5-five-metrics-five-questions"><span class="i">5</span><span class="t">Five metrics, five questions</span></a></li><li><a href="#6-the-metrics-by-hand"><span class="i">6</span><span class="t">The metrics, by hand</span></a></li><li><a href="#7-three-local-retrievers"><span class="i">7</span><span class="t">Three local retrievers</span></a></li><li><a href="#8-metadata-filters"><span class="i">8</span><span class="t">Metadata filters</span></a></li><li><a href="#9-chunk-size"><span class="i">9</span><span class="t">Chunk size</span></a></li><li><a href="#10-reading-the-benchmark"><span class="i">10</span><span class="t">Reading the benchmark</span></a></li><li><a href="#11-design-review"><span class="i">11</span><span class="t">Design review</span></a></li><li><a href="#key-takeaways"><span class="i">·</span><span class="t">Key Takeaways</span></a></li><li><a href="#check-yourself"><span class="i">·</span><span class="t">Check Yourself</span></a></li><li><a href="#memory-card"><span class="i">·</span><span class="t">Memory card</span></a></li><li><a href="#references"><span class="i">·</span><span class="t">References</span></a></li></ol><div class="rail-progress" aria-hidden="true"><div class="rail-bar"><i></i></div><span class="rail-count">Section 1 of 15</span></div></nav><article class="doc"><h1 id="week-4-theory-retrieval-evaluation">Week 4 theory: Retrieval evaluation</h1>
+<p><em>Before grading an answer, check with free arithmetic whether the right policy passage ever reached the agent.</em></p>
+<p>◷ 15 min read · Week 4 of 16 · Intermediate · <a href="../../../README.md">Course index</a></p>
+<aside class="callout callout--note">
+<p><strong>Before you start.</strong> This page assumes Weeks 1 to 3, ending with the <a href="../../week-03-judges-and-human-calibration/theory/week-03-judges-and-human-calibration-theory.html">Week 3 theory</a>, and the retrieval-augmented generation section of the <a href="../../../setup.md">setup primer</a>. It covers the search half of a RAG system. Week 5 covers the half that writes the answer. The commands, the lab output and the exercises are in the <a href="../handson/week-04-retrieval-evaluation-handson.md">hands-on file</a>.</p>
+</aside>
+<p class="badge-row"><span class="badge">Lab: <code>handson/lab.py</code></span><span class="badge">Notebook: <code>week-04-retrieval-evaluation-handson.ipynb</code></span><span class="badge">Queries: <code>datasets/retrieval/policy-queries-v1.jsonl</code></span><span class="badge">Corpus: <code>datasets/policies/</code>, <code>datasets/corpus/</code></span></p>
+<h2 id="1-what-this-week-builds">1. What this week builds</h2>
+<p><strong>Project state.</strong> Agent v1 knows the refund policy because its rules are written into its code. Real support agents look policy up. From this week the agent's policy knowledge comes from a help-centre search, and that search can fail on its own.</p>
+<p><strong>Time.</strong> 9 hours: 2 reading, 3 building, 2 running experiments, 1 on trade-offs and 1 on the design review.</p>
+<p>By the end of the week you can:</p>
+<ol>
+<li>Calculate Precision@k, Recall@k, Hit Rate@k, MRR and nDCG by hand for a fixed ranking, and confirm the lab agrees.</li>
+<li>Run a retrieval benchmark of 50 labeled policy queries at k = 3 and k = 5, overall and by slice.</li>
+<li>Compare a keyword retriever, a concept-vector retriever and a hybrid, and say which slice each one wins.</li>
+<li>Measure what a metadata filter and a chunking choice change, including the cost in context size.</li>
+<li>Explain when MRR is the right metric and when Recall@k is.</li>
+</ol>
+<p>The week adds a help-centre corpus of 7 documents (<code>datasets/policies/</code> and <code>datasets/corpus/</code>), 50 policy queries with graded labels (<code>datasets/retrieval/</code>), a shared retrieval module (<code>shared/retrieval.py</code>) and a benchmark lab.</p>
+<h2 id="2-two-searches-that-fail-before-any-answer-is-written">2. Two searches that fail before any answer is written</h2>
+<h3 id="21-the-superseded-policy-ranks-second">2.1 The superseded policy ranks second</h3>
+<p>A customer asks: <em>"Is the refund window 60 days?"</em> The current policy says 30 days. The corpus also holds the superseded 2025-06 policy, which said 60. Without a filter, the hybrid retriever returns:</p>
+<pre><code class="language-text">  1. refund-policy-2026-01#R2               grade 3
+  2. refund-policy-2025-06#R2               grade 0  &lt;- superseded/public
+  3. payments-policy-2026-01#P2             grade 0
+  4. shipping-policy-2026-01#S3             grade 0
+  5. refund-escalation-playbook-2026-01#I2  grade 0  &lt;- current/internal
+</code></pre>
+<p>The right passage is first, so every relevance metric scores this query well. Two of the five passages must never reach a customer answer, though: an outdated rule that says "60 days", and an internal fraud playbook.</p>
+<h3 id="22-the-exact-rule-number-finds-nothing">2.2 The exact rule number finds nothing</h3>
+<p>A customer asks: <em>"What does section R6 of the refund policy cover?"</em> The keyword retriever returns five chunks, and none of them is R6. The chunk text holds the heading "One refund per order" but not the label "R6", so the one word that identifies the section never matches.</p>
+<aside class="callout callout--warning">
+<p><strong>Watch out.</strong> Both failures happen before the agent writes a word. An answer graded wrong in Week 5 might be a search failure, and the fix for a search failure is different from the fix for a writing failure.</p>
+</aside>
+<h2 id="3-the-search-half-of-a-rag-system">3. The search half of a RAG system</h2>
+<p>New terms for this section:</p>
+<ul>
+<li><strong>Corpus</strong>: the documents the agent can search. Here, 7 help-centre documents, including one superseded policy and one internal playbook.</li>
+<li><strong>Chunk</strong>: a passage cut from a document so it can be searched. Here, one chunk per numbered policy section by default, 26 in all.</li>
+<li><strong>Retriever</strong>: the search step that ranks chunks for a query.</li>
+<li><strong>Top k</strong>: the k highest-ranked chunks the retriever returns. With k = 5, the first five are scored.</li>
+<li><strong>Rank</strong>: a chunk's position in that list, starting at 1.</li>
+<li><strong>Metadata filter</strong>: a rule sent with the search, such as "current policy only" or "public audience only", that limits which chunks can come back.</li>
+</ul>
+<p>This diagram shows where retrieval sits and where this week's checks read.</p>
+<pre class="mermaid" tabindex="0">flowchart LR
+    D[&quot;Help-centre documents&lt;br/&gt;7 docs&quot;] --&gt; C[&quot;Chunking&lt;br/&gt;section, window or document&quot;]
+    C --&gt; I[&quot;Index&lt;br/&gt;26 section chunks&quot;]
+    Q[&quot;Customer question&quot;] --&gt; R[&quot;Retriever&lt;br/&gt;bm25, concept or hybrid&quot;]
+    I --&gt; R
+    R --&gt; F[&quot;Metadata filter&lt;br/&gt;current + public&quot;]
+    F --&gt; K[&quot;Top k chunks&quot;]
+    K --&gt; G[&quot;Answer writer&lt;br/&gt;(Week 5)&quot;]
+    M[&quot;Section 5 metrics&quot;] -.-&gt; K
+    V[&quot;Section 8 filter check&quot;] -.-&gt; F
+    S[&quot;Section 9 chunk size&quot;] -.-&gt; C
+</pre>
+<h2 id="4-relevance-labels">4. Relevance labels</h2>
+<p>New terms for this section:</p>
+<ul>
+<li><strong>Relevance label</strong>: a person's judgment of how useful a passage is for a query, written before any retriever runs.</li>
+<li><strong>Graded relevance</strong>: a usefulness score instead of yes or no. Here, 3 answers the query, 2 is needed context, 1 is related, and anything unlabeled is 0.</li>
+<li><strong>Hard negative</strong>: a passage that looks right and isn't. The superseded 2025-06 refund policy is the main one in this corpus.</li>
+</ul>
+<p>Three choices shape the 50 labeled queries:</p>
+<ul>
+<li><strong>Labels name policy sections, not chunks.</strong> A chunk's grade is the highest grade among the sections it covers. The same labels then work for section chunks, word windows and whole documents, which is what makes the chunking experiment in section 9 possible.</li>
+<li><strong>Only current, public sections are labeled.</strong> A superseded or internal chunk is never relevant. When the filter is off, it scores 0 and counts as a violation.</li>
+<li><strong>Slices group the queries by what makes them hard.</strong></li>
+</ul>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>Slice</th>
+<th>Queries</th>
+<th>What makes it hard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>direct</code></td>
+<td>16</td>
+<td>Nothing. The query uses the policy's words</td>
+</tr>
+<tr>
+<td><code>paraphrase</code></td>
+<td>10</td>
+<td>The query shares almost no words with the passage ("my mug showed up in pieces")</td>
+</tr>
+<tr>
+<td><code>exact_term</code></td>
+<td>8</td>
+<td>The query hinges on a code, number or amount ("R6", "$9.99", "110%")</td>
+</tr>
+<tr>
+<td><code>outdated_trap</code></td>
+<td>6</td>
+<td>The query echoes the superseded policy ("60 days", "team lead")</td>
+</tr>
+<tr>
+<td><code>restricted_trap</code></td>
+<td>5</td>
+<td>The query matches the internal playbook ("a $3,000 refund", "a new card")</td>
+</tr>
+<tr>
+<td><code>multi_section</code></td>
+<td>5</td>
+<td>A full answer needs two or three sections</td>
+</tr>
+</tbody>
+</table></div>
+<aside class="callout callout--warning">
+<p><strong>Watch out.</strong> These labels were written by one annotator, the course author, and nobody has reviewed them. A second labeler would disagree on some grades. Exercise 2 asks you to check a few.</p>
+</aside>
+<h2 id="5-five-metrics-five-questions">5. Five metrics, five questions</h2>
+<p>New terms for this section:</p>
+<ul>
+<li><strong>Precision@k</strong>: the share of the top k chunks that are relevant at all.</li>
+<li><strong>Recall@k</strong>: the share of the labeled sections that some top-k chunk covers.</li>
+<li><strong>Hit Rate@k</strong>: 1 if any top-k chunk is relevant, else 0. Averaged over queries, it is the share of queries with at least one hit.</li>
+<li><strong>MRR</strong> (mean reciprocal rank): 1 divided by the rank of the first relevant chunk, averaged over queries. Here it is cut at k, so a query with no hit in the top k scores 0.</li>
+<li><strong>nDCG@k</strong> (normalized discounted cumulative gain): a ranking score that uses graded relevance and gives less credit further down the list.</li>
+</ul>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>Question a reviewer asks</th>
+<th>Metric</th>
+<th>What it ignores</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>How much of what we sent is useful?</td>
+<td>Precision@k</td>
+<td>Whether anything important is missing</td>
+</tr>
+<tr>
+<td>Did we find everything that matters?</td>
+<td>Recall@k</td>
+<td>Where in the list it appeared</td>
+</tr>
+<tr>
+<td>Did we find anything at all?</td>
+<td>Hit Rate@k</td>
+<td>Everything after the first hit</td>
+</tr>
+<tr>
+<td>Is the first useful passage near the top?</td>
+<td>MRR</td>
+<td>Every relevant passage after the first</td>
+</tr>
+<tr>
+<td>Is the order right when usefulness has degrees?</td>
+<td>nDCG@k</td>
+<td>Nothing in the top k, but it needs graded labels</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="51-the-formulas">5.1 The formulas</h3>
+<pre><code class="language-text">precision@k = relevant chunks in top k / k
+recall@k    = labeled sections covered by top k / labeled sections
+hit@k       = 1 if any relevant chunk in top k, else 0
+RR@k        = 1 / rank of the first relevant chunk in top k   (0 if none)
+DCG@k       = sum over ranks i = 1..k of (2^grade_i - 1) / log2(i + 1)
+nDCG@k      = DCG@k / DCG@k of the best possible order
+</code></pre>
+<h3 id="52-what-each-one-does-as-k-moves">5.2 What each one does as k moves</h3>
+<ul>
+<li><strong>Precision is capped by the labels.</strong> A query with one relevant section scores at most 1/5 at k = 5, even when that section is ranked first.</li>
+<li><strong>Recall rises with k, up to a ceiling.</strong> A section the retriever never ranks highly stays unreachable at any k.</li>
+<li><strong>MRR only reads the first hit.</strong> Retrieving more chunks cannot change it once a hit exists.</li>
+<li><strong>nDCG credits each labeled section once.</strong> Two window chunks cut from the same section must not both earn its gain. Without that rule nDCG can exceed 1, as <a href="../handson/week-04-retrieval-evaluation-handson.md#drill-2-ndcg-above-one">debugging drill 2</a> shows.</li>
+</ul>
+<h2 id="6-the-metrics-by-hand">6. The metrics, by hand</h2>
+<p>The three fixed rankings in <code>dataset/hand_rankings.jsonl</code> use section chunks. They are fixtures written to be checked by hand, not retriever output.</p>
+<section class="worked-example"><h3 id="61-worked-example-the-outdated-policy-ranked-first">6.1 Worked example, the outdated policy ranked first</h3>
+<p>Query: <em>"Is the refund window 60 days?"</em> The label is <code>refund-policy-2026-01#R2</code> at grade 3. The fixed ranking puts the superseded R2 first and the current R2 second.</p>
+<ol>
+<li>Relevant chunks in the top 3: one, at rank 2. Precision@3 = 1/3 = 0.333.</li>
+<li>Labeled sections covered: 1 of 1. Recall@3 = 1.0, and Hit@3 = 1.0.</li>
+<li>First relevant rank is 2. RR@3 = 1/2 = 0.5.</li>
+<li>DCG@3 = (2³ − 1) / log2(3) = 7 / 1.585 = 4.417. The best order puts grade 3 at rank 1: DCG = 7. nDCG@3 = 4.417 / 7 = 0.631.</li>
+</ol>
+</section><section class="worked-example"><h3 id="62-worked-example-related-sections-first-and-the-answer-at-rank-4">6.2 Worked example, related sections first and the answer at rank 4</h3>
+<p>Query: <em>"My final-sale rug arrived damaged 3 days ago, can I get a refund?"</em> Labels: R3 at grade 3 (final sale), S3 at grade 2 (transit damage), R2 at grade 1 (the window). The ranking is S3, R2, E1, R3, P1.</p>
+<ol>
+<li>At k = 3: S3 and R2 are relevant. Precision@3 = 2/3 = 0.667, Recall@3 = 2/3 = 0.667.</li>
+<li>The first chunk is relevant. RR@3 = 1.0.</li>
+<li>DCG@3 = (2² − 1)/1 + (2¹ − 1)/log2(3) = 3 + 0.631 = 3.631.</li>
+<li>The best order is grades 3, 2, 1: IDCG = 7 + 3/1.585 + 1/2 = 9.393. nDCG@3 = 3.631 / 9.393 = 0.387.</li>
+<li>At k = 5, R3 enters at rank 4. Recall@5 = 1.0, and DCG@5 = 3.631 + 7/log2(5) = 6.646, so nDCG@5 = 0.708.</li>
+</ol>
+<p>MRR is a perfect 1.0, and the passage that actually answers the question sits at rank 4. MRR saw a relevant chunk first and stopped looking. nDCG shows the ranking is poor.</p>
+</section><section class="worked-example"><h3 id="63-worked-example-the-best-possible-order">6.3 Worked example, the best possible order</h3>
+<p>The same query ranked R3, S3, R2 scores nDCG@3 = 1.0. It also has Precision@3 = 1.0, because all three labeled sections fit in the top 3.</p>
+</section><h2 id="7-three-local-retrievers">7. Three local retrievers</h2>
+<p>New terms for this section:</p>
+<ul>
+<li><strong>BM25</strong>: a keyword scoring formula. It rewards words the query and chunk share, more for rare words, with diminishing returns for repeats and a penalty for long chunks.</li>
+<li><strong>Embedding</strong>: a list of numbers standing for a text's meaning. Similar meanings get nearby vectors, compared by <strong>cosine similarity</strong>.</li>
+<li><strong>Concept vector</strong>: this course's stand-in for an embedding. A hand-built lexicon maps words to concepts ("broken", "cracked" and "pieces" all count as DAMAGE), and the vector counts concepts.</li>
+<li><strong>Hybrid retrieval</strong>: combining keyword and vector rankings.</li>
+<li><strong>Reciprocal rank fusion (RRF)</strong>: a hybrid method that scores each chunk by the sum of 1 / (60 + rank) across the rankings being fused.</li>
+</ul>
+<p>This diagram shows how the hybrid combines the other two.</p>
+<pre class="mermaid" tabindex="0">flowchart LR
+    Q[&quot;Query&quot;] --&gt; B[&quot;BM25&lt;br/&gt;keyword ranking&quot;]
+    Q --&gt; V[&quot;Concept vector&lt;br/&gt;meaning ranking&quot;]
+    B --&gt; F[&quot;Reciprocal rank fusion&lt;br/&gt;sum of 1 / (60 + rank)&quot;]
+    V --&gt; F
+    F --&gt; H[&quot;Hybrid ranking&quot;]
+</pre>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>Retriever</th>
+<th>Good at</th>
+<th>Weak at</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BM25</td>
+<td>Codes, amounts and exact wording</td>
+<td>Paraphrases with no shared words</td>
+</tr>
+<tr>
+<td>Concept vector</td>
+<td>Paraphrases its lexicon covers</td>
+<td>Codes and numbers, and any concept missing from the lexicon</td>
+</tr>
+<tr>
+<td>Hybrid (RRF)</td>
+<td>Holding up across slices</td>
+<td>Either input's strong slice can be diluted by the other</td>
+</tr>
+</tbody>
+</table></div>
+<aside class="callout callout--warning">
+<p><strong>Watch out.</strong> The concept lexicon was written alongside the 50 queries, so its paraphrase results flatter it. That is the Week 2 leakage problem in a new form: the retriever was tuned on the test questions. A learned embedding model carries no such list. Treat the concept-vector numbers as a teaching device, and run the optional live embeddings (<code>dense-live</code>) before drawing conclusions about dense retrieval.</p>
+</aside>
+<h2 id="8-metadata-filters">8. Metadata filters</h2>
+<p>New terms for this section:</p>
+<ul>
+<li><strong>Filter violation</strong>: a retrieved chunk that the filter should have excluded, here one that is superseded or internal.</li>
+<li><strong>Post-filter</strong>: rank everything, then drop excluded chunks and cut to k. This lab post-filters.</li>
+<li><strong>Pre-filter</strong>: restrict the search to allowed chunks before ranking.</li>
+</ul>
+<p>Hybrid at k = 5 with the filter off and on:</p>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>Filter</th>
+<th>Recall@5</th>
+<th>Hit@5</th>
+<th>MRR</th>
+<th>Violations in 250 slots</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>off</td>
+<td>0.850</td>
+<td>0.900</td>
+<td>0.724</td>
+<td>57</td>
+</tr>
+<tr>
+<td>on</td>
+<td>0.903</td>
+<td>0.960</td>
+<td>0.835</td>
+<td>0</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>The filter improves relevance and safety together.</strong> Superseded and internal chunks no longer take top-k slots, so current, public passages move up.</li>
+<li><strong>Relevance metrics alone miss the problem.</strong> A violation is not "irrelevant" in a way that hurts recall much. It is a different harm: an outdated rule or an internal document reaching a customer answer.</li>
+<li><strong>Post-filtering can empty the list.</strong> If the top 20 results are all internal, a post-filter returns fewer than k chunks. A pre-filter avoids that, at the cost of filter support in the index.</li>
+</ul>
+<aside class="callout callout--warning">
+<p><strong>Watch out.</strong> A metadata filter is an access control only when the backend enforces it. A filter the model can be talked out of, or one applied after the internal text is already in the prompt, does not protect anything. Week 5 tests what happens when a restricted chunk gets through.</p>
+</aside>
+<h2 id="9-chunk-size">9. Chunk size</h2>
+<p>New terms for this section:</p>
+<ul>
+<li><strong>Window chunking</strong>: fixed 25-word windows that ignore section boundaries.</li>
+<li><strong>Document chunking</strong>: one chunk per whole document.</li>
+<li><strong>Context size</strong>: the words sent to the answer writer, here the total words in the top k.</li>
+</ul>
+<p>Hybrid at k = 5, filtered:</p>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>Chunking</th>
+<th>Precision@5</th>
+<th>Recall@5</th>
+<th>nDCG@5</th>
+<th>Words sent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>section</td>
+<td>0.240</td>
+<td>0.903</td>
+<td>0.808</td>
+<td>142</td>
+</tr>
+<tr>
+<td>window</td>
+<td>0.344</td>
+<td>0.900</td>
+<td>0.796</td>
+<td>122</td>
+</tr>
+<tr>
+<td>document</td>
+<td>0.244</td>
+<td>1.000</td>
+<td>0.891</td>
+<td>529</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>Whole documents buy perfect recall by sending everything.</strong> Five documents cover the whole corpus that matters, at 3.7 times the words.</li>
+<li><strong>Windows raise precision without raising recall.</strong> Several windows from one relevant section each count as relevant chunks, and they add no new section.</li>
+<li><strong>Section chunks match how the policy is written.</strong> Each chunk is one rule, which also makes citations and labels line up.</li>
+</ul>
+<h2 id="10-reading-the-benchmark">10. Reading the benchmark</h2>
+<section class="worked-example"><h3 id="101-worked-example-retrievers-at-k--3-and-k--5">10.1 Worked example, retrievers at k = 3 and k = 5</h3>
+<p>All filtered, section chunks:</p>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>Retriever</th>
+<th>P@3</th>
+<th>R@3</th>
+<th>P@5</th>
+<th>R@5</th>
+<th>Hit@5</th>
+<th>MRR@5</th>
+<th>nDCG@5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bm25</td>
+<td>0.313</td>
+<td>0.740</td>
+<td>0.212</td>
+<td>0.800</td>
+<td>0.880</td>
+<td>0.775</td>
+<td>0.731</td>
+</tr>
+<tr>
+<td>concept</td>
+<td>0.353</td>
+<td>0.810</td>
+<td>0.240</td>
+<td>0.897</td>
+<td>0.940</td>
+<td>0.843</td>
+<td>0.808</td>
+</tr>
+<tr>
+<td>hybrid</td>
+<td>0.347</td>
+<td>0.813</td>
+<td>0.240</td>
+<td>0.903</td>
+<td>0.960</td>
+<td>0.835</td>
+<td>0.808</td>
+</tr>
+</tbody>
+</table></div>
+<ol>
+<li><strong>Raising k from 3 to 5 lifts recall by about 0.06 to 0.09 and lowers precision by about 0.1.</strong> That is the usual trade-off.</li>
+<li><strong>Hybrid and concept tie on nDCG.</strong> Hybrid misses on 2 queries out of 50, concept on 3 and BM25 on 6.</li>
+<li><strong>The averages are close.</strong> The slices are not.</li>
+</ol>
+</section><section class="worked-example"><h3 id="102-worked-example-the-slices">10.2 Worked example, the slices</h3>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>Slice</th>
+<th>BM25 Recall@5</th>
+<th>Concept Recall@5</th>
+<th>Hybrid Recall@5</th>
+<th>BM25 MRR</th>
+<th>Concept MRR</th>
+<th>Hybrid MRR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>paraphrase</code></td>
+<td>0.500</td>
+<td>0.850</td>
+<td>0.750</td>
+<td>0.323</td>
+<td>0.740</td>
+<td>0.570</td>
+</tr>
+<tr>
+<td><code>exact_term</code></td>
+<td>0.875</td>
+<td>0.875</td>
+<td>1.000</td>
+<td>0.875</td>
+<td>0.698</td>
+<td>0.760</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>BM25 loses half the paraphrase sections.</strong> "My mug showed up in pieces" shares no useful word with the refund window passage.</li>
+<li><strong>BM25 ranks exact terms best.</strong> Its MRR on <code>exact_term</code> is 0.875 against the concept vector's 0.698.</li>
+<li><strong>Hybrid wins neither slice outright.</strong> It finds every exact-term section but ranks them lower than BM25, and it dilutes the concept vector's paraphrase wins. It is the most even, not the best everywhere.</li>
+</ul>
+</section><h3 id="103-when-mrr-is-the-right-metric-and-when-recallk-is">10.3 When MRR is the right metric, and when Recall@k is</h3>
+<ul>
+<li><strong>Use MRR when one passage is enough</strong> and the reader takes the first good one: "How long does a card refund take?" has one answer, and its rank is what matters.</li>
+<li><strong>Use Recall@k when the answer needs several passages.</strong> The final-sale rug query needs R3 and S3. Hand ranking H2 scores MRR 1.0 while the deciding passage sits at rank 4.</li>
+<li><strong>Use nDCG when relevance has degrees</strong> and order matters.</li>
+<li><strong>Never report one alone.</strong> Each blind spot in the table in section 5 is a failure some query in this set exhibits.</li>
+</ul>
+<h2 id="11-design-review">11. Design review</h2>
+<details class="qa" id="q1--a-team-reports-mrr-084-and-calls-retrieval-done-what-do-you-ask"><summary><h3 class="qa-h"><span class="qa-n">Q1</span><span class="qa-q">A team reports MRR 0.84 and calls retrieval done. What do you ask?</span></h3></summary><div class="qa-body">
+<p>How many queries need more than one passage, and what Recall@k they get. MRR stops at the first relevant chunk. On multi-section questions it can be perfect while the deciding passage never reaches the prompt. Ask for Recall@k and nDCG beside it, by slice, and for the filter-violation count, which no relevance metric reports.</p>
+</div></details><details class="qa" id="q2--hybrid-beats-bm25-overall-but-loses-to-it-on-exact-terms-which-do-you-ship"><summary><h3 class="qa-h"><span class="qa-n">Q2</span><span class="qa-q">Hybrid beats BM25 overall but loses to it on exact terms. Which do you ship?</span></h3></summary><div class="qa-body">
+<p>Decide from the traffic and the cost of each failure. If customers often quote rule numbers, order codes or amounts, an exact-term miss is common and visible. Options short of choosing one: tune the fusion weights, add the section label to the chunk text (drill 1), or route queries containing codes to keyword search. Report the slice trade-off in the decision, not only the average.</p>
+</div></details><details class="qa" id="q3--the-concept-retrievers-paraphrase-recall-is-085-why-not-trust-that-number"><summary><h3 class="qa-h"><span class="qa-n">Q3</span><span class="qa-q">The concept retriever's paraphrase recall is 0.85. Why not trust that number?</span></h3></summary><div class="qa-body">
+<p>Its lexicon was written alongside the queries, so it has seen the test vocabulary. That is leakage into the system under test. Score it on paraphrases written by someone who never saw the lexicon, or replace it with a learned embedding model and measure that.</p>
+</div></details><details class="qa" id="q4--where-must-the-current-public-filter-live-and-how-do-you-test-it"><summary><h3 class="qa-h"><span class="qa-n">Q4</span><span class="qa-q">Where must the "current, public" filter live, and how do you test it?</span></h3></summary><div class="qa-body">
+<p>In the backend search request, enforced by the index or the service that calls it, never in a prompt instruction. Test it with trap queries built to match superseded and internal text, and count violations in every benchmark run as a hard rule with a target of zero. Week 5 shows what an internal chunk does once it reaches the answer.</p>
+</div></details><details class="qa" id="q5--document-chunks-give-recall5–10-why-not-use-them"><summary><h3 class="qa-h"><span class="qa-n">Q5</span><span class="qa-q">Document chunks give Recall@5 = 1.0. Why not use them?</span></h3></summary><div class="qa-body">
+<p>Recall rose because each chunk now holds a whole document, 529 words per query against 142. Every extra word costs tokens and latency, and buries the deciding sentence among unrelated rules, which hurts the answer writer. Choose chunk size by measuring recall, context size and, in Week 5, answer quality together.</p>
+<hr />
+</div></details><h2 id="key-takeaways">Key Takeaways</h2>
+<ul>
+<li><strong>Search fails before writing does.</strong> The 60-day trap and the R6 miss happen before any answer exists.</li>
+<li><strong>Label sections, grade them, and include hard negatives.</strong> Section labels survive any chunking choice.</li>
+<li><strong>Five metrics answer five questions.</strong> Precision for noise, recall for coverage, hit rate for anything at all, MRR for the first hit, nDCG for graded order.</li>
+<li><strong>No retriever wins every slice.</strong> BM25 ranks exact terms best, the concept vector wins paraphrases, and hybrid is the most even.</li>
+<li><strong>Count filter violations separately.</strong> 57 superseded or internal chunks appear with the filter off, and recall barely notices.</li>
+<li><strong>Chunk size trades recall for context.</strong> Whole documents reach recall 1.0 by sending 3.7 times the words.</li>
+<li><strong>A retriever tuned on the test queries flatters itself.</strong> The concept lexicon is a teaching device, not evidence about dense retrieval.</li>
+</ul>
+<h2 id="check-yourself">Check Yourself</h2>
+<ol>
+<li>A query has one labeled section, ranked first. What is Precision@5? <details class="answer"><summary>Show answer</summary><div class="answer-body"><strong>0.2. Precision@k is capped by the number of relevant sections.</strong></div></details></li>
+<li>Ranking H2 has MRR 1.0 and nDCG@3 0.387. What does that combination say? <details class="answer"><summary>Show answer</summary><div class="answer-body"><strong>A relevant chunk is first, but the passage that answers the query is ranked low. MRR stops at the first hit.</strong></div></details></li>
+<li>Why did window chunks once produce nDCG 1.051? <details class="answer"><summary>Show answer</summary><div class="answer-body"><strong>Several windows from one section each earned that section's gain. Each labeled section must be credited once.</strong></div></details></li>
+<li>With the filter off, recall drops only from 0.903 to 0.850. Why is the filter still essential? <details class="answer"><summary>Show answer</summary><div class="answer-body"><strong>The 57 violations are superseded and internal chunks that could reach customer answers. Relevance metrics do not measure that harm.</strong></div></details></li>
+<li>BM25 recall on paraphrases is 0.50. What two changes would you try first? <details class="answer"><summary>Show answer</summary><div class="answer-body"><strong>A meaning-based retriever, such as embeddings or the hybrid, and query rewriting into the policy's vocabulary.</strong></div></details></li>
+<li>When is MRR the right headline metric? <details class="answer"><summary>Show answer</summary><div class="answer-body"><strong>When one passage answers the query and its rank matters, as in single-fact questions. Use Recall@k when several passages are needed.</strong></div></details></li>
+</ol>
+<h2 id="memory-card">Memory card</h2>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning in this course</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Chunk</td>
+<td>One searchable passage, by default one policy section</td>
+</tr>
+<tr>
+<td>Graded relevance</td>
+<td>3 answers, 2 needed context, 1 related, 0 unlabeled</td>
+</tr>
+<tr>
+<td>Hard negative</td>
+<td>Looks right, isn't: the superseded 2025-06 policy</td>
+</tr>
+<tr>
+<td>Precision@k</td>
+<td>Relevant chunks in top k / k</td>
+</tr>
+<tr>
+<td>Recall@k</td>
+<td>Labeled sections covered / labeled sections</td>
+</tr>
+<tr>
+<td>MRR</td>
+<td>Mean of 1 / rank of the first relevant chunk</td>
+</tr>
+<tr>
+<td>nDCG@k</td>
+<td>Graded, rank-discounted gain over the best possible gain</td>
+</tr>
+<tr>
+<td>RRF</td>
+<td>Hybrid score: sum of 1 / (60 + rank)</td>
+</tr>
+<tr>
+<td>Filter violation</td>
+<td>A superseded or internal chunk in the top k</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Rules of thumb.</strong> Measure retrieval before grading answers. Report every metric by slice. Count filter violations as a hard rule. Never trust a retriever tuned on its own test queries.</p>
+<p><strong>Next week.</strong> Week 5 hands these chunks to an answer writer and asks whether its answers are faithful to them, correct against the current policy, properly cited, and silent when the evidence is missing or restricted. Several of this week's traps, the 60-day policy and the internal playbook, become the failures it has to catch.</p>
+<h2 id="references">References</h2><details class="refs"><summary>Show the sources this page was built from</summary><div class="refs-body"><ul>
+<li><a href="../handson/week-04-retrieval-evaluation-handson.md">Hands-on file</a>: the lab walkthrough, real output, exercises, drills and solutions for this page.</li>
+<li><a href="../handson/week-04-retrieval-evaluation-handson.ipynb"><code>week-04-retrieval-evaluation-handson.ipynb</code></a>: the same lab as a notebook.</li>
+<li><a href="../../../shared/retrieval.py"><code>shared/retrieval.py</code></a>: the corpus loader, the chunkers and the three retrievers.</li>
+<li>Stephen Robertson and Hugo Zaragoza, "The Probabilistic Relevance Framework: BM25 and Beyond", <em>Foundations and Trends in Information Retrieval</em> 3(4), 2009: the source of BM25.</li>
+<li>Kalervo Järvelin and Jaana Kekäläinen, "Cumulated gain-based evaluation of IR techniques", <em>ACM Transactions on Information Systems</em> 20(4), 2002: the source of nDCG.</li>
+<li>Gordon V. Cormack, Charles L. A. Clarke and Stefan Büttcher, "Reciprocal rank fusion outperforms Condorcet and individual rank learning methods", SIGIR 2009: the source of RRF and its constant of 60.</li>
+<li><a href="../../../glossary.md">Glossary</a>: every term in the course, with the week that introduces it.</li>
+</ul>
+<hr />
+<p><strong>Next:</strong> <a href="../../week-05-answer-quality-and-evidence/theory/week-05-answer-quality-and-evidence-theory.html">Week 5 theory: Answer quality and evidence</a> · <strong>Previous:</strong> <a href="../../week-03-judges-and-human-calibration/theory/week-03-judges-and-human-calibration-theory.html">Week 3 theory: Model judges and human calibration</a></p></div></details></article></div>
+</main>
+<footer class="aed-foot"><ul><li>Rendered from week-04-retrieval-evaluation-theory.md by tools/build_html.py. Edit the Markdown, not this file.</li></ul></footer>
+
+<script type="module">
+  // Mermaid is ~250 KB over ~27 requests. Imported up front, it competed with
+  // the page itself for the first paint (question bank LCP 4.6 s on mobile).
+  // It loads when the first diagram comes within a screen or two of view, and
+  // each diagram renders as it approaches. A diagram in a closed <details>
+  // renders when the reader opens it.
+  let ready;
+  const load = () => ready ||= import(
+    "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs"
+  ).then(({ default: mermaid }) => {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "default",
+      themeVariables: { fontFamily: '"Newsreader", Georgia, serif', fontSize: "14px" },
+      flowchart: { htmlLabels: true, curve: "basis", useMaxWidth: false },
+    });
+    return mermaid;
+  });
+  // One run at a time: overlapping mermaid.run() calls drop diagrams (6 of 66
+  // when a reader scrolls fast).
+  let queue = Promise.resolve();
+  const near = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      near.unobserve(e.target);
+      queue = queue.then(() => load()).then((m) => m.run({ nodes: [e.target] })).catch(() => {});
+    }
+  }, { rootMargin: "1200px 0px" });
+  document.querySelectorAll("pre.mermaid").forEach((el) => near.observe(el));
+
+  // useMaxWidth:false is not enough on its own -- mermaid still pins an inline
+  // max-width on some diagrams, which fitted five wide `flowchart LR` pipelines
+  // to the column and left them 43-124px tall, unreadable. Size each diagram
+  // from its own viewBox instead, so pre.mermaid (overflow-x:auto) scrolls when
+  // one is wider than the column. That is the natural gesture for a
+  // left-to-right pipeline, and it beats a sliver.
+  //
+  // Driven by an observer rather than awaiting mermaid.run(): hooking the
+  // promise proved unreliable -- it rejected after having drawn every diagram,
+  // which skipped the sizing pass entirely.
+  // childList only, so writing the styles cannot retrigger this.
+  const sizeFromViewBox = () => {
+    for (const svg of document.querySelectorAll("pre.mermaid svg")) {
+      const box = svg.viewBox && svg.viewBox.baseVal;
+      if (box && box.width > 0 && box.height > 0 && !svg.dataset.aedSized) {
+        svg.dataset.aedSized = "1";
+        svg.style.maxWidth = "none";
+        svg.style.width = box.width + "px";
+        svg.style.height = box.height + "px";
+      }
+    }
+  };
+  new MutationObserver(sizeFromViewBox)
+    .observe(document.body, { subtree: true, childList: true });
+  addEventListener("load", () => setTimeout(sizeFromViewBox, 60));
+</script>
+<script>
+(function () {
+  var all = document.querySelectorAll("details.qa");
+  if (!all.length) return;
+
+  var bar = document.createElement("div");
+  bar.className = "qa-bar";
+  bar.innerHTML = '<span class="qa-count">' + all.length + ' questions</span>' +
+    '<button type="button" data-qa="open">Expand all</button>' +
+    '<button type="button" data-qa="shut">Collapse all</button>';
+  var first = all[0];
+  first.parentNode.insertBefore(bar, first);
+
+  bar.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-qa]");
+    if (!b) return;
+    var open = b.dataset.qa === "open";
+    for (var i = 0; i < all.length; i++) { all[i].open = open; }
+  });
+
+  // An anchor should open what it points at, and actually land on it.
+  //
+  // Landing is the hard half. Mermaid swaps 40 lines of source text for a
+  // 1404px and an 1818px SVG, and the webfonts reflow everything, so the
+  // target's document position moves by thousands of pixels after this script
+  // first runs -- aiming once left the reader 3,000px past the question. So
+  // re-aim every frame until the target stops moving, then stop. Bounded at
+  // ~2s, and abandoned the instant the reader scrolls for themselves.
+  // Chrome restores the previous scroll offset for this URL *after* this
+  // script runs, which silently overrode the aim and parked the reader ~3,000px
+  // past the question on every repeat visit. With a hash present the anchor is
+  // the intent, not the old offset.
+  if (location.hash && "scrollRestoration" in history) {
+    history.scrollRestoration = "manual";
+  }
+
+  var userMoved = false;
+  ["wheel", "touchstart", "keydown"].forEach(function (t) {
+    addEventListener(t, function () { userMoved = true; }, { passive: true, once: true });
+  });
+
+  function aim() {
+    var id = decodeURIComponent(location.hash.slice(1));
+    if (!id) { return; }
+    var el = document.getElementById(id);
+    if (!el) { return; }
+    for (var n = el; n; n = n.parentElement) {
+      if (n.tagName === "DETAILS") { n.open = true; }
+    }
+    // behavior:"instant" matters -- the site sets scroll-behavior:smooth, so
+    // plain scrollTo starts an animation that the next frame restarts. The
+    // loop then "converged" on a scroll still in flight and left the reader
+    // ~3,000px short. Converge on where the target actually sits instead.
+    // clear the sticky top bar, or the question row lands behind it
+    var bar = document.querySelector(".site-bar");
+    var gap = (bar ? bar.offsetHeight : 0) + 14;
+    var still = 0, frames = 0;
+    (function settle() {
+      if (userMoved || frames++ > 150) { return; }
+      var top = el.getBoundingClientRect().top;
+      if (Math.abs(top - gap) > 2) {
+        still = 0;
+        window.scrollTo({ top: Math.max(0, top + window.scrollY - gap), behavior: "instant" });
+      } else {
+        still++;
+      }
+      if (still < 4) { requestAnimationFrame(settle); }
+    })();
+  }
+  addEventListener("hashchange", function () { userMoved = false; aim(); });
+  aim();
+
+  // print the whole thing, never a page of shut drawers
+  addEventListener("beforeprint", function () {
+    for (var i = 0; i < all.length; i++) { all[i].open = true; }
+  });
+})();
+</script>
+<script>
+(function () {
+  var rail = document.querySelector(".docnav");
+  if (!rail) return;
+  var links = [].slice.call(rail.querySelectorAll("a"));
+  var heads = links.map(function (a) {
+    return document.getElementById(decodeURIComponent(a.hash.slice(1)));
+  });
+
+  var fill = rail.querySelector(".rail-bar i");
+  var count = rail.querySelector(".rail-count");
+  var bar = document.querySelector("header.site-bar");
+
+  var current = -1;
+  function mark() {
+    // The line a heading has to cross to count as current sits just below the
+    // sticky header, so it moves with it rather than assuming one row.
+    var line = (bar ? bar.getBoundingClientRect().height : 58) + 32, at = 0;
+    for (var i = 0; i < heads.length; i++) {
+      if (heads[i] && heads[i].getBoundingClientRect().top <= line) { at = i; }
+    }
+    if (at === current) return;
+    if (current >= 0) { links[current].classList.remove("on"); }
+    links[at].classList.add("on");
+    current = at;
+
+    // Keep the active item visible when the rail is taller than the viewport.
+    var r = links[at].getBoundingClientRect(), box = rail.getBoundingClientRect();
+    if (r.top < box.top + 8) { rail.scrollTop -= box.top + 8 - r.top; }
+    else if (r.bottom > box.bottom - 8) { rail.scrollTop += r.bottom - box.bottom + 8; }
+
+    // The first rail item is the title, not a section, so both the count and
+    // the bar are measured against the sections that follow it.
+    var total = links.length - 1;
+    if (fill && total > 0) {
+      fill.style.width = Math.round((at / total) * 100) + "%";
+      if (count) { count.textContent = "Section " + Math.max(at, 1) + " of " + total; }
+    }
+  }
+
+  var queued = false;
+  function onScroll() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function () { queued = false; mark(); });
+  }
+  addEventListener("scroll", onScroll, { passive: true });
+  addEventListener("resize", onScroll, { passive: true });
+
+  // Scrolling is not the only thing that moves a heading past the line. Web
+  // fonts reflow the whole document, mermaid replaces source text with a tall
+  // SVG, and expanding a question pushes every later section down -- none of
+  // which fire `scroll`. Watching the article's box catches all three, and it
+  // is the difference between a rail that is right and one that is right until
+  // the reader touches something.
+  // The header's height decides the drawer's top edge and every anchor jump's
+  // offset. It is not a constant -- the nav wraps at some widths and the
+  // chapter row is only on some pages -- so it is measured rather than
+  // guessed. The CSS carries a static fallback for when this does not run.
+  if (bar) {
+    var measure = function () {
+      // Set on <body>, not <html>: the stylesheet's fallback is a rule on
+      // body, and a value set on the ancestor would be shadowed by it for
+      // every descendant that reads the token.
+      document.body.style.setProperty(
+        "--bar-h", Math.round(bar.getBoundingClientRect().height) + "px");
+    };
+    measure();
+    if (window.ResizeObserver) { new ResizeObserver(measure).observe(bar); }
+    else { addEventListener("resize", measure); }
+  }
+
+  var doc = document.querySelector("article.doc");
+  if (doc && window.ResizeObserver) { new ResizeObserver(onScroll).observe(doc); }
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(mark); }
+  mark();
+
+  // ---- the drawer on narrow screens ------------------------------------
+  // The rail is navigation, so it is never dropped on a phone -- it becomes a
+  // panel the Contents button opens. The button is hidden in the markup and
+  // revealed here, so a reader without JS is not offered a control that would
+  // do nothing.
+  var toggle = document.querySelector(".toc-toggle");
+  if (toggle) {
+    toggle.hidden = false;
+    var open = function (want) {
+      document.body.classList.toggle("toc-open", want);
+      toggle.setAttribute("aria-expanded", want ? "true" : "false");
+    };
+    toggle.addEventListener("click", function () {
+      open(!document.body.classList.contains("toc-open"));
+    });
+    rail.addEventListener("click", function (e) {
+      if (e.target.closest("a")) { open(false); }
+    });
+    addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { open(false); }
+    });
+  }
+})();
+</script>
+
+<script>
+// ---- a copyable link on every heading ----------------------------------
+// The ids are already there (the `toc` extension writes them); what is missing
+// is a way to get at one without reading the source. Added here rather than in
+// the Markdown so no document carries link markup of its own.
+(function () {
+  var heads = document.querySelectorAll("article.doc h1[id], article.doc h2[id], "
+                                        + "article.doc h3[id], article.doc h4[id]");
+  [].forEach.call(heads, function (h) {
+    var a = document.createElement("a");
+    a.className = "anchor";
+    a.href = "#" + h.id;
+    a.setAttribute("aria-label", "Link to this section");
+    a.textContent = "#";
+    a.addEventListener("click", function (e) {
+      if (!navigator.clipboard) return;          // let the plain jump happen
+      e.preventDefault();
+      history.replaceState(null, "", a.href);
+      h.scrollIntoView();
+      navigator.clipboard.writeText(a.href).then(function () {
+        a.classList.add("copied");
+        setTimeout(function () { a.classList.remove("copied"); }, 1200);
+      });
+    });
+    h.appendChild(a);
+  });
+})();
+</script>
+
+</body>
+</html>

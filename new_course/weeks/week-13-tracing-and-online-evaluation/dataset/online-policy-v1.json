@@ -1,0 +1,19 @@
+{
+  "policy_version": "online-policy-v1",
+  "note": "Thresholds are illustrative. Tune them to the product's risk and to measured baseline rates.",
+  "evaluate_every_hours": 1,
+  "drift_baseline_days": [1, 3],
+  "alerts": [
+    {"name": "refund_failure_rate_high", "metric": "refund_failure_rate", "window_hours": 6,
+     "threshold": 0.05, "volume_metric": "refund_attempts", "min_volume": 40, "severity": "page"},
+    {"name": "claim_mismatch", "metric": "claim_mismatches", "window_hours": 6,
+     "threshold": 0, "volume_metric": "requests", "min_volume": 0, "severity": "page"},
+    {"name": "thumbs_down_rate_high", "metric": "thumbs_down_rate", "window_hours": 24,
+     "threshold": 0.33, "volume_metric": "feedback", "min_volume": 40, "severity": "ticket"},
+    {"name": "input_drift", "metric": "topic_drift", "window_hours": 24,
+     "threshold": 0.15, "volume_metric": "requests", "min_volume": 100, "severity": "ticket"}
+  ],
+  "rollback": {"alert": "refund_failure_rate_high", "consecutive_evaluations": 2, "max_hours_since_deploy": 72},
+  "sampling": {"head_rate": 0.05, "tail_keep": ["root_error", "tool_timeout", "claim_mismatch", "thumbs_down"]},
+  "redaction_salt": "week-13"
+}

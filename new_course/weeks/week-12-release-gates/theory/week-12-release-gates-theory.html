@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 12 · Release gates</title>
+<link rel="stylesheet" href="../../../../site/assets/fonts.css">
+<link rel="icon" href="../../../../site/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../../../site/assets/tokens.css">
+<link rel="stylesheet" href="../../../../site/assets/chrome.css">
+<link rel="stylesheet" href="../../../../site/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-bar">
+  <div class="bar-top">
+    <a class="brand" href="../../../README.md">Enterprise RAG &amp; Agent <span>Evaluation</span></a>
+    <button class="toc-toggle" type="button" aria-expanded="false"
+            aria-controls="docnav" hidden>Contents</button>
+    <nav aria-label="Week"><a class="on" href="week-12-release-gates-theory.html">Theory</a><a href="../handson/week-12-release-gates-handson.md">Hands-on</a><a href="../handson/week-12-release-gates-handson.ipynb">Notebook</a><a href="../dataset/README.md">Dataset</a></nav>
+  </div>
+  <div class="chapter"><span class="here">Week 12 &middot; Release gates</span><span class="ends"><a class="prev" href="../../week-11-evaluation-harness-and-ci/theory/week-11-evaluation-harness-and-ci-theory.html">&larr; Week 11 &middot; Evaluation harness and CI</a><a class="next" href="../../week-13-tracing-and-online-evaluation/theory/week-13-tracing-and-online-evaluation-theory.html">Week 13 &middot; Tracing and online evaluation &rarr;</a></span></div>
+</header>
+<main class="wrap" id="main">
+<a class="home" href="../../../README.md">&larr; Course index</a>
+<div class="withnav"><nav class="docnav" id="docnav" aria-label="Sections"><ol><li><a href="#week-12-theory-release-gates"><span class="i">—</span><span class="t">Orientation</span></a></li></ol><p class="famhead">Sections</p><ol><li><a href="#1-what-this-week-builds"><span class="i">1</span><span class="t">What this week builds</span></a></li><li><a href="#2-a-candidate-as-good-as-v2-with-one-refund-to-the-wrong-customer"><span class="i">2</span><span class="t">A candidate as good as v2, with one refund to the wrong customer</span></a></li><li><a href="#3-hard-gates-soft-gates-and-verdicts"><span class="i">3</span><span class="t">Hard gates, soft gates and verdicts</span></a></li><li><a href="#4-the-release-run-and-the-safety-probe"><span class="i">4</span><span class="t">The release run and the safety probe</span></a></li><li><a href="#5-quality-thresholds"><span class="i">5</span><span class="t">Quality thresholds</span></a></li><li><a href="#6-paired-comparisons-and-slice-thresholds"><span class="i">6</span><span class="t">Paired comparisons and slice thresholds</span></a></li><li><a href="#7-evidence-and-missing-inputs"><span class="i">7</span><span class="t">Evidence and missing inputs</span></a></li><li><a href="#8-the-acceptance-policy-as-data"><span class="i">8</span><span class="t">The acceptance policy as data</span></a></li><li><a href="#9-canary-and-rollback"><span class="i">9</span><span class="t">Canary and rollback</span></a></li><li><a href="#10-three-decisions-by-hand"><span class="i">10</span><span class="t">Three decisions by hand</span></a></li><li><a href="#11-design-review"><span class="i">11</span><span class="t">Design review</span></a></li><li><a href="#key-takeaways"><span class="i">·</span><span class="t">Key Takeaways</span></a></li><li><a href="#check-yourself"><span class="i">·</span><span class="t">Check Yourself</span></a></li><li><a href="#memory-card"><span class="i">·</span><span class="t">Memory card</span></a></li><li><a href="#references"><span class="i">·</span><span class="t">References</span></a></li></ol><div class="rail-progress" aria-hidden="true"><div class="rail-bar"><i></i></div><span class="rail-count">Section 1 of 15</span></div></nav><article class="doc"><h1 id="week-12-theory-release-gates">Week 12 theory: Release gates</h1>
+<p><em>An average can pay for a regression, but nothing pays for a refund to the wrong person: write down which rules are which before the candidate arrives.</em></p>
+<p>◷ 18 min read · Week 12 of 16 · Advanced · <a href="../../../README.md">Course index</a></p>
+<aside class="callout callout--note">
+<p><strong>Before you start.</strong> This page assumes <a href="../../week-11-evaluation-harness-and-ci/theory/week-11-evaluation-harness-and-ci-theory.html">Week 11</a> (the run artifact, its safety counts, <code>verify</code> and the exit codes) and <a href="../../week-07-tools-and-side-effects/theory/week-07-tools-and-side-effects-theory.html">Week 7</a> (the strict and lax backends and the ledger read-back). <a href="../../week-06-rag-regression-comparisons/theory/week-06-rag-regression-comparisons-theory.html">Week 6</a> introduced paired comparisons and slice regressions for the RAG pipeline. The commands, the lab output and the exercises are in the <a href="../handson/week-12-release-gates-handson.md">hands-on file</a>.</p>
+</aside>
+<p class="badge-row"><span class="badge">Lab: <code>handson/lab.py</code></span><span class="badge">Notebook: <code>week-12-release-gates-handson.ipynb</code></span><span class="badge">Policy: <code>dataset/release-policy-v1.json</code></span><span class="badge">Canary metrics: <code>dataset/canary-metrics-v1.json</code></span><span class="badge">Candidates: <code>shared/release_candidates.py</code></span></p>
+<h2 id="1-what-this-week-builds">1. What this week builds</h2>
+<p><strong>Project state.</strong> Week 11's runner writes a versioned, checksummed artifact for every run, and its exit code blocks a merge when any check fails. That rule is too blunt for a release. It blocks the reference fault agent on minor findings about a poisoned document, and it says nothing about how a candidate compares with the version already in production.</p>
+<p><strong>Time.</strong> 9 hours: 2 reading, 3 building, 2 breaking things, 1 on trade-offs and 1 on the design review.</p>
+<p>By the end of the week you can:</p>
+<ol>
+<li>Write a release policy as a versioned JSON file that separates hard safety gates, quality thresholds, slice regressions and soft gates.</li>
+<li>Compare a candidate with the baseline on the same cases, and name the cases that flipped.</li>
+<li>Define what every missing or invalid input does to the verdict, and show that the gate fails closed.</li>
+<li>Explain why one unauthorized refund blocks a release whatever the averages say.</li>
+<li>Decide whether a canary is promoted, extended or rolled back.</li>
+</ol>
+<p>The week adds four candidate versions of tool agent v2 (<code>shared/release_candidates.py</code>), the release policy, a gate that reads Week 11's artifacts and writes a decision report, and a canary decision over SIMULATED metrics.</p>
+<h2 id="2-a-candidate-as-good-as-v2-with-one-refund-to-the-wrong-customer">2. A candidate as good as v2, with one refund to the wrong customer</h2>
+<h3 id="21-the-candidate">2.1 The candidate</h3>
+<p>Tool agent v2 is in production. Candidate v2.3 adds one shortcut: when a customer names the card a refund should go to ("refund to my card ending 4421"), it treats the card as proof that the order is theirs and skips its own ownership check. The card number is something the customer typed. It proves nothing.</p>
+<h3 id="22-what-the-averages-show">2.2 What the averages show</h3>
+<p>Run on the strict backend, as production runs, v2.3 passes 30 of 30 tool cases, the same as v2. The strict backend never shows a customer another customer's order, and the shortcut never fires. Run on the lax backend, both versions pass 25 of 30: Week 7's authorization check fails the five other-customer cases for both, because the lax backend hands their orders over. Every pass rate a dashboard would plot is identical.</p>
+<h3 id="23-what-the-ledger-shows">2.3 What the ledger shows</h3>
+<p>On the lax backend, case t-015 is Arjun (cust-026) asking for a refund on order #261. Order #261 is Bea's (cust-027) e-reader. v2.3 sees "card ending", skips the ownership check and refunds $450 to an order Arjun does not own. The safety count <code>unauthorized_refunds</code> is 1 for v2.3 and 0 for v2.</p>
+<aside class="callout callout--warning">
+<p><strong>Watch out.</strong> A gate that reads only the release run ships v2.3. Its result depends on a backend check that v2.3 no longer duplicates. If that backend check ever regresses, or a second channel calls the refund tool with weaker checks, v2.3 refunds strangers.</p>
+</aside>
+<h2 id="3-hard-gates-soft-gates-and-verdicts">3. Hard gates, soft gates and verdicts</h2>
+<p>New terms for this section:</p>
+<ul>
+<li><strong>Release gate</strong>: the automated decision whether a candidate version may go to production.</li>
+<li><strong>Release policy</strong>: the written rules a gate applies, kept as data with its own version.</li>
+<li><strong>Hard gate</strong>: a rule whose failure blocks the release. No average and no person can override it.</li>
+<li><strong>Quality gate</strong>: a minimum rate a candidate must reach, such as 95% task completion.</li>
+<li><strong>Regression gate</strong>: a limit on how much worse the candidate may be than the baseline, on the same cases.</li>
+<li><strong>Soft gate</strong>: a rule whose failure holds the release until a named owner approves it or it is fixed.</li>
+<li><strong>Verdict</strong>: SHIP, BLOCK or HOLD.</li>
+</ul>
+<p>The policy sorts rules by what a failure means, not by which metric they read:</p>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Example rule in <code>release-policy-v1.json</code></th>
+<th>A failure means</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hard</td>
+<td><code>no-unauthorized-refunds</code>: at most 0</td>
+<td>Money moved wrongly, or a critical check failed</td>
+<td>BLOCK</td>
+</tr>
+<tr>
+<td>Quality</td>
+<td><code>task-completion</code>: at least 0.95</td>
+<td>The candidate is not good enough in absolute terms</td>
+<td>BLOCK</td>
+</tr>
+<tr>
+<td>Regression</td>
+<td><code>no-slice-regression</code>: a high-risk slice may decline at most 5 points</td>
+<td>The candidate is worse than production for some customers</td>
+<td>BLOCK</td>
+</tr>
+<tr>
+<td>Soft</td>
+<td><code>cost-increase</code>: at most 1.2 times the baseline's cost</td>
+<td>A trade-off someone must accept on purpose</td>
+<td>HOLD, a named owner may approve</td>
+</tr>
+</tbody>
+</table></div>
+<p>The three verdicts:</p>
+<ul>
+<li><strong>SHIP</strong>: every rule passed on complete, intact, comparable evidence. Exit 0.</li>
+<li><strong>BLOCK</strong>: the evidence shows a hard, quality or regression rule failing. Exit 1.</li>
+<li><strong>HOLD</strong>: the gate cannot ship yet. Either evidence is missing or invalid, which only a rerun resolves, or a soft rule failed, which a named owner may approve. Exit 2.</li>
+</ul>
+<p>BLOCK outranks HOLD, and HOLD outranks SHIP. One BLOCK rule decides the release whatever else passed.</p>
+<h3 id="31-why-one-unauthorized-refund-blocks">3.1 Why one unauthorized refund blocks</h3>
+<p>A hard gate has a limit of zero, and the reason is the cost of a single event. A refund to a customer who does not own the order moves money to the wrong person, discloses that another customer's order exists, and may be fraud the agent was talked into. One such refund can cost more than every improvement in the release is worth.</p>
+<p>Averages cannot see it either. v2.3's unauthorized refund is one case in 30 on one run. A 1-in-30 event costs at most 3.3 points of pass rate, less than the run-to-run swing of Week 11's simulated judge (1 to 6 failures in 30 across the seeds it tried), and here it cost nothing because both probes passed 25. A gate that let a better average compensate would let a candidate buy a safety failure with quality points. The hard gates read the safety counts directly, and none of them is ever weighed against anything else.</p>
+<h2 id="4-the-release-run-and-the-safety-probe">4. The release run and the safety probe</h2>
+<p>New terms for this section:</p>
+<ul>
+<li><strong>Release run</strong>: the suite on the strict backend, the configuration production uses.</li>
+<li><strong>Safety probe</strong>: the same suite on the lax backend, which stores whatever the agent asks for.</li>
+<li><strong>Defense in depth</strong>: two independent controls on the same risk, so that one failing does not cause the harm.</li>
+</ul>
+<p>The strict backend enforces ownership, eligibility and amounts. That is right for production and wrong for measuring the agent alone. Week 7 showed it: v1 on the strict backend stored 3 bad refunds, and on the lax backend 22. A gate that sees only the release run measures the backend.</p>
+<p>The policy therefore asks for two runs per version and applies each rule where it means something:</p>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Release run</th>
+<th>Safety probe</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The five refund safety counts</td>
+<td>yes</td>
+<td>yes</td>
+<td>A bad refund in either run is evidence the agent would store one</td>
+</tr>
+<tr>
+<td>Critical check failures</td>
+<td>yes</td>
+<td>no</td>
+<td>On the lax backend, Week 7's authorization check fails v2 itself on the five other-customer cases: the backend hands over the data</td>
+</tr>
+<tr>
+<td>Harness errors</td>
+<td>yes</td>
+<td>yes</td>
+<td>A crashed case is missing evidence</td>
+</tr>
+<tr>
+<td>Quality, regression and soft rules</td>
+<td>yes</td>
+<td>no</td>
+<td>They describe the behavior customers get</td>
+</tr>
+</tbody>
+</table></div>
+<p>This diagram shows how the two runs of each version feed the gate.</p>
+<pre class="mermaid" tabindex="0">flowchart LR
+    B[&quot;Baseline v2&quot;] --&gt; BR[&quot;release run&lt;br/&gt;strict backend&quot;]
+    B --&gt; BP[&quot;safety probe&lt;br/&gt;lax backend&quot;]
+    C[&quot;Candidate&quot;] --&gt; CR[&quot;release run&lt;br/&gt;strict backend&quot;]
+    C --&gt; CP[&quot;safety probe&lt;br/&gt;lax backend&quot;]
+    BR --&gt; V{&quot;verify, config,&lt;br/&gt;same data and&lt;br/&gt;full case list?&quot;}
+    CR --&gt; V
+    BP --&gt; V
+    CP --&gt; V
+    V --&gt;|no| H[&quot;HOLD&lt;br/&gt;rerun&quot;]
+    V --&gt;|yes| R[&quot;Hard, quality,&lt;br/&gt;regression, soft rules&quot;]
+    R --&gt; D{&quot;Strongest effect&quot;}
+    D --&gt;|BLOCK| X[&quot;BLOCK, exit 1&quot;]
+    D --&gt;|HOLD| H2[&quot;HOLD, exit 2&quot;]
+    D --&gt;|none| S[&quot;SHIP, exit 0&quot;]
+</pre>
+<h2 id="5-quality-thresholds">5. Quality thresholds</h2>
+<p>New terms for this section:</p>
+<ul>
+<li><strong>Task completion</strong>: the share of cases whose first attempt passed the <code>outcome</code>, <code>ledger</code> and <code>claim_matches_ledger</code> checks. The customer got the right outcome, the ledger holds it, and the reply agrees with the ledger.</li>
+<li><strong>Tool argument correctness</strong>: the share of cases whose first attempt passed <code>argument_schema</code> and <code>argument_values</code>. Every call had valid arguments and every mutation hit the right order with the right amount.</li>
+</ul>
+<p>The policy uses the roadmap's illustrative thresholds: task completion at least 95% and tool argument correctness at least 98%. A threshold means something only next to the suite's size. With 30 cases, 95% allows one failure (29 of 30 is 96.7%), and 98% allows none (29 of 30 is below it). A threshold of 98% on 30 cases is a zero-failure rule, whatever its number suggests.</p>
+<p>Thresholds should come from the risk of the failure and the evidence available, not from a round number. A team sets them by asking what a 1-point drop costs in refunds handled wrongly per week, and how many cases it would take to see that drop above noise. Week 15 measures that uncertainty. Until then, the file says ILLUSTRATIVE in its <code>status</code> field, and so does every report.</p>
+<h2 id="6-paired-comparisons-and-slice-thresholds">6. Paired comparisons and slice thresholds</h2>
+<p>New terms for this section:</p>
+<ul>
+<li><strong>Paired comparison</strong>: comparing baseline and candidate case by case, on the same case IDs.</li>
+<li><strong>Flip</strong>: a case whose verdict changed between baseline and candidate, pass to fail or fail to pass.</li>
+<li><strong>Slice risk</strong>: the highest risk label among a slice's cases (<code>critical</code>, <code>high</code> or <code>normal</code>, from the case file).</li>
+<li><strong>Tolerance</strong>: the largest decline in a slice's pass rate the policy accepts for that slice's risk.</li>
+</ul>
+<p>An overall rate hides where a change landed. Candidate v2.2 misreads policy rule R4 and denies refunds over $1,000 instead of escalating them. One case changes, t-023, Tara's $1,299 laptop. Overall task completion falls from 100% to 96.7%, which clears its 95% gate. The high-value slice falls from 3 of 3 to 2 of 3.</p>
+<p>The regression gate pairs the two release runs by case ID and computes each slice's pass rate on both sides. The policy's tolerance depends on the slice's risk: 0 points for critical slices, 5 for high, 10 for normal. The high-value slice is high risk and declined 33 points. v2.2 is blocked, and the report names t-023 as the flipped case.</p>
+<p>Pairing makes the comparison exact at the case level, which a difference of two averages is not. If a candidate fixes one case and breaks another, the averages are equal and the flips show both. Week 6 used the same idea for the RAG pipeline.</p>
+<aside class="callout callout--warning">
+<p><strong>Watch out.</strong> Slices here hold 2 to 6 cases, so one flipped case is a decline of 17 to 50 points. A small slice cannot detect a small regression, and it cannot tell a real one from a flaky case. Every tolerance in this policy amounts to "no flipped case in a high-risk slice". Week 15 covers how many cases a smaller tolerance needs.</p>
+</aside>
+<h2 id="7-evidence-and-missing-inputs">7. Evidence and missing inputs</h2>
+<p>New terms for this section:</p>
+<ul>
+<li><strong>Fail closed</strong>: when a rule cannot be evaluated, the gate refuses to ship.</li>
+<li><strong>Fail open</strong>: when a rule cannot be evaluated, the gate treats it as passed.</li>
+<li><strong>Comparable runs</strong>: runs with the same case set, data hashes, dataset version, policy version and full list of case IDs.</li>
+</ul>
+<p>A gate decides from files other jobs produced, and any of them can be missing, cut short, edited or from a different setup. The policy names an effect for each:</p>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>Missing or invalid input</th>
+<th>Detected by</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A run folder or file is missing</td>
+<td>Week 11's <code>verify</code></td>
+<td>HOLD, rerun</td>
+</tr>
+<tr>
+<td><code>results.json</code> was edited after the run</td>
+<td>checksum mismatch</td>
+<td>HOLD, rerun</td>
+</tr>
+<tr>
+<td>A run stopped at its budget</td>
+<td><code>complete</code> is false</td>
+<td>HOLD, rerun</td>
+</tr>
+<tr>
+<td>A run used another backend, judge or retry count</td>
+<td>config compared with the policy's run config</td>
+<td>HOLD, rerun</td>
+</tr>
+<tr>
+<td>Baseline and candidate used different data or policy versions</td>
+<td><code>versions</code> compared</td>
+<td>HOLD, rerun both on the same pins</td>
+</tr>
+<tr>
+<td>Either run is missing cases the suite has</td>
+<td>case IDs compared with the suite's case file</td>
+<td>HOLD, rerun on the full suite</td>
+</tr>
+<tr>
+<td>A metric the rule needs is absent</td>
+<td>the rule reads it and gets nothing</td>
+<td>the rule is MISSING, HOLD</td>
+</tr>
+<tr>
+<td>The policy file is unreadable or a rule is malformed</td>
+<td>policy validation</td>
+<td>no decision, exit 3</td>
+</tr>
+</tbody>
+</table></div>
+<p>Every row fails closed. A HOLD for evidence has no override: nobody can approve a release past evidence that does not exist. A malformed policy is worse than missing evidence, because the gate could misread its own rules. The gate refuses to decide at all.</p>
+<p>Two refinements keep this honest:</p>
+<ul>
+<li><strong>Evidence of harm outranks missing evidence.</strong> If the candidate's release run is missing but its safety probe shows an unauthorized refund, the verdict is BLOCK, not HOLD. Rerunning cannot unmake the refund.</li>
+<li><strong>Compare runs with the suite, not with each other.</strong> Two runs filtered to the same 27 cases agree with each other perfectly. Week 11 marks each one complete, because 27 of 27 admitted cases finished, and its data hashes match, because they hash the case file and not the cases that ran. Only a check against the suite's full case list sees that t-023 never ran. The hands-on file's second drill is this bug.</li>
+</ul>
+<aside class="callout callout--warning">
+<p><strong>Watch out.</strong> Fail-open code rarely looks like a decision. <code>summary.get("safety", {}).get("unauthorized_refunds", 0)</code> reads a missing count as zero. On an artifact from an older harness without safety counts, that line ships v2.3.</p>
+</aside>
+<h2 id="8-the-acceptance-policy-as-data">8. The acceptance policy as data</h2>
+<p>New terms for this section:</p>
+<ul>
+<li><strong>Acceptance policy</strong>: the release policy together with who may change it and who may approve a soft-gate failure.</li>
+<li><strong>Decision report</strong>: the gate's output, with the verdict, every rule's result, and pointers to the evidence behind each one.</li>
+<li><strong>Evidence pointer</strong>: a run ID, an artifact path or a case ID that lets a person check a rule's result.</li>
+</ul>
+<p>Keeping the policy in a JSON file instead of in the gate's code has three effects. A change to a threshold is a reviewed change to a versioned file, not an edit hidden in a function. Every decision records the policy's version and SHA-256, and a later reader knows which rules applied. And the same gate code can apply a stricter policy to a riskier product.</p>
+<p>The decision report is written for two readers. <code>decision.json</code> is for machines: the next job, an audit query, a dashboard. <code>decision.md</code> is for the release owner, verdict first. Each rule lists its values, its limit and the cases behind a failure. A BLOCK on <code>no-unauthorized-refunds</code> points at t-015 in the candidate's safety probe and its run ID.</p>
+<p>Overrides belong in the policy too. Each soft gate names who may approve its failure (<code>release owner</code> for the cost rule). Hard gates, quality gates, regression gates and evidence problems name nobody. A team that needs to ship past one of them changes the policy through review, and the change is visible in every later decision.</p>
+<h2 id="9-canary-and-rollback">9. Canary and rollback</h2>
+<p>New terms for this section:</p>
+<ul>
+<li><strong>Canary</strong>: releasing a candidate to a small share of real traffic first, and comparing it with the rest, the control, before releasing it to everyone.</li>
+<li><strong>Traffic share</strong>: the share of requests the canary serves, 5% in this policy.</li>
+<li><strong>Guardrail</strong>: a live metric with a limit the canary must stay inside.</li>
+<li><strong>Rollback</strong>: routing all traffic back to the baseline version.</li>
+</ul>
+<p>A SHIP verdict means the candidate passed 30 tool cases. Production has cases nobody wrote. The canary is the deployment gate: the last check, on live traffic, before the candidate reaches everyone.</p>
+<p>The policy's canary stage has two kinds of guardrail. Hard guardrails (<code>unauthorized_refunds</code> and <code>duplicate_refunds</code> at most 0) breach at any volume: one unauthorized refund at 61 requests rolls back. Rate guardrails compare the canary with the control: refund failure rate at most 2 points above it, escalation rate at most 3 points above, p95 latency at most 1.25 times. A rate over 38 requests is mostly noise. Rate guardrails wait for 400 requests and 50 refund attempts.</p>
+<p>This diagram shows the decision for one observation.</p>
+<pre class="mermaid" tabindex="0">flowchart TD
+    O[&quot;Canary observation&lt;br/&gt;SIMULATED metrics&quot;] --&gt; HG{&quot;Hard guardrail&lt;br/&gt;breached?&quot;}
+    HG --&gt;|yes| RB[&quot;ROLLBACK, exit 1&lt;br/&gt;at any volume&quot;]
+    HG --&gt;|no| VOL{&quot;At least 400 requests&lt;br/&gt;and 50 refund attempts?&quot;}
+    VOL --&gt;|no| T{&quot;48 hours passed?&quot;}
+    T --&gt;|no| EX[&quot;EXTEND, exit 2&lt;br/&gt;keep 5% traffic&quot;]
+    T --&gt;|yes| RB
+    VOL --&gt;|yes| RG{&quot;Rate guardrail&lt;br/&gt;breached?&quot;}
+    RG --&gt;|yes| RB
+    RG --&gt;|no| PR[&quot;PROMOTE, exit 0&quot;]
+</pre>
+<p>A canary that cannot gather enough volume within 48 hours rolls back rather than waiting forever, because an extended canary is an unreviewed partial release. A rollback restores the baseline named in the gate decision. The policy then asks for the release suite to be rerun on the restored version, and for its run ID to match the baseline's. A matching run ID shows production is back where it was. Week 13 builds the live side: traces, sampled online checks and the alerts that trigger a rollback after promotion.</p>
+<h2 id="10-three-decisions-by-hand">10. Three decisions by hand</h2>
+<section class="worked-example"><h3 id="101-worked-example-the-slice-regression">10.1 Worked example, the slice regression</h3>
+<p>v2.2 against v2, release runs, paired by case ID.</p>
+<ol>
+<li><strong>Flips.</strong> t-023 passed for v2 and fails for v2.2 (<code>outcome</code> is <code>refund_denied</code>, and <code>tool_selection</code> is missing <code>escalate_to_specialist</code>). No case flipped the other way.</li>
+<li><strong>Overall.</strong> Task completion is 29 of 30, 0.9667, above 0.95: PASS. Tool argument correctness is 30 of 30: PASS.</li>
+<li><strong>The slice.</strong> <code>high_value</code> has 3 cases, all <code>high</code> risk. Baseline 3 of 3 (100%), candidate 2 of 3 (66.7%). Decline 33.3 points, tolerance 5: FAIL.</li>
+<li><strong>Verdict.</strong> BLOCK on <code>no-slice-regression</code>, case t-023. Every other rule passed.</li>
+</ol>
+</section><section class="worked-example"><h3 id="102-worked-example-the-soft-gate">10.2 Worked example, the soft gate</h3>
+<p>v2.4 looks the policy up a second time in every case that reaches the policy search: 19 of the 30. Each tool call costs $0.0004 (SIMULATED).</p>
+<ol>
+<li><strong>Baseline.</strong> 72 tool calls, $0.0288.</li>
+<li><strong>Candidate.</strong> 72 + 19 = 91 calls, $0.0364.</li>
+<li><strong>Ratio.</strong> 0.0364 / 0.0288 = 1.264, above the limit of 1.2: FAIL.</li>
+<li><strong>Verdict.</strong> HOLD, override by the release owner. Every hard, quality and regression rule passed. A person may decide the extra lookup is worth 26% more cost.</li>
+</ol>
+</section><section class="worked-example"><h3 id="103-worked-example-the-canary-that-rolled-back">10.3 Worked example, the canary that rolled back</h3>
+<p>Suppose the release owner approves v2.4. Its SIMULATED canary after 24 hours: 505 requests and 91 refund attempts, both above the minimums.</p>
+<ol>
+<li><strong>Hard guardrails.</strong> 0 unauthorized and 0 duplicate refunds: pass.</li>
+<li><strong>Refund failure rate.</strong> 0.033 against a limit of 0.030 + 0.02 = 0.050: pass.</li>
+<li><strong>p95 latency.</strong> 2,650 ms against a limit of 1,790 × 1.25 = 2,237.5 ms: breach.</li>
+<li><strong>Decision.</strong> ROLLBACK. The cost the owner accepted offline also showed up as latency customers feel.</li>
+</ol>
+</section><h2 id="11-design-review">11. Design review</h2>
+<details class="qa" id="q1--why-does-a-single-unauthorized-refund-block-a-release-even-when-every-average-improved"><summary><h3 class="qa-h"><span class="qa-n">Q1</span><span class="qa-q">Why does a single unauthorized refund block a release, even when every average improved?</span></h3></summary><div class="qa-body">
+<p>Because its cost does not average. One refund to the wrong person moves money that may not come back, exposes another customer's order, and shows that a customer's words can widen what the agent is allowed to do. An average built from 30 cases cannot see a 1-in-30 event reliably, and a policy that let quality points offset it would let a release buy safety failures. The hard gate reads the count from the ledger, has a limit of zero, and has no override. The fix is to the candidate, and the incident review asks why the shortcut was written.</p>
+</div></details><details class="qa" id="q2--is-a-gate-ever-right-to-fail-open"><summary><h3 class="qa-h"><span class="qa-n">Q2</span><span class="qa-q">Is a gate ever right to fail open?</span></h3></summary><div class="qa-body">
+<p>Not for a release decision. Failing open turns every broken pipeline, missing file or renamed field into a silent pass, and the release record then says the rule was checked. Some availability-critical systems fail open at runtime, for example a fraud scorer that times out. That is a product decision about live traffic with its own monitoring. A release can wait for a rerun. The gate holds.</p>
+</div></details><details class="qa" id="q3--a-release-owner-wants-to-override-a-block-because-the-deadline-is-tomorrow-what-does-the-policy-allow"><summary><h3 class="qa-h"><span class="qa-n">Q3</span><span class="qa-q">A release owner wants to override a BLOCK because the deadline is tomorrow. What does the policy allow?</span></h3></summary><div class="qa-body">
+<p>Nothing for a hard, quality or regression rule, or for missing evidence. The owner can approve a soft-gate failure, by name, and the decision records it. To ship past anything else, they change the policy in a reviewed change: a new version, a stated reason, and every later decision showing the new SHA-256. That keeps exceptions visible instead of making the gate optional.</p>
+</div></details><details class="qa" id="q4--the-high-value-slice-has-3-cases-how-do-you-set-its-tolerance"><summary><h3 class="qa-h"><span class="qa-n">Q4</span><span class="qa-q">The high-value slice has 3 cases. How do you set its tolerance?</span></h3></summary><div class="qa-body">
+<p>With 3 cases the only measurable declines are 33, 67 and 100 points, so any tolerance below 33 means "no flipped case". Say that plainly in the policy rather than pretending to a 5-point precision. For a slice that matters, add cases until the tolerance you need is detectable, and treat a flip in a tiny slice as a reason to read the case, not as a statistic. Week 15 computes how many cases a given tolerance needs.</p>
+</div></details><details class="qa" id="q5--the-offline-gate-shipped-v24-with-an-owners-approval-and-the-canary-rolled-it-back-what-went-wrong-and-what-changes"><summary><h3 class="qa-h"><span class="qa-n">Q5</span><span class="qa-q">The offline gate shipped v2.4 with an owner's approval, and the canary rolled it back. What went wrong, and what changes?</span></h3></summary><div class="qa-body">
+<p>Nothing went wrong: the canary did its job, and the offline cost signal was right about the direction. The lab's simulated cost does not model latency, and the offline suite could not see the p95 increase. The change is to add what the canary caught to offline evidence where possible: record per-case tool-call counts and simulated latency in the artifact, and add a latency soft gate. Keep the canary, because some signals exist only on live traffic.</p>
+<hr />
+</div></details><h2 id="key-takeaways">Key Takeaways</h2>
+<ul>
+<li><strong>Sort rules by consequence.</strong> Hard gates block with no override, quality and regression gates block, soft gates hold for a named owner.</li>
+<li><strong>One unauthorized refund blocks.</strong> Hard gates read safety counts from the ledger and are never weighed against averages.</li>
+<li><strong>Test the agent, not the backend.</strong> The safety probe runs the lax backend so a missing agent-side check shows up before a backend regression exposes it.</li>
+<li><strong>Thresholds depend on the suite's size.</strong> 98% on 30 cases means zero failures. Mark thresholds illustrative until risk and data justify them.</li>
+<li><strong>Pair by case and look at slices.</strong> v2.2's 96.7% passes its quality gate while a high-risk slice loses a case.</li>
+<li><strong>Fail closed, and say how.</strong> Every missing or invalid input has a named effect. Evidence holds have no override. Harm outranks missing evidence.</li>
+<li><strong>Keep the policy as versioned data.</strong> Each decision records the policy's version and hash and points at the cases behind every failure.</li>
+<li><strong>A canary is the last gate.</strong> Hard guardrails roll back at any volume. Rate guardrails wait for volume, and a stalled canary rolls back.</li>
+</ul>
+<h2 id="check-yourself">Check Yourself</h2>
+<ol>
+<li>What are the three verdicts, and which outranks which? <details class="answer"><summary>Show answer</summary><div class="answer-body"><strong>SHIP, BLOCK and HOLD. BLOCK outranks HOLD, which outranks SHIP: one blocking rule decides the release.</strong></div></details></li>
+<li>Why does the policy need a safety probe as well as the release run? <details class="answer"><summary>Show answer</summary><div class="answer-body"><strong>The strict backend blocks bad refunds itself, so the release run measures the backend. The lax probe shows what the agent would store without that check, which is how v2.3's unauthorized refund appears.</strong></div></details></li>
+<li>Why do critical check failures count only on the release run? <details class="answer"><summary>Show answer</summary><div class="answer-body"><strong>On the lax backend, Week 7's authorization check fails v2 itself on the five other-customer cases, because the backend returns other customers' orders. The refund counts are the probe's signal.</strong></div></details></li>
+<li>v2.2's task completion is 96.7% against a 95% threshold. Why is it blocked? <details class="answer"><summary>Show answer</summary><div class="answer-body"><strong>Its high-value slice, a high-risk slice with 3 cases, fell from 100% to 67%: a 33-point decline against a 5-point tolerance.</strong></div></details></li>
+<li>A gate reads <code>summary.get("safety", {}).get("unauthorized_refunds", 0)</code>. What is wrong? <details class="answer"><summary>Show answer</summary><div class="answer-body"><strong>It fails open: an artifact without safety counts reads as zero unauthorized refunds and ships.</strong></div></details></li>
+<li>Two runs filtered to the same 27 cases verify, are complete and match each other. Why does the gate hold? <details class="answer"><summary>Show answer</summary><div class="answer-body"><strong>The gate compares each run's case IDs with the suite's full case file. Three cases, including t-023, never ran.</strong></div></details></li>
+<li>A canary shows one unauthorized refund at 61 requests. Promote, extend or roll back? <details class="answer"><summary>Show answer</summary><div class="answer-body"><strong>Roll back. Hard guardrails apply at any volume.</strong></div></details></li>
+</ol>
+<h2 id="memory-card">Memory card</h2>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning in this course</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Release policy</td>
+<td><code>release-policy-v1.json</code>: runs, rules, limits, overrides, canary stage</td>
+</tr>
+<tr>
+<td>Hard gate</td>
+<td>Limit 0 on a safety count or critical failure. BLOCK, no override</td>
+</tr>
+<tr>
+<td>Quality gate</td>
+<td>Minimum rate on the release run, such as task completion 0.95</td>
+</tr>
+<tr>
+<td>Regression gate</td>
+<td>Maximum slice decline against the baseline, by slice risk</td>
+</tr>
+<tr>
+<td>Soft gate</td>
+<td>HOLD until a named owner approves, such as cost at most 1.2 times</td>
+</tr>
+<tr>
+<td>Safety probe</td>
+<td>The suite on the lax backend: what the agent alone would store</td>
+</tr>
+<tr>
+<td>Fail closed</td>
+<td>An unreadable rule holds the release</td>
+</tr>
+<tr>
+<td>Flip</td>
+<td>A case whose verdict changed between baseline and candidate</td>
+</tr>
+<tr>
+<td>Canary</td>
+<td>5% of traffic, guardrails against the control, then promote, extend or roll back</td>
+</tr>
+<tr>
+<td>Rollback</td>
+<td>All traffic back to the baseline, then rerun its release suite to confirm</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Rules of thumb.</strong> Zero means zero. Pair by case ID, then read the slices. Compare every run with the suite, not with the other run. A missing number is unknown, never zero. Change thresholds in the policy file, by review, never in the gate's code.</p>
+<p><strong>Next week.</strong> Week 13 instruments the released version with traces and spans, samples live traffic for online checks, and turns refund failure rate into alerts and rollback triggers after the canary is promoted.</p>
+<h2 id="references">References</h2><details class="refs"><summary>Show the sources this page was built from</summary><div class="refs-body"><ul>
+<li><a href="../handson/week-12-release-gates-handson.md">Hands-on file</a>: the lab walkthrough, real output, exercises, drills and solutions for this page.</li>
+<li><a href="../handson/week-12-release-gates-handson.ipynb"><code>week-12-release-gates-handson.ipynb</code></a>: the same lab as a notebook.</li>
+<li><a href="../dataset/release-policy-v1.json"><code>release-policy-v1.json</code></a>: the policy this page describes.</li>
+<li><a href="../../week-11-evaluation-harness-and-ci/dataset/README.md">Week 11 dataset README</a>: every field of the run artifact the gate reads.</li>
+<li><a href="../../../enterprise-rag-agent-evaluation-roadmap.md#reference-release-gate--illustrative-tune-to-risk">Course roadmap, reference release gate</a>: the illustrative thresholds this policy uses.</li>
+<li><a href="https://sre.google/workbook/canarying-releases/">Google SRE Workbook, Canarying releases</a>: canary populations, control comparison and the evaluation of canary metrics.</li>
+<li><a href="https://sre.google/sre-book/release-engineering/">Google SRE Book, Release engineering</a>: hermetic, reproducible builds and gated releases.</li>
+<li><a href="../../../glossary.md">Glossary</a>: every term in the course, with the week that introduces it.</li>
+</ul>
+<hr />
+<p><strong>Next:</strong> <a href="../../week-13-tracing-and-online-evaluation/theory/week-13-tracing-and-online-evaluation-theory.html">Week 13 theory: Tracing and online evaluation</a> · <strong>Previous:</strong> <a href="../../week-11-evaluation-harness-and-ci/theory/week-11-evaluation-harness-and-ci-theory.html">Week 11 theory: Evaluation harness and CI</a></p></div></details></article></div>
+</main>
+<footer class="aed-foot"><ul><li>Rendered from week-12-release-gates-theory.md by tools/build_html.py. Edit the Markdown, not this file.</li></ul></footer>
+
+<script type="module">
+  // Mermaid is ~250 KB over ~27 requests. Imported up front, it competed with
+  // the page itself for the first paint (question bank LCP 4.6 s on mobile).
+  // It loads when the first diagram comes within a screen or two of view, and
+  // each diagram renders as it approaches. A diagram in a closed <details>
+  // renders when the reader opens it.
+  let ready;
+  const load = () => ready ||= import(
+    "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs"
+  ).then(({ default: mermaid }) => {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "default",
+      themeVariables: { fontFamily: '"Newsreader", Georgia, serif', fontSize: "14px" },
+      flowchart: { htmlLabels: true, curve: "basis", useMaxWidth: false },
+    });
+    return mermaid;
+  });
+  // One run at a time: overlapping mermaid.run() calls drop diagrams (6 of 66
+  // when a reader scrolls fast).
+  let queue = Promise.resolve();
+  const near = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      near.unobserve(e.target);
+      queue = queue.then(() => load()).then((m) => m.run({ nodes: [e.target] })).catch(() => {});
+    }
+  }, { rootMargin: "1200px 0px" });
+  document.querySelectorAll("pre.mermaid").forEach((el) => near.observe(el));
+
+  // useMaxWidth:false is not enough on its own -- mermaid still pins an inline
+  // max-width on some diagrams, which fitted five wide `flowchart LR` pipelines
+  // to the column and left them 43-124px tall, unreadable. Size each diagram
+  // from its own viewBox instead, so pre.mermaid (overflow-x:auto) scrolls when
+  // one is wider than the column. That is the natural gesture for a
+  // left-to-right pipeline, and it beats a sliver.
+  //
+  // Driven by an observer rather than awaiting mermaid.run(): hooking the
+  // promise proved unreliable -- it rejected after having drawn every diagram,
+  // which skipped the sizing pass entirely.
+  // childList only, so writing the styles cannot retrigger this.
+  const sizeFromViewBox = () => {
+    for (const svg of document.querySelectorAll("pre.mermaid svg")) {
+      const box = svg.viewBox && svg.viewBox.baseVal;
+      if (box && box.width > 0 && box.height > 0 && !svg.dataset.aedSized) {
+        svg.dataset.aedSized = "1";
+        svg.style.maxWidth = "none";
+        svg.style.width = box.width + "px";
+        svg.style.height = box.height + "px";
+      }
+    }
+  };
+  new MutationObserver(sizeFromViewBox)
+    .observe(document.body, { subtree: true, childList: true });
+  addEventListener("load", () => setTimeout(sizeFromViewBox, 60));
+</script>
+<script>
+(function () {
+  var all = document.querySelectorAll("details.qa");
+  if (!all.length) return;
+
+  var bar = document.createElement("div");
+  bar.className = "qa-bar";
+  bar.innerHTML = '<span class="qa-count">' + all.length + ' questions</span>' +
+    '<button type="button" data-qa="open">Expand all</button>' +
+    '<button type="button" data-qa="shut">Collapse all</button>';
+  var first = all[0];
+  first.parentNode.insertBefore(bar, first);
+
+  bar.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-qa]");
+    if (!b) return;
+    var open = b.dataset.qa === "open";
+    for (var i = 0; i < all.length; i++) { all[i].open = open; }
+  });
+
+  // An anchor should open what it points at, and actually land on it.
+  //
+  // Landing is the hard half. Mermaid swaps 40 lines of source text for a
+  // 1404px and an 1818px SVG, and the webfonts reflow everything, so the
+  // target's document position moves by thousands of pixels after this script
+  // first runs -- aiming once left the reader 3,000px past the question. So
+  // re-aim every frame until the target stops moving, then stop. Bounded at
+  // ~2s, and abandoned the instant the reader scrolls for themselves.
+  // Chrome restores the previous scroll offset for this URL *after* this
+  // script runs, which silently overrode the aim and parked the reader ~3,000px
+  // past the question on every repeat visit. With a hash present the anchor is
+  // the intent, not the old offset.
+  if (location.hash && "scrollRestoration" in history) {
+    history.scrollRestoration = "manual";
+  }
+
+  var userMoved = false;
+  ["wheel", "touchstart", "keydown"].forEach(function (t) {
+    addEventListener(t, function () { userMoved = true; }, { passive: true, once: true });
+  });
+
+  function aim() {
+    var id = decodeURIComponent(location.hash.slice(1));
+    if (!id) { return; }
+    var el = document.getElementById(id);
+    if (!el) { return; }
+    for (var n = el; n; n = n.parentElement) {
+      if (n.tagName === "DETAILS") { n.open = true; }
+    }
+    // behavior:"instant" matters -- the site sets scroll-behavior:smooth, so
+    // plain scrollTo starts an animation that the next frame restarts. The
+    // loop then "converged" on a scroll still in flight and left the reader
+    // ~3,000px short. Converge on where the target actually sits instead.
+    // clear the sticky top bar, or the question row lands behind it
+    var bar = document.querySelector(".site-bar");
+    var gap = (bar ? bar.offsetHeight : 0) + 14;
+    var still = 0, frames = 0;
+    (function settle() {
+      if (userMoved || frames++ > 150) { return; }
+      var top = el.getBoundingClientRect().top;
+      if (Math.abs(top - gap) > 2) {
+        still = 0;
+        window.scrollTo({ top: Math.max(0, top + window.scrollY - gap), behavior: "instant" });
+      } else {
+        still++;
+      }
+      if (still < 4) { requestAnimationFrame(settle); }
+    })();
+  }
+  addEventListener("hashchange", function () { userMoved = false; aim(); });
+  aim();
+
+  // print the whole thing, never a page of shut drawers
+  addEventListener("beforeprint", function () {
+    for (var i = 0; i < all.length; i++) { all[i].open = true; }
+  });
+})();
+</script>
+<script>
+(function () {
+  var rail = document.querySelector(".docnav");
+  if (!rail) return;
+  var links = [].slice.call(rail.querySelectorAll("a"));
+  var heads = links.map(function (a) {
+    return document.getElementById(decodeURIComponent(a.hash.slice(1)));
+  });
+
+  var fill = rail.querySelector(".rail-bar i");
+  var count = rail.querySelector(".rail-count");
+  var bar = document.querySelector("header.site-bar");
+
+  var current = -1;
+  function mark() {
+    // The line a heading has to cross to count as current sits just below the
+    // sticky header, so it moves with it rather than assuming one row.
+    var line = (bar ? bar.getBoundingClientRect().height : 58) + 32, at = 0;
+    for (var i = 0; i < heads.length; i++) {
+      if (heads[i] && heads[i].getBoundingClientRect().top <= line) { at = i; }
+    }
+    if (at === current) return;
+    if (current >= 0) { links[current].classList.remove("on"); }
+    links[at].classList.add("on");
+    current = at;
+
+    // Keep the active item visible when the rail is taller than the viewport.
+    var r = links[at].getBoundingClientRect(), box = rail.getBoundingClientRect();
+    if (r.top < box.top + 8) { rail.scrollTop -= box.top + 8 - r.top; }
+    else if (r.bottom > box.bottom - 8) { rail.scrollTop += r.bottom - box.bottom + 8; }
+
+    // The first rail item is the title, not a section, so both the count and
+    // the bar are measured against the sections that follow it.
+    var total = links.length - 1;
+    if (fill && total > 0) {
+      fill.style.width = Math.round((at / total) * 100) + "%";
+      if (count) { count.textContent = "Section " + Math.max(at, 1) + " of " + total; }
+    }
+  }
+
+  var queued = false;
+  function onScroll() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function () { queued = false; mark(); });
+  }
+  addEventListener("scroll", onScroll, { passive: true });
+  addEventListener("resize", onScroll, { passive: true });
+
+  // Scrolling is not the only thing that moves a heading past the line. Web
+  // fonts reflow the whole document, mermaid replaces source text with a tall
+  // SVG, and expanding a question pushes every later section down -- none of
+  // which fire `scroll`. Watching the article's box catches all three, and it
+  // is the difference between a rail that is right and one that is right until
+  // the reader touches something.
+  // The header's height decides the drawer's top edge and every anchor jump's
+  // offset. It is not a constant -- the nav wraps at some widths and the
+  // chapter row is only on some pages -- so it is measured rather than
+  // guessed. The CSS carries a static fallback for when this does not run.
+  if (bar) {
+    var measure = function () {
+      // Set on <body>, not <html>: the stylesheet's fallback is a rule on
+      // body, and a value set on the ancestor would be shadowed by it for
+      // every descendant that reads the token.
+      document.body.style.setProperty(
+        "--bar-h", Math.round(bar.getBoundingClientRect().height) + "px");
+    };
+    measure();
+    if (window.ResizeObserver) { new ResizeObserver(measure).observe(bar); }
+    else { addEventListener("resize", measure); }
+  }
+
+  var doc = document.querySelector("article.doc");
+  if (doc && window.ResizeObserver) { new ResizeObserver(onScroll).observe(doc); }
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(mark); }
+  mark();
+
+  // ---- the drawer on narrow screens ------------------------------------
+  // The rail is navigation, so it is never dropped on a phone -- it becomes a
+  // panel the Contents button opens. The button is hidden in the markup and
+  // revealed here, so a reader without JS is not offered a control that would
+  // do nothing.
+  var toggle = document.querySelector(".toc-toggle");
+  if (toggle) {
+    toggle.hidden = false;
+    var open = function (want) {
+      document.body.classList.toggle("toc-open", want);
+      toggle.setAttribute("aria-expanded", want ? "true" : "false");
+    };
+    toggle.addEventListener("click", function () {
+      open(!document.body.classList.contains("toc-open"));
+    });
+    rail.addEventListener("click", function (e) {
+      if (e.target.closest("a")) { open(false); }
+    });
+    addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { open(false); }
+    });
+  }
+})();
+</script>
+
+<script>
+// ---- a copyable link on every heading ----------------------------------
+// The ids are already there (the `toc` extension writes them); what is missing
+// is a way to get at one without reading the source. Added here rather than in
+// the Markdown so no document carries link markup of its own.
+(function () {
+  var heads = document.querySelectorAll("article.doc h1[id], article.doc h2[id], "
+                                        + "article.doc h3[id], article.doc h4[id]");
+  [].forEach.call(heads, function (h) {
+    var a = document.createElement("a");
+    a.className = "anchor";
+    a.href = "#" + h.id;
+    a.setAttribute("aria-label", "Link to this section");
+    a.textContent = "#";
+    a.addEventListener("click", function (e) {
+      if (!navigator.clipboard) return;          // let the plain jump happen
+      e.preventDefault();
+      history.replaceState(null, "", a.href);
+      h.scrollIntoView();
+      navigator.clipboard.writeText(a.href).then(function () {
+        a.classList.add("copied");
+        setTimeout(function () { a.classList.remove("copied"); }, 1200);
+      });
+    });
+    h.appendChild(a);
+  });
+})();
+</script>
+
+</body>
+</html>

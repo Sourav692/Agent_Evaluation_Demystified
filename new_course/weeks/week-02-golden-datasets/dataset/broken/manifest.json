@@ -1,0 +1,18 @@
+{
+  "dataset_version": "refund-cases-broken",
+  "policy_version": "2026-01",
+  "as_of": "2026-03-15",
+  "splits": {
+    "development": {
+      "path": "development.jsonl",
+      "cases": 13,
+      "sha256": "387a4364d0fd37c7aaab0d41e6ee8501efa368be41b78430162ffa7f0c5f6f8f"
+    },
+    "holdout": {
+      "path": "holdout.jsonl",
+      "cases": 4,
+      "sha256": "67ea9c9be7786df592ae5d703291c5418e18c3baa1579f7644a2e1765a3f08ac"
+    }
+  },
+  "provenance": "Deliberately broken copy of refund-cases-v1 for Week 2 exercises and tests."
+}

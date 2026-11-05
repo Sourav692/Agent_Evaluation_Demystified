@@ -1,0 +1,27 @@
+{
+  "version": "tenants-v1",
+  "status": "ILLUSTRATIVE: fictional teams, people and budgets; budgets are SIMULATED dollars",
+  "tenants": {
+    "support-rag":   {"display": "Support RAG team",       "runner": "retrieval", "reserve_per_case_usd": 0.0005, "monthly_budget_usd": 0.05},
+    "refunds-agent": {"display": "Refunds agent team",     "runner": "tools",     "reserve_per_case_usd": 0.003,  "monthly_budget_usd": 0.15},
+    "trust-safety":  {"display": "Trust and safety team",  "runner": "faults",    "reserve_per_case_usd": 0.003,  "monthly_budget_usd": 0.10}
+  },
+  "principals": {
+    "rag.owner":        {"tenant": "support-rag",   "role": "owner"},
+    "rag.engineer":     {"tenant": "support-rag",   "role": "engineer"},
+    "rag.viewer":       {"tenant": "support-rag",   "role": "viewer"},
+    "refunds.owner":    {"tenant": "refunds-agent", "role": "owner"},
+    "refunds.engineer": {"tenant": "refunds-agent", "role": "engineer"},
+    "refunds.viewer":   {"tenant": "refunds-agent", "role": "viewer"},
+    "safety.owner":     {"tenant": "trust-safety",  "role": "owner"},
+    "safety.engineer":  {"tenant": "trust-safety",  "role": "engineer"},
+    "platform.auditor": {"tenant": "*",             "role": "auditor"}
+  },
+  "roles": {
+    "viewer":   ["dataset.read", "evaluator.read", "run.read"],
+    "engineer": ["dataset.read", "evaluator.read", "run.read", "dataset.write", "eval.run"],
+    "owner":    ["dataset.read", "evaluator.read", "run.read", "dataset.write", "eval.run",
+                 "evaluator.write", "evaluator.share", "usage.read", "audit.read"],
+    "auditor":  ["audit.read", "usage.read"]
+  }
+}

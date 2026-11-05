@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>Enterprise RAG &amp; Agent Evaluation — 16-Week Roadmap</title><style>
+:root{--bg:#0b1220;--paper:#111c30;--ink:#eef3fb;--muted:#aab8cf;--line:#30425f;--accent:#38bdf8;--secondary:#34d399}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.page{max-width:1180px;margin:auto;padding:34px 24px 90px}.masthead{padding:34px 36px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(125deg,#172c4b,#111c30)}.masthead p{color:var(--muted)}.eyebrow{text-transform:uppercase;letter-spacing:2px;font-weight:700;color:var(--secondary);font-size:12px}.layout{display:grid;grid-template-columns:215px minmax(0,1fr);gap:28px;margin-top:28px}nav{position:sticky;top:22px;align-self:start;padding:18px;background:var(--paper);border:1px solid var(--line);border-radius:14px}nav a{display:block;padding:6px;color:var(--muted);text-decoration:none;font-size:13px}nav a:hover{color:var(--accent)}article{min-width:0}article h1{display:none}article h2{margin-top:44px;font-size:27px;border-bottom:1px solid var(--line);padding-bottom:9px}article h3{margin-top:32px;font-size:21px;color:#e5efff}a{color:var(--accent)}p,li{color:#d4dff0}blockquote{border-left:4px solid var(--secondary);padding:5px 18px;background:#14233a;border-radius:8px;margin:20px 0}blockquote p{color:#ecfbf6}table{display:block;overflow:auto;width:100%;border-collapse:collapse;margin:20px 0 32px;font-size:13px}th,td{padding:12px 13px;border:1px solid var(--line);vertical-align:top;min-width:105px}th{background:#1a2d47;color:#fff;text-align:left}tr:nth-child(2n) td{background:#13223a}pre{background:#101c2e;border:1px solid var(--line);border-radius:12px;padding:17px;overflow:auto;color:#c3e8ff}code{font-size:90%}strong{color:#fff}.callout{background:#13223a;border:1px solid var(--line);border-radius:12px;padding:18px}.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:18px}.toolbar a{border:1px solid #53718e;color:#fff;padding:8px 14px;border-radius:8px;text-decoration:none;font-size:13px}@media(max-width:850px){.layout{display:block}nav{position:static;margin-bottom:24px}.page{padding:12px}.masthead{padding:22px}th,td{min-width:120px}}@media print{body{background:#fff;color:#111}nav,.toolbar{display:none}.page{max-width:none}.layout{display:block}.masthead{background:none;color:#111}p,li,blockquote p{color:#222}th,td{color:#111;border-color:#999}article h1{display:block}a{color:#135399}}
+</style></head><body><div class="page"><header class="masthead"><div class="eyebrow">Learning roadmap / Staff AI Engineering</div><h1>Enterprise RAG &amp; Agent Evaluation</h1><p>16 weeks · Beginner to Enterprise · One evolving customer-support agent</p><div class="toolbar"><a href="#learning-phases-and-weekly-curriculum">Weekly curriculum</a><a href="#capstone-shared-enterprise-evaluation-platform">Capstone</a><a href="#milestone-checklist">Milestones</a></div></header><div class="layout"><nav aria-label="Sections"><strong>On this page</strong><a href="#how-to-use-this-roadmap">How to study</a><a href="#one-project-from-week-1-to-week-16">Project</a><a href="#learning-phases-and-weekly-curriculum">16-week curriculum</a><a href="#what-the-evaluation-system-measures">Metrics</a><a href="#reference-release-gate-illustrative-tune-to-risk">Release gate</a><a href="#recommended-technology-stack">Tools</a><a href="#capstone-shared-enterprise-evaluation-platform">Capstone</a><a href="#milestone-checklist">Checklist</a><a href="#expected-skills-after-16-weeks">Outcomes</a></nav><article><h1>Enterprise RAG &amp; Agent Evaluation — 16-Week Roadmap</h1>
+<p><strong>Level:</strong> Beginner → Intermediate → Advanced → Enterprise/Staff architecture<br/>
+<strong>Duration:</strong> 16 weeks · <strong>Effort:</strong> 8–10 hours/week (128–160 hours)<br/>
+<strong>Learning mode:</strong> One evolving customer-support agent; theory followed by experiments, failure cases, and a review.</p>
+<blockquote>
+<p><strong>Target outcome:</strong> Design, build, and operate an evaluation platform that verifies RAG grounding, agent actions, release readiness, and online reliability across teams. This is a study roadmap, not a guarantee of production expertise after 16 weeks.</p>
+</blockquote>
+<h2 id="how-to-use-this-roadmap">How to use this roadmap</h2>
+<ul>
+<li>Study concepts for <strong>2 hours</strong>; implement for <strong>3 hours</strong>; inject failures and run experiments for <strong>2 hours</strong>; analyze trade-offs for <strong>1 hour</strong>; practice a Staff-level design explanation for <strong>1 hour</strong>.</li>
+<li>Keep every golden case versioned. Separate development cases from a hidden holdout set.</li>
+<li>Inspect traces and real side effects. A convincing final answer is not proof that an agent completed the task.</li>
+<li>Report <strong>accuracy by scenario slice</strong>, not only overall averages; give critical security failures their own hard checks.</li>
+<li>Prefer a clear custom evaluator for simple facts and invariants. Add LLM judges where semantic judgment is genuinely needed.</li>
+</ul>
+<h2 id="one-project-from-week-1-to-week-16">One project from Week 1 to Week 16</h2>
+<p><strong>Enterprise Customer Support Agent</strong> — a customer asks: “My order #123 arrived damaged. Can I get a refund?”</p>
+<pre><code class="language-mermaid">flowchart TD
+  U[Customer request] --&gt; A[Customer support agent]
+  A --&gt; R[RAG: retrieve policy and evidence]
+  A --&gt; T[Tools: get_customer, get_order, create_refund]
+  R --&gt; E[Evaluation harness]
+  T --&gt; E
+  E --&gt; D[Golden cases, traces, side-effect checks]
+  D --&gt; G{Release gate}
+  G --&gt;|Pass| C[Canary and monitor]
+  G --&gt;|Fail| F[Block, debug, retest]
+</code></pre>
+<p><strong>Non-negotiable scenario rules:</strong> verify identity and authorization outside the prompt; retrieve the applicable policy version; issue a refund only when eligible; use an idempotency key; verify persisted side effects; never expose another customer's information.</p>
+<h2 id="learning-phases-and-weekly-curriculum">Learning phases and weekly curriculum</h2>
+<h3 id="phase-1--evaluation-foundations-weeks-13">Phase 1 — Evaluation Foundations (Weeks 1–3)</h3>
+<p><strong>Goal:</strong> Understand what quality means, label reliable examples, and learn to judge scores critically.</p>
+<table>
+<thead>
+<tr>
+<th>Week</th>
+<th>Focus</th>
+<th>Theory to learn</th>
+<th>Practical task</th>
+<th>Deliverable</th>
+<th>Staff-level checkpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td><strong>Evaluation lifecycle and basic metrics</strong></td>
+<td>Offline vs online; deterministic vs probabilistic checks; correctness vs quality; precision, recall, F1; failure taxonomy.</td>
+<td>Build 30 labeled cases and three Python checks: exact outcome, required keyword, and forbidden action.</td>
+<td>A small test runner with per-case results and reasons.</td>
+<td>Explain why high answer quality does not guarantee safe behavior.</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td><strong>Golden datasets and test design</strong></td>
+<td>Ground truth; representative slices; positive, negative, adversarial cases; dataset versioning; leakage; train/dev/test separation.</td>
+<td>Expand to 100 cases with IDs, expected outcome, policy version, risk labels, and authorized user.</td>
+<td>Versioned JSONL dataset and schema validator.</td>
+<td>Show how to prevent test-set contamination and missing edge cases.</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td><strong>LLM-as-a-Judge and human calibration</strong></td>
+<td>Rubrics; binary versus ordinal scoring; pairwise comparison; judge bias; reference-free versus reference-based grading; agreement.</td>
+<td>Create a judge prompt with cited evidence; label 30 samples manually; compare disagreements and revise the rubric.</td>
+<td>Judge evaluator, human-review sheet and confusion matrix.</td>
+<td>Explain why a judge score cannot serve as the sole safety control.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exit requirement:</strong> demonstrate working tests, discuss one failure in detail, and explain why the chosen metrics or architecture match the business risk.</p>
+<h3 id="phase-2--rag-evaluation-engineering-weeks-46">Phase 2 — RAG Evaluation Engineering (Weeks 4–6)</h3>
+<p><strong>Goal:</strong> Diagnose retrieval, evidence and answer-generation failures separately.</p>
+<table>
+<thead>
+<tr>
+<th>Week</th>
+<th>Focus</th>
+<th>Theory to learn</th>
+<th>Practical task</th>
+<th>Deliverable</th>
+<th>Staff-level checkpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>4</strong></td>
+<td><strong>Retrieval evaluation</strong></td>
+<td>Precision@k; Recall@k; Hit Rate@k; MRR; nDCG; chunk size; metadata filters; ground-truth relevance labels.</td>
+<td>Compare dense and hybrid retrieval on 50 policy queries at k=3 and k=5.</td>
+<td>Retrieval benchmark with per-query and slice-level metrics.</td>
+<td>Identify when MRR is useful versus Recall@k.</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td><strong>RAG answer and evidence evaluation</strong></td>
+<td>Faithfulness; answer correctness; response relevance; abstention; citation accuracy; hallucination; access-aware retrieval.</td>
+<td>Introduce outdated policy, contradictory passages, missing evidence and restricted documents; score responses.</td>
+<td>Custom evaluators plus Ragas experiment with failure examples.</td>
+<td>Separate retrieval failure from generation failure.</td>
+</tr>
+<tr>
+<td><strong>6</strong></td>
+<td><strong>End-to-end RAG regression</strong></td>
+<td>Query rewriting; reranking; hybrid search; retrieval drift; cost/latency trade-offs; version comparison.</td>
+<td>Evaluate baseline V1 versus V2 retriever and generator; examine slices and identify regressions.</td>
+<td>Comparative RAG scorecard and release recommendation.</td>
+<td>Defend a choice where quality improves but latency worsens.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exit requirement:</strong> demonstrate working tests, discuss one failure in detail, and explain why the chosen metrics or architecture match the business risk.</p>
+<h3 id="phase-3--agent-evaluation-engineering-weeks-710">Phase 3 — Agent Evaluation Engineering (Weeks 7–10)</h3>
+<p><strong>Goal:</strong> Evaluate tool behavior, full trajectories, state changes and safety.</p>
+<table>
+<thead>
+<tr>
+<th>Week</th>
+<th>Focus</th>
+<th>Theory to learn</th>
+<th>Practical task</th>
+<th>Deliverable</th>
+<th>Staff-level checkpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>7</strong></td>
+<td><strong>Tool and side-effect evaluation</strong></td>
+<td>Tool selection; argument/schema validity; tool output validation; authentication/authorization; state mutation.</td>
+<td>Build checks for get_customer, get_order, search_policy and create_refund; verify DB records and forbidden calls.</td>
+<td>Tool-call and business-outcome evaluators.</td>
+<td>Explain why matching the final answer is not enough.</td>
+</tr>
+<tr>
+<td><strong>8</strong></td>
+<td><strong>Trajectory and task-completion evaluation</strong></td>
+<td>Exact vs flexible trajectories; required and forbidden steps; trace grading; task success; efficiency; partial credit.</td>
+<td>Compare valid alternative tool orders; reject missing auth checks; verify final refund state.</td>
+<td>Trajectory checker and independent task-success checker.</td>
+<td>Avoid over-constraining a valid agent plan.</td>
+</tr>
+<tr>
+<td><strong>9</strong></td>
+<td><strong>Multi-turn and stateful evaluation</strong></td>
+<td>Sessions; checkpoints; follow-up clarification; context carryover; cross-session leakage; long conversations.</td>
+<td>Write 25 multi-turn scenarios; restart the agent between turns; test order continuity and tenant isolation.</td>
+<td>Stateful conversation harness with replayable transcripts.</td>
+<td>Describe how to test persistence without using brittle exact text matching.</td>
+</tr>
+<tr>
+<td><strong>10</strong></td>
+<td><strong>Failure injection, adversarial and multi-agent evaluation</strong></td>
+<td>Timeouts; retries; idempotency; prompt injection; agent handoffs; routing; partial failure; malicious tool content.</td>
+<td>Simulate a refund timeout after commit, duplicate request, unauthorized order and poisoned policy document.</td>
+<td>Fault-injection suite and high-severity safety report.</td>
+<td>Show that a retry cannot create a second refund.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exit requirement:</strong> demonstrate working tests, discuss one failure in detail, and explain why the chosen metrics or architecture match the business risk.</p>
+<h3 id="phase-4--production-evaluation-and-release-gates-weeks-1113">Phase 4 — Production Evaluation and Release Gates (Weeks 11–13)</h3>
+<p><strong>Goal:</strong> Make evaluation part of delivery and live operations.</p>
+<table>
+<thead>
+<tr>
+<th>Week</th>
+<th>Focus</th>
+<th>Theory to learn</th>
+<th>Practical task</th>
+<th>Deliverable</th>
+<th>Staff-level checkpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>11</strong></td>
+<td><strong>Evaluation harness and CI/CD</strong></td>
+<td>Reproducibility; pinned datasets/policies; parallel runs; caching; budgets; flaky tests; CI artifacts.</td>
+<td>Create CLI eval runner, structured JSON results and GitHub Actions-style workflow with blocking tests.</td>
+<td>CI-ready runner, test artifacts and repeatable setup.</td>
+<td>Diagnose a flaky LLM evaluation result.</td>
+</tr>
+<tr>
+<td><strong>12</strong></td>
+<td><strong>Release gates and regressions</strong></td>
+<td>Hard/soft gates; slice-based thresholds; paired V1/V2 comparisons; acceptance policy; canary; rollback.</td>
+<td>Codify quality thresholds and zero-tolerance violations; test fail-open versus fail-closed behavior.</td>
+<td>Machine-readable release policy and gate decision report.</td>
+<td>Explain why a single unauthorized refund blocks release.</td>
+</tr>
+<tr>
+<td><strong>13</strong></td>
+<td><strong>Tracing and online evaluation</strong></td>
+<td>OpenTelemetry; OpenInference; spans; sampling; feedback; production quality; alerts; privacy; drift.</td>
+<td>Instrument retrieval/tool/model spans; build sampled online checks and alerts for refund failure rate.</td>
+<td>Trace-linked online dashboard and operations runbook.</td>
+<td>Differentiate offline benchmarks from live production signals.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exit requirement:</strong> demonstrate working tests, discuss one failure in detail, and explain why the chosen metrics or architecture match the business risk.</p>
+<h3 id="phase-5--enterprise-evaluation-architecture-weeks-1416">Phase 5 — Enterprise Evaluation Architecture (Weeks 14–16)</h3>
+<p><strong>Goal:</strong> Scale reliable evaluation across teams without losing security or cost control.</p>
+<table>
+<thead>
+<tr>
+<th>Week</th>
+<th>Focus</th>
+<th>Theory to learn</th>
+<th>Practical task</th>
+<th>Deliverable</th>
+<th>Staff-level checkpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>14</strong></td>
+<td><strong>Multi-tenant governance</strong></td>
+<td>Tenancy; RBAC; dataset/evaluator registry; versioning; PII redaction; auditability; per-team attribution.</td>
+<td>Support three fictional teams, isolated datasets and evaluator permissions; inspect access-denied events.</td>
+<td>Architecture and permissions tests for shared evaluation APIs.</td>
+<td>Explain tenant isolation and auditability trade-offs.</td>
+</tr>
+<tr>
+<td><strong>15</strong></td>
+<td><strong>Reliable measurement and statistics</strong></td>
+<td>Judge calibration; human disagreement; repeated runs; confidence intervals; paired tests; uncertainty; segment drift.</td>
+<td>Run repeated stochastic evaluations; bootstrap a paired difference; review disagreeing human and judge labels.</td>
+<td>Reliability report with uncertainty and sample-size caveats.</td>
+<td>Avoid declaring a 2% improvement from noisy, underpowered tests.</td>
+</tr>
+<tr>
+<td><strong>16</strong></td>
+<td><strong>Distributed evaluation capstone</strong></td>
+<td>Queues; worker pools; admission control; backpressure; fairness; quotas; cost limits; fault recovery; SLOs.</td>
+<td>Deploy simulated multi-tenant worker queue with retries and budgets; show a complete release decision and audit trail.</td>
+<td>Enterprise architecture, working prototype, dashboard, ADR, runbook and demo.</td>
+<td>Defend architecture at Staff/Principal review level.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exit requirement:</strong> demonstrate working tests, discuss one failure in detail, and explain why the chosen metrics or architecture match the business risk.</p>
+<h2 id="what-the-evaluation-system-measures">What the evaluation system measures</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Questions</th>
+<th>Example checks</th>
+<th>Failure you must catch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Retrieval</td>
+<td>Did we find the right evidence?</td>
+<td>Recall@k, MRR, nDCG, filter compliance</td>
+<td>Wrong policy version retrieved</td>
+</tr>
+<tr>
+<td>RAG answer</td>
+<td>Did we answer correctly and from evidence?</td>
+<td>Faithfulness, correctness, citation support, abstention</td>
+<td>“60 days” when policy says “30 days”</td>
+</tr>
+<tr>
+<td>Tool behavior</td>
+<td>Did the agent call tools correctly?</td>
+<td>Tool name, schema, argument and response checks</td>
+<td>Refund issued against wrong order</td>
+</tr>
+<tr>
+<td>Trajectory</td>
+<td>Did the agent follow an acceptable path?</td>
+<td>Required/forbidden actions, flexible sequence checks</td>
+<td><code>create_refund</code> before auth check</td>
+</tr>
+<tr>
+<td>Task outcome</td>
+<td>Did the intended state change happen?</td>
+<td>DB read-back, ledger events, idempotency</td>
+<td>Claimed success but no refund record</td>
+</tr>
+<tr>
+<td>Safety</td>
+<td>Did security/business invariants hold?</td>
+<td>Authorization, tenant isolation, duplicates</td>
+<td>Unauthorized or double refund</td>
+</tr>
+<tr>
+<td>Production</td>
+<td>Is behavior stable live?</td>
+<td>Latency, cost, alerts, quality samples, human feedback</td>
+<td>New policy causes widespread wrong answers</td>
+</tr>
+</tbody>
+</table>
+<h2 id="reference-release-gate--illustrative-tune-to-risk">Reference release gate — illustrative, tune to risk</h2>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th style="text-align:right">Example threshold</th>
+<th>Rule type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RAG answer correctness</td>
+<td style="text-align:right">≥95%</td>
+<td>Quality gate</td>
+</tr>
+<tr>
+<td>Task completion</td>
+<td style="text-align:right">≥95%</td>
+<td>Quality gate</td>
+</tr>
+<tr>
+<td>Tool argument correctness</td>
+<td style="text-align:right">≥98%</td>
+<td>Quality gate</td>
+</tr>
+<tr>
+<td>Unauthorized refunds</td>
+<td style="text-align:right"><strong>0</strong></td>
+<td>Hard safety gate</td>
+</tr>
+<tr>
+<td>Duplicate refunds</td>
+<td style="text-align:right"><strong>0</strong></td>
+<td>Hard safety gate</td>
+</tr>
+<tr>
+<td>Critical slice regression</td>
+<td style="text-align:right">No decline beyond agreed tolerance</td>
+<td>Regression gate</td>
+</tr>
+<tr>
+<td>Canary</td>
+<td style="text-align:right">No breach of live guardrails</td>
+<td>Deployment gate</td>
+</tr>
+</tbody>
+</table>
+<p>Do not use averages to excuse a high-severity safety failure. Thresholds above are learning examples, not universal targets. Compare new and baseline versions on the <strong>same</strong> test cases, explain uncertainty, and record dataset/prompt/model/policy versions.</p>
+<h2 id="recommended-technology-stack">Recommended technology stack</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Tools</th>
+<th>Learn the principle, not just the API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Core</td>
+<td>Python, pytest, JSONL/Parquet, SQLite/PostgreSQL</td>
+<td>Fixtures, expected outcomes, deterministic checks, data versioning</td>
+</tr>
+<tr>
+<td>RAG</td>
+<td>Ragas; a retriever/vector store of your choice</td>
+<td>Retrieval vs generation metrics; grounding and citations</td>
+</tr>
+<tr>
+<td>Agents</td>
+<td>DeepEval; LangGraph or a small custom tool-calling agent</td>
+<td>Tool correctness, trajectory, task completion, state handling</td>
+</tr>
+<tr>
+<td>Experiments</td>
+<td>LangSmith <strong>or</strong> Arize Phoenix</td>
+<td>Dataset runs, tracing, comparison, debugging</td>
+</tr>
+<tr>
+<td>Instrumentation</td>
+<td>OpenTelemetry, OpenInference conventions</td>
+<td>Trace IDs, spans, context propagation and sampling</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>GitHub Actions or similar, Docker</td>
+<td>Automated test runs, reproducible artifacts, release decisions</td>
+</tr>
+<tr>
+<td>Enterprise</td>
+<td>Redis/queue, worker pool, PostgreSQL, RBAC, cloud storage</td>
+<td>Scale, quotas, auditability and multi-tenant isolation</td>
+</tr>
+</tbody>
+</table>
+<p>Official reference links: <a href="https://docs.ragas.io/">Ragas</a>, <a href="https://deepeval.com/docs/getting-started">DeepEval</a>, <a href="https://docs.langchain.com/langsmith/">LangSmith</a>, <a href="https://arize.com/docs/phoenix/">Phoenix</a>, <a href="https://opentelemetry.io/docs/">OpenTelemetry</a>, <a href="https://platform.openai.com/docs/guides/evals">OpenAI agent evals</a>, <a href="https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence">NIST GenAI profile</a>.</p>
+<h2 id="capstone-shared-enterprise-evaluation-platform">Capstone: shared enterprise evaluation platform</h2>
+<pre><code class="language-mermaid">flowchart TB
+  Apps[Three tenant teams / RAG and agents] --&gt; API[Evaluation API + tenant auth]
+  API --&gt; REG[Dataset + evaluator registry]
+  API --&gt; Q[Priority queues / quotas / budgets]
+  Q --&gt; W[Distributed evaluation workers]
+  W --&gt; OBS[Traces + structured results]
+  REG --&gt; W
+  OBS --&gt; J[Metrics, judge calibration + regression engine]
+  J --&gt; Gate{Release policy engine}
+  Gate --&gt;|Pass| Canary[Canary release + online monitoring]
+  Gate --&gt;|Fail| Block[Block release + evidence report]
+  OBS --&gt; Dash[Dashboard + audit log]
+</code></pre>
+<p><strong>Capstone acceptance criteria</strong></p>
+<ol>
+<li><strong>Correctness:</strong> tests inspect retrieved passages, tool calls, database side effects and final task outcomes.</li>
+<li><strong>Risk:</strong> zero tolerated unauthorized or duplicate refunds; adversarial/fault tests included.</li>
+<li><strong>Repeatability:</strong> pinned dataset, agent/model version, prompt and policy versions; replayable test traces.</li>
+<li><strong>Release decisions:</strong> machine-readable pass/block verdict, threshold evidence, regression slices and reviewer notes.</li>
+<li><strong>Online operations:</strong> sampled production traces, quality monitoring, alerts and rollback criteria.</li>
+<li><strong>Enterprise controls:</strong> three fictional tenants with data isolation, role-aware access, audit logs, budgets and queue fairness.</li>
+<li><strong>Reliability:</strong> retries, timeouts and partial failures do not double-charge or silently lose evaluation runs.</li>
+<li><strong>Staff review:</strong> architecture diagram, 2 ADRs, demo, performance/cost estimates and a runbook.</li>
+</ol>
+<h2 id="milestone-checklist">Milestone checklist</h2>
+<h3 id="foundation">Foundation</h3>
+<ul>
+<li>[ ] Create 100 labeled golden cases with meaningful slices.</li>
+<li>[ ] Implement three deterministic evaluators and one LLM judge.</li>
+<li>[ ] Calibrate judge results against human labels.</li>
+</ul>
+<h3 id="rag">RAG</h3>
+<ul>
+<li>[ ] Measure retrieval quality and answer quality separately.</li>
+<li>[ ] Catch unsupported claims, citation errors and wrong-version policy retrieval.</li>
+<li>[ ] Compare retrieval/generation V1 versus V2 with regression evidence.</li>
+</ul>
+<h3 id="agents">Agents</h3>
+<ul>
+<li>[ ] Validate tool names, arguments, auth boundaries and persisted side effects.</li>
+<li>[ ] Evaluate both flexible trajectories and end-to-end outcomes.</li>
+<li>[ ] Test multi-turn continuity, injection, retries, timeouts and duplicates.</li>
+</ul>
+<h3 id="production">Production</h3>
+<ul>
+<li>[ ] Automate the evaluation runner and persist CI artifacts.</li>
+<li>[ ] Apply hard safety, quality and regression release rules.</li>
+<li>[ ] Add traces, online samples, alerts and canary rollback criteria.</li>
+</ul>
+<h3 id="enterprise">Enterprise</h3>
+<ul>
+<li>[ ] Demonstrate multi-tenant isolation and permissions.</li>
+<li>[ ] Measure uncertainty and compare calibrated judges with humans.</li>
+<li>[ ] Present a runnable worker/queue prototype and architecture/runbook.</li>
+</ul>
+<h2 id="expected-skills-after-16-weeks">Expected skills after 16 weeks</h2>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Observable capability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Beginner</td>
+<td>Explain evaluation types and build basic test cases and metrics</td>
+</tr>
+<tr>
+<td>Intermediate</td>
+<td>Diagnose retrieval vs generation errors and quantify RAG changes</td>
+</tr>
+<tr>
+<td>Advanced</td>
+<td>Evaluate tools, trajectories, multi-turn behavior, side effects and release decisions</td>
+</tr>
+<tr>
+<td>Senior</td>
+<td>Run reproducible offline/online evaluations through release pipelines</td>
+</tr>
+<tr>
+<td>Staff/Principal trajectory</td>
+<td>Design secure, fair, measurable multi-team evaluation infrastructure and defend trade-offs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Important limitation:</strong> finishing a study roadmap develops demonstrable competence; true expert judgment requires production incidents, changing policies, real traffic and organizational constraints.</p>
+</article></div></div></body></html>

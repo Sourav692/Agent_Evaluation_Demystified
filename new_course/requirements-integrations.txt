@@ -1,0 +1,32 @@
+# Optional integrations. Install only when you run a live (paid) exercise.
+# Keep them in this course's own .venv, never the repository root's.
+#
+# These pins are a set, copied from courses/03-agentic-eval-harness/requirements.txt,
+# where the reasons are tested:
+#   - ragas 0.4.3 depends on instructor, which caps openai below 3.0. 2.54.0 is the newest
+#     release under that cap.
+#   - ragas 0.4.3 imports langchain_community.chat_models.vertexai at the top level.
+#     langchain-community 0.4.2 deleted it, so an unpinned resolve breaks `import ragas`.
+#   - langchain-openai 1.6.2 requires langchain-core >= 1.6.2.
+#
+# Checked on 2026-11-05 in an isolated Python 3.12 environment: install, `import ragas`,
+# the four metrics' ascore() keywords, llm_factory, and openai's
+# chat.completions.create(response_format=...) and embeddings.create(input=, model=).
+# None of the live paths has been run against a model yet.
+
+openai==2.54.0               # Week 3 live judge, Week 4 live embeddings, Week 5 Ragas client
+ragas==0.4.3                 # Week 5 model-judged answer metrics
+langchain-community==0.3.31  # load-bearing for `import ragas`
+langchain-core==1.6.2
+langchain-openai==1.6.2
+
+# --- Week 13: optional OpenTelemetry export (free, no hosted service, no API key) ---
+# `lab.py otel` sends the week's redacted spans through the real SDK into an in-memory
+# exporter and checks that IDs, parents, status and attributes arrive unchanged. The core
+# lab and shared/tracing.py stay standard-library only. Checked on 2026-11-05 in an isolated
+# Python 3.12 environment (`uv run --isolated --no-project --python 3.12 --with
+# opentelemetry-sdk==1.45.2 python weeks/week-13-tracing-and-online-evaluation/handson/lab.py otel`):
+# 226 spans received, none differing. The attribute names in shared/tracing.py were checked
+# against openinference-semantic-conventions 0.1.43, which the lab does not import.
+opentelemetry-sdk==1.45.2                  # pulls opentelemetry-api 1.45.2
+opentelemetry-semantic-conventions==0.66b2 # resolved with the SDK above

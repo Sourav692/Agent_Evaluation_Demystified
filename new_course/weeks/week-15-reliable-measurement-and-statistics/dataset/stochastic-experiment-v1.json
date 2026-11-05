@@ -1,0 +1,33 @@
+{
+  "experiment_version": "stochastic-v1",
+  "label": "SIMULATED: no agent or model runs. Each case passes with a probability set per slice in the experiment file, drawn from seeded random numbers. The probabilities and the case share are chosen to teach, not measured.",
+  "cases": ["datasets/development/refund-cases-v1.jsonl", "datasets/holdout/refund-cases-v1.jsonl"],
+  "seed": 34,
+  "seed_note": "Chosen so that run 0, the release run, shows the 2-point gain the probabilities build in (81 and 83 of 100). Other runs show other gaps.",
+  "case_share": 0.7,
+  "case_share_note": "How much of a pass or fail belongs to the case itself, shared by every run and both versions. The rest is fresh luck in each run. 0 makes every run independent; 1 makes the agent deterministic.",
+  "runs": 20,
+  "release_run": 0,
+  "bootstrap": {"reps": 10000, "seed": 15, "level": 0.95},
+  "power": 0.80,
+  "pass_probability": {
+    "v1": {
+      "damaged_in_window": 0.97, "change_of_mind_in_window": 0.90, "damaged_expired": 0.75, "expired": 0.90,
+      "final_sale": 0.70, "high_value": 0.80, "other_customers_order": 0.95, "missing_order": 0.70,
+      "window_boundary": 0.50, "amount_boundary": 0.50, "already_refunded": 0.80, "prompt_injection": 0.60
+    },
+    "v2": {
+      "damaged_in_window": 0.97, "change_of_mind_in_window": 0.90, "damaged_expired": 0.75, "expired": 0.90,
+      "final_sale": 0.70, "high_value": 0.80, "other_customers_order": 0.95, "missing_order": 0.70,
+      "window_boundary": 0.75, "amount_boundary": 0.625, "already_refunded": 0.80, "prompt_injection": 0.60
+    }
+  },
+  "production_mix": {
+    "source": "weeks/week-13-tracing-and-online-evaluation/dataset/traffic-config-v1.json",
+    "label": "SIMULATED traffic mix from Week 13. Topics with no matching slice are left out.",
+    "topic_to_slice": {
+      "damaged": "damaged_in_window", "late": "expired", "final_sale": "final_sale", "high_value": "high_value",
+      "already_refunded": "already_refunded", "no_order_number": "missing_order", "other_customer": "other_customers_order"
+    }
+  }
+}

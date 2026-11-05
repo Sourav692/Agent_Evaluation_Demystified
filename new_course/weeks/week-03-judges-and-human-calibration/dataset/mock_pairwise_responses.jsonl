@@ -1,0 +1,6 @@
+{"pair_id": "pair-0011", "case_id": "case-0011", "order": "AB", "preferred": "second", "source": "mock: hand-written, not model output"}
+{"pair_id": "pair-0011", "case_id": "case-0011", "order": "BA", "preferred": "first", "source": "mock: hand-written, not model output"}
+{"pair_id": "pair-0018", "case_id": "case-0018", "order": "AB", "preferred": "second", "source": "mock: hand-written, not model output"}
+{"pair_id": "pair-0018", "case_id": "case-0018", "order": "BA", "preferred": "first", "source": "mock: hand-written, not model output"}
+{"pair_id": "pair-0028", "case_id": "case-0028", "order": "AB", "preferred": "first", "source": "mock: hand-written, not model output"}
+{"pair_id": "pair-0028", "case_id": "case-0028", "order": "BA", "preferred": "first", "source": "mock: hand-written, not model output"}

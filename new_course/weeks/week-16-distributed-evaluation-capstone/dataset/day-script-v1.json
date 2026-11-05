@@ -1,0 +1,29 @@
+{
+  "version": "day-script-v1",
+  "status": "SIMULATED: a scripted working day for three fictional teams. Times are SIMULATED seconds from the start of the day",
+  "submissions": [
+    {"at": 0, "actor": "rag.engineer", "kind": "retrieval", "dataset": "policy-queries", "retriever": "bm25", "k": 3},
+    {"at": 0, "actor": "rag.engineer", "kind": "retrieval", "dataset": "policy-queries", "retriever": "bm25", "k": 5},
+    {"at": 0, "actor": "rag.engineer", "kind": "retrieval", "dataset": "policy-queries", "retriever": "bm25", "k": 10},
+    {"at": 0, "actor": "rag.engineer", "kind": "retrieval", "dataset": "policy-queries", "retriever": "concept", "k": 3},
+    {"at": 0, "actor": "rag.engineer", "kind": "retrieval", "dataset": "policy-queries", "retriever": "concept", "k": 5},
+    {"at": 0, "actor": "rag.engineer", "kind": "retrieval", "dataset": "policy-queries", "retriever": "concept", "k": 10},
+    {"at": 0, "actor": "rag.engineer", "kind": "retrieval", "dataset": "policy-queries", "retriever": "hybrid", "k": 3},
+    {"at": 0, "actor": "rag.engineer", "kind": "retrieval", "dataset": "policy-queries", "retriever": "hybrid", "k": 5},
+    {"at": 0, "actor": "rag.engineer", "kind": "retrieval", "dataset": "policy-queries", "retriever": "hybrid", "k": 10},
+    {"at": 5, "actor": "refunds.engineer", "kind": "release", "dataset": "tool-cases", "candidate": "v2.1", "baseline": "v2"},
+    {"at": 6, "actor": "refunds.engineer", "kind": "release", "dataset": "tool-cases", "candidate": "v2.1", "baseline": "v2",
+     "note": "the client timed out and sent the same request again"},
+    {"at": 10, "actor": "safety.engineer", "kind": "suite", "dataset": "fault-cases", "suite": "faults", "agent": "stable_key", "backend": "lax"},
+    {"at": 20, "actor": "refunds.engineer", "kind": "release", "dataset": "tool-cases", "candidate": "v2.3", "baseline": "v2"},
+    {"at": 30, "actor": "refunds.viewer", "kind": "release", "dataset": "tool-cases", "candidate": "v2.4", "baseline": "v2"},
+    {"at": 40, "actor": "refunds.engineer", "kind": "release", "dataset": "tool-cases", "candidate": "v2.4", "baseline": "v2"},
+    {"at": 240, "actor": "rag.engineer", "kind": "retrieval", "dataset": "policy-queries", "retriever": "hybrid", "k": 10,
+     "note": "resubmitted after the quota denial"}
+  ],
+  "faults": {
+    "crash": {"worker": "w2", "on_lease": 4, "what": "w2 dies half way through its 4th job and never reports back"},
+    "pause": {"worker": "w3", "on_lease": 6, "seconds": 100, "what": "w3 stalls for 100 s on its 6th job, then tries to report the result"},
+    "poison": {"tenant": "trust-safety", "shard": 1, "what": "the second fault-suite shard makes every worker raise"}
+  }
+}

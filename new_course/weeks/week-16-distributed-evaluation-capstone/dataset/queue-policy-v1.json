@@ -1,0 +1,21 @@
+{
+  "version": "queue-policy-v1",
+  "status": "ILLUSTRATIVE: every limit below is a teaching value for a SIMULATED day on one machine, not a capacity plan. Dollars and seconds are SIMULATED",
+  "workers": ["w1", "w2", "w3", "w4"],
+  "lease_seconds": 60,
+  "max_attempts": 3,
+  "backoff_seconds": 15,
+  "capacity": 70,
+  "shard_size": 10,
+  "seconds_per_case": {"retrieval": 3, "suite:tools": 2, "suite:faults": 3},
+  "tenants": {
+    "support-rag":   {"max_active_jobs": 40, "budget_usd": 0.10, "reserve_per_case_usd": 0.0002},
+    "refunds-agent": {"max_active_jobs": 30, "budget_usd": 0.30, "reserve_per_case_usd": 0.0015},
+    "trust-safety":  {"max_active_jobs": 10, "budget_usd": 0.06, "reserve_per_case_usd": 0.0015}
+  },
+  "slo": {
+    "release_decision_seconds": 300,
+    "queue_wait_p95_seconds": 120,
+    "note": "Targets for the SIMULATED day. A real platform sets them from what release owners need and measures them on production traffic"
+  }
+}

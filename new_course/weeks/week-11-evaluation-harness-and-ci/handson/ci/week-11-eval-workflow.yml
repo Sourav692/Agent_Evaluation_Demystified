@@ -1,0 +1,108 @@
+# Week 11 example: the course's evaluation as a CI workflow, in GitHub Actions syntax.
+#
+# This file is an EXAMPLE. It is not wired into this repository: GitHub runs only the
+# files in .github/workflows/ at the repository root, and this one lives inside the
+# course. To use it in your own fork, copy it to .github/workflows/ and read every step.
+#
+# Two jobs, split by cost:
+#
+#   offline-eval   free and deterministic. Runs on every pull request and push that
+#                  touches the course. Its exit code blocks the merge. The artifact is
+#                  uploaded even when the evaluation fails, because a failure is when
+#                  you need the evidence.
+#
+#   live-judge     paid. Runs only when someone starts the workflow by hand with
+#                  live=true, and skips itself when no OPENAI_API_KEY secret exists, so
+#                  a fork never spends anyone's money. It never runs on push.
+
+name: week-11-eval (example)
+
+on:
+  pull_request:
+    paths: ['new_course/**']
+  push:
+    branches: [main]
+    paths: ['new_course/**']
+  workflow_dispatch:
+    inputs:
+      live:
+        description: 'Also run the paid live-judge job (needs the OPENAI_API_KEY secret)'
+        type: boolean
+        default: false
+
+defaults:
+  run:
+    working-directory: new_course
+
+jobs:
+  offline-eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.10'          # the version the course's outputs were recorded on
+          cache: pip
+          cache-dependency-path: new_course/requirements-core.txt
+
+      - name: Install the pinned core requirements
+        run: pip install -r requirements-core.txt
+
+      - name: Week 11 lab tests
+        run: python -m pytest weeks/week-11-evaluation-harness-and-ci
+
+      - name: Evaluate the candidate (blocking)
+        # Exit 0 passes the job. Exit 1 (failures), 2 (incomplete) and 3 (bad config) fail it.
+        run: >
+          python weeks/week-11-evaluation-harness-and-ci/handson/lab.py run
+          --suite tools --agent v2 --backend strict --workers 4 --budget 0.20
+          --out eval-artifacts/tools-v2-strict
+
+      - name: Verify the artifact is complete and intact
+        if: always()
+        run: python weeks/week-11-evaluation-harness-and-ci/handson/lab.py verify eval-artifacts/tools-v2-strict
+
+      - name: Upload the evidence, pass or fail
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-tools-v2-strict-${{ github.sha }}
+          path: new_course/eval-artifacts/      # relative to the workspace, not to working-directory
+          retention-days: 30
+          if-no-files-found: error
+
+  live-judge:
+    if: github.event_name == 'workflow_dispatch' && inputs.live
+    needs: offline-eval
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.10'
+
+      - name: Install the pinned core and integration requirements
+        run: pip install -r requirements-core.txt -r requirements-integrations.txt
+
+      - name: Week 3 live judge (PAID, about 30 model calls)
+        run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "::notice::No OPENAI_API_KEY secret configured. Skipping the paid job."
+            exit 0
+          fi
+          python weeks/week-03-judges-and-human-calibration/handson/lab.py judge --live \
+            --out eval-artifacts/live-judge-responses.jsonl
+
+      - name: Upload the live responses
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-judge-${{ github.sha }}
+          path: new_course/eval-artifacts/
+          if-no-files-found: ignore

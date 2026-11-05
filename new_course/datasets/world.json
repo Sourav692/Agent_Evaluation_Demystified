@@ -1,0 +1,968 @@
+{
+  "as_of": "2026-03-15",
+  "customers": [
+    {
+      "customer_id": "cust-001",
+      "name": "Asha Rao"
+    },
+    {
+      "customer_id": "cust-002",
+      "name": "Ben Okafor"
+    },
+    {
+      "customer_id": "cust-003",
+      "name": "Chen Wei"
+    },
+    {
+      "customer_id": "cust-004",
+      "name": "Dana Novak"
+    },
+    {
+      "customer_id": "cust-005",
+      "name": "Elif Kaya"
+    },
+    {
+      "customer_id": "cust-006",
+      "name": "Farid Haddad"
+    },
+    {
+      "customer_id": "cust-007",
+      "name": "Grace Mensah"
+    },
+    {
+      "customer_id": "cust-008",
+      "name": "Hiro Tanaka"
+    },
+    {
+      "customer_id": "cust-009",
+      "name": "Ines Duarte"
+    },
+    {
+      "customer_id": "cust-010",
+      "name": "Jonas Berg"
+    },
+    {
+      "customer_id": "cust-011",
+      "name": "Kavya Iyer"
+    },
+    {
+      "customer_id": "cust-012",
+      "name": "Liam Walsh"
+    },
+    {
+      "customer_id": "cust-013",
+      "name": "Mara Costa"
+    },
+    {
+      "customer_id": "cust-014",
+      "name": "Nikhil Sen"
+    },
+    {
+      "customer_id": "cust-015",
+      "name": "Olga Petrova"
+    },
+    {
+      "customer_id": "cust-016",
+      "name": "Pablo Ruiz"
+    },
+    {
+      "customer_id": "cust-017",
+      "name": "Quinn Harper"
+    },
+    {
+      "customer_id": "cust-018",
+      "name": "Rosa Lindqvist"
+    },
+    {
+      "customer_id": "cust-019",
+      "name": "Samir Aziz"
+    },
+    {
+      "customer_id": "cust-020",
+      "name": "Tara Byrne"
+    },
+    {
+      "customer_id": "cust-021",
+      "name": "Uma Pillai"
+    },
+    {
+      "customer_id": "cust-022",
+      "name": "Victor Hale"
+    },
+    {
+      "customer_id": "cust-023",
+      "name": "Wen Li"
+    },
+    {
+      "customer_id": "cust-024",
+      "name": "Yusuf Demir"
+    },
+    {
+      "customer_id": "cust-025",
+      "name": "Zara Ahmed"
+    },
+    {
+      "customer_id": "cust-026",
+      "name": "Arjun Mehta"
+    },
+    {
+      "customer_id": "cust-027",
+      "name": "Bea Santos"
+    },
+    {
+      "customer_id": "cust-028",
+      "name": "Cyril Moreau"
+    },
+    {
+      "customer_id": "cust-029",
+      "name": "Dev Patel"
+    },
+    {
+      "customer_id": "cust-030",
+      "name": "Erin Cole"
+    },
+    {
+      "customer_id": "cust-031",
+      "name": "Femi Adeyemi"
+    },
+    {
+      "customer_id": "cust-032",
+      "name": "Gita Bose"
+    },
+    {
+      "customer_id": "cust-033",
+      "name": "Hana Sato"
+    },
+    {
+      "customer_id": "cust-034",
+      "name": "Ivan Kuznetsov"
+    },
+    {
+      "customer_id": "cust-035",
+      "name": "Jade Murphy"
+    },
+    {
+      "customer_id": "cust-036",
+      "name": "Kofi Asante"
+    },
+    {
+      "customer_id": "cust-037",
+      "name": "Lena Fischer"
+    },
+    {
+      "customer_id": "cust-038",
+      "name": "Milo Grant"
+    },
+    {
+      "customer_id": "cust-039",
+      "name": "Nora Haddad"
+    },
+    {
+      "customer_id": "cust-040",
+      "name": "Omar Farouk"
+    }
+  ],
+  "orders": [
+    {
+      "order_id": "ord-123",
+      "customer_id": "cust-001",
+      "item": "ceramic table lamp",
+      "amount": 64.0,
+      "delivered_on": "2026-03-10",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-131",
+      "customer_id": "cust-002",
+      "item": "wireless earbuds",
+      "amount": 89.99,
+      "delivered_on": "2026-03-02",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-132",
+      "customer_id": "cust-003",
+      "item": "glass vase",
+      "amount": 42.5,
+      "delivered_on": "2026-02-20",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-133",
+      "customer_id": "cust-004",
+      "item": "desk chair",
+      "amount": 219.0,
+      "delivered_on": "2026-03-12",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-134",
+      "customer_id": "cust-005",
+      "item": "pair of hiking boots",
+      "amount": 135.0,
+      "delivered_on": "2026-02-28",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-135",
+      "customer_id": "cust-006",
+      "item": "coffee grinder",
+      "amount": 74.25,
+      "delivered_on": "2026-03-05",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-136",
+      "customer_id": "cust-007",
+      "item": "picture frame set",
+      "amount": 38.0,
+      "delivered_on": "2026-02-15",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-137",
+      "customer_id": "cust-008",
+      "item": "Bluetooth speaker",
+      "amount": 129.99,
+      "delivered_on": "2026-03-08",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-138",
+      "customer_id": "cust-009",
+      "item": "kitchen scale",
+      "amount": 29.9,
+      "delivered_on": "2026-02-25",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-139",
+      "customer_id": "cust-010",
+      "item": "yoga mat",
+      "amount": 48.0,
+      "delivered_on": "2026-03-14",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-141",
+      "customer_id": "cust-011",
+      "item": "wool sweater",
+      "amount": 95.0,
+      "delivered_on": "2026-03-01",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-142",
+      "customer_id": "cust-012",
+      "item": "board game",
+      "amount": 54.99,
+      "delivered_on": "2026-02-27",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-151",
+      "customer_id": "cust-013",
+      "item": "table lamp",
+      "amount": 71.0,
+      "delivered_on": "2026-01-20",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-152",
+      "customer_id": "cust-014",
+      "item": "pair of headphones",
+      "amount": 159.0,
+      "delivered_on": "2026-01-05",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-153",
+      "customer_id": "cust-015",
+      "item": "blender",
+      "amount": 99.0,
+      "delivered_on": "2026-02-01",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-154",
+      "customer_id": "cust-016",
+      "item": "running jacket",
+      "amount": 120.0,
+      "delivered_on": "2026-01-28",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-155",
+      "customer_id": "cust-017",
+      "item": "desk lamp",
+      "amount": 45.0,
+      "delivered_on": "2026-02-10",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-161",
+      "customer_id": "cust-018",
+      "item": "clearance rug",
+      "amount": 180.0,
+      "delivered_on": "2026-03-06",
+      "final_sale": true,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-162",
+      "customer_id": "cust-019",
+      "item": "pair of outlet sneakers",
+      "amount": 65.0,
+      "delivered_on": "2026-03-09",
+      "final_sale": true,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-171",
+      "customer_id": "cust-020",
+      "item": "laptop",
+      "amount": 1299.0,
+      "delivered_on": "2026-03-04",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-172",
+      "customer_id": "cust-021",
+      "item": "espresso machine",
+      "amount": 649.0,
+      "delivered_on": "2026-02-22",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-173",
+      "customer_id": "cust-022",
+      "item": "road bike",
+      "amount": 899.0,
+      "delivered_on": "2026-03-11",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-174",
+      "customer_id": "cust-001",
+      "item": "smart TV",
+      "amount": 749.0,
+      "delivered_on": "2026-02-18",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-201",
+      "customer_id": "cust-025",
+      "item": "rice cooker",
+      "amount": 58.0,
+      "delivered_on": "2026-03-07",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-202",
+      "customer_id": "cust-026",
+      "item": "set of wine glasses",
+      "amount": 44.0,
+      "delivered_on": "2026-03-03",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-203",
+      "customer_id": "cust-027",
+      "item": "monitor stand",
+      "amount": 79.0,
+      "delivered_on": "2026-03-13",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-204",
+      "customer_id": "cust-028",
+      "item": "backpack",
+      "amount": 69.5,
+      "delivered_on": "2026-02-23",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-205",
+      "customer_id": "cust-029",
+      "item": "electric kettle",
+      "amount": 39.99,
+      "delivered_on": "2026-03-09",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-206",
+      "customer_id": "cust-030",
+      "item": "phone case",
+      "amount": 19.99,
+      "delivered_on": "2026-02-16",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-207",
+      "customer_id": "cust-031",
+      "item": "air purifier",
+      "amount": 189.0,
+      "delivered_on": "2026-03-06",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-208",
+      "customer_id": "cust-032",
+      "item": "bookshelf",
+      "amount": 149.0,
+      "delivered_on": "2026-02-26",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-209",
+      "customer_id": "cust-033",
+      "item": "watercolour set",
+      "amount": 27.0,
+      "delivered_on": "2026-03-12",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-210",
+      "customer_id": "cust-034",
+      "item": "gaming mouse",
+      "amount": 59.0,
+      "delivered_on": "2026-02-19",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-211",
+      "customer_id": "cust-035",
+      "item": "baking tray set",
+      "amount": 33.0,
+      "delivered_on": "2026-03-04",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-212",
+      "customer_id": "cust-036",
+      "item": "office lamp",
+      "amount": 88.0,
+      "delivered_on": "2026-02-14",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-213",
+      "customer_id": "cust-037",
+      "item": "linen shirt",
+      "amount": 49.0,
+      "delivered_on": "2026-03-10",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-214",
+      "customer_id": "cust-038",
+      "item": "puzzle",
+      "amount": 22.0,
+      "delivered_on": "2026-02-24",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-215",
+      "customer_id": "cust-039",
+      "item": "throw blanket",
+      "amount": 64.0,
+      "delivered_on": "2026-02-17",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-216",
+      "customer_id": "cust-040",
+      "item": "desk organiser",
+      "amount": 31.0,
+      "delivered_on": "2026-03-06",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-217",
+      "customer_id": "cust-025",
+      "item": "running shoes",
+      "amount": 110.0,
+      "delivered_on": "2026-03-02",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-218",
+      "customer_id": "cust-026",
+      "item": "cookbook",
+      "amount": 28.0,
+      "delivered_on": "2026-02-21",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-219",
+      "customer_id": "cust-027",
+      "item": "travel mug",
+      "amount": 24.0,
+      "delivered_on": "2026-03-11",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-220",
+      "customer_id": "cust-028",
+      "item": "wall clock",
+      "amount": 52.0,
+      "delivered_on": "2026-02-28",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-221",
+      "customer_id": "cust-029",
+      "item": "stand mixer",
+      "amount": 289.0,
+      "delivered_on": "2026-01-29",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-222",
+      "customer_id": "cust-030",
+      "item": "floor lamp",
+      "amount": 99.0,
+      "delivered_on": "2026-01-13",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-223",
+      "customer_id": "cust-031",
+      "item": "tablet sleeve",
+      "amount": 25.0,
+      "delivered_on": "2026-02-05",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-224",
+      "customer_id": "cust-032",
+      "item": "ceramic bowls",
+      "amount": 46.0,
+      "delivered_on": "2025-12-15",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-225",
+      "customer_id": "cust-033",
+      "item": "camping stove",
+      "amount": 79.0,
+      "delivered_on": "2026-02-08",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-226",
+      "customer_id": "cust-034",
+      "item": "winter coat",
+      "amount": 175.0,
+      "delivered_on": "2026-02-03",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-227",
+      "customer_id": "cust-035",
+      "item": "dumbbell set",
+      "amount": 120.0,
+      "delivered_on": "2026-01-17",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-228",
+      "customer_id": "cust-036",
+      "item": "sunglasses",
+      "amount": 85.0,
+      "delivered_on": "2026-02-11",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-229",
+      "customer_id": "cust-037",
+      "item": "tea set",
+      "amount": 60.0,
+      "delivered_on": "2025-12-30",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-230",
+      "customer_id": "cust-038",
+      "item": "notebook pack",
+      "amount": 18.0,
+      "delivered_on": "2026-01-30",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-231",
+      "customer_id": "cust-039",
+      "item": "clearance armchair",
+      "amount": 240.0,
+      "delivered_on": "2026-03-08",
+      "final_sale": true,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-232",
+      "customer_id": "cust-040",
+      "item": "sample-sale dress",
+      "amount": 72.0,
+      "delivered_on": "2026-03-05",
+      "final_sale": true,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-233",
+      "customer_id": "cust-025",
+      "item": "open-box headphones",
+      "amount": 95.0,
+      "delivered_on": "2026-03-12",
+      "final_sale": true,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-234",
+      "customer_id": "cust-026",
+      "item": "discontinued vase",
+      "amount": 39.0,
+      "delivered_on": "2026-03-03",
+      "final_sale": true,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-235",
+      "customer_id": "cust-027",
+      "item": "final-sale jacket",
+      "amount": 640.0,
+      "delivered_on": "2026-03-10",
+      "final_sale": true,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-236",
+      "customer_id": "cust-028",
+      "item": "drone",
+      "amount": 799.0,
+      "delivered_on": "2026-03-09",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-237",
+      "customer_id": "cust-029",
+      "item": "sofa",
+      "amount": 1450.0,
+      "delivered_on": "2026-02-25",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-238",
+      "customer_id": "cust-030",
+      "item": "camera lens",
+      "amount": 560.0,
+      "delivered_on": "2026-03-13",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-239",
+      "customer_id": "cust-031",
+      "item": "standing desk",
+      "amount": 620.0,
+      "delivered_on": "2026-02-20",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-240",
+      "customer_id": "cust-032",
+      "item": "electric scooter",
+      "amount": 980.0,
+      "delivered_on": "2026-03-03",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-241",
+      "customer_id": "cust-033",
+      "item": "toaster",
+      "amount": 49.0,
+      "delivered_on": "2026-02-13",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-242",
+      "customer_id": "cust-034",
+      "item": "rain jacket",
+      "amount": 89.0,
+      "delivered_on": "2026-02-13",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-243",
+      "customer_id": "cust-035",
+      "item": "lamp shade",
+      "amount": 35.0,
+      "delivered_on": "2026-02-13",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-244",
+      "customer_id": "cust-036",
+      "item": "plant pot set",
+      "amount": 41.0,
+      "delivered_on": "2026-02-12",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-245",
+      "customer_id": "cust-037",
+      "item": "hand blender",
+      "amount": 55.0,
+      "delivered_on": "2026-02-12",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-246",
+      "customer_id": "cust-038",
+      "item": "laptop sleeve",
+      "amount": 30.0,
+      "delivered_on": "2026-02-12",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-247",
+      "customer_id": "cust-039",
+      "item": "robot vacuum",
+      "amount": 500.0,
+      "delivered_on": "2026-03-07",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-248",
+      "customer_id": "cust-040",
+      "item": "office chair",
+      "amount": 500.0,
+      "delivered_on": "2026-03-01",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-249",
+      "customer_id": "cust-025",
+      "item": "smartwatch",
+      "amount": 500.01,
+      "delivered_on": "2026-03-06",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-250",
+      "customer_id": "cust-026",
+      "item": "projector",
+      "amount": 500.01,
+      "delivered_on": "2026-03-12",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-251",
+      "customer_id": "cust-027",
+      "item": "desk fan",
+      "amount": 45.0,
+      "delivered_on": "2026-03-05",
+      "final_sale": false,
+      "existing_refund_id": "refund-251"
+    },
+    {
+      "order_id": "ord-252",
+      "customer_id": "cust-028",
+      "item": "picture book",
+      "amount": 16.0,
+      "delivered_on": "2026-03-08",
+      "final_sale": false,
+      "existing_refund_id": "refund-252"
+    },
+    {
+      "order_id": "ord-253",
+      "customer_id": "cust-029",
+      "item": "pillow set",
+      "amount": 58.0,
+      "delivered_on": "2026-02-23",
+      "final_sale": false,
+      "existing_refund_id": "refund-253"
+    },
+    {
+      "order_id": "ord-254",
+      "customer_id": "cust-030",
+      "item": "speaker stand",
+      "amount": 72.0,
+      "delivered_on": "2026-03-11",
+      "final_sale": false,
+      "existing_refund_id": "refund-254"
+    },
+    {
+      "order_id": "ord-255",
+      "customer_id": "cust-031",
+      "item": "cutlery set",
+      "amount": 39.0,
+      "delivered_on": "2026-03-03",
+      "final_sale": false,
+      "existing_refund_id": "refund-255"
+    },
+    {
+      "order_id": "ord-256",
+      "customer_id": "cust-033",
+      "item": "coffee table",
+      "amount": 210.0,
+      "delivered_on": "2026-03-09",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-257",
+      "customer_id": "cust-035",
+      "item": "headset",
+      "amount": 85.0,
+      "delivered_on": "2026-03-04",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-258",
+      "customer_id": "cust-037",
+      "item": "blender jar",
+      "amount": 29.0,
+      "delivered_on": "2026-02-28",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-259",
+      "customer_id": "cust-039",
+      "item": "sports watch",
+      "amount": 199.0,
+      "delivered_on": "2026-03-07",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-260",
+      "customer_id": "cust-025",
+      "item": "coat rack",
+      "amount": 64.0,
+      "delivered_on": "2026-02-24",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-261",
+      "customer_id": "cust-027",
+      "item": "e-reader",
+      "amount": 450.0,
+      "delivered_on": "2026-03-12",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-262",
+      "customer_id": "cust-028",
+      "item": "garden hose",
+      "amount": 34.0,
+      "delivered_on": "2026-01-24",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-263",
+      "customer_id": "cust-029",
+      "item": "bath towels",
+      "amount": 48.0,
+      "delivered_on": "2026-03-06",
+      "final_sale": true,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-264",
+      "customer_id": "cust-030",
+      "item": "gaming console",
+      "amount": 699.0,
+      "delivered_on": "2026-03-10",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-265",
+      "customer_id": "cust-031",
+      "item": "night lamp",
+      "amount": 26.0,
+      "delivered_on": "2026-01-09",
+      "final_sale": false,
+      "existing_refund_id": null
+    },
+    {
+      "order_id": "ord-266",
+      "customer_id": "cust-032",
+      "item": "bike lock",
+      "amount": 40.0,
+      "delivered_on": "2026-03-03",
+      "final_sale": false,
+      "existing_refund_id": "refund-266"
+    }
+  ]
+}

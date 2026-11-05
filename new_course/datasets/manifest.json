@@ -1,0 +1,18 @@
+{
+  "dataset_version": "refund-cases-v1",
+  "policy_version": "2026-01",
+  "as_of": "2026-03-15",
+  "splits": {
+    "development": {
+      "path": "development/refund-cases-v1.jsonl",
+      "cases": 73,
+      "sha256": "6155c811f5e3980b6e030824266bc27d8486504f7cfc17af43ca7d5f0cd1c29e"
+    },
+    "holdout": {
+      "path": "holdout/refund-cases-v1.jsonl",
+      "cases": 27,
+      "sha256": "ff4fc35aa7aec0f787fd40dbaf09a7dca3c97a439f6a762a2397e8ff3328d9bc"
+    }
+  },
+  "provenance": "Synthetic. Messages written by hand in datasets/build_datasets.py; expected outcomes computed from policy 2026-01 rules R1-R6."
+}

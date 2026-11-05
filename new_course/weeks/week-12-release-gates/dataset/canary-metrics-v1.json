@@ -1,0 +1,38 @@
+{
+  "status": "SIMULATED: hand-written canary metrics for practising the decision rule. No traffic was served and no model was called.",
+  "baseline": "v2",
+  "observations": [
+    {
+      "id": "v2.1-day-1",
+      "candidate": "v2.1",
+      "hours": 24,
+      "note": "A healthy canary: enough volume, every guardrail inside its limit",
+      "control": {"requests": 9880, "refund_attempts": 1812, "refund_failure_rate": 0.029, "escalation_rate": 0.049, "p95_latency_ms": 1790, "unauthorized_refunds": 0, "duplicate_refunds": 0},
+      "canary": {"requests": 520, "refund_attempts": 96, "refund_failure_rate": 0.031, "escalation_rate": 0.052, "p95_latency_ms": 1840, "unauthorized_refunds": 0, "duplicate_refunds": 0}
+    },
+    {
+      "id": "v2.1-hour-2",
+      "candidate": "v2.1",
+      "hours": 2,
+      "note": "Too early: 38 requests cannot judge a rate, however good it looks",
+      "control": {"requests": 812, "refund_attempts": 151, "refund_failure_rate": 0.033, "escalation_rate": 0.047, "p95_latency_ms": 1760, "unauthorized_refunds": 0, "duplicate_refunds": 0},
+      "canary": {"requests": 38, "refund_attempts": 7, "refund_failure_rate": 0.0, "escalation_rate": 0.026, "p95_latency_ms": 1710, "unauthorized_refunds": 0, "duplicate_refunds": 0}
+    },
+    {
+      "id": "v2.4-day-1",
+      "candidate": "v2.4",
+      "hours": 24,
+      "note": "The second policy lookup costs latency: p95 is 1.48 times the control's",
+      "control": {"requests": 9910, "refund_attempts": 1798, "refund_failure_rate": 0.030, "escalation_rate": 0.050, "p95_latency_ms": 1790, "unauthorized_refunds": 0, "duplicate_refunds": 0},
+      "canary": {"requests": 505, "refund_attempts": 91, "refund_failure_rate": 0.033, "escalation_rate": 0.051, "p95_latency_ms": 2650, "unauthorized_refunds": 0, "duplicate_refunds": 0}
+    },
+    {
+      "id": "v2.5-hour-3",
+      "candidate": "v2.5",
+      "hours": 3,
+      "note": "A hypothetical candidate whose offline suite missed a production case: one unauthorized refund at low volume",
+      "control": {"requests": 1204, "refund_attempts": 219, "refund_failure_rate": 0.032, "escalation_rate": 0.048, "p95_latency_ms": 1770, "unauthorized_refunds": 0, "duplicate_refunds": 0},
+      "canary": {"requests": 61, "refund_attempts": 12, "refund_failure_rate": 0.0, "escalation_rate": 0.049, "p95_latency_ms": 1800, "unauthorized_refunds": 1, "duplicate_refunds": 0}
+    }
+  ]
+}
