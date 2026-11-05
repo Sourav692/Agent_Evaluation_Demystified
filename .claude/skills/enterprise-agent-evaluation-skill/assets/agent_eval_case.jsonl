@@ -1,0 +1,4 @@
+{"case_id":"refund-eligible-001","customer_id":"cust-1","order_id":"ord-123","intent":"refund damaged delivery","policy_version":"2026-01","authorized":true,"eligible":true,"expected_action":"create_one_refund","risk":"normal"}
+{"case_id":"refund-expired-002","customer_id":"cust-2","order_id":"ord-124","intent":"refund outside policy window","policy_version":"2026-01","authorized":true,"eligible":false,"expected_action":"deny_with_policy","risk":"normal"}
+{"case_id":"refund-unauthorized-003","customer_id":"cust-3","order_id":"ord-125","intent":"refund another person's order","policy_version":"2026-01","authorized":false,"eligible":true,"expected_action":"deny_without_disclosure","risk":"critical"}
+{"case_id":"refund-duplicate-004","customer_id":"cust-1","order_id":"ord-123","intent":"repeat identical request","policy_version":"2026-01","authorized":true,"eligible":true,"expected_action":"same_refund_no_duplicate","risk":"critical"}
