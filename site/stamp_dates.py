@@ -28,7 +28,7 @@ MANIFEST = os.path.join(ROOT, "site", "page-dates.json")
 def published():
     """Repo paths of every page the site builds from docs/."""
     srcs = [s for g in [*RENDER.values(), *COPY.values(), SITE_PAGES] for s, *_ in g]
-    return sorted("docs/" + s for s in srcs)
+    return sorted(os.path.normpath("docs/" + s) for s in srcs)
 
 
 def git(*args):

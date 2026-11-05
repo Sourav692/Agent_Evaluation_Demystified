@@ -83,6 +83,7 @@ Roughly 54 hours end to end. Alongside the levels:
 |---|---|---|
 | [`courses/`](courses/) | **The curriculum.** Numbered, sequential, runnable notebooks | [`courses/README.md`](courses/README.md) — the Core path |
 | [`docs/`](docs/) | **The theory.** Prose only, nothing executes; published as the website | [`docs/study-guide/evaluation-roadmap.md`](docs/study-guide/evaluation-roadmap.md) |
+| [`new_course/`](new_course/) | **A 16-week track** on one refund agent: theory, hands-on guides, stdlib labs and 222 offline tests; also on the website | [`new_course/README.md`](new_course/README.md) |
 | [`labs/`](labs/) | What no course teaches, or a running app a course evaluates | [`labs/README.md`](labs/README.md) |
 | [`archive/`](archive/) | Superseded material and retired labs. Every topic in it also lives above | [`archive/README.md`](archive/README.md) |
 | [`site/`](site/) | Builds `docs/` into the website | [`site/README.md`](site/README.md) |
@@ -101,6 +102,10 @@ Agent_Evaluation_Demystified/
 │                                         agent evals → safety → judges → humans →
 │                                         statistics → CI release gate → online
 │                                         (own .venv, kernel, requirements.txt)
+│
+├── new_course/                           16-week track on one refund agent: per week a theory
+│                                         page, hands-on guide, notebook, stdlib lab and tests;
+│                                         rendered into the website as the New course section
 │
 ├── docs/                                 the theory — also the website
 │   ├── study-guide/                      roadmap (the Full path), topic→notebook mapping,

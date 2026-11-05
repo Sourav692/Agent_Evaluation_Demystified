@@ -53,6 +53,17 @@ which are 65% identical. They are not two renderings — one is the readable ref
 the other hides every answer and scores your recall. `.github/scripts/check_drill_sync.py`
 keeps them in step.
 
+## The new_course module
+
+`new_course/` sits outside `docs/` but is published as the **New course** section.
+`build.py` lists its pages from `git ls-files new_course` (`new_course_pages()`), so a new
+week appears without editing `RENDER`: the course-level pages in `NEW_COURSE_TOP`, then per
+week its README, theory, hands-on, runbooks and ADRs, and dataset README. Markdown that is
+data rather than a page (the corpus, the policy, prompt templates) is not served; links to it,
+and to notebooks, labs and JSON, go to GitHub. The index carries a card for the course index,
+its roadmap and each week. The theory `.html` files committed beside each week are for reading
+from a clone; the site renders the Markdown itself.
+
 ## Adding a document
 
 Write the Markdown in `docs/`, add it to `RENDER` in `build.py` with a slug, a nav

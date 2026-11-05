@@ -213,7 +213,112 @@ SITE_PAGES = [
     ("CHANGELOG.md", "changelog", "Changelog", "What changed on the site, newest first."),
 ]
 
-SECTION_ORDER = ["Roadmap", "Theory", "Case studies", "Labs", "Interview prep", "Audits"]
+# --------------------------------------------------------------------------
+# The new_course module
+# --------------------------------------------------------------------------
+#
+# new_course/ is a 16-week course with its own README, theory, hands-on and dataset
+# pages. Its pages are listed from git rather than by hand (about 85 of them), in
+# reading order: the course-level pages, then per week its README, theory, hands-on,
+# runbooks and ADRs, and dataset README. Sources are written relative to docs/
+# ("../new_course/..."), so rendering, link rewriting and dates treat them exactly
+# like docs/ pages. Data files written in Markdown (the corpus, the policy, prompt
+# templates) are not pages; links to them go to GitHub like notebooks and labs.
+
+NEW_COURSE = "New course"
+NEW_COURSE_TOP = {  # course-level page -> (slug, blurb)
+    "README.md": ("new-course",
+                  "Sixteen weeks on one refund agent: from three string checks to release gates, "
+                  "tracing and an evaluation platform shared by three teams. Start here."),
+    "setup.md": ("new-course-setup",
+                 "Python 3.12, one virtual environment, and the command that should end with every test passing."),
+    "enterprise-rag-agent-evaluation-roadmap.md": ("new-course-roadmap",
+                 "The plan the course follows: five phases, each week's theory, practical task, "
+                 "deliverable and Staff-level checkpoint."),
+    "glossary.md": ("new-course-glossary", "Every term the course defines, with the week that introduces it."),
+    "coverage.md": ("new-course-coverage",
+                    "Each roadmap concept mapped to the section that teaches it, the exercise that practises "
+                    "it and the test that shows it, with each week's validation gaps."),
+    "materials-creation-plan.md": ("new-course-materials-plan",
+                                   "How the course was planned and written, and what counts as a finished week."),
+}
+# Index cards: the course index, its roadmap and one per week. Every other page is
+# reached from those, and through the header's prev/next.
+NEW_COURSE_CARDS = {"new-course", "new-course-roadmap"}
+
+
+def tracked(folder):
+    """Tracked files under folder/, repo-relative. Without git, a walk that skips run outputs."""
+    import subprocess
+    try:
+        return subprocess.run(["git", "ls-files", folder], cwd=ROOT, check=True,
+                              capture_output=True, text=True).stdout.split("\n")[:-1]
+    except (OSError, subprocess.CalledProcessError):
+        out = []
+        for d, dirs, fs in os.walk(os.path.join(ROOT, folder)):
+            dirs[:] = [x for x in dirs if x not in ("runs", "__pycache__", ".venv")]
+            out += [os.path.relpath(os.path.join(d, f), ROOT) for f in fs]
+        return sorted(out)
+
+
+def md_summary(text):
+    """(H1, first sentence-ish line) of a Markdown page, both as HTML-safe text."""
+    title = re.search(r"^# (.+)$", text, re.M).group(1).strip()
+    blurb, fenced = "", False
+    for line in text.split("\n"):
+        line = line.strip()
+        if line.startswith("```"):
+            fenced = not fenced
+        if fenced or not line or line[0] in "#>|-`<*◷" and not re.match(r"\*[^*]", line):
+            continue
+        blurb = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", line).replace("`", "").strip("*_ ")
+        break
+    if len(blurb) > 200:
+        blurb = blurb[:200].rsplit(" ", 1)[0] + "&hellip;"
+    return escape(title, quote=False), escape(blurb, quote=False).replace("&amp;hellip;", "&hellip;")
+
+
+def new_course_pages():
+    files = [f for f in tracked("new_course") if f.endswith(".md")]
+    top = [f for f in ("new_course/" + n for n in NEW_COURSE_TOP) if f in files]
+    taglines = {}  # week folder -> its theory page's tagline, the blurb on the week's card
+    order = list(top)
+    for week in sorted({f.split("/")[2] for f in files if f.startswith("new_course/weeks/")}):
+        base = "new_course/weeks/%s/" % week
+        own = [f for f in files if f.startswith(base)]
+        handson = sorted(f for f in own if f.startswith(base + "handson/") and f.count("/") == 4
+                         and os.path.basename(f).startswith(week))
+        main = [f for f in handson if f.endswith("-handson.md")]
+        order += [f for f in [base + "README.md",
+                              base + "theory/%s-theory.md" % week]
+                  if f in own]
+        order += main + [f for f in handson if f not in main]
+        order += [f for f in [base + "dataset/README.md"] if f in own]
+    pages = []
+    for f in order:
+        name = f[len("new_course/"):]
+        title, blurb = md_summary(io.open(os.path.join(ROOT, f), encoding="utf-8").read())
+        if name.endswith("-theory.md"):
+            taglines[name.split("/")[1]] = blurb
+        if name in NEW_COURSE_TOP:
+            slug, blurb = NEW_COURSE_TOP[name]
+        elif name.endswith("/dataset/README.md"):
+            slug = name.split("/")[1] + "-dataset"
+        elif name.endswith("/README.md"):
+            slug = name.split("/")[1]
+            NEW_COURSE_CARDS.add(slug)
+        else:
+            slug = os.path.basename(name)[:-3]
+        pages.append(["../" + f, slug, title, blurb])
+    for page in pages:  # a week's README comes before its theory page, so fill in afterwards
+        if page[1] in taglines:
+            page[3] = taglines[page[1]]
+    return [tuple(p) for p in pages]
+
+
+RENDER[NEW_COURSE] = new_course_pages()
+
+SECTION_ORDER = ["Roadmap", "Theory", "Case studies", "Labs", "Interview prep", "Audits", NEW_COURSE]
 # Index anchors from the earlier five sections, still linked from outside: kept as aliases.
 SECTION_ALIASES = {"Roadmap": "roadmap-explainers", "Labs": "interactive-labs"}
 
@@ -320,10 +425,12 @@ def rewrite_link(href, src_path):
 
     # resolve relative to the source file, then make it relative to docs/
     abs_target = os.path.normpath(os.path.join(os.path.dirname(src_path), href))
-    rel = os.path.relpath(abs_target, "docs") if abs_target.startswith("docs") else None
+    rel = (os.path.relpath(abs_target, "docs")
+           if abs_target.startswith(("docs", "new_course")) else None)
 
     if rel:
-        page = slug_for(rel)
+        # a new_course theory page's rendered .html twin counts as the page
+        page = slug_for(rel) or (rel.endswith("-theory.html") and slug_for(rel[:-5] + ".md"))
         if page:
             return page + anchor
         for entries in COPY.values():
@@ -331,11 +438,12 @@ def rewrite_link(href, src_path):
                 if s == rel:
                     return copied_name(s) + anchor
         # a docs file the site does not carry (a folder README) -> its section
-        if rel.endswith("README.md"):
+        if rel.endswith("README.md") and abs_target.startswith("docs"):
             return "index.html" + anchor
 
-    # anything else in the repo -- notebooks, modules, the archive
-    return REPO_URL + abs_target.replace(os.sep, "/") + anchor
+    # anything else in the repo -- notebooks, modules, the archive; folders as trees
+    repo = REPO_URL.replace("/blob/", "/tree/") if os.path.isdir(os.path.join(ROOT, abs_target)) else REPO_URL
+    return repo + abs_target.replace(os.sep, "/") + anchor
 
 
 LINK = re.compile(r'(<a [^>]*href=")([^"]+)(")')
@@ -1369,6 +1477,7 @@ def build():
         """Markdown under docs/ -> site/dist/<slug>.html through the shared shell."""
         nonlocal linked_paths
         path = os.path.join(DOCS, src)
+        repo_src = os.path.normpath("docs/" + src)  # docs/../new_course/x -> new_course/x
         text = io.open(path, encoding="utf-8").read()
         source, unfenced = unfence_in_lists(text)
         md = markdown.Markdown(extensions=["tables", "fenced_code", "toc",
@@ -1376,7 +1485,7 @@ def build():
                                extension_configs={"toc": {"slugify": github_slug}})
         html = pandoc_typography(md.convert(source))
         html = LINK.sub(
-            lambda m: m.group(1) + rewrite_link(m.group(2), "docs/" + src) + m.group(3),
+            lambda m: m.group(1) + rewrite_link(m.group(2), repo_src) + m.group(3),
             html)
         html, paths = linkify_code_paths(html)
         linked_paths += paths
@@ -1401,8 +1510,8 @@ def build():
         title_text = re.sub("<[^>]+>", "", title)
         page = shell(title_text, body, nav,
                      head_tags(slug + ".html", title_text, re.sub("<[^>]+>", "", blurb),
-                               dates.get("docs/" + src)),
-                     footer("docs/" + src, dates.get("docs/" + src)),
+                               dates.get(repo_src)),
+                     footer(repo_src, dates.get(repo_src)),
                      diagrams=diagrams, qa=questions, rail=sections,
                      chapter=chapter)
         io.open(os.path.join(DIST, slug + ".html"), "w", encoding="utf-8").write(page)
@@ -1471,6 +1580,8 @@ def build():
     for section in SECTION_ORDER:
         items = []
         for src, slug, title, blurb in RENDER.get(section, []):
+            if section == NEW_COURSE and slug not in NEW_COURSE_CARDS:
+                continue
             # Explainer cards carry the level's topics instead of a word count:
             # "what is in here" is the thing a reader is choosing on, and a
             # length was never the reason to open one rather than another.
@@ -1513,6 +1624,9 @@ drill on what&rsquo;s still weak. About 10 hours.
 <li><span class="path-t">Look up one thing.</span> The field guide for any metric; the question
 bank for any interview question.
 <span class="go"><a href="field-guide.html">Field guide &rarr;</a> &middot; <a href="question-bank.html">Question bank &rarr;</a></span></li>
+<li><span class="path-t">Build it end to end.</span> The new course: sixteen weeks on one refund
+agent, from three string checks to a release gate, tracing and a multi-tenant evaluation platform.
+<span class="go"><a href="new-course.html">The new course &rarr;</a></span></li>
 </ul>
 %(cards)s""" % {"repo": REPO_URL, "cards": "".join(cards)}
 
@@ -1539,7 +1653,7 @@ bank for any interview question.
               footer(), is_index=True))
 
     # ---- robots.txt and sitemap.xml, from the pages written this run
-    pages = ([(out, dates.get("docs/" + src)) for src, out, *_ in rendered]
+    pages = ([(out, dates.get(os.path.normpath("docs/" + src))) for src, out, *_ in rendered]
              + [(out, dates.get("docs/" + src)) for src, out in copied]
              + [("index.html", max(dates.values()))])
     urls = "".join("<url><loc>%s</loc><lastmod>%s</lastmod></url>\n"

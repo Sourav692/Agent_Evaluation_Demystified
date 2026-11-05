@@ -2,6 +2,14 @@
 
 What changed on the site, newest first. One entry per change a reader would notice.
 
+## 2026-11-06
+
+- A seventh section, New course: a 16-week track that evaluates one customer-support refund
+  agent, from three string checks in Week 1 to a multi-tenant evaluation platform in Week 16.
+  Each week has a theory page, a hands-on guide and a dataset page; the notebooks, labs and
+  tests link to the repository. The home page has a card for the course index, its roadmap and
+  each week.
+
 ## 2026-10-16
 
 - The field guide, the MLflow reference, the support case study and its cost companion now
