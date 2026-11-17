@@ -1,0 +1,148 @@
+{
+  "passed": true,
+  "input": "langgraph-regenerated-with-skill.html",
+  "snapshots": [
+    {
+      "width": 320,
+      "theme": "light",
+      "scrollWidth": 320,
+      "figures": 6,
+      "images": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 2
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "scrollWidth": 320,
+      "figures": 6,
+      "images": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 2
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "scrollWidth": 390,
+      "figures": 6,
+      "images": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 2
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "scrollWidth": 390,
+      "figures": 6,
+      "images": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 2
+    },
+    {
+      "width": 1254,
+      "theme": "light",
+      "scrollWidth": 1254,
+      "figures": 6,
+      "images": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 2
+    },
+    {
+      "width": 1254,
+      "theme": "dark",
+      "scrollWidth": 1254,
+      "figures": 6,
+      "images": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 2
+    },
+    {
+      "width": 1920,
+      "theme": "light",
+      "scrollWidth": 1920,
+      "figures": 6,
+      "images": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 2
+    },
+    {
+      "width": 1920,
+      "theme": "dark",
+      "scrollWidth": 1920,
+      "figures": 6,
+      "images": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 2
+    }
+  ],
+  "errors": [],
+  "remoteRequests": [],
+  "noScriptPanels": 8,
+  "noScriptControlsHidden": true,
+  "theme": true,
+  "keyboard": true
+}

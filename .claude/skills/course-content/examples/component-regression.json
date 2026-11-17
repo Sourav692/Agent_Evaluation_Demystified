@@ -1,0 +1,93 @@
+{
+  "passed": true,
+  "input": "Isolated local component fixture",
+  "snapshots": [
+    {
+      "width": 320,
+      "theme": "light",
+      "scrollWidth": 320,
+      "figures": 0,
+      "images": [],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 3
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "scrollWidth": 320,
+      "figures": 0,
+      "images": [],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 3
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "scrollWidth": 390,
+      "figures": 0,
+      "images": [],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 3
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "scrollWidth": 390,
+      "figures": 0,
+      "images": [],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 3
+    },
+    {
+      "width": 1254,
+      "theme": "light",
+      "scrollWidth": 1254,
+      "figures": 0,
+      "images": [],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 3
+    },
+    {
+      "width": 1254,
+      "theme": "dark",
+      "scrollWidth": 1254,
+      "figures": 0,
+      "images": [],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 3
+    },
+    {
+      "width": 1920,
+      "theme": "light",
+      "scrollWidth": 1920,
+      "figures": 0,
+      "images": [],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 3
+    },
+    {
+      "width": 1920,
+      "theme": "dark",
+      "scrollWidth": 1920,
+      "figures": 0,
+      "images": [],
+      "brokenAnchors": [],
+      "stagesChecked": 6,
+      "modesChecked": 3
+    }
+  ],
+  "errors": [],
+  "remoteRequests": [],
+  "noScriptPanels": 9,
+  "noScriptControlsHidden": true,
+  "theme": true,
+  "keyboard": true,
+  "fixture": "Two independent walkthroughs with 2 and 4 stages, plus a comparison with 3 modes."
+}

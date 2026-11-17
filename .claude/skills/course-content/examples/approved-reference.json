@@ -1,0 +1,54 @@
+{
+  "source_url": "https://forwarddeployedprep.com/learn/agentic-and-self-correcting-rag/agentic-rag-foundations-grading-and-query-rewriting/retriever-as-a-tool-grade-then-rewrite-in-langgraph",
+  "approved_html": "../standalone/references/example-lesson.html",
+  "approved_html_sha256": "faafb58cd85c184ffa087bde1bcdd52e000a333d049d88d1db70ba3256114469",
+  "figures": [
+    {
+      "number": 1,
+      "payload_sha256": [
+        "e4c47218e513442fae6e938c48aa7bf9fb1aa5f52bbd884acc3e28b237612f63",
+        "a07400a9f1c6248a3d0edfd053625d14a44a5c5573a73a86f05ad45d00ab18a4"
+      ],
+      "label": "Figure 1: The grade-then-rewrite graph. Two edges branch; the rest are fixed."
+    },
+    {
+      "number": 2,
+      "payload_sha256": [
+        "52c4b7f4ae3fbabfe8f4bb69229edfd94c5e79da088ba76ca832b2977324fa16",
+        "38704bcbcd9cf8e5f13513d6d7b3b505ebbe5d199d38e7d0e77f5b941a9cbd89"
+      ],
+      "label": "Figure 2: One failed grade and one rewrite. The retrieved chunks are the lab's; the reworded question is the lab's hand-written rewrite."
+    },
+    {
+      "number": 3,
+      "payload_sha256": [
+        "7991cb1bce82efadf1fb33d32ad20869c9c1ce208824f5cdec79657aec330d55",
+        "6510929b97b9efd292a21b3c5f2cc102334e5aaf4d7584fdd318543c7a0dba57"
+      ],
+      "label": "Figure 3: Added transaction-process trace. The stricter answerability criterion drives the illustrated no/yes outcomes. Edge-local verdicts select routes without becoming state updates."
+    },
+    {
+      "number": 4,
+      "payload_sha256": [
+        "4920f71b96ac26b863716b8ce4ff1b918d856648f5a696caa6cee49dd703e60a"
+      ],
+      "label": "Figure 4: Edge grading combines the evidence check and route selection. Returning a route does not automatically save a verdict or filter documents."
+    },
+    {
+      "number": 5,
+      "payload_sha256": [
+        "ab7c98d5a382c46f09d0f63ce80d1b2158bb91a17cfa03eba089eaf93f1f5a12"
+      ],
+      "label": "Figure 5: A separate grading node explicitly filters evidence and updates state before a lightweight router chooses the next action. Generation must read the accepted-evidence field."
+    },
+    {
+      "number": 6,
+      "payload_sha256": [
+        "6bfee1fcabb314fa4ea1e3e8cc6ff94dfc88203d6e66742d042a1ac9fd9b787f",
+        "ab71f154480e65ba385a70dd0703ff56334c80e090e963e70139df3b098cd379"
+      ],
+      "label": "Figure 6: Added node-based alternative. The diamond represents a conditional-edge router. The fallback requires both failed grading and an exhausted rewrite budget."
+    }
+  ],
+  "meaning": "Approved final HTML with both comparison diagrams present; six walkthrough stages and two comparison modes."
+}

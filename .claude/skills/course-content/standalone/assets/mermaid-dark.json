@@ -1,0 +1,6 @@
+{"theme":"base","themeVariables":{"darkMode":true,"background":"transparent","fontFamily":"Arial, Helvetica, sans-serif","fontSize":"15px",
+"primaryColor":"#24231f","primaryBorderColor":"#6e6b64","primaryTextColor":"#ecebe6","secondaryColor":"#2c2b27","tertiaryColor":"#24231f",
+"lineColor":"#c9c6bf","textColor":"#ecebe6","mainBkg":"#24231f","nodeBorder":"#6e6b64","clusterBkg":"#1c1b18","clusterBorder":"#6e6b64",
+"edgeLabelBackground":"#161513","labelBackground":"#161513","actorBkg":"#24231f","actorBorder":"#6e6b64","actorTextColor":"#ecebe6","actorLineColor":"#6e6b64",
+"signalColor":"#c9c6bf","signalTextColor":"#ecebe6","noteBkgColor":"#2c2b27","noteBorderColor":"#6e6b64","noteTextColor":"#ecebe6",
+"stateLabelColor":"#ecebe6","stateBkg":"#24231f","stateBorder":"#6e6b64","transitionColor":"#c9c6bf","transitionLabelColor":"#ecebe6","compositeBackground":"#1c1b18"}}

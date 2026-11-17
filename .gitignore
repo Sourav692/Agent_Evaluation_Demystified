@@ -82,6 +82,10 @@ site/dist/
 # Repo-structure audit, owner decisions and phase plan (maintainer-only)
 .repo_audit/
 
+# Local QA output from the new_course theory simplification: check JSON, coverage
+# manifests and review notes. Holds absolute machine paths; site/build.py skips it.
+new_course/reviews/
+
 # Owner-only private workspace: notes, progress, interview stories, parked
 # third-party material. Never published, never linked from tracked files.
 /_personal/

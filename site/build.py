@@ -205,6 +205,21 @@ SKIP = [
     ("study-guide/README.md", "Folder index -- see navigation."),
 ]
 
+# Review companions keep their local exports without replacing canonical routes.
+for review_pattern in (
+    "new_course/simplified-course-index.md",
+    "new_course/simplified-course-index.html",
+    "new_course/weeks/*/theory/*-theory-simplified*.md",
+    "new_course/weeks/*/theory/*-theory-simplified*.html",
+    "new_course/weeks/*/theory/*-theory-comparison.md",
+    "new_course/reviews/**/*.md",
+):
+    SKIP.extend(
+        (os.path.relpath(path, DOCS),
+         "Local theory review companion; canonical course routes remain unchanged.")
+        for path in sorted(glob.glob(os.path.join(ROOT, review_pattern), recursive=True))
+    )
+
 # Pages about the site rather than the subject. Rendered like RENDER, linked from the
 # footer, never carded on the index.
 SITE_PAGES = [

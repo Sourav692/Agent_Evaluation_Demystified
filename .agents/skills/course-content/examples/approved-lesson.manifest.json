@@ -1,0 +1,156 @@
+{
+  "source_url": "https://forwarddeployedprep.com/learn/agentic-and-self-correcting-rag/agentic-rag-foundations-grading-and-query-rewriting/retriever-as-a-tool-grade-then-rewrite-in-langgraph",
+  "coverage": [
+    {
+      "source_item": "Conditional edges",
+      "output_anchor": "start-with-the-refund-near-miss",
+      "status": "preserved",
+      "reviewed": true,
+      "review_note": "Tool choice, near-miss refund evidence, the three jobs of retrieval/grading/routing and learning goals."
+    },
+    {
+      "source_item": "The retriever as a tool",
+      "output_anchor": "let-the-model-choose-the-retriever-tool",
+      "status": "preserved",
+      "reviewed": true,
+      "review_note": "Tool name, description and query choice; greeting bypass; notebook research-paper corpus. Argument schema clarified."
+    },
+    {
+      "source_item": "Fixed and conditional edges",
+      "output_anchor": "fixed-transitions-and-runtime-routing",
+      "status": "preserved",
+      "reviewed": true,
+      "review_note": "Fixed rewrite-to-agent edge; tools_condition returns tools or end; path map; grade_documents returns generate or rewrite."
+    },
+    {
+      "source_item": "Following the refund question",
+      "output_anchor": "trace-the-refund-question-through-a-rewrite",
+      "status": "expanded",
+      "reviewed": true,
+      "review_note": "Both returned chunk pairs; hand-written rewrite; refund versus Refunds; refunds/business days wording; 0.720; agent decides again at one model call per round."
+    },
+    {
+      "source_item": "Where the verdict lives",
+      "output_anchor": "compare-an-edge-grader-with-a-grading-node",
+      "status": "expanded",
+      "reviewed": true,
+      "review_note": "Edge-local verdict and printed record; passing chunks and should-generate state; one graph step; rewrite loop without a deliberate stop. Persistence and execution-limit caveats clarified."
+    },
+    {
+      "source_item": "Document grader",
+      "output_anchor": "decide-what-counts-as-useful-evidence",
+      "status": "expanded",
+      "reviewed": true,
+      "review_note": "Whole-block versus per-chunk inputs; string yes/no versus relevance/reasoning schema; normalised RELEVANT check; all versus filtered chunks; 1 versus k grading calls, k=2 in the source node example."
+    },
+    {
+      "source_item": "The label contract",
+      "output_anchor": "validate-the-grader-label",
+      "status": "preserved",
+      "reviewed": true,
+      "review_note": "yes, Yes, leading-space yes and maybe outcomes under exact match, normalisation and fixed-value validation; capital-Y rewrite; source topic-check example."
+    },
+    {
+      "source_item": "Related text or an answer",
+      "output_anchor": "test-answerability-as-well-as-relatedness",
+      "status": "preserved",
+      "reviewed": true,
+      "review_note": "Relatedness and context criteria can accept refund eligibility text; answerability rejects the duration near miss."
+    },
+    {
+      "source_item": "Why a score cannot do the grader's job",
+      "output_anchor": "similarity-scores-cannot-certify-an-answer",
+      "status": "preserved",
+      "reviewed": true,
+      "review_note": "All five retrieval rows and seven distinct scores; discount remains unsupported; 0.503 non-answer versus 0.470 answer prevents a single separating cutoff."
+    },
+    {
+      "source_item": "In practice: the refund question at Larkspur",
+      "output_anchor": "trace-the-refund-question-through-a-rewrite",
+      "status": "preserved",
+      "reviewed": true,
+      "review_note": "Tool choice, rejected refund-window, rewrite back to agent, timing retrieval at 0.720, generation; later topic check and controlled stopping."
+    },
+    {
+      "source_item": "Limits of this evidence",
+      "output_anchor": "limits-of-this-evidence",
+      "status": "preserved",
+      "reviewed": true,
+      "review_note": "Research-paper notebook versus Larkspur lab; TF-IDF-specific evidence; planted labels do not measure model error frequency. Retrieval-count claim scoped."
+    },
+    {
+      "source_item": "Run the notebooks",
+      "output_anchor": "run-the-notebooks",
+      "status": "preserved",
+      "reviewed": true,
+      "review_note": "Original GitHub and Colab destinations; package/key requirements and repository uv environment."
+    },
+    {
+      "source_item": "Key Takeaways",
+      "output_anchor": "key-takeaways",
+      "status": "preserved",
+      "reviewed": true,
+      "review_note": "All three source takeaways: tool/routing contract, typed/persisted verdict, answerability beyond scores."
+    },
+    {
+      "source_item": "Check yourself",
+      "output_anchor": "check-yourself",
+      "status": "preserved",
+      "reviewed": true,
+      "review_note": "All three original questions and answers: rewrite-to-agent, relatedness near miss, capital-Y fixes."
+    },
+    {
+      "source_item": "Paired architecture diagrams from the supplied V2/V4 adaptations",
+      "output_anchor": "compare-an-edge-grader-with-a-grading-node",
+      "status": "preserved",
+      "reviewed": true,
+      "review_note": "Both restored diagrams remain alongside Approach A and Approach B; the switcher supplements them."
+    }
+  ],
+  "required_figures": [
+    "figure-1",
+    "figure-2",
+    "figure-3",
+    "figure-4",
+    "figure-5",
+    "figure-6"
+  ],
+  "required_components": [
+    {
+      "id": "request-walkthrough",
+      "type": "stepper",
+      "count": 6
+    },
+    {
+      "id": "evidence-switcher",
+      "type": "comparison",
+      "count": 2
+    }
+  ],
+  "protected_images": [
+    {
+      "label": "07485dd844dd2c-dark.svg",
+      "sha256": "38704bcbcd9cf8e5f13513d6d7b3b505ebbe5d199d38e7d0e77f5b941a9cbd89"
+    },
+    {
+      "label": "07485dd844dd2c-light.svg",
+      "sha256": "52c4b7f4ae3fbabfe8f4bb69229edfd94c5e79da088ba76ca832b2977324fa16"
+    },
+    {
+      "label": "1b155c5cd2f877-dark.svg",
+      "sha256": "a07400a9f1c6248a3d0edfd053625d14a44a5c5573a73a86f05ad45d00ab18a4"
+    },
+    {
+      "label": "1b155c5cd2f877-light.svg",
+      "sha256": "e4c47218e513442fae6e938c48aa7bf9fb1aa5f52bbd884acc3e28b237612f63"
+    },
+    {
+      "label": "Restored comparison diagram 4",
+      "sha256": "4920f71b96ac26b863716b8ce4ff1b918d856648f5a696caa6cee49dd703e60a"
+    },
+    {
+      "label": "Restored comparison diagram 5",
+      "sha256": "ab7c98d5a382c46f09d0f63ce80d1b2158bb91a17cfa03eba089eaf93f1f5a12"
+    }
+  ]
+}

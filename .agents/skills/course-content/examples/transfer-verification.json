@@ -1,0 +1,137 @@
+{
+  "source_url": "https://forwarddeployedprep.com/learn/llm-and-retrieval/rag-from-first-principles/semantic-retrieval-with-embedding-similarity",
+  "lesson": "Semantic retrieval with embedding similarity",
+  "independent_authoring": true,
+  "reviewed_coverage_items": 28,
+  "figures": 3,
+  "components": [
+    {
+      "id": "outage-walkthrough",
+      "type": "stepper",
+      "count": 4
+    },
+    {
+      "id": "outage-selection",
+      "type": "comparison",
+      "count": 3
+    }
+  ],
+  "browser_passed": true,
+  "all_browser_cases": [
+    {
+      "width": 320,
+      "theme": "light",
+      "scrollWidth": 320,
+      "figures": 3,
+      "images": [
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 4,
+      "modesChecked": 3
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "scrollWidth": 320,
+      "figures": 3,
+      "images": [
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 4,
+      "modesChecked": 3
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "scrollWidth": 390,
+      "figures": 3,
+      "images": [
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 4,
+      "modesChecked": 3
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "scrollWidth": 390,
+      "figures": 3,
+      "images": [
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 4,
+      "modesChecked": 3
+    },
+    {
+      "width": 1254,
+      "theme": "light",
+      "scrollWidth": 1254,
+      "figures": 3,
+      "images": [
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 4,
+      "modesChecked": 3
+    },
+    {
+      "width": 1254,
+      "theme": "dark",
+      "scrollWidth": 1254,
+      "figures": 3,
+      "images": [
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 4,
+      "modesChecked": 3
+    },
+    {
+      "width": 1920,
+      "theme": "light",
+      "scrollWidth": 1920,
+      "figures": 3,
+      "images": [
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 4,
+      "modesChecked": 3
+    },
+    {
+      "width": 1920,
+      "theme": "dark",
+      "scrollWidth": 1920,
+      "figures": 3,
+      "images": [
+        true,
+        true,
+        true
+      ],
+      "brokenAnchors": [],
+      "stagesChecked": 4,
+      "modesChecked": 3
+    }
+  ],
+  "no_script_panels": 7,
+  "protected_source_image_count": 2,
+  "scope": "Independent source adaptation using only the packaged skill, source article and linked primary evidence; no publishing and no live model benchmark rerun."
+}

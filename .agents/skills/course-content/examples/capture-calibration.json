@@ -1,0 +1,48 @@
+{
+  "reference": "standalone/references/example-lesson.html",
+  "candidate": "same approved file, independent browser page",
+  "cases": [
+    {
+      "width": 390,
+      "theme": "light",
+      "structureMatches": true,
+      "dimensionsMatch": true,
+      "height": 18692,
+      "differentPixels": 1359,
+      "ratio": 0.00018642282177484403,
+      "maxChannelDelta": 57
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "structureMatches": true,
+      "dimensionsMatch": true,
+      "height": 18692,
+      "differentPixels": 1258,
+      "ratio": 0.0001725679983758306,
+      "maxChannelDelta": 53
+    },
+    {
+      "width": 1254,
+      "theme": "light",
+      "structureMatches": true,
+      "dimensionsMatch": true,
+      "height": 12625,
+      "differentPixels": 2668,
+      "ratio": 0.00016852211536943167,
+      "maxChannelDelta": 54
+    },
+    {
+      "width": 1254,
+      "theme": "dark",
+      "structureMatches": true,
+      "dimensionsMatch": true,
+      "height": 12625,
+      "differentPixels": 2293,
+      "ratio": 0.00014483553618519746,
+      "maxChannelDelta": 54
+    }
+  ],
+  "exactPixelMatch": false,
+  "interpretation": "Identical input bytes produced small text-edge raster differences; this calibrates the bounded screenshot tolerance, not content preservation."
+}

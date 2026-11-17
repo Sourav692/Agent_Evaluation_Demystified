@@ -1,0 +1,50 @@
+{
+  "reference": "standalone/references/example-lesson.html",
+  "candidate": "langgraph-regenerated-with-skill.html",
+  "cases": [
+    {
+      "width": 390,
+      "theme": "light",
+      "structureMatches": true,
+      "dimensionsMatch": true,
+      "height": 18692,
+      "differentPixels": 0,
+      "ratio": 0,
+      "maxChannelDelta": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "structureMatches": true,
+      "dimensionsMatch": true,
+      "height": 18692,
+      "differentPixels": 0,
+      "ratio": 0,
+      "maxChannelDelta": 0
+    },
+    {
+      "width": 1254,
+      "theme": "light",
+      "structureMatches": true,
+      "dimensionsMatch": true,
+      "height": 12625,
+      "differentPixels": 0,
+      "ratio": 0,
+      "maxChannelDelta": 0
+    },
+    {
+      "width": 1254,
+      "theme": "dark",
+      "structureMatches": true,
+      "dimensionsMatch": true,
+      "height": 12625,
+      "differentPixels": 0,
+      "ratio": 0,
+      "maxChannelDelta": 0
+    }
+  ],
+  "exactPixelMatch": true,
+  "scope": "Saved Markdown rendered through the packaged builder; no post-build patches.",
+  "reference_sha256": "faafb58cd85c184ffa087bde1bcdd52e000a333d049d88d1db70ba3256114469",
+  "omitted_comparison_diagram_negative_test": "Passed: removal failed both required-figure and protected-image checks."
+}
