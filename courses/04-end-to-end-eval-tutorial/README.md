@@ -17,9 +17,15 @@ simple and the comments explain the evaluation, not the syntax.
 | 01–02 | Written and run, outputs kept: the app under test (RAG agent, tools, supervisor graph) |
 | 03 | Written and run: the golden set, 121 cases in 6 slices → `data/golden_set.json` |
 | 04–05 | Written and run: retrieval and generation evaluation → `data/rag_scores.json`. Notebook 04 records the baseline run, `data/golden_runs.json`, that 04–09 all score |
-| 06–08 | Written and run: tool calls, trajectories and routing, task completion and conversations → `data/agent_scores.json` |
+| 06 | Written and run: tool calls → `data/agent_scores.json`. Outputs not saved in the notebook; re-run to see them |
+| 07–08 | Written and run: trajectories and routing, task completion and conversations → `data/agent_scores.json` |
 | 09 | Written and run: safety and red-teaming → `data/safety_scores.json` |
-| 10–14 | Planned |
+| 10 | Written, not run: custom judges → `data/custom_judge_scores.json` (not yet produced) |
+| 11–14 | Planned |
+
+How the course is being built: [`PLAN.md`](PLAN.md) records the stack decisions,
+[`EVALUATIONS.md`](EVALUATIONS.md) specifies every evaluation and its metric, and
+[`TRACKER.md`](TRACKER.md) tracks the build task by task.
 
 ---
 
