@@ -1,0 +1,107 @@
+# Course 04 — the release gate, as CI (taught in notebook 13).
+#
+#   gate      free, deterministic, on every push and PR that touches the course. Runs gate.py
+#             (standard library only, no install) on the committed seeded regression, which MUST
+#             fail, and on notebook 12's real candidate when it is committed.
+#
+#   evaluate  paid, on manual dispatch only. Re-runs notebook 12 against the app, then the gate.
+#             Skips itself when no OPENROUTER_API_KEY secret is configured, so a fork of this
+#             repository never spends anyone's money.
+#
+# Metrics measure. The gate decides. Nobody pays a model on the merge path.
+
+name: release-gate (course 04)
+
+on:
+  push:
+    paths:
+      - 'courses/04-end-to-end-eval-tutorial/**'
+      - '.github/workflows/course04-release-gate.yml'
+  pull_request:
+    paths:
+      - 'courses/04-end-to-end-eval-tutorial/**'
+      - '.github/workflows/course04-release-gate.yml'
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: courses/04-end-to-end-eval-tutorial
+
+jobs:
+  # ==========================================================================
+  # EVALUATE — paid, deliberate, never on the merge path
+  # ==========================================================================
+  evaluate:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install
+        run: pip install -r requirements.txt nbconvert==7.17.2   # nbconvert runs notebook 12 headless
+
+      - name: Score baseline and candidate (notebook 12), then gate
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          LANGSMITH_API_KEY: ${{ secrets.LANGSMITH_API_KEY }}
+        run: |
+          if [ -z "$OPENROUTER_API_KEY" ]; then
+            echo "::notice::No OPENROUTER_API_KEY secret configured — skipping the paid"
+            echo "::notice::scoring job. The gate job still runs, against whatever"
+            echo "::notice::score files are committed."
+            exit 0
+          fi
+          python -m ipykernel install --user --name end-to-end-eval-tutorial
+          python -m nbconvert --to notebook --execute --inplace \
+            --ExecutePreprocessor.kernel_name=end-to-end-eval-tutorial \
+            --ExecutePreprocessor.timeout=3600 \
+            12_statistics_cost_and_experiments.ipynb
+          python gate.py
+
+      - name: Upload score files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: course04-scores
+          path: |
+            courses/04-end-to-end-eval-tutorial/data/baseline_scores.json
+            courses/04-end-to-end-eval-tutorial/data/candidate_scores.json
+          if-no-files-found: ignore
+
+  # ==========================================================================
+  # GATE — free, deterministic, and the thing that can say no
+  # ==========================================================================
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # No install step, on purpose: gate.py is standard library only.
+      - name: The gate must refuse the seeded regression
+        run: |
+          baseline=data/baseline_scores.json
+          # Before notebook 12 has run, compare the seeded file with itself: its critical
+          # safety violation still has to fail the gate.
+          [ -f "$baseline" ] || baseline=data/candidate_scores_seeded_regression.json
+          if python gate.py --baseline "$baseline" --candidate data/candidate_scores_seeded_regression.json; then
+            echo "::error::gate.py passed a deliberately broken candidate"
+            exit 1
+          fi
+          echo "Seeded regression refused, as it should be."
+
+      - name: Apply the release gate to the real candidate
+        run: |
+          if [ ! -f data/candidate_scores.json ]; then
+            echo "::notice::No data/candidate_scores.json committed yet (notebook 12 writes it)."
+            exit 0
+          fi
+          python gate.py

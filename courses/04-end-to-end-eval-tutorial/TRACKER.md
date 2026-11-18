@@ -45,9 +45,9 @@ grep -oE '\| (todo|doing|done|blocked|skip) \|' courses/04-end-to-end-eval-tutor
 | P4 | Agent evaluation | 06, 07, 08 | §7–11 scores per slice | done |
 | P5 | Safety and adversarial | 09 | Attack success rate per risk; critical violations listed | done |
 | P6 | Judges and calibration | 10, 11 | Every gating judge has kappa reported | doing |
-| P7 | Statistics, cost, experiments | 12 | Baseline vs candidate compared with CIs in LangSmith | todo |
-| P8 | Release gate and CI | 13 | Gate fails a seeded regression in GitHub Actions | todo |
-| P9 | Online evaluation | 14 | Online evaluators score sampled traces; failures feed `data/` | todo |
+| P7 | Statistics, cost, experiments | 12 | Baseline vs candidate compared with CIs in LangSmith | done |
+| P8 | Release gate and CI | 13 | Gate fails a seeded regression in GitHub Actions | doing |
+| P9 | Online evaluation | 14 | Online evaluators score sampled traces; failures feed `data/` | done |
 | P10 | Docs, integration, release | — | Docs gates pass; links swept; committed | todo |
 | P11 | Optional: the Langfuse track | 15+ | Same app traced, tested and monitored in Langfuse | skip |
 
@@ -157,16 +157,16 @@ Exit: every judge that will gate a release has kappa, TPR and TNR reported.
 
 | ID | Task | Output | Depends on | Status | Notes |
 | --- | --- | --- | --- | --- | --- |
-| P6.1 | Rubric judges with `GEval`: tone, policy wording, escalation phrasing | Notebook 10 | P2.8 | doing | 💰 Written in notebook 10, not yet run |
-| P6.2 | Decision-tree judge with `DAGMetric` for the refund flow | Notebook 10 | P6.1 | doing | 💰 Written in notebook 10, not yet run |
-| P6.3 | Pairwise judge with position swap | Notebook 10 | P6.1 | doing | 💰 Written in notebook 10, not yet run |
-| P6.4 | LangSmith annotation queue; sample 50–100 cases per gating judge | Queue in LangSmith | P0.8, P6.1 | todo | |
+| P6.1 | Rubric judges with `GEval`: tone, policy wording, escalation phrasing | Notebook 10 | P2.8 | done | 💰 Run 2026-11-18 (Qwen3 judge, OpenRouter): tone 51/121, policy wording 26/31, escalation phrasing 14/38 passed. Tone fails the fixed decline sentence as "filler": a rubric to revisit in P6.8 |
+| P6.2 | Decision-tree judge with `DAGMetric` for the refund flow | Notebook 10 | P6.1 | done | 💰 Run 2026-11-18: 24/26 refund replies pass. Fixed the end-state check in cell 19 (`ticket_created: null` means not checked); reply pass + decision wrong = `tool_required-h20`, `handoff-h03` |
+| P6.3 | Pairwise judge with position swap | Notebook 10 | P6.1 | done | 💰 Run 2026-11-18: 34 pairs × 2 orders; 9 current wins, 9 previous, 2 ties, 14 position flips; the reply shown first won 38% of named verdicts |
+| P6.4 | LangSmith annotation queue; sample 50–100 cases per gating judge | Queue in LangSmith | P0.8, P6.1 | doing | Notebook 11 cells 19–20 create the queue and log the sample to project `end-to-end-eval-calibration`; not run yet |
 | P6.5 | Human labelling pass | Labels | P6.4 | todo | Manual |
-| P6.6 | Agreement: Cohen's kappa, TPR, TNR, confusion matrix (stdlib) | Notebook 11 | P6.5 | todo | Free |
-| P6.7 | Bias checks: position, verbosity, self-preference | Notebook 11 | P6.6 | todo | 💰 |
-| P6.8 | Revise rubrics where kappa < 0.6; re-measure | Notebook 11 | P6.6 | todo | 💰 |
-| P6.10 | Reference judge: run `gpt-4o` beside the Qwen3-235B judge on the same calibration cases; kappa / TPR / TNR of each against the human labels and the end-state checks, plus judge-vs-judge agreement | Notebook 11 | P6.6 | todo | Owner decision 2026-10-20 (final): app `deepseek-ai/DeepSeek-V4-Flash-0731`, primary judge `Qwen/Qwen3-235B-A22B-Instruct-2507`, both on Nebius Token Factory (Databricks judges hit the workspace output-tokens-per-minute limit; a local Ollama judge was too slow). gpt-4o runs on the calibration subset only (≈ $1). P6.7's self-preference check = DeepSeek judging its own answers 💰 |
-| P6.9 | Save judge trust table to `data/` for the gate | `data/judge_trust.json` | P6.8, P6.10 | todo | One row per judge × metric: Qwen3-235B on Nebius (primary) and gpt-4o (reference) |
+| P6.6 | Agreement: Cohen's kappa, TPR, TNR, confusion matrix (stdlib) | Notebook 11 | P6.5 | doing | Written in notebook 11 (stdlib); waits for P6.5 labels |
+| P6.7 | Bias checks: position, verbosity, self-preference | Notebook 11 | P6.6 | doing | 💰 Written in notebook 11 (verbosity, self-preference; position read from notebook 10); not run |
+| P6.8 | Revise rubrics where kappa < 0.6; re-measure | Notebook 11 | P6.6 | doing | 💰 Written in notebook 11 as a read-disagreements-then-re-measure step; needs labels |
+| P6.10 | Reference judge: run `gpt-4o` beside the Qwen3-235B judge on the same calibration cases; kappa / TPR / TNR of each against the human labels and the end-state checks, plus judge-vs-judge agreement | Notebook 11 | P6.6 | doing | Written in notebook 11 (`openai/gpt-4o` via OpenRouter), not run. Owner decision 2026-10-20 (final): app `deepseek-ai/DeepSeek-V4-Flash-0731`, primary judge `Qwen/Qwen3-235B-A22B-Instruct-2507`, both on Nebius Token Factory (Databricks judges hit the workspace output-tokens-per-minute limit; a local Ollama judge was too slow). gpt-4o runs on the calibration subset only (≈ $1). P6.7's self-preference check = DeepSeek judging its own answers 💰 |
+| P6.9 | Save judge trust table to `data/` for the gate | `data/judge_trust.json` | P6.8, P6.10 | doing | Notebook 11 writes it only once human labels exist |
 
 ## P7 — Statistics, cost, experiments
 
@@ -174,14 +174,14 @@ Exit: baseline and candidate compared per slice with CIs, in LangSmith and in no
 
 | ID | Task | Output | Depends on | Status | Notes |
 | --- | --- | --- | --- | --- | --- |
-| P7.1 | Per-slice report across P3–P5 scores (`defaultdict`) | Notebook 12 | P3.8, P4.11, P5.7 | todo | Free |
-| P7.2 | Bootstrap 95% CIs (stdlib `random`) | Notebook 12 | P7.1 | todo | Free |
-| P7.3 | Paired comparison: paired bootstrap + McNemar | Notebook 12 | P7.2 | todo | Free |
-| P7.4 | Sample-size estimate per slice | Notebook 12 | P7.2 | todo | Free |
-| P7.5 | Cost and latency from LangSmith traces (§16) | Notebook 12 | P1.7 | todo | Free; read token cost per trace with `client.runs.query()` (`list_runs` is deprecated in 0.14.11) |
-| P7.6 | Upload golden set as a LangSmith dataset (`create_dataset` + `create_examples`) | Dataset | P2.8 | todo | |
-| P7.7 | Run baseline and one candidate (prompt or model change) as LangSmith experiments with `evaluate()` | Two experiment runs | P7.6 | todo | 💰 |
-| P7.8 | Save baseline and candidate scores for the gate | `data/baseline_scores.json`, `data/candidate_scores.json` | P7.7 | todo | |
+| P7.1 | Per-slice report across P3–P5 scores (`defaultdict`) | Notebook 12 | P3.8, P4.11, P5.7 | done | Run 2026-11-18 (notebook 12) |
+| P7.2 | Bootstrap 95% CIs (stdlib `random`) | Notebook 12 | P7.1 | done | Run 2026-11-18 |
+| P7.3 | Paired comparison: paired bootstrap + McNemar | Notebook 12 | P7.2 | done | Run 2026-11-18: no slice changes detectably (multi_hop −15%, CI −30% to 0%) |
+| P7.4 | Sample-size estimate per slice | Notebook 12 | P7.2 | done | Run 2026-11-18: 686 cases to see a 5-point drop from 90%; 20 cases see ≈ 40 points |
+| P7.5 | Cost and latency from LangSmith traces (§16) | Notebook 12 | P1.7 | done | Run 2026-11-18: tokens summed from `run_type="llm"` runs per trace (root token fields come back empty) and priced at OpenRouter rates: $0.00022 baseline vs $0.00023 candidate per case |
+| P7.6 | Upload golden set as a LangSmith dataset (`create_dataset` + `create_examples`) | Dataset | P2.8 | done | Dataset `pinecrest-golden-set`, 121 examples |
+| P7.7 | Run baseline and one candidate (prompt or model change) as LangSmith experiments with `evaluate()` | Two experiment runs | P7.6 | done | 💰 Run 2026-11-18: `baseline-6f2a19e2`, `candidate-397dff6b` (stricter RAG prompt) |
+| P7.8 | Save baseline and candidate scores for the gate | `data/baseline_scores.json`, `data/candidate_scores.json` | P7.7 | done | Run 2026-11-18 |
 
 ## P8 — Release gate and CI
 
@@ -189,12 +189,12 @@ Exit: the gate passes the baseline and fails a seeded regression, in GitHub Acti
 
 | ID | Task | Output | Depends on | Status | Notes |
 | --- | --- | --- | --- | --- | --- |
-| P8.1 | Write gate rules: critical safety, slice floors, no regression, judge trust, budget (§18) | `gate_rules.json` | P6.9, P7.8 | todo | |
-| P8.2 | Gate logic taught step by step in notebook 13, then copied into the one script CI runs | `gate.py` | P8.1 | todo | Free; the only script in the course (Course rule 2) |
-| P8.3 | Seeded regression to prove the gate fails | Test fixture | P8.2 | todo | |
-| P8.4 | Workflow: free `gate` job on push/PR, paths-filtered to the course | `.github/workflows/…yml` | P8.2 | todo | |
-| P8.5 | Workflow: paid `evaluate` job on `workflow_dispatch` only; skips without `OPENAI_API_KEY` | Same workflow | P8.4 | todo | Never on push/PR |
-| P8.6 | Notebook 13 explaining the gate and the free/paid split | Notebook 13 | P8.5 | todo | |
+| P8.1 | Write gate rules: critical safety, slice floors, no regression, judge trust, budget (§18) | `gate_rules.json` | P6.9, P7.8 | doing | `gate_rules.json` written; floors set ≈ 2 cases below the older `agent_scores.json` rates; revisit after P7.8. `block_on_known_safety_findings` is false: owner to decide |
+| P8.2 | Gate logic taught step by step in notebook 13, then copied into the one script CI runs | `gate.py` | P8.1 | done | `gate.py`, stdlib only; exit 0 pass, 1 blocked, 2 missing input |
+| P8.3 | Seeded regression to prove the gate fails | Test fixture | P8.2 | done | `data/candidate_scores_seeded_regression.json` (`"synthetic": true`); gate exits 1 with 4 blocking failures |
+| P8.4 | Workflow: free `gate` job on push/PR, paths-filtered to the course | `.github/workflows/…yml` | P8.2 | done | `.github/workflows/course04-release-gate.yml`, paths-filtered; YAML parses; not run in CI yet |
+| P8.5 | Workflow: paid `evaluate` job on `workflow_dispatch` only; skips without `OPENAI_API_KEY` | Same workflow | P8.4 | done | Same workflow; skips without `OPENROUTER_API_KEY` secret (the course moved to OpenRouter) |
+| P8.6 | Notebook 13 explaining the gate and the free/paid split | Notebook 13 | P8.5 | done | Run 2026-11-18 (free): real candidate SHIP (exit 0), seeded regression DO NOT SHIP (exit 1) |
 | P8.7 | Push to a branch and confirm the gate fails the seeded regression | CI run | P8.6 | todo | Outward-facing: ask before pushing |
 
 ## P9 — Online evaluation
@@ -203,11 +203,11 @@ Exit: LangSmith online evaluators score a trace sample, and failing traces reach
 
 | ID | Task | Output | Depends on | Status | Notes |
 | --- | --- | --- | --- | --- | --- |
-| P9.1 | Simulated production traffic (replay plus fresh questions) | Trace stream | P1.7 | todo | 💰 |
-| P9.2 | LangSmith online evaluators: faithfulness, relevancy, safety on a 5–10% sample | Evaluator config | P9.1 | todo | 💰 |
-| P9.3 | Retrieval health and outcome proxies (empty retrieval, escalation, feedback) | Notebook 14 | P9.1 | todo | |
-| P9.4 | Drift view vs launch week (simulated dates; traces expire after 14 days) | LangSmith monitoring charts | P9.2 | todo | |
-| P9.5 | Feedback loop: failing traces → reviewed → golden set | Notebook 14 | P9.2, P2.8 | todo | |
+| P9.1 | Simulated production traffic (replay plus fresh questions) | Trace stream | P1.7 | done | 💰 Run 2026-11-18: 200 runs over two simulated weeks (batch `b091aa40`, project `end-to-end-eval-online`) |
+| P9.2 | LangSmith online evaluators: faithfulness, relevancy, safety on a 5–10% sample | Evaluator config | P9.1 | done | 💰 Run 2026-11-18: faithfulness 1.00, relevancy 0.95 on 11 of 12 sampled RAG runs (1 judge timeout → no verdict); 222 feedback scores written. The UI rule is taught as steps |
+| P9.3 | Retrieval health and outcome proxies (empty retrieval, escalation, feedback) | Notebook 14 | P9.1 | done | Run 2026-11-18: retrieval threshold 0.521 (97% separation); escalated 43, declined 61, weak retrieval 58 of 200 |
+| P9.4 | Drift view vs launch week (simulated dates; traces expire after 14 days) | LangSmith monitoring charts | P9.2 | done | Run 2026-11-18: drift flagged on weak retrieval (+0.28), declines (+0.21), simulated thumbs-down (+0.18) |
+| P9.5 | Feedback loop: failing traces → reviewed → golden set | Notebook 14 | P9.2, P2.8 | done | Run 2026-11-18: 74 traces → `data/online_review_queue.json`; 0 reviewed yet, so `data/golden_set_candidates.json` is empty |
 | P9.6 | Optional τ-bench sidebar | Notebook 14 appendix | P1.6 | skip | Unpick if wanted; 💰 |
 
 ## P10 — Docs, integration, release

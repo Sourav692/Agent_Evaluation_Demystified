@@ -24,11 +24,11 @@ was picked, see [`PLAN.md`](PLAN.md). Every metric's definition is in
 | 07 | [Trajectories and handoffs](07_trajectories_and_handoffs.ipynb) | D. Agent | §8 trajectory, §9 routing and handoffs | `agent_scores.json` | Run |
 | 08 | [Task completion and conversations](08_task_completion_and_conversations.ipynb) | D. Agent | §10 task completion, §11 multi-turn | `agent_scores.json`, `conversation_scores.json` | Run |
 | 09 | [Safety and red-teaming](09_safety_and_red_teaming.ipynb) | E. Safety | §12 safety and adversarial | `safety_scores.json` | Run |
-| 10 | [Custom judges](10_custom_judges.ipynb) | F. Judges | §13 custom judges | `custom_judge_scores.json` | Written, not run |
-| 11 | Calibrating judges with human labels | F. Judges | §14 judge calibration | `judge_trust.json` | Planned |
-| 12 | Statistics, cost and experiments | G. Decisions | §15 statistics, §16 cost and latency, §17 regression experiments | `baseline_scores.json`, `candidate_scores.json` | Planned |
-| 13 | The release gate and CI | G. Decisions | §18 release gate | `gate_rules.json`, `gate.py`, a workflow | Planned |
-| 14 | Online evaluation and the loop | H. Production | §19 online evaluation | Reviewed failures back into `data/` | Planned |
+| 10 | [Custom judges](10_custom_judges.ipynb) | F. Judges | §13 custom judges | `custom_judge_scores.json` | Run |
+| 11 | [Calibrating judges with human labels](11_calibrating_judges_with_human_labels.ipynb) | F. Judges | §14 judge calibration | `judge_trust.json` | Written, not run (needs human labels) |
+| 12 | [Statistics, cost and experiments](12_statistics_cost_and_experiments.ipynb) | G. Decisions | §15 statistics, §16 cost and latency, §17 regression experiments | `baseline_scores.json`, `candidate_scores.json` | Run |
+| 13 | [The release gate and CI](13_the_release_gate_and_ci.ipynb) | G. Decisions | §18 release gate | `gate_rules.json`, `gate.py`, a workflow | Run |
+| 14 | [Online evaluation and the loop](14_online_evaluation_and_the_loop.ipynb) | H. Production | §19 online evaluation | `online_review_queue.json`, `golden_set_candidates.json` | Run |
 
 All file names in the Writes column live in `data/`.
 
@@ -398,7 +398,7 @@ adversarial.
 
 ### Notebook 10: Custom Judges
 
-**Status:** Written, not yet run. **Reads:** `data/golden_set.json`, `data/golden_runs.json`,
+**Status:** Run 2026-11-18, outputs kept. **Reads:** `data/golden_set.json`, `data/golden_runs.json`,
 `data/golden_runs_gpt-4o-mini.json` (the same 121 cases on the first app model, shipped with the
 repository). **Writes:** `data/custom_judge_scores.json`. **Keys:** `OPENROUTER_API_KEY` only, because
 nothing here runs the agent. **Evaluations:** §13 custom judges.
@@ -428,7 +428,7 @@ nothing here runs the agent. **Evaluations:** §13 custom judges.
 
 ### Notebook 11: Calibrating Judges with Human Labels
 
-**Status:** Planned. **Writes:** `data/judge_trust.json`. **Evaluations:** §14 judge calibration.
+**Status:** Written, not run; the agreement cells wait for human labels. **Writes:** `data/judge_trust.json`. **Evaluations:** §14 judge calibration.
 
 - Sampling 50–100 verdicts per gating judge into a LangSmith annotation queue
 - A human labelling pass
@@ -444,7 +444,7 @@ nothing here runs the agent. **Evaluations:** §13 custom judges.
 
 ### Notebook 12: Statistics, Cost and Experiments
 
-**Status:** Planned. **Writes:** `data/baseline_scores.json`, `data/candidate_scores.json`.
+**Status:** Run 2026-11-18, outputs kept. **Writes:** `data/baseline_scores.json`, `data/candidate_scores.json`.
 **Evaluations:** §15 statistics and slices, §16 cost and latency, §17 regression experiments.
 
 - A per-slice report across every score from notebooks 04–09
@@ -457,7 +457,7 @@ nothing here runs the agent. **Evaluations:** §13 custom judges.
 
 ### Notebook 13: The Release Gate and CI
 
-**Status:** Planned. **Writes:** `gate_rules.json`, `gate.py`, a GitHub Actions workflow.
+**Status:** Run 2026-11-18, outputs kept (free: the gate says ship on the real candidate and refuses the seeded regression). **Writes:** `gate_rules.json`, `gate.py`, a GitHub Actions workflow.
 **Evaluations:** §18 release gate.
 
 - Gate rules: zero critical safety violations, slice floors, no regression, judge trust and budget
@@ -468,7 +468,7 @@ nothing here runs the agent. **Evaluations:** §13 custom judges.
 
 ### Notebook 14: Online Evaluation and the Loop
 
-**Status:** Planned. **Evaluations:** §19 online evaluation.
+**Status:** Run 2026-11-18, outputs kept. **Writes:** `data/online_review_queue.json`, `data/golden_set_candidates.json`. **Evaluations:** §19 online evaluation.
 
 - Simulated production traffic: replayed and fresh questions
 - LangSmith online evaluators for faithfulness, relevancy and safety on a 5–10% sample
@@ -485,12 +485,17 @@ nothing here runs the agent. **Evaluations:** §13 custom judges.
 | `agent_runs.json` | 02 | 03 |
 | `golden_set.json` | 03 | 04–10 |
 | `golden_runs.json` (the baseline run) | 04 | 05–10 |
-| `rag_scores.json` | 05 | 12 (planned) |
+| `rag_scores.json` | 05 | 12 |
 | `agent_scores.json` | 06, 07, 08 | 07, 08, 12 (planned) |
-| `conversation_scores.json` | 08 | 12 (planned) |
-| `safety_scores.json` | 09 | 12, 13 (planned) |
-| `custom_judge_scores.json` | 10 | 11 (planned) |
+| `conversation_scores.json` | 08 | 12 |
+| `safety_scores.json` | 09 | 12, 13 |
+| `custom_judge_scores.json` | 10 | 11, 12 |
 | `golden_runs_gpt-4o-mini.json` | shipped with the repository | 10 |
+| `calibration_queue.json`, `calibration_verdicts.json`, `human_labels.json` | 11 | 11 |
+| `judge_trust.json` | 11 | 13 |
+| `baseline_scores.json`, `candidate_scores.json` | 12 | 13 |
+| `candidate_scores_seeded_regression.json` (synthetic) | 13 | 13, CI |
+| `online_review_queue.json`, `golden_set_candidates.json` | 14 | a person, then 03 |
 
 ## Tools by notebook
 

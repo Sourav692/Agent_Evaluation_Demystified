@@ -20,8 +20,11 @@ simple and the comments explain the evaluation, not the syntax.
 | 06 | Written and run: tool calls → `data/agent_scores.json`. Outputs not saved in the notebook; re-run to see them |
 | 07–08 | Written and run: trajectories and routing, task completion and conversations → `data/agent_scores.json` |
 | 09 | Written and run: safety and red-teaming → `data/safety_scores.json` |
-| 10 | Written, not run: custom judges → `data/custom_judge_scores.json` (not yet produced) |
-| 11–14 | Planned |
+| 10 | Written and run: custom judges → `data/custom_judge_scores.json` |
+| 11 | Written, not run: judge calibration → `data/judge_trust.json`, once a person has labelled the sample |
+| 12 | Written and run: statistics, cost and LangSmith experiments → `data/baseline_scores.json`, `data/candidate_scores.json` |
+| 13 | Written and run: the release gate (`gate.py`, `gate_rules.json`) and `.github/workflows/course04-release-gate.yml`; the gate passes the real candidate and refuses a synthetic seeded regression |
+| 14 | Written and run: online evaluation and the loop → `data/online_review_queue.json`, `data/golden_set_candidates.json` |
 
 The whole course, notebook by notebook, with the topics each part covers:
 [`COURSE.md`](COURSE.md) ([browser version](COURSE.html)).
