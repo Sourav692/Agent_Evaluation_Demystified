@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Fourteen lessons that build one support assistant and then test every part of it, from the golden set to online evaluation.">
+<title>End-to-end evaluation · Forward Deployed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f7f5f0;--ink:#0c0d12;--text:#2a2b31;--muted:#6b6a66;--line:#cdcac3;--soft:#eeebe4;--active:#e5e1d9;
+--green:#007439;--head:#fbfaf7;
+--display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;--sans:Inter,ui-sans-serif,system-ui,sans-serif}
+[data-theme=dark]{--paper:#161513;--ink:#f1efea;--text:#d6d3cc;--muted:#9a978f;--line:#3a3833;--soft:#22211e;--active:#2c2b27;
+--green:#3fae73;--head:#1a1917}
+*{box-sizing:border-box}
+html{overflow-x:clip}
+body{margin:0;background:var(--paper);color:var(--text);font:400 16px/24px var(--sans);-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:inherit}
+.topbar{position:sticky;top:0;z-index:5;height:60px;display:flex;align-items:center;gap:16px;padding:0 26px;
+background:var(--head);border-bottom:1px solid var(--line)}
+.brand{font:600 17px var(--sans);color:var(--ink)}
+.label{color:var(--muted);font-size:14px}
+.spacer{flex:1}
+.theme{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:5px 10px;font:500 13px var(--sans);cursor:pointer}
+.theme:focus-visible,.lesson:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+main{max-width:880px;margin:0 auto;padding:40px 26px 80px}
+.crumbs{font-size:13px;color:var(--muted);margin-bottom:18px}
+h1{font:600 clamp(32px,6vw,48px)/1.08 var(--display);color:var(--ink);margin:0 0 14px;letter-spacing:-.01em;text-wrap:balance}
+.lede{font-size:18px;line-height:28px;max-width:62ch;margin:0 0 14px}
+.meta{font-size:14px;color:var(--muted);margin:0 0 40px}
+section{margin-top:40px}
+h2{font:600 13px var(--sans);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 4px}
+.part-note{margin:0 0 14px;font-size:15px;color:var(--muted)}
+ol{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.lesson{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:4px 16px;align-items:baseline;
+padding:16px 8px;border-bottom:1px solid var(--line);text-decoration:none;border-radius:4px}
+.lesson:hover{background:var(--soft)}
+.num{font:500 15px var(--display);color:var(--green);font-variant-numeric:tabular-nums}
+.t{font:600 18px/26px var(--display);color:var(--ink)}
+.s{grid-column:2;font-size:15px;line-height:22px;color:var(--text)}
+.time{font-size:13px;color:var(--muted);white-space:nowrap}
+footer{margin-top:56px;font-size:13px;color:var(--muted)}
+@media (max-width:560px){
+  .topbar{padding:0 16px} .label{display:none}
+  main{padding:28px 16px 64px}
+  .lesson{grid-template-columns:32px minmax(0,1fr)}
+  .time{grid-column:2}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">Forward Deployed</div>
+  <span class="label">Offline course</span>
+  <div class="spacer"></div>
+  <button class="theme" type="button" hidden aria-pressed="false">Dark theme</button>
+</header>
+
+<main>
+  <div class="crumbs">Learn › AI Engineering › End-to-end evaluation</div>
+  <h1>End-to-end evaluation</h1>
+  <p class="lede">Build one support assistant, then test every part of it: the search, the answers, the tool calls, the path each run takes, safety, the judges themselves, and the system after it ships.</p>
+  <p class="meta">14 lessons · about 3 hours of reading · Course 04 · Each page explains one notebook in plain language, with little code.</p>
+
+  <section>
+    <h2>Part 1 · Build the system under test</h2>
+    <p class="part-note">The assistant every later lesson scores.</p>
+    <ol>
+      <li><a class="lesson" href="01-knowledge-base-and-rag-agent.html"><span class="num">01</span><span class="t">The knowledge base and the RAG agent</span><span class="time">12 min</span><span class="s">Build the half of the assistant that answers from help articles.</span></a></li>
+      <li><a class="lesson" href="02-tools-agents-and-supervisor-graph.html"><span class="num">02</span><span class="t">Tools, agents and the supervisor</span><span class="time">13 min</span><span class="s">Add actions, a router that picks who handles each message, and a record of every run.</span></a></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Part 2 · The test set</h2>
+    <p class="part-note">Every score depends on it.</p>
+    <ol>
+      <li><a class="lesson" href="03-the-golden-set.html"><span class="num">03</span><span class="t">The golden set</span><span class="time">14 min</span><span class="s">Build 121 labelled test cases in six slices, then test the test set before trusting it.</span></a></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Part 3 · Score each part</h2>
+    <p class="part-note">From the search step to the finished task.</p>
+    <ol>
+      <li><a class="lesson" href="04-retrieval-evaluation.html"><span class="num">04</span><span class="t">Retrieval evaluation</span><span class="time">15 min</span><span class="s">Did the search find the right passages? Labels against an LLM judge.</span></a></li>
+      <li><a class="lesson" href="05-generation-evaluation.html"><span class="num">05</span><span class="t">Generation evaluation</span><span class="time">15 min</span><span class="s">Grade the answers, then split each failure between retriever, generator and test case.</span></a></li>
+      <li><a class="lesson" href="06-tool-call-evaluation.html"><span class="num">06</span><span class="t">Tool call evaluation</span><span class="time">14 min</span><span class="s">Right tool, right arguments, and no call when none was needed.</span></a></li>
+      <li><a class="lesson" href="07-trajectories-and-handoffs.html"><span class="num">07</span><span class="t">Trajectories and handoffs</span><span class="time">15 min</span><span class="s">Grade the path a run took and find the first step that failed.</span></a></li>
+      <li><a class="lesson" href="08-task-completion-and-conversations.html"><span class="num">08</span><span class="t">Task completion and conversations</span><span class="time">15 min</span><span class="s">Check the store for ground truth, then test whole conversations.</span></a></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Part 4 · Safety and judges</h2>
+    <p class="part-note">What must never happen, and when to trust a model's verdict.</p>
+    <ol>
+      <li><a class="lesson" href="09-safety-and-red-teaming.html"><span class="num">09</span><span class="t">Safety and red teaming</span><span class="time">15 min</span><span class="s">Write the policy, check every run, then attack the agent on purpose.</span></a></li>
+      <li><a class="lesson" href="10-custom-judges.html"><span class="num">10</span><span class="t">Custom judges</span><span class="time">15 min</span><span class="s">Rubric, decision-tree and pairwise judges for the store's own rules.</span></a></li>
+      <li><a class="lesson" href="11-calibrating-judges-with-human-labels.html"><span class="num">11</span><span class="t">Calibrating judges with human labels</span><span class="time">15 min</span><span class="s">Measure agreement with people and decide which judges may gate a release.</span></a></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Part 5 · Ship and keep watching</h2>
+    <p class="part-note">From a score to a release decision, and after release.</p>
+    <ol>
+      <li><a class="lesson" href="12-statistics-cost-and-experiments.html"><span class="num">12</span><span class="t">Statistics, cost and experiments</span><span class="time">15 min</span><span class="s">Error bars on every score, and comparing two versions case by case.</span></a></li>
+      <li><a class="lesson" href="13-the-release-gate-and-ci.html"><span class="num">13</span><span class="t">The release gate and CI</span><span class="time">14 min</span><span class="s">Five fixed rules and one script that says ship or don't ship.</span></a></li>
+      <li><a class="lesson" href="14-online-evaluation-and-the-loop.html"><span class="num">14</span><span class="t">Online evaluation and the loop</span><span class="time">14 min</span><span class="s">Score live traffic with no answer key and turn bad traces into new test cases.</span></a></li>
+    </ol>
+  </section>
+
+  <footer>Source notebooks: <code>courses/04-end-to-end-eval-tutorial/</code>. Numbers on each page come from saved notebook outputs; each page's Limits section notes where those outputs disagree.</footer>
+</main>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.querySelector('.theme');
+  function set(t){root.setAttribute('data-theme',t);var d=t==='dark';
+    btn.textContent=d?'Light theme':'Dark theme';btn.setAttribute('aria-pressed',String(d));}
+  if(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)set('dark');
+  btn.hidden=false;
+  btn.addEventListener('click',function(){set(root.getAttribute('data-theme')==='dark'?'light':'dark');});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "source_path": "courses/04-end-to-end-eval-tutorial/12_statistics_cost_and_experiments.ipynb",
+  "source_url": "https://github.com/Sourav692/Agent_Evaluation_Demystified/blob/main/courses/04-end-to-end-eval-tutorial/12_statistics_cost_and_experiments.ipynb",
+  "coverage": [
+    {"source_item": "Intro, learning objectives and where this fits", "output_anchor": "start-with-a-number-that-moves-too-easily", "status": "expanded", "reviewed": true, "review_note": "Opens on the multi_hop 12/20 to 9/20 drop; all five objectives kept; link to lesson 13 gate kept."},
+    {"source_item": "The idea: ASCII diagram, stdlib-only statistics", "output_anchor": "the-plan", "status": "preserved", "reviewed": true, "review_note": "Redrawn as Figure 1 with free versus paid parts and the two output files; plain-Python note kept. Redraw disclosed."},
+    {"source_item": "Part 0 setup and run-ID check", "output_anchor": "limits-of-this-evidence", "status": "preserved", "reviewed": true, "review_note": "Key loading omitted as setup; the 0 of 61 and 0 of 121 run-ID result is kept in Limits as the two-runs caveat."},
+    {"source_item": "Part 1 per-slice report: pass-rate metrics, applicable cases, thresholds, custom judges", "output_anchor": "report-per-slice-not-as-one-number", "status": "preserved", "reviewed": true, "review_note": "Per-slice rule, 0.7 and 0.9 thresholds, not-applicable left out, 587 results then lesson 10 judges added, 13 metrics."},
+    {"source_item": "1.1 bootstrap, report table, widths, rule of three", "output_anchor": "the-bootstrap-error-bars-by-resampling", "status": "expanded", "reviewed": true, "review_note": "Stepper walks 18/20 to 75%-100%; Table 1 picks five report rows; width reading; 100%-100% limit and rule of three with 15% for 20 cases."},
+    {"source_item": "Safety attack success rates with intervals", "output_anchor": "when-every-case-passes", "status": "preserved", "reviewed": true, "review_note": "0/157 unauthorised refunds bounded at 1.9%, indirect injection 3/4 with 25%-100%, 3 critical violations; zero-is-a-bound distinction."},
+    {"source_item": "Part 2 sample size and smallest detectable drop", "output_anchor": "how-many-cases-does-a-slice-need", "status": "preserved", "reviewed": true, "review_note": "Full cases-needed table, 95% confidence and 80% power in plain words, 37 and 43 point drops, smoke alarm not thermometer, two gate consequences."},
+    {"source_item": "Part 3 latency p50/p95, tokens and cost from traces, Part 6 cost reading", "output_anchor": "latency-and-cost", "status": "preserved", "reviewed": true, "review_note": "p50 and p95 defined, overall and four slices, max 9.3 s, per-slice budget point; traces as source of tokens, hand pricing at 0.14 and 0.28 per million; experiment costs reported under the candidate section."},
+    {"source_item": "Part 4 LangSmith dataset", "output_anchor": "experiments-in-langsmith", "status": "preserved", "reviewed": true, "review_note": "Examples with inputs, labels and metadata; experiment defined. Stale-dataset re-upload advice omitted as operational.", "authorization": "User request: minimal code; operational upload steps are notebook mechanics."},
+    {"source_item": "Part 5 app paste, evaluators, judge, baseline and candidate experiments", "output_anchor": "change-one-thing", "status": "preserved", "reviewed": true, "review_note": "Six evaluators tabled with cost; judge returns no score where not applicable; one-at-a-time runs; one-change candidate prompt; case pass rule; per-slice pass counts; cost comparison. App paste omitted as setup."},
+    {"source_item": "Part 7 paired bootstrap, McNemar, per-slice comparison and reading", "output_anchor": "compare-pair-by-pair", "status": "expanded", "reviewed": true, "review_note": "Switcher contrasts separate intervals with paired flips on multi_hop; both tests explained, 0.008 sanity check, full per-slice table, reading order and not-shown versus no-effect."},
+    {"source_item": "Part 8 save gate records", "output_anchor": "save-both-versions-for-the-gate", "status": "preserved", "reviewed": true, "review_note": "One record per case, fields listed, missing score is fail, unchecked safety is flagged, crashed runs stop the save."},
+    {"source_item": "Summary and next steps", "output_anchor": "key-takeaways", "status": "preserved", "reviewed": true, "review_note": "Five takeaways match the five summary headings; lesson 13 pointer in the opening and gate section."}
+  ],
+  "required_figures": ["figure-1"],
+  "required_components": [
+    {"id": "bootstrap-walkthrough", "type": "stepper", "count": 4},
+    {"id": "paired-switcher", "type": "comparison", "count": 2}
+  ],
+  "protected_images": []
+}

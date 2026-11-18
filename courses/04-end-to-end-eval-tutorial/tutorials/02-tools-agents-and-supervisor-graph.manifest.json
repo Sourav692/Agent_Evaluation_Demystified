@@ -1,0 +1,22 @@
+{
+  "source_path": "courses/04-end-to-end-eval-tutorial/02_tools_agents_and_supervisor_graph.ipynb",
+  "source_url": "https://github.com/Sourav692/Agent_Evaluation_Demystified/blob/main/courses/04-end-to-end-eval-tutorial/02_tools_agents_and_supervisor_graph.ipynb",
+  "coverage": [
+    {"source_item": "Intro: real support acts; supervisor; learning objectives", "output_anchor": "answering-is-not-enough", "status": "expanded", "reviewed": true, "review_note": "Acting agent fails in more ways; four objectives kept as tools, loop, supervisor, recording."},
+    {"source_item": "The idea: ASCII graph and failure-to-notebook mapping", "output_anchor": "the-assistant-in-one-picture", "status": "preserved", "reviewed": true, "review_note": "Text diagram redrawn as Mermaid Figure 1 with all three routes and the tool loop; route 07, tool 06, goal 08, rule 09 mapping kept as Table 1."},
+    {"source_item": "Part 0: setup, models.toml, keys", "output_anchor": "run-the-notebook", "status": "authorized_omission", "reviewed": true, "review_note": "Environment and key setup are notebook plumbing; prerequisites kept in Run the notebook.", "authorization": "User request: minimal code; course-content voice.md bans setup walkthroughs."},
+    {"source_item": "Part 1: RAG pieces repeated from notebook 01, index of 31 chunks", "output_anchor": "the-assistant-in-one-picture", "status": "preserved", "reviewed": true, "review_note": "Retrieve and generate path shown in Figure 1 and state table; full RAG explanation belongs to lesson 1."},
+    {"source_item": "Part 2: mock order database, six orders, fixed TODAY, reset per run", "output_anchor": "a-pretend-store-with-a-frozen-clock", "status": "preserved", "reviewed": true, "review_note": "All six orders with rule each triggers; fixed date 2026-10-18 and repeatability insight; reset_database isolation."},
+    {"source_item": "Part 3: tools, @tool, docstring as instruction, issue_refund rules, direct checks", "output_anchor": "tools-functions-the-model-may-call", "status": "expanded", "reviewed": true, "review_note": "Four tools tabled; docstring note kept; refund rule order drawn as added Figure 2; PC-10002 and PC-10004 direct-call outputs reported."},
+    {"source_item": "Part 4: account agent loop, ACCOUNT_PROMPT rules, trajectory", "output_anchor": "the-account-agent-a-loop", "status": "preserved", "reviewed": true, "review_note": "Loop in four steps; all five prompt rules paraphrased; trajectory defined and tied to lesson 7."},
+    {"source_item": "Part 5: supervisor structured decision, three routes, escalation node", "output_anchor": "the-supervisor-picks-a-route", "status": "preserved", "reviewed": true, "review_note": "RouteDecision as fixed form; route criteria tabled from SUPERVISOR_PROMPT; escalation opens urgent ticket with no model."},
+    {"source_item": "Part 6: SupportState, add_messages, edges, conditional routing, printed Mermaid graph", "output_anchor": "one-shared-state-one-graph", "status": "preserved", "reviewed": true, "review_note": "State fields with consumers; append behaviour; supervisor and tools_condition edges; printed graph folded into Figure 1."},
+    {"source_item": "Part 7: run_agent records route, nodes, tool calls, end state, run_id with LangSmith", "output_anchor": "record-what-happened-inside", "status": "preserved", "reviewed": true, "review_note": "Reset per run, run ID shared with trace, Table 6 from section 8.1 field mapping."},
+    {"source_item": "Part 8: smoke test five questions, outputs, saved agent_runs.json", "output_anchor": "smoke-test-one-question-per-path", "status": "expanded", "reviewed": true, "review_note": "All five runs tabled from saved outputs; handoff run claims a ticket but none was created, verified in data/agent_runs.json; stepper traces the tool_required run."},
+    {"source_item": "Part 9: whole app in one copied cell and the sync rule", "output_anchor": "one-cell-to-copy", "status": "preserved", "reviewed": true, "review_note": "Copy-not-import choice and two-step change rule kept."},
+    {"source_item": "Summary and next steps", "output_anchor": "key-takeaways", "status": "preserved", "reviewed": true, "review_note": "Summary condensed into takeaways; next lesson golden set referenced in smoke test section."}
+  ],
+  "required_figures": ["figure-1", "figure-2"],
+  "required_components": [{"id": "refund-walkthrough", "type": "stepper", "count": 5}],
+  "protected_images": []
+}

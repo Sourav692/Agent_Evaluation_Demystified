@@ -1,0 +1,20 @@
+{
+  "source_path": "courses/04-end-to-end-eval-tutorial/01_knowledge_base_and_rag_agent.ipynb",
+  "source_url": "https://github.com/Sourav692/Agent_Evaluation_Demystified/blob/main/courses/04-end-to-end-eval-tutorial/01_knowledge_base_and_rag_agent.ipynb",
+  "coverage": [
+    {"source_item": "Intro: Pinecrest store, RAG agent defined, learning objectives, prerequisites", "output_anchor": "start-with-the-thing-we-will-test", "status": "expanded", "reviewed": true, "review_note": "Fictional store, RAG expanded and defined, four objectives kept; prerequisites moved to run-the-notebook."},
+    {"source_item": "The idea: retrieve vs generate text diagram, scored in 04 and 05", "output_anchor": "two-decisions-scored-separately", "status": "preserved", "reviewed": true, "review_note": "Text diagram redrawn as Mermaid Figure 1, disclosed in caption; where-it-went-wrong reasoning kept."},
+    {"source_item": "Part 0: setup, keys, LangSmith tracing, models.toml", "output_anchor": "run-the-notebook", "status": "authorized_omission", "reviewed": true, "review_note": "Setup code omitted; key requirements and tracing purpose kept in run-the-notebook and traces section.", "authorization": "User request: minimal code; course-content voice.md bans setup walkthroughs."},
+    {"source_item": "Part 1: nine articles loaded", "output_anchor": "the-knowledge-base-nine-help-articles", "status": "preserved", "reviewed": true, "review_note": "All nine articles listed with their topics, matching data/kb/."},
+    {"source_item": "1.1 Chunking with stable IDs, 31 chunks, example returns-policy-02, why it matters", "output_anchor": "chunking-with-ids-that-never-change", "status": "expanded", "reviewed": true, "review_note": "Section-per-chunk rule, 31 chunks, ID scheme, title kept in text, saved kb_chunks.json, lesson 3 and 4 dependency named moving label problem."},
+    {"source_item": "Part 2: embeddings, Chroma, cosine distance, TOP_K 4, example retrieval", "output_anchor": "finding-the-closest-chunks", "status": "preserved", "reviewed": true, "review_note": "Embedding, vector store, cosine distance meaning, k=4 linked to lesson 4; full four-row result with distances. Rebuild-from-scratch detail omitted as code."},
+    {"source_item": "Part 3: grounded answers, prompt rules, decline sentence, I-don't-know note", "output_anchor": "grounded-answers-that-cite-their-source", "status": "preserved", "reviewed": true, "review_note": "Three prompt rules with exact decline sentence, citation purpose, decline as correct answer, temperature 0."},
+    {"source_item": "Part 4: LangGraph graph, nodes, state, why two nodes, state fields to notebooks", "output_anchor": "the-agent-as-a-small-graph", "status": "preserved", "reviewed": true, "review_note": "Figure 2 graph, node/state defined, two-node rationale, state field table mapped to lessons 4 and 5."},
+    {"source_item": "Part 5: three questions, slices preview, outputs", "output_anchor": "three-questions-three-kinds-of-test", "status": "expanded", "reviewed": true, "review_note": "All three questions with slice, retrieved IDs and answers from saved output; stepper traces the multi-hop one; always-4-chunks point added and grounded."},
+    {"source_item": "5.1 What to look at in LangSmith, trace-to-notebook table", "output_anchor": "traces-the-raw-material-of-evaluation", "status": "preserved", "reviewed": true, "review_note": "Trace contents and the three-row mapping table to lessons 4, 5, 12."},
+    {"source_item": "Summary and next steps", "output_anchor": "key-takeaways", "status": "preserved", "reviewed": true, "review_note": "Summary condensed into takeaways; next notebook named in the lessons navigation."}
+  ],
+  "required_figures": ["figure-1", "figure-2"],
+  "required_components": [{"id": "rag-walkthrough", "type": "stepper", "count": 5}],
+  "protected_images": []
+}

@@ -1,0 +1,26 @@
+{
+  "source_path": "courses/04-end-to-end-eval-tutorial/13_the_release_gate_and_ci.ipynb",
+  "source_url": "https://github.com/Sourav692/Agent_Evaluation_Demystified/blob/main/courses/04-end-to-end-eval-tutorial/13_the_release_gate_and_ci.ipynb",
+  "coverage": [
+    {"source_item": "Intro: metrics measure but none decides; five objectives; where it fits; prerequisites", "output_anchor": "start-with-a-change-that-needs-a-yes-or-a-no", "status": "expanded", "reviewed": true, "review_note": "Opens on the real lesson-12 candidate change (two-sentence prompt); five objectives kept; prerequisites moved to the run section."},
+    {"source_item": "The idea: ASCII diagram of inputs, five rules, exit codes; blocking, advisory, seeded regression; key insight", "output_anchor": "the-gate-in-one-picture", "status": "preserved", "reviewed": true, "review_note": "Diagram redrawn as Mermaid Figure 1 with exit 2 noted; score-file fields and the three flags explained; blocking and advisory defined; metrics measure, gate decides kept. Seeded regression defined in its own section."},
+    {"source_item": "Part 0: setup and real or synthetic score files", "output_anchor": "run-the-notebook", "status": "preserved", "reviewed": true, "review_note": "Synthetic fallback, its temporary folder and synthetic flag stated in the run section; setup code omitted under the minimal-code request."},
+    {"source_item": "Part 1: critical safety count of zero; 0 and 0 found", "output_anchor": "rule-1-critical-safety-is-a-count-of-zero", "status": "preserved", "reviewed": true, "review_note": "Both metrics, case-by-case count, zero allowed, candidate result 0 and 0."},
+    {"source_item": "Part 1.1: known notebook 09 findings, indirect injection 3/4, block_on_known_safety_findings false and its reasoning", "output_anchor": "findings-the-golden-cases-cannot-see", "status": "preserved", "reviewed": true, "review_note": "Why rule 1 cannot see it, WARN on every run, setting name, the course's false choice and reasoning, real teams likely true."},
+    {"source_item": "Part 2: slice floors, sizing for 20 cases, per-metric slices, results", "output_anchor": "rule-2-every-slice-above-its-floor", "status": "preserved", "reviewed": true, "review_note": "Blended-rate argument, 5 points per case, roughly 13-point interval, two cases below rule, full 12-row results table."},
+    {"source_item": "Part 3: judge trust, kappa 0.6, advisory, missing trust file output", "output_anchor": "rule-3-only-a-trusted-judge-can-block", "status": "preserved", "reviewed": true, "review_note": "Exact vs judged flags, kappa defined in plain words, coin flip with a veto, committed run had no trust file so answer_correct advisory."},
+    {"source_item": "Part 4: paired bootstrap per slice, 2,000 resamples, rounding, results, reading the intervals", "output_anchor": "rule-4-no-significant-regression", "status": "expanded", "reviewed": true, "review_note": "Stepper walks multi_hop answer_correct with the three broken case IDs recomputed from the score files; seed and rounding kept; table of the three moving slices; one-case reading kept; added interpretation of the candidate's drops."},
+    {"source_item": "Part 5: budget rule 1.2 ratio, results", "output_anchor": "rule-5-a-budget", "status": "preserved", "reviewed": true, "review_note": "Rationale, 20% rule, source of costs, skip behaviour, baseline, limit and candidate figures."},
+    {"source_item": "Part 6: gate_rules.json contents and why a file", "output_anchor": "rules-in-a-file-logic-in-a-script", "status": "preserved", "reviewed": true, "review_note": "Contents listed in words and the reviewed-diff reason kept; JSON body omitted under the minimal-code request."},
+    {"source_item": "Part 7: gate.py, standard library only, exit codes 0/1/2, run output SHIP", "output_anchor": "rules-in-a-file-logic-in-a-script", "status": "preserved", "reviewed": true, "review_note": "Why a script, no install step, exit-code table, summary of the real run's lines and SHIP verdict."},
+    {"source_item": "Part 7.1: seeded regression, its three breakages, 4 blocking failures, exit 1", "output_anchor": "prove-the-gate-can-say-no", "status": "expanded", "reviewed": true, "review_note": "Switcher compares real candidate and seeded regression with each failure's numbers; saved file, synthetic flag and CI use kept."},
+    {"source_item": "Part 8: workflow jobs table, gate free on push, evaluate paid on dispatch, secret skip, workflow excerpt", "output_anchor": "the-gate-in-ci", "status": "preserved", "reviewed": true, "review_note": "Jobs table and the reasoning kept; Figure 2 added from the workflow file; YAML excerpt omitted under the minimal-code request."},
+    {"source_item": "Summary and next steps", "output_anchor": "key-takeaways", "status": "preserved", "reviewed": true, "review_note": "Summary condensed into six takeaways covering all five rules and CI."}
+  ],
+  "required_figures": ["figure-1", "figure-2"],
+  "required_components": [
+    {"id": "bootstrap-walkthrough", "type": "stepper", "count": 5},
+    {"id": "gate-switcher", "type": "comparison", "count": 2}
+  ],
+  "protected_images": []
+}

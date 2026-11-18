@@ -1,0 +1,22 @@
+{
+  "source_path": "courses/04-end-to-end-eval-tutorial/11_calibrating_judges_with_human_labels.ipynb",
+  "source_url": "https://github.com/Sourav692/Agent_Evaluation_Demystified/blob/main/courses/04-end-to-end-eval-tutorial/11_calibrating_judges_with_human_labels.ipynb",
+  "coverage": [
+    {"source_item": "Intro: judges untrusted until checked; five objectives; where this fits", "output_anchor": "start-with-a-judge-nobody-has-checked", "status": "expanded", "reviewed": true, "review_note": "Opens on handoff-h03 refund-flow pass from the committed verdicts; trust table defined; five objectives kept."},
+    {"source_item": "The idea: ASCII flow and the two rules (blind labels, no labels no trust)", "output_anchor": "the-plan-in-one-picture", "status": "preserved", "reviewed": true, "review_note": "Text diagram redrawn as Mermaid Figure 1 with the redraw disclosed; both rules kept."},
+    {"source_item": "Part 0 setup, model config, actions_text, end_state_correct", "output_anchor": "run-the-notebook", "status": "authorized_omission", "reviewed": true, "review_note": "Keys, models.toml loader and helper functions are mechanics; their effect (same evidence for judge and labeller) is described in Label blind.", "authorization": "User request: minimal code, same treatment as lesson 03; voice.md bans setup walkthroughs."},
+    {"source_item": "Part 0.1 the four judges copied verbatim; rubric steps; refund DAG", "output_anchor": "the-four-judges-under-test", "status": "preserved", "reviewed": true, "review_note": "Why verbatim copies matter; each judge's rule summarised in Table 1 with verdict and pass counts from custom_judge_scores.json."},
+    {"source_item": "Part 1 stratified sampling: up to half fails, fixed seed, 60 per judge, small pools", "output_anchor": "sample-so-failures-get-tested", "status": "expanded", "reviewed": true, "review_note": "Both reasons kept; Table 2 sample sizes computed from the rule (155 total); small-pool note kept; key insight on 90% accuracy moved to kappa section."},
+    {"source_item": "Part 2 blind labelling, anchoring, LangSmith queue, JSON file route", "output_anchor": "label-blind", "status": "preserved", "reviewed": true, "review_note": "What the labeller sees and does not; anchoring; both routes ending in data/human_labels.json; 20-30 s per item."},
+    {"source_item": "Part 3 confusion counts, TPR, TNR, kappa, 0.6 bar, sanity check", "output_anchor": "agreement-why-kappa-not-accuracy", "status": "expanded", "reviewed": true, "review_note": "Confusion table, three definitions, the 0.6 bar; stepper walks the 8/1/1/0 sanity check to kappa -0.11 and TNR 0."},
+    {"source_item": "Part 3 disagreements and their three causes", "output_anchor": "read-every-disagreement", "status": "preserved", "reviewed": true, "review_note": "Switcher gives sign and fix for judge misread, rubric unclear, label wrong."},
+    {"source_item": "Part 4 bias checks: position (free), verbosity, self-preference", "output_anchor": "three-biases", "status": "expanded", "reviewed": true, "review_note": "Bias table with costs; position numbers computed from committed pairwise verdicts (14/34 flips, first won 22/58); padding test and self-preference reading kept."},
+    {"source_item": "Part 5 reference judge gpt-4o, judge-vs-judge kappa, refund tree vs end state", "output_anchor": "a-second-judge-as-a-reference", "status": "expanded", "reviewed": true, "review_note": "Three diagnostic readings; label-free usefulness; cost reason for sample-only; end-state table computed for this page with the mismatch with the notebook's reading explained."},
+    {"source_item": "Part 6 revising a rubric and measuring again", "output_anchor": "revise-a-rubric-then-measure-again", "status": "preserved", "reviewed": true, "review_note": "Four-step loop and the overfitting warning with a fresh seed kept."},
+    {"source_item": "Part 7 judge_trust.json and the release gate default", "output_anchor": "the-trust-table", "status": "preserved", "reviewed": true, "review_note": "Row fields, trusted rule, lesson 13 usage, no-labels-no-file default."},
+    {"source_item": "Summary and next steps", "output_anchor": "key-takeaways", "status": "preserved", "reviewed": true, "review_note": "Condensed into six takeaways."}
+  ],
+  "required_figures": ["figure-1"],
+  "required_components": [{"id": "kappa-walkthrough", "type": "stepper", "count": 4}, {"id": "cause-switcher", "type": "comparison", "count": 3}],
+  "protected_images": []
+}
