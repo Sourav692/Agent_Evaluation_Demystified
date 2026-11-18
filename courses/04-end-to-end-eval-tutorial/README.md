@@ -23,6 +23,9 @@ simple and the comments explain the evaluation, not the syntax.
 | 10 | Written, not run: custom judges → `data/custom_judge_scores.json` (not yet produced) |
 | 11–14 | Planned |
 
+The whole course, notebook by notebook, with the topics each part covers:
+[`COURSE.md`](COURSE.md) ([browser version](COURSE.html)).
+
 How the course is being built: [`PLAN.md`](PLAN.md) records the stack decisions,
 [`EVALUATIONS.md`](EVALUATIONS.md) specifies every evaluation and its metric, and
 [`TRACKER.md`](TRACKER.md) tracks the build task by task.

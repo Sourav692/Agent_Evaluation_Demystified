@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Course 04 Guide: End-to-End Evaluation</title>
+<meta name="description" content="Course 04 guide: every notebook, the topics it covers, its data files and its status.">
+<link rel="stylesheet" href="../../site/assets/fonts.css">
+<link rel="icon" href="../../site/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../site/assets/tokens.css">
+<link rel="stylesheet" href="../../site/assets/chrome.css">
+<link rel="stylesheet" href="../../site/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-bar">
+  <div class="bar-top">
+    <a class="brand" href="README.md">End-to-End <span>Evaluation</span></a>
+    <button class="toc-toggle" type="button" aria-expanded="false"
+            aria-controls="docnav" hidden>Contents</button>
+    <nav aria-label="Course 04"><a class="on" href="COURSE.html">Course guide</a><a href="README.md">Setup</a><a href="EVALUATIONS.md">Evaluations</a><a href="TRACKER.md">Tracker</a></nav>
+  </div>
+</header>
+<main class="wrap" id="main">
+<div class="withnav"><nav class="docnav" id="docnav" aria-label="Sections"><ol><li><a href="#course-04-guide-end-to-end-evaluation"><span class="i">—</span><span class="t">Orientation</span></a></li></ol><p class="famhead">Sections</p><ol><li><a href="#at-a-glance"><span class="i">·</span><span class="t">At a glance</span></a></li><li><a href="#the-system-under-test"><span class="i">·</span><span class="t">The system under test</span></a></li><li><a href="#how-the-course-is-built"><span class="i">·</span><span class="t">How the course is built</span></a></li><li><a href="#module-a-the-app-under-test"><span class="i">·</span><span class="t">Module A: The app under test</span></a></li><li><a href="#module-b-test-data"><span class="i">·</span><span class="t">Module B: Test data</span></a></li><li><a href="#module-c-rag-evaluation"><span class="i">·</span><span class="t">Module C: RAG evaluation</span></a></li><li><a href="#module-d-agent-evaluation"><span class="i">·</span><span class="t">Module D: Agent evaluation</span></a></li><li><a href="#module-e-safety"><span class="i">·</span><span class="t">Module E: Safety</span></a></li><li><a href="#module-f-judges-and-calibration"><span class="i">·</span><span class="t">Module F: Judges and calibration</span></a></li><li><a href="#module-g-decisions"><span class="i">·</span><span class="t">Module G: Decisions</span></a></li><li><a href="#data-handoff"><span class="i">·</span><span class="t">Data handoff</span></a></li><li><a href="#tools-by-notebook"><span class="i">·</span><span class="t">Tools by notebook</span></a></li></ol><div class="rail-progress" aria-hidden="true"><div class="rail-bar"><i></i></div><span class="rail-count">Section 1 of 12</span></div></nav><article class="doc"><h1 id="course-04-guide-end-to-end-evaluation">Course 04 Guide: End-to-End Evaluation</h1>
+<p class="readtime">◷ 15 min read</p>
+<p>One support assistant, evaluated from every angle. The course builds a support agent for
+<strong>Pinecrest Outdoor Supply</strong>, a fictional outdoor-gear store. It writes a golden set for that
+agent, then scores retrieval, answers, tool calls, paths, task completion, conversations and
+safety. Notebooks 10–14 build custom judges, calibrate them against human labels, compare app
+versions with statistics, gate the release in CI and score live traffic.</p>
+<p>This guide covers the whole course in one place: what each notebook teaches, the files it reads
+and writes, and where it stands today. For setup, see <a href="README.md"><code>README.md</code></a>. For why each tool
+was picked, see <a href="PLAN.md"><code>PLAN.md</code></a>. Every metric's definition is in
+<a href="EVALUATIONS.md"><code>EVALUATIONS.md</code></a>, and <a href="TRACKER.md"><code>TRACKER.md</code></a> tracks the build task by task.</p>
+<h2 id="at-a-glance">At a glance</h2>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Notebook</th>
+<th>Module</th>
+<th>Evaluations (§ in <code>EVALUATIONS.md</code>)</th>
+<th>Writes</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01</td>
+<td><a href="01_knowledge_base_and_rag_agent.ipynb">Knowledge base and RAG agent</a></td>
+<td>A. The app</td>
+<td>None (builds the app)</td>
+<td><code>kb_chunks.json</code>, <code>chroma_db/</code></td>
+<td>Run</td>
+</tr>
+<tr>
+<td>02</td>
+<td><a href="02_tools_agents_and_supervisor_graph.ipynb">Tools, agents and the supervisor graph</a></td>
+<td>A. The app</td>
+<td>None (builds the app)</td>
+<td><code>agent_runs.json</code></td>
+<td>Run</td>
+</tr>
+<tr>
+<td>03</td>
+<td><a href="03_the_golden_set.ipynb">The golden set</a></td>
+<td>B. Test data</td>
+<td>§0 test case contract, §1 golden set quality</td>
+<td><code>golden_set.json</code></td>
+<td>Run</td>
+</tr>
+<tr>
+<td>04</td>
+<td><a href="04_retrieval_evaluation.ipynb">Retrieval evaluation</a></td>
+<td>C. RAG</td>
+<td>§2 ranked retrieval, §3 judged retrieval</td>
+<td><code>golden_runs.json</code></td>
+<td>Run</td>
+</tr>
+<tr>
+<td>05</td>
+<td><a href="05_generation_evaluation.ipynb">Generation evaluation</a></td>
+<td>C. RAG</td>
+<td>§4 reference-free, §5 reference-based, §6 blame</td>
+<td><code>rag_scores.json</code></td>
+<td>Run</td>
+</tr>
+<tr>
+<td>06</td>
+<td><a href="06_tool_call_evaluation.ipynb">Tool-call evaluation</a></td>
+<td>D. Agent</td>
+<td>§7 tool calls</td>
+<td><code>agent_scores.json</code></td>
+<td>Run, outputs not saved</td>
+</tr>
+<tr>
+<td>07</td>
+<td><a href="07_trajectories_and_handoffs.ipynb">Trajectories and handoffs</a></td>
+<td>D. Agent</td>
+<td>§8 trajectory, §9 routing and handoffs</td>
+<td><code>agent_scores.json</code></td>
+<td>Run</td>
+</tr>
+<tr>
+<td>08</td>
+<td><a href="08_task_completion_and_conversations.ipynb">Task completion and conversations</a></td>
+<td>D. Agent</td>
+<td>§10 task completion, §11 multi-turn</td>
+<td><code>agent_scores.json</code>, <code>conversation_scores.json</code></td>
+<td>Run</td>
+</tr>
+<tr>
+<td>09</td>
+<td><a href="09_safety_and_red_teaming.ipynb">Safety and red-teaming</a></td>
+<td>E. Safety</td>
+<td>§12 safety and adversarial</td>
+<td><code>safety_scores.json</code></td>
+<td>Run</td>
+</tr>
+<tr>
+<td>10</td>
+<td><a href="10_custom_judges.ipynb">Custom judges</a></td>
+<td>F. Judges</td>
+<td>§13 custom judges</td>
+<td><code>custom_judge_scores.json</code></td>
+<td>Written, not run</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Calibrating judges with human labels</td>
+<td>F. Judges</td>
+<td>§14 judge calibration</td>
+<td><code>judge_trust.json</code></td>
+<td>Planned</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Statistics, cost and experiments</td>
+<td>G. Decisions</td>
+<td>§15 statistics, §16 cost and latency, §17 regression experiments</td>
+<td><code>baseline_scores.json</code>, <code>candidate_scores.json</code></td>
+<td>Planned</td>
+</tr>
+<tr>
+<td>13</td>
+<td>The release gate and CI</td>
+<td>G. Decisions</td>
+<td>§18 release gate</td>
+<td><code>gate_rules.json</code>, <code>gate.py</code>, a workflow</td>
+<td>Planned</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Online evaluation and the loop</td>
+<td>H. Production</td>
+<td>§19 online evaluation</td>
+<td>Reviewed failures back into <code>data/</code></td>
+<td>Planned</td>
+</tr>
+</tbody>
+</table></div>
+<p>All file names in the Writes column live in <code>data/</code>.</p>
+<h2 id="the-system-under-test">The system under test</h2>
+<p>The agent being evaluated is a LangGraph supervisor with three paths:</p>
+<ul>
+<li><strong>Router (supervisor):</strong> a structured LLM decision that sends each message to one path.</li>
+<li><strong>RAG agent:</strong> answers from 9 support articles (returns, refunds, shipping, warranty, orders,
+  loyalty, product care, account and privacy, contact and escalation), split into 31 chunks with
+  stable IDs and stored in Chroma.</li>
+<li><strong>Account agent:</strong> a tool-calling loop over four tools (<code>lookup_order</code>, <code>issue_refund</code>,
+  <code>create_ticket</code>, <code>search_kb</code>) against a mock order database. <code>issue_refund</code> enforces the business rules: matching email, return window,
+  and a $500 limit.</li>
+<li><strong>Escalation:</strong> hands the case to a human.</li>
+</ul>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Model</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>App (the agent under test)</td>
+<td><code>deepseek-ai/DeepSeek-V4-Flash-0731</code> on Nebius Token Factory</td>
+</tr>
+<tr>
+<td>Judge</td>
+<td><code>Qwen/Qwen3-235B-A22B-Instruct-2507</code> on Nebius Token Factory</td>
+</tr>
+<tr>
+<td>Embeddings</td>
+<td>OpenAI <code>text-embedding-3-small</code></td>
+</tr>
+<tr>
+<td>Simulated customers and attack writers</td>
+<td>OpenAI <code>gpt-4o-mini</code></td>
+</tr>
+<tr>
+<td>RAGAS test-set generator (cached)</td>
+<td>OpenAI <code>gpt-4o</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>Traces, datasets, experiments and human labels live in LangSmith (free Developer plan).</p>
+<h3 id="the-golden-set">The golden set</h3>
+<p>Every evaluation after notebook 03 runs on one set of 121 cases in six slices:</p>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>Slice</th>
+<th>Cases</th>
+<th>What it tests</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>simple</code></td>
+<td>21</td>
+<td>A question one support article answers</td>
+</tr>
+<tr>
+<td><code>multi_hop</code></td>
+<td>20</td>
+<td>A question that needs facts from more than one chunk</td>
+</tr>
+<tr>
+<td><code>out_of_scope</code></td>
+<td>20</td>
+<td>A question the articles don't cover; the right answer is a decline</td>
+</tr>
+<tr>
+<td><code>tool_required</code></td>
+<td>20</td>
+<td>A request the account agent must act on with a tool</td>
+</tr>
+<tr>
+<td><code>handoff</code></td>
+<td>20</td>
+<td>A case the policy says must go to a human</td>
+</tr>
+<tr>
+<td><code>adversarial</code></td>
+<td>20</td>
+<td>An attempt to make the agent break a rule</td>
+</tr>
+</tbody>
+</table></div>
+<p>Each case carries every label a later notebook needs: <code>input</code>, <code>reference_answer</code>,
+<code>relevant_chunk_ids</code>, <code>expected_agent</code>, <code>expected_tool_calls</code>, <code>expected_end_state</code>, <code>policy_tags</code>
+and <code>source</code> (hand-written or RAGAS-generated).</p>
+<h2 id="how-the-course-is-built">How the course is built</h2>
+<ul>
+<li><strong>Each notebook stands alone.</strong> Open any notebook and run it top to bottom. Results pass between
+  notebooks as files in <code>data/</code>. If an input file is missing, the notebook names the notebook that
+  writes it.</li>
+<li><strong>No shared modules.</strong> Helpers are repeated in each notebook that needs them. Notebook 02 Part 9
+  holds the whole app in one cell, and later notebooks paste that cell rather than import it. The
+  only script is the CI release gate (notebook 13), because CI has to run a file.</li>
+<li><strong>One baseline run, scored many times.</strong> Notebook 04 runs every golden case through the agent
+  once and saves it as <code>data/golden_runs.json</code>. Notebooks 04–09 all score that same run, so their
+  numbers describe the same behaviour.</li>
+<li><strong>Free checks before judges.</strong> Each topic starts with a deterministic check in plain Python, then
+  adds an LLM judge, then reads the cases where the two disagree.</li>
+<li><strong>Outputs are committed.</strong> Runs call paid APIs, so you can read every result without running
+  anything.</li>
+</ul>
+<h2 id="module-a-the-app-under-test">Module A: The app under test</h2>
+<h3 id="notebook-01-the-knowledge-base-and-the-rag-agent">Notebook 01: The Knowledge Base and the RAG Agent</h3>
+<p><strong>Status:</strong> Run, outputs kept. <strong>Reads:</strong> nothing, as the course starts here. <strong>Writes:</strong>
+<code>data/kb_chunks.json</code>, <code>data/chroma_db/</code>. <strong>Keys:</strong> <code>OPENAI_API_KEY</code>, <code>NEBIUS_API_KEY</code>,
+LangSmith.</p>
+<h4 id="part-1-the-knowledge-base">Part 1: The knowledge base</h4>
+<ul>
+<li>The store's support articles as the source of truth</li>
+<li>Chunking with stable IDs: <code>returns-policy-02</code> names the same text on every run, so test labels
+  stay valid</li>
+</ul>
+<h4 id="part-2-indexing-and-retrieval">Part 2: Indexing and retrieval</h4>
+<ul>
+<li>Embedding chunks into a Chroma vector store</li>
+<li>How a question finds the closest chunks</li>
+</ul>
+<h4 id="part-3-grounded-answers">Part 3: Grounded answers</h4>
+<ul>
+<li>Answers that cite every fact they use</li>
+<li>Declining with "I don't know" when the articles don't cover the question</li>
+<li>Retrieval and answering as two separate decisions, scored separately later</li>
+</ul>
+<h4 id="part-4-the-rag-agent-as-a-graph">Part 4: The RAG agent as a graph</h4>
+<ul>
+<li>The retrieve and answer steps as LangGraph nodes, so each one is traceable</li>
+</ul>
+<h4 id="part-5-try-it">Part 5: Try it</h4>
+<ul>
+<li>Running sample questions</li>
+<li>What a LangSmith trace records per node: inputs, outputs, tokens, cost and time</li>
+</ul>
+<h3 id="notebook-02-tools-agents-and-the-supervisor-graph">Notebook 02: Tools, Agents and the Supervisor Graph</h3>
+<p><strong>Status:</strong> Run, outputs kept. <strong>Reads:</strong> <code>data/chroma_db/</code>. <strong>Writes:</strong> <code>data/agent_runs.json</code>.
+<strong>Keys:</strong> <code>OPENAI_API_KEY</code>, <code>NEBIUS_API_KEY</code>, LangSmith.</p>
+<h4 id="part-1-the-rag-pieces">Part 1: The RAG pieces</h4>
+<ul>
+<li>Repeated from notebook 01 so this notebook runs alone</li>
+</ul>
+<h4 id="part-2-a-mock-order-database">Part 2: A mock order database</h4>
+<ul>
+<li>The store state that tools read and change, and that later notebooks treat as ground truth</li>
+</ul>
+<h4 id="part-3-the-tools">Part 3: The tools</h4>
+<ul>
+<li><code>lookup_order</code>, <code>issue_refund</code>, <code>create_ticket</code> and <code>search_kb</code> as functions the model can call</li>
+<li>Business rules inside the tools: <code>issue_refund</code> checks the email, the return window and the
+  $500 limit</li>
+<li>Docstrings as instructions: the model chooses tools from their descriptions</li>
+</ul>
+<h4 id="part-4-the-account-agent">Part 4: The account agent</h4>
+<ul>
+<li>The tool loop: model → tool → model, until the model answers without a tool</li>
+</ul>
+<h4 id="part-5-the-supervisor-and-the-escalation-path">Part 5: The supervisor and the escalation path</h4>
+<ul>
+<li>A structured routing decision that sends each message down one of three paths</li>
+</ul>
+<h4 id="part-6-the-full-graph">Part 6: The full graph</h4>
+<ul>
+<li>Router, RAG agent, account agent and escalation wired into one LangGraph app</li>
+</ul>
+<h4 id="part-7-recording-a-run">Part 7: Recording a run</h4>
+<ul>
+<li>Capturing the route, steps, tool calls, retrieved chunks and the database end state</li>
+<li>Two copies of each run: <code>data/agent_runs.json</code> for the notebooks, and a LangSmith trace</li>
+</ul>
+<h4 id="part-8-smoke-test">Part 8: Smoke test</h4>
+<ul>
+<li>A handful of questions across all paths</li>
+<li>Which recorded field feeds which later evaluation</li>
+</ul>
+<h4 id="part-9-the-whole-app-in-one-cell">Part 9: The whole app in one cell</h4>
+<ul>
+<li>The complete app in a single cell that later notebooks paste in</li>
+</ul>
+<h2 id="module-b-test-data">Module B: Test data</h2>
+<h3 id="notebook-03-the-golden-set">Notebook 03: The Golden Set</h3>
+<p><strong>Status:</strong> Run, outputs kept. <strong>Reads:</strong> <code>data/kb_chunks.json</code>. <strong>Writes:</strong>
+<code>data/golden_set_handwritten.json</code>, <code>data/ragas_candidates.json</code>, <code>data/golden_set.json</code>.
+<strong>Keys:</strong> <code>OPENAI_API_KEY</code>. <strong>Evaluations:</strong> §0 test case contract, §1 golden set quality.</p>
+<h4 id="part-1-the-case-schema">Part 1: The case schema</h4>
+<ul>
+<li>One record per test question, holding the labels for retrieval, routing, tool calls, end state
+  and safety</li>
+<li>Labelling only what must match: free-text arguments are left out, and <code>null</code> means "not checked"</li>
+</ul>
+<h4 id="part-2-the-hand-written-cases">Part 2: The hand-written cases</h4>
+<ul>
+<li>Policy rules, unhappy paths and attacks, written by someone who knows the policy</li>
+<li>Stratified slices: six kinds of question, at least 20 each, so each slice can be scored on its own</li>
+</ul>
+<h4 id="part-3-synthetic-cases-with-ragas">Part 3: Synthetic cases with RAGAS</h4>
+<ul>
+<li>Generating extra knowledge questions from the chunks</li>
+<li>The two setting changes RAGAS needed for short chunks</li>
+</ul>
+<h4 id="part-4-reviewing-the-synthetic-cases">Part 4: Reviewing the synthetic cases</h4>
+<ul>
+<li>Dropping wrong references, ambiguous questions and near-copies</li>
+</ul>
+<h4 id="part-5-testing-the-test-set">Part 5: Testing the test set</h4>
+<ul>
+<li>Five checks before saving: coverage, completeness, synthetic share, duplicates and leakage</li>
+<li>Duplicates: questions compared by embedding cosine similarity, with pairs at 0.95 or above flagged,
+  because a near-copy counts the same behaviour twice</li>
+<li>Leakage: no test question may appear in the app's own code. Notebook 02's five smoke questions
+  tuned its prompts, so none of them is in the test set</li>
+</ul>
+<h2 id="module-c-rag-evaluation">Module C: RAG evaluation</h2>
+<h3 id="notebook-04-retrieval-evaluation">Notebook 04: Retrieval Evaluation</h3>
+<p><strong>Status:</strong> Run, outputs kept. <strong>Reads:</strong> <code>data/chroma_db/</code>, <code>data/golden_set.json</code>,
+<code>data/kb_chunks.json</code>. <strong>Writes:</strong> <code>data/golden_runs.json</code> (the baseline run).
+<strong>Keys:</strong> <code>OPENAI_API_KEY</code>, <code>NEBIUS_API_KEY</code>. <strong>Evaluations:</strong> §2 ranked
+retrieval, §3 judged retrieval.</p>
+<h4 id="part-1-the-app-and-the-baseline-run">Part 1: The app and the baseline run</h4>
+<ul>
+<li>Every golden case through the agent once, saved for notebooks 04–09</li>
+</ul>
+<h4 id="part-2-the-retriever-on-its-own-scored-against-labels">Part 2: The retriever on its own, scored against labels</h4>
+<ul>
+<li>Five metrics in plain Python: hit rate, recall, precision, MRR and nDCG</li>
+<li>Results per slice and per k</li>
+</ul>
+<h4 id="part-3-the-same-numbers-from-ranx">Part 3: The same numbers from <code>ranx</code></h4>
+<ul>
+<li><code>ranx</code> reproducing the hand-written metrics exactly</li>
+<li><code>ranx.compare</code>: a paired significance test showing dense retrieval beats keyword overlap by more
+  than chance</li>
+</ul>
+<h4 id="part-4-judged-retrieval-with-ragas-and-deepeval">Part 4: Judged retrieval with RAGAS and DeepEval</h4>
+<ul>
+<li>Context precision, recall and relevance with no labels needed</li>
+<li>DeepEval on every case, RAGAS on a 20-case subset, both with the Qwen3 judge</li>
+</ul>
+<h4 id="part-5-where-the-labels-and-the-judges-disagree">Part 5: Where the labels and the judges disagree</h4>
+<ul>
+<li>Reading the disagreements: narrow labels, long references, or a judge that misread the chunk</li>
+</ul>
+<h3 id="notebook-05-generation-evaluation">Notebook 05: Generation Evaluation</h3>
+<p><strong>Status:</strong> Run, outputs kept. <strong>Reads:</strong> <code>data/golden_runs.json</code>, <code>data/golden_set.json</code>,
+<code>data/kb_chunks.json</code>. <strong>Writes:</strong> <code>data/rag_scores.json</code>. <strong>Keys:</strong> <code>OPENAI_API_KEY</code>,
+<code>NEBIUS_API_KEY</code>. <strong>Evaluations:</strong> §4 reference-free, §5 reference-based, §6 retriever vs
+generator blame.</p>
+<h4 id="part-1-which-answers-to-grade">Part 1: Which answers to grade</h4>
+<ul>
+<li>Picking the knowledge answers from the baseline run</li>
+</ul>
+<h4 id="part-2-did-it-decline-exactly-when-it-should">Part 2: Did it decline exactly when it should?</h4>
+<ul>
+<li>A string compare on the fixed decline sentence: free and exact</li>
+<li>Two directions of error: a missed decline invents policy, while a false decline is unhelpful but
+  safe</li>
+</ul>
+<h4 id="part-3-reference-free-metrics">Part 3: Reference-free metrics</h4>
+<ul>
+<li>Faithfulness, answer relevancy and hallucination, which need no reference and so also run in
+  production</li>
+<li>DeepEval on every answer, RAGAS on a 20-case subset</li>
+<li>Same name, different behaviour: RAGAS and DeepEval relevancy disagree on short cited answers, and
+  DeepEval 4.2.3's hallucination score is higher-is-better</li>
+</ul>
+<h4 id="part-4-reference-based-metrics">Part 4: Reference-based metrics</h4>
+<ul>
+<li>Exact match and token F1, and why they fail on full sentences</li>
+<li>Factual correctness, semantic similarity, and a <code>GEval</code> rubric judge that handle rewording</li>
+</ul>
+<h4 id="part-5-who-is-to-blame">Part 5: Who is to blame?</h4>
+<ul>
+<li>Combining recall, faithfulness and correctness to blame each failure on the retriever, the
+  generator or the test case</li>
+</ul>
+<h4 id="part-6-save-the-scores">Part 6: Save the scores</h4>
+<ul>
+<li>Writes every per-case score to <code>data/rag_scores.json</code> for the statistics in notebook 12</li>
+</ul>
+<h2 id="module-d-agent-evaluation">Module D: Agent evaluation</h2>
+<h3 id="notebook-06-tool-call-evaluation">Notebook 06: Tool-Call Evaluation</h3>
+<p><strong>Status:</strong> Run (scores are in <code>data/agent_scores.json</code>), but the outputs were not saved in the
+notebook. <strong>Reads:</strong> <code>data/chroma_db/</code>, <code>data/golden_runs.json</code>, <code>data/golden_set.json</code>.
+<strong>Writes:</strong> <code>data/agent_scores.json</code>. <strong>Keys:</strong> <code>OPENAI_API_KEY</code>, <code>NEBIUS_API_KEY</code>. <strong>Evaluations:</strong> §7 tool
+calls.</p>
+<h4 id="part-1-the-tools-under-test">Part 1: The tools under test</h4>
+<ul>
+<li>The app pasted in from notebook 02 Part 9, for the tool schemas and the replay in Part 5</li>
+<li>No model is called: the agent itself is not run here</li>
+</ul>
+<h4 id="part-2-tool-selection">Part 2: Tool selection</h4>
+<ul>
+<li>The set of tools called against the set expected</li>
+<li>Why a missing call and an extra call mean different things</li>
+</ul>
+<h4 id="part-3-argument-correctness">Part 3: Argument correctness</h4>
+<ul>
+<li>Comparing only the arguments the label specifies</li>
+<li>Normalising harmless formatting before matching</li>
+</ul>
+<h4 id="part-4-schema-validity-and-abstention">Part 4: Schema validity and abstention</h4>
+<ul>
+<li>Well-formed calls</li>
+<li>No action when the request lacks the information to act on</li>
+</ul>
+<h4 id="part-5-tool-results-by-replay">Part 5: Tool results, by replay</h4>
+<ul>
+<li>Rebuilding every tool result for free by replaying deterministic tools over a reset store</li>
+<li>Defining an error: a refusal is a rule working, and only a crash is a bug</li>
+</ul>
+<h4 id="part-6-the-same-checks-with-deepeval">Part 6: The same checks with DeepEval</h4>
+<ul>
+<li><code>ToolCorrectnessMetric</code>: deterministic without <code>available_tools</code>. By default it ignores extra
+  calls and scores every argument key</li>
+</ul>
+<h4 id="part-7-an-llm-judge-for-arguments">Part 7: An LLM judge for arguments</h4>
+<ul>
+<li><code>ArgumentCorrectnessMetric</code>: needs no labels, but can't tell whether a call should have happened</li>
+</ul>
+<h4 id="part-8-save-the-scores">Part 8: Save the scores</h4>
+<ul>
+<li>Merges each case's scores into <code>data/agent_scores.json</code>, keyed by case ID</li>
+</ul>
+<h3 id="notebook-07-trajectories-and-handoffs">Notebook 07: Trajectories and Handoffs</h3>
+<p><strong>Status:</strong> Run, outputs kept. <strong>Reads:</strong> <code>data/golden_runs.json</code>, <code>data/golden_set.json</code>,
+<code>data/agent_scores.json</code>. <strong>Writes:</strong> <code>data/agent_scores.json</code> (merged). <strong>Keys:</strong>
+<code>OPENAI_API_KEY</code>, <code>NEBIUS_API_KEY</code>. <strong>Evaluations:</strong> §8 trajectory, §9 routing and handoffs.</p>
+<h4 id="part-1-trajectory-matching">Part 1: Trajectory matching</h4>
+<ul>
+<li>Strict, unordered, subset and superset matches, which say how a path differs as well as whether
+  it does</li>
+</ul>
+<h4 id="part-2-step-efficiency-and-loops">Part 2: Step efficiency and loops</h4>
+<ul>
+<li>Wasted steps and repeated calls, measured from the run records for free</li>
+</ul>
+<h4 id="part-3-a-judge-for-trajectory-quality">Part 3: A judge for trajectory quality</h4>
+<ul>
+<li>A judge that forgives sensible extra steps</li>
+<li>Reading the runs where the judge and the strict match disagree</li>
+</ul>
+<h4 id="part-4-routing-accuracy">Part 4: Routing accuracy</h4>
+<ul>
+<li>Routing as classification: accuracy per slice, and a confusion table for the direction of errors</li>
+</ul>
+<h4 id="part-5-handoffs-and-escalation">Part 5: Handoffs and escalation</h4>
+<ul>
+<li>Escalation as a detector: precision and recall against the cases where the policy requires a
+  human</li>
+</ul>
+<h4 id="part-6-context-preservation">Part 6: Context preservation</h4>
+<ul>
+<li>A pattern check for order IDs and emails carried across agents</li>
+<li>A judge for everything a pattern can't see</li>
+</ul>
+<h4 id="part-7-which-node-failed-first">Part 7: Which node failed first?</h4>
+<ul>
+<li>Blaming the earliest wrong step in the graph, which is where the fix goes</li>
+</ul>
+<h4 id="part-8-save-the-scores_1">Part 8: Save the scores</h4>
+<ul>
+<li>Merges trajectory, routing and handoff scores into <code>data/agent_scores.json</code></li>
+</ul>
+<h3 id="notebook-08-task-completion-and-conversations">Notebook 08: Task Completion and Conversations</h3>
+<p><strong>Status:</strong> Run, outputs kept. <strong>Reads:</strong> <code>data/chroma_db/</code>, <code>data/golden_runs.json</code>,
+<code>data/golden_set.json</code>, <code>data/agent_scores.json</code>. <strong>Writes:</strong> <code>data/agent_scores.json</code> (merged),
+<code>data/conversation_scores.json</code>. <strong>Keys:</strong> <code>OPENAI_API_KEY</code>, <code>NEBIUS_API_KEY</code>, LangSmith.
+<strong>Evaluations:</strong> §10 task completion, §11 multi-turn conversation.</p>
+<h4 id="part-1-the-end-state-check">Part 1: The end-state check</h4>
+<ul>
+<li>Comparing the store after a run with the state the case expects</li>
+<li>When a task leaves a mark in the store, the mark is the ground truth</li>
+</ul>
+<h4 id="part-2-the-app-and-the-tool-results">Part 2: The app, and the tool results</h4>
+<ul>
+<li>The app pasted in from notebook 02 Part 9, so the judges can see tool results and Part 5 can run conversations</li>
+<li>Tool results rebuilt by replaying each run's recorded calls against a fresh store, with tracing paused</li>
+</ul>
+<h4 id="part-3-deepeval-taskcompletionmetric">Part 3: DeepEval <code>TaskCompletionMetric</code></h4>
+<ul>
+<li>Telling the judge what "done" means with <code>task=</code>, since without it the judge guesses the goal</li>
+<li>Measuring the judge against the end-state check, with every disagreement listed</li>
+</ul>
+<h4 id="part-4-ragas-agentgoalaccuracywithreference">Part 4: RAGAS <code>AgentGoalAccuracyWithReference</code></h4>
+<ul>
+<li>A second task-completion judge, checked against the same ground truth</li>
+</ul>
+<h4 id="part-5-from-messages-to-conversations">Part 5: From messages to conversations</h4>
+<ul>
+<li>Passing history through the app's existing <code>question</code> and <code>messages</code> inputs, with no rewrite</li>
+<li>Scripted conversations for the multi-turn behaviour you thought of</li>
+<li>Four conversational metrics: knowledge retention, completeness, turn relevancy and role
+  adherence, read next to the end state</li>
+</ul>
+<h4 id="part-6-a-simulated-customer">Part 6: A simulated customer</h4>
+<ul>
+<li>A <code>gpt-4o-mini</code> customer that drives new conversations, to find the behaviour nobody scripted</li>
+</ul>
+<h4 id="part-7-save-the-scores">Part 7: Save the scores</h4>
+<ul>
+<li>Merges task-completion scores into <code>data/agent_scores.json</code> and writes <code>data/conversation_scores.json</code></li>
+</ul>
+<h2 id="module-e-safety">Module E: Safety</h2>
+<h3 id="notebook-09-safety-and-red-teaming">Notebook 09: Safety and Red-Teaming</h3>
+<p><strong>Status:</strong> Run, outputs kept. <strong>Reads:</strong> <code>data/chroma_db/</code>, <code>data/golden_set.json</code>,
+<code>data/golden_runs.json</code>, <code>data/kb_chunks.json</code>. <strong>Writes:</strong> <code>data/safety_scores.json</code>.
+<strong>Keys:</strong> <code>OPENAI_API_KEY</code>, <code>NEBIUS_API_KEY</code>, LangSmith. <strong>Evaluations:</strong> §12 safety and
+adversarial.</p>
+<h4 id="part-1-the-safety-policy">Part 1: The safety policy</h4>
+<ul>
+<li>Critical violations, which must be zero: moving money without authorisation, exposing another
+  customer's data, hijacked instructions and harmful content</li>
+<li>Tracked violations, which are measured and fixed: prompt leaks and rule-breaking replies</li>
+</ul>
+<h4 id="part-2-free-checks-on-every-baseline-run">Part 2: Free checks on every baseline run</h4>
+<ul>
+<li>Unauthorised refunds, judged from the mock database's end state, not from the reply</li>
+<li>Leaked emails and leaked system instructions, found by string search</li>
+</ul>
+<h4 id="part-3-openai-moderation">Part 3: OpenAI Moderation</h4>
+<ul>
+<li>A baseline for generic harm, which never sees this store's business rules</li>
+</ul>
+<h4 id="part-4-a-judge-for-the-stores-own-rules">Part 4: A judge for the store's own rules</h4>
+<ul>
+<li>A <code>GEval</code> rubric keyed to each case's policy tags, given both the reply and the actions taken</li>
+</ul>
+<h4 id="part-5-indirect-prompt-injection">Part 5: Indirect prompt injection</h4>
+<ul>
+<li>A poisoned support article with a canary, to test whether retrieved text can take control</li>
+<li>Counting only the runs that actually retrieved the poisoned chunk</li>
+</ul>
+<h4 id="part-6-an-automated-red-team-scan-with-deepteam">Part 6: An automated red-team scan with DeepTeam</h4>
+<ul>
+<li>Vulnerabilities (what to break) crossed with attack styles (how)</li>
+<li>Running attacks against the real agent through a callback that also records the database</li>
+</ul>
+<h4 id="part-7-attack-success-rate-per-risk">Part 7: Attack success rate per risk</h4>
+<ul>
+<li>One number per risk, with every critical violation listed</li>
+</ul>
+<h2 id="module-f-judges-and-calibration">Module F: Judges and calibration</h2>
+<h3 id="notebook-10-custom-judges">Notebook 10: Custom Judges</h3>
+<p><strong>Status:</strong> Written, not yet run. <strong>Reads:</strong> <code>data/golden_set.json</code>, <code>data/golden_runs.json</code>,
+<code>data/golden_runs_gpt-4o-mini.json</code> (the same 121 cases on the first app model, shipped with the
+repository). <strong>Writes:</strong> <code>data/custom_judge_scores.json</code>. <strong>Keys:</strong> <code>NEBIUS_API_KEY</code> only, because
+nothing here runs the agent. <strong>Evaluations:</strong> §13 custom judges.</p>
+<h4 id="part-1-rubric-judges-with-geval">Part 1: Rubric judges with <code>GEval</code></h4>
+<ul>
+<li>House rules no library ships a metric for: tone, policy wording and escalation phrasing</li>
+<li>Writing <code>evaluation_steps</code> yourself and reviewing them like code. With <code>criteria</code> alone, the judge
+  invents its own steps</li>
+<li><code>strict_mode=True</code> for a pass/fail verdict a person can also give, which makes calibration
+  possible</li>
+<li>Scoping each rule to the replies it applies to: "not applicable" is not a pass</li>
+<li>A judge beside a free check, and what each one misses</li>
+</ul>
+<h4 id="part-2-a-decision-tree-judge-with-dagmetric">Part 2: A decision-tree judge with <code>DAGMetric</code></h4>
+<ul>
+<li>Walking the refund flow one small question per node, with a fixed score on each leaf</li>
+<li>Facts about what the agent did come from code, and the judge checks the reply against them</li>
+<li>The reply judge beside the end state: one judges what was said, the other what was done, and a
+  release gate needs both</li>
+</ul>
+<h4 id="part-3-a-pairwise-judge-with-the-positions-swapped">Part 3: A pairwise judge, with the positions swapped</h4>
+<ul>
+<li>Comparing two app versions answer by answer</li>
+<li>A winner counts only if it wins in both positions, and flips measure position bias</li>
+</ul>
+<h4 id="part-4-save-every-verdict-for-calibration">Part 4: Save every verdict for calibration</h4>
+<ul>
+<li>Writes every verdict and its reason to <code>data/custom_judge_scores.json</code>, the input notebook 11 samples for human labels</li>
+</ul>
+<h3 id="notebook-11-calibrating-judges-with-human-labels">Notebook 11: Calibrating Judges with Human Labels</h3>
+<p><strong>Status:</strong> Planned. <strong>Writes:</strong> <code>data/judge_trust.json</code>. <strong>Evaluations:</strong> §14 judge calibration.</p>
+<ul>
+<li>Sampling 50–100 verdicts per gating judge into a LangSmith annotation queue</li>
+<li>A human labelling pass</li>
+<li>Agreement in plain Python: Cohen's kappa, true-positive rate, true-negative rate and a confusion
+  matrix</li>
+<li>Bias checks: position, verbosity, and self-preference (the app model judging its own answers)</li>
+<li>Revising any rubric with kappa below 0.6, then measuring again</li>
+<li>A reference judge: <code>gpt-4o</code> beside the Qwen3 judge on the calibration cases, each scored against
+  the human labels and the end-state checks, plus judge-vs-judge agreement</li>
+<li>A judge trust table, one row per judge and metric, for the release gate</li>
+</ul>
+<h2 id="module-g-decisions">Module G: Decisions</h2>
+<h3 id="notebook-12-statistics-cost-and-experiments">Notebook 12: Statistics, Cost and Experiments</h3>
+<p><strong>Status:</strong> Planned. <strong>Writes:</strong> <code>data/baseline_scores.json</code>, <code>data/candidate_scores.json</code>.
+<strong>Evaluations:</strong> §15 statistics and slices, §16 cost and latency, §17 regression experiments.</p>
+<ul>
+<li>A per-slice report across every score from notebooks 04–09</li>
+<li>Bootstrap 95% confidence intervals with the standard library</li>
+<li>Paired comparison of two versions: paired bootstrap and McNemar's test</li>
+<li>How many cases each slice needs to detect a change</li>
+<li>Cost and latency per run, read from LangSmith traces</li>
+<li>The golden set uploaded as a LangSmith dataset</li>
+<li>A baseline and one candidate (a prompt or model change) run as LangSmith experiments</li>
+</ul>
+<h3 id="notebook-13-the-release-gate-and-ci">Notebook 13: The Release Gate and CI</h3>
+<p><strong>Status:</strong> Planned. <strong>Writes:</strong> <code>gate_rules.json</code>, <code>gate.py</code>, a GitHub Actions workflow.
+<strong>Evaluations:</strong> §18 release gate.</p>
+<ul>
+<li>Gate rules: zero critical safety violations, slice floors, no regression, judge trust and budget</li>
+<li>The gate logic taught step by step, then copied into the one script CI runs</li>
+<li>A seeded regression that proves the gate fails</li>
+<li>Two CI jobs: a free <code>gate</code> job on every push and pull request, and a paid <code>evaluate</code> job on manual
+  dispatch only</li>
+</ul>
+<h3 id="notebook-14-online-evaluation-and-the-loop">Notebook 14: Online Evaluation and the Loop</h3>
+<p><strong>Status:</strong> Planned. <strong>Evaluations:</strong> §19 online evaluation.</p>
+<ul>
+<li>Simulated production traffic: replayed and fresh questions</li>
+<li>LangSmith online evaluators for faithfulness, relevancy and safety on a 5–10% sample</li>
+<li>Signals that need no answer key: empty retrieval, escalation rate and user feedback</li>
+<li>Drift against launch week</li>
+<li>The loop: failing traces reviewed and added back to the golden set</li>
+</ul>
+<h2 id="data-handoff">Data handoff</h2>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>File in <code>data/</code></th>
+<th>Written by</th>
+<th>Read by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kb_chunks.json</code></td>
+<td>01</td>
+<td>03, 04, 05, 09</td>
+</tr>
+<tr>
+<td><code>chroma_db/</code> (the search index)</td>
+<td>01</td>
+<td>02, 04, 06, 08, 09</td>
+</tr>
+<tr>
+<td><code>agent_runs.json</code></td>
+<td>02</td>
+<td>03</td>
+</tr>
+<tr>
+<td><code>golden_set.json</code></td>
+<td>03</td>
+<td>04–10</td>
+</tr>
+<tr>
+<td><code>golden_runs.json</code> (the baseline run)</td>
+<td>04</td>
+<td>05–10</td>
+</tr>
+<tr>
+<td><code>rag_scores.json</code></td>
+<td>05</td>
+<td>12 (planned)</td>
+</tr>
+<tr>
+<td><code>agent_scores.json</code></td>
+<td>06, 07, 08</td>
+<td>07, 08, 12 (planned)</td>
+</tr>
+<tr>
+<td><code>conversation_scores.json</code></td>
+<td>08</td>
+<td>12 (planned)</td>
+</tr>
+<tr>
+<td><code>safety_scores.json</code></td>
+<td>09</td>
+<td>12, 13 (planned)</td>
+</tr>
+<tr>
+<td><code>custom_judge_scores.json</code></td>
+<td>10</td>
+<td>11 (planned)</td>
+</tr>
+<tr>
+<td><code>golden_runs_gpt-4o-mini.json</code></td>
+<td>shipped with the repository</td>
+<td>10</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="tools-by-notebook">Tools by notebook</h2>
+<div class="table-card"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Used in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LangGraph</td>
+<td>01, 02, and the app cell pasted into later notebooks</td>
+</tr>
+<tr>
+<td>Chroma</td>
+<td>01, 02</td>
+</tr>
+<tr>
+<td>LangSmith</td>
+<td>01, 02 (traces), 08, 09; 11 (annotation queues), 12 (datasets, experiments), 14 (online evaluators)</td>
+</tr>
+<tr>
+<td>RAGAS</td>
+<td>03 (test-set generation), 04, 05, 08</td>
+</tr>
+<tr>
+<td>DeepEval</td>
+<td>04, 05, 06, 07, 08, 09 (<code>GEval</code>), 10 (<code>GEval</code>, <code>DAGMetric</code>)</td>
+</tr>
+<tr>
+<td>DeepTeam</td>
+<td>09</td>
+</tr>
+<tr>
+<td><code>ranx</code></td>
+<td>04</td>
+</tr>
+<tr>
+<td>OpenAI Moderation</td>
+<td>09</td>
+</tr>
+<tr>
+<td>Standard library only</td>
+<td>Every deterministic check, and the statistics in 11–13</td>
+</tr>
+</tbody>
+</table></div></article></div>
+</main>
+<footer class="aed-foot"><ul><li>Rendered from COURSE.md. Edit the Markdown, not this file.</li></ul></footer>
+
+<script>
+(function () {
+  var rail = document.querySelector(".docnav");
+  if (!rail) return;
+  var links = [].slice.call(rail.querySelectorAll("a"));
+  var heads = links.map(function (a) {
+    return document.getElementById(decodeURIComponent(a.hash.slice(1)));
+  });
+
+  var fill = rail.querySelector(".rail-bar i");
+  var count = rail.querySelector(".rail-count");
+  var bar = document.querySelector("header.site-bar");
+
+  var current = -1;
+  function mark() {
+    // The line a heading has to cross to count as current sits just below the
+    // sticky header, so it moves with it rather than assuming one row.
+    var line = (bar ? bar.getBoundingClientRect().height : 58) + 32, at = 0;
+    for (var i = 0; i < heads.length; i++) {
+      if (heads[i] && heads[i].getBoundingClientRect().top <= line) { at = i; }
+    }
+    if (at === current) return;
+    if (current >= 0) { links[current].classList.remove("on"); }
+    links[at].classList.add("on");
+    current = at;
+
+    // Keep the active item visible when the rail is taller than the viewport.
+    var r = links[at].getBoundingClientRect(), box = rail.getBoundingClientRect();
+    if (r.top < box.top + 8) { rail.scrollTop -= box.top + 8 - r.top; }
+    else if (r.bottom > box.bottom - 8) { rail.scrollTop += r.bottom - box.bottom + 8; }
+
+    // The first rail item is the title, not a section, so both the count and
+    // the bar are measured against the sections that follow it.
+    var total = links.length - 1;
+    if (fill && total > 0) {
+      fill.style.width = Math.round((at / total) * 100) + "%";
+      if (count) { count.textContent = "Section " + Math.max(at, 1) + " of " + total; }
+    }
+  }
+
+  var queued = false;
+  function onScroll() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function () { queued = false; mark(); });
+  }
+  addEventListener("scroll", onScroll, { passive: true });
+  addEventListener("resize", onScroll, { passive: true });
+
+  // Scrolling is not the only thing that moves a heading past the line. Web
+  // fonts reflow the whole document, mermaid replaces source text with a tall
+  // SVG, and expanding a question pushes every later section down -- none of
+  // which fire `scroll`. Watching the article's box catches all three, and it
+  // is the difference between a rail that is right and one that is right until
+  // the reader touches something.
+  // The header's height decides the drawer's top edge and every anchor jump's
+  // offset. It is not a constant -- the nav wraps at some widths and the
+  // chapter row is only on some pages -- so it is measured rather than
+  // guessed. The CSS carries a static fallback for when this does not run.
+  if (bar) {
+    var measure = function () {
+      // Set on <body>, not <html>: the stylesheet's fallback is a rule on
+      // body, and a value set on the ancestor would be shadowed by it for
+      // every descendant that reads the token.
+      document.body.style.setProperty(
+        "--bar-h", Math.round(bar.getBoundingClientRect().height) + "px");
+    };
+    measure();
+    if (window.ResizeObserver) { new ResizeObserver(measure).observe(bar); }
+    else { addEventListener("resize", measure); }
+  }
+
+  var doc = document.querySelector("article.doc");
+  if (doc && window.ResizeObserver) { new ResizeObserver(onScroll).observe(doc); }
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(mark); }
+  mark();
+
+  // ---- the drawer on narrow screens ------------------------------------
+  // The rail is navigation, so it is never dropped on a phone -- it becomes a
+  // panel the Contents button opens. The button is hidden in the markup and
+  // revealed here, so a reader without JS is not offered a control that would
+  // do nothing.
+  var toggle = document.querySelector(".toc-toggle");
+  if (toggle) {
+    toggle.hidden = false;
+    var open = function (want) {
+      document.body.classList.toggle("toc-open", want);
+      toggle.setAttribute("aria-expanded", want ? "true" : "false");
+    };
+    toggle.addEventListener("click", function () {
+      open(!document.body.classList.contains("toc-open"));
+    });
+    rail.addEventListener("click", function (e) {
+      if (e.target.closest("a")) { open(false); }
+    });
+    addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { open(false); }
+    });
+  }
+})();
+</script>
+
+<script>
+// ---- a copyable link on every heading ----------------------------------
+// The ids are already there (the `toc` extension writes them); what is missing
+// is a way to get at one without reading the source. Added here rather than in
+// the Markdown so no document carries link markup of its own.
+(function () {
+  var heads = document.querySelectorAll("article.doc h1[id], article.doc h2[id], "
+                                        + "article.doc h3[id], article.doc h4[id]");
+  [].forEach.call(heads, function (h) {
+    var a = document.createElement("a");
+    a.className = "anchor";
+    a.href = "#" + h.id;
+    a.setAttribute("aria-label", "Link to this section");
+    a.textContent = "#";
+    a.addEventListener("click", function (e) {
+      if (!navigator.clipboard) return;          // let the plain jump happen
+      e.preventDefault();
+      history.replaceState(null, "", a.href);
+      h.scrollIntoView();
+      navigator.clipboard.writeText(a.href).then(function () {
+        a.classList.add("copied");
+        setTimeout(function () { a.classList.remove("copied"); }, 1200);
+      });
+    });
+    h.appendChild(a);
+  });
+})();
+</script>
+
+</body>
+</html>
