@@ -16,8 +16,8 @@ frameworks, so the concept survives the tool going out of fashion.
 
 ## Where to start
 
-**Two routes.** The **[Core path](courses/README.md#core-path)** is 21 notebooks, course 01 then
-course 03. The **[Full path](docs/study-guide/evaluation-roadmap.md)** is the roadmap: every level, with
+**Two routes.** The **[Core path](courses/README.md#core-path)** is course 01, then course 03
+(21 notebooks) or course 04 (23 notebooks). The **[Full path](docs/study-guide/evaluation-roadmap.md)** is the roadmap: every level, with
 its Core and Optional notebooks.
 
 Six entry points, depending on what you want:
@@ -47,7 +47,8 @@ document, what each section covers, and a find-it-by-topic index down to the sec
 
 The whole subject in order, basic to expert. Each level is one explainer to read, its **Core**
 notebooks to run, **Optional** notebooks that go deeper, and the question-bank sections to test
-yourself on. Take the Core column alone for the short route (21 notebooks); take every column
+yourself on. Take the Core column alone for the short route (21 notebooks; swap course 03's for
+[course 04](courses/04-end-to-end-eval-tutorial/) to make it 23); take every column
 for the Full path. The canonical version, with topics and exit checks per level, is
 [`docs/study-guide/evaluation-roadmap.md`](docs/study-guide/evaluation-roadmap.md); notebook
 codes are course/notebook (`c01/02` = course 01, notebook 02).

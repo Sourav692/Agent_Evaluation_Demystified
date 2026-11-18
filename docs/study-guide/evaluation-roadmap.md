@@ -42,7 +42,8 @@ as the advanced Databricks-track phases do. Everything under `docs/` is **none**
 
 **Two routes through the same material.** This roadmap is the **Full path**: every level, its
 Core and Optional notebooks, and its question-bank sections, in order. The **Core path** is the
-short route — only the 21 Core notebooks, course 01 then course 03 — and is listed in
+short route — only the 21 Core notebooks, course 01 then course 03, or 23 with course 04
+([`04-end-to-end-eval-tutorial`](../../courses/04-end-to-end-eval-tutorial/)) in place of course 03 — and is listed in
 [`courses/README.md`](../../courses/README.md#core-path). Each level's **Path** line says which is which.
 
 ---

@@ -8,13 +8,14 @@ later notebooks assume state and vocabulary established earlier.
 | 01 | [`01-rag-agent-tool-evaluation/`](01-rag-agent-tool-evaluation/) | Core | 15 | The metric surface: deterministic retrieval → LLM-judged retrieval → generator (referenceless and reference-based) → RAG in-pipeline → RAGAS → multi-turn → tool use → task completion → trajectory → production tracing → CrewAI capstone |
 | 02 | [`02-databricks-mlflow-evals/`](02-databricks-mlflow-evals/) | **Optional** | 11 | The operational loop: build one agent, then strategy, tracing, offline eval, custom judges, eval datasets mined from traces, prompt-regression gating, online monitoring, judge alignment, GEPA optimisation, adversarial edge cases |
 | 03 | [`03-agentic-eval-harness/`](03-agentic-eval-harness/) | Core | 12 | The decision layer: one LangGraph multi-agent system built only to be measured, a stratified golden set, RAGAS and DeepEval across three levels (tool → agent/handoff → end-to-end), safety assertions, custom judges, human calibration, statistics without pandas, and **a release gate wired to CI** |
+| 04 | [`04-end-to-end-eval-tutorial/`](04-end-to-end-eval-tutorial/) | Core (alternative to 03) | 14 | The same arc as course 03 on one support-desk agent, in simpler code: golden set, retrieval and generation, tool calls, trajectories, conversations, safety and red-teaming, custom judges, judge calibration, statistics and cost, a CI release gate, online evaluation. Traces and experiments in LangSmith; models set in `models.toml` |
 
 **They complement rather than repeat each other.** Course 01 is about *which number to
 compute and what it means*; course 02 is about *the machinery that computes it
 continuously and decides whether to ship*; course 03 is about *the decision itself* — the
 thresholds, the strata they are applied within, and the thing that refuses a deploy.
 
-**Course 02 is optional.** The core path is course 01, then course 03. Course 02 teaches the
+**Course 02 is optional.** The core path is course 01, then course 03 or course 04. Course 02 teaches the
 same loop on MLflow and Databricks. Phases 0–5 and 9–10 run locally against
 `sqlite:///mlflow.db`, but phases 6–8 need a real Databricks workspace. Take it if you have a
 workspace or work on Databricks. Course 03 covers its concepts (gating, online evaluation,
@@ -29,7 +30,11 @@ shared modules entirely and hands off through files in `data/`. Its README expla
 
 ## Core path
 
-The short route: 21 notebooks, course 01 then course 03. It covers every level of the
+The short route: course 01, then **either** course 03 (21 notebooks) **or** course 04
+(23 notebooks). Both second halves take one multi-agent system from golden set to release gate
+to online evaluation. Course 03 is fully run and uses a stdlib-only house style. Course 04 keeps
+the code simpler, splits trajectories, conversations and red-teaming into their own notebooks,
+and uses LangSmith. It covers every level of the
 [roadmap](../docs/study-guide/evaluation-roadmap.md) at its minimum. The roadmap itself is the
 **Full path**: the same notebooks plus every Optional one, level by level.
 
@@ -57,8 +62,30 @@ The short route: 21 notebooks, course 01 then course 03. It covers every level o
 | 20 | 03 | [`11_the_release_gate_and_ci.ipynb`](03-agentic-eval-harness/11_the_release_gate_and_ci.ipynb) |
 | 21 | 03 | [`12_online_evaluation_and_the_loop.ipynb`](03-agentic-eval-harness/12_online_evaluation_and_the_loop.ipynb) |
 
+**Or, in place of rows 10–21, course 04:**
+
+| # | Course | Notebook |
+|---|---|---|
+| 10 | 04 | [`01_knowledge_base_and_rag_agent.ipynb`](04-end-to-end-eval-tutorial/01_knowledge_base_and_rag_agent.ipynb) |
+| 11 | 04 | [`02_tools_agents_and_supervisor_graph.ipynb`](04-end-to-end-eval-tutorial/02_tools_agents_and_supervisor_graph.ipynb) |
+| 12 | 04 | [`03_the_golden_set.ipynb`](04-end-to-end-eval-tutorial/03_the_golden_set.ipynb) |
+| 13 | 04 | [`04_retrieval_evaluation.ipynb`](04-end-to-end-eval-tutorial/04_retrieval_evaluation.ipynb) |
+| 14 | 04 | [`05_generation_evaluation.ipynb`](04-end-to-end-eval-tutorial/05_generation_evaluation.ipynb) |
+| 15 | 04 | [`06_tool_call_evaluation.ipynb`](04-end-to-end-eval-tutorial/06_tool_call_evaluation.ipynb) |
+| 16 | 04 | [`07_trajectories_and_handoffs.ipynb`](04-end-to-end-eval-tutorial/07_trajectories_and_handoffs.ipynb) |
+| 17 | 04 | [`08_task_completion_and_conversations.ipynb`](04-end-to-end-eval-tutorial/08_task_completion_and_conversations.ipynb) |
+| 18 | 04 | [`09_safety_and_red_teaming.ipynb`](04-end-to-end-eval-tutorial/09_safety_and_red_teaming.ipynb) |
+| 19 | 04 | [`10_custom_judges.ipynb`](04-end-to-end-eval-tutorial/10_custom_judges.ipynb) |
+| 20 | 04 | [`11_calibrating_judges_with_human_labels.ipynb`](04-end-to-end-eval-tutorial/11_calibrating_judges_with_human_labels.ipynb) |
+| 21 | 04 | [`12_statistics_cost_and_experiments.ipynb`](04-end-to-end-eval-tutorial/12_statistics_cost_and_experiments.ipynb) |
+| 22 | 04 | [`13_the_release_gate_and_ci.ipynb`](04-end-to-end-eval-tutorial/13_the_release_gate_and_ci.ipynb) |
+| 23 | 04 | [`14_online_evaluation_and_the_loop.ipynb`](04-end-to-end-eval-tutorial/14_online_evaluation_and_the_loop.ipynb) |
+
 Course 03 runs in its own environment and kernel (`agentic-eval-harness`); see its README.
 Most of course 03 makes paid model calls (judges are cached after the first run).
+Course 04 also has its own environment and kernel (`end-to-end-eval-tutorial`), needs
+`OPENROUTER_API_KEY` and `LANGSMITH_API_KEY`, and commits its outputs so it can be read
+without running; see its README.
 
 **Optional branches**, taken after the Core notebook of the same level:
 
