@@ -70,7 +70,7 @@ Exit: environment installs cleanly, the LangSmith key works, every class name in
 | P0.11 | Pin `langsmith` and verify `Client`, `traceable`, `evaluate`, `list_runs`, `create_feedback`, `create_dataset`, `create_examples`, annotation-queue methods import | `requirements.txt` | P0.7 | done | `langsmith==0.14.11` (what langchain-core 1.6.2 resolves); `langfuse` pin commented as optional |
 | P0.12 | Trace budget: count traces per full run vs the 5k/month free cap; decide whether RAGAS/DeepEval judge calls are traced (separate project, or tracing off around judges) | Note in course README | P1.7 | todo | Measured in P1: one agent run = one root trace (≈550–1,800 tokens, $0.0001–0.0003). Direct tool `.invoke()` checks also make root traces; wrap them in `tracing_context(enabled=False)` if the budget gets tight |
 | P0.9 | Verify every RAGAS / DeepEval / DeepTeam class named in the spec against the installed versions; fix the spec | Spec corrected | P0.7 | done | All names import. Fixed in spec: `ConversationRelevancyMetric` → `TurnRelevancyMetric`. RAGAS has no `ResponseRelevancy`; spec already used `AnswerRelevancy` |
-| P0.10 | Estimate full-run cost per notebook (cases × judge calls × price) | Cost table in course README | P0.1 | done | ≈ $45–70 per full run (approximate); table in course README |
+| P0.10 | Estimate full-run cost per notebook (cases × judge calls × price) | Cost table in course README | P0.1 | done | Estimates, not measured: ≈ $30–35 per full run on `gpt-4o-mini` / `gpt-4o`, ≈ $5–10 on the current Nebius models (rescaled 2026-11-18 from price ratios); table in course README |
 
 ## P1 — The app under test
 

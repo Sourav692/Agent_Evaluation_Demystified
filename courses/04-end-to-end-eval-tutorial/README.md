@@ -49,7 +49,7 @@ How the course is being built: [`PLAN.md`](PLAN.md) records the stack decisions,
 | Layer | Tool |
 |---|---|
 | App under test | LangGraph supervisor: router, RAG agent, account-tools agent, escalation |
-| Models | App (the agent under test): `deepseek-ai/DeepSeek-V4-Flash-0731` on Nebius Token Factory. Judge: `Qwen/Qwen3-235B-A22B-Instruct-2507` on Nebius Token Factory. OpenAI: embeddings `text-embedding-3-small`, simulated customers and attack writers `gpt-4o-mini`, the cached RAGAS test-set generator `gpt-4o` |
+| Models | All set in [`models.toml`](models.toml), all on OpenRouter: app (the agent under test) `deepseek/deepseek-v4-flash-0731`, judge `qwen/qwen3-235b-a22b-2507`, embeddings `openai/text-embedding-3-small`, simulated customers and attack writers `openai/gpt-4o-mini`, the cached RAGAS test-set generator `openai/gpt-4o`. Moderation (`omni-moderation-latest`) stays on OpenAI |
 | Vector store | Chroma |
 | Metrics | stdlib, `ranx`, RAGAS, DeepEval, DeepTeam |
 | Traces, datasets, experiments, labels, online scoring | LangSmith (free Developer plan) |
@@ -96,8 +96,8 @@ Environment variables, in the repository-root `.env` (see `.env.example`):
 
 | Variable | Where to get it |
 |---|---|
-| `OPENAI_API_KEY` | platform.openai.com (embeddings, simulators, the test-set generator) |
-| `NEBIUS_API_KEY` | tokenfactory.nebius.com → API keys (the app model and the judge) |
+| `OPENROUTER_API_KEY` | openrouter.ai/keys (every model in `models.toml`) |
+| `OPENAI_API_KEY` | platform.openai.com (notebook 09's moderation call only; OpenRouter has no moderation endpoint) |
 | `LANGSMITH_API_KEY` | A free Developer account at smith.langchain.com → Settings → API Keys |
 | `LANGSMITH_PROJECT` | `end-to-end-eval-tutorial` (the tracing project the notebooks write to) |
 | `LANGSMITH_ENDPOINT` | `https://api.smith.langchain.com`, or `https://eu.api.smith.langchain.com` for an EU workspace |
@@ -105,15 +105,18 @@ Environment variables, in the repository-root `.env` (see `.env.example`):
 The notebooks set `LANGSMITH_TRACING=true` themselves, so other courses that read the same
 `.env` don't start tracing.
 
-**Models on Nebius:** both models are reached through Nebius Token Factory's OpenAI-compatible
-API (`https://api.tokenfactory.nebius.com/v1`): the app with `ChatOpenAI`, the judge with
-DeepEval's `GPTModel(base_url=...)` and RAGAS's `llm_factory` on an `AsyncOpenAI` client. The base
-URL is passed to those clients only, never set as `OPENAI_BASE_URL`, so embeddings stay on OpenAI.
-Nebius serves each model from one deployment (fp8), so every run hits the same model. The app is a
-reasoning model, so its reasoning is set explicitly: `"none"` wherever a plain answer must be
-parsed, `"low"` for the tool-calling agent. The judge is an instruct model with no thinking, run
-at `temperature=0`. Limits: 1M tokens and 3,000 requests a minute for the app, 400K and 600 for the
-judge; the clients retry on 429.
+**Models are config-driven:** [`models.toml`](models.toml) names every model and its provider.
+To change one, edit that file only; no notebook names a model, URL or key. A role (`app`, `judge`,
+`embedding`, `generator`, `simulator`, `moderation`) picks a provider; the provider gives the
+OpenAI-compatible base URL and the `.env` variable that holds its key. Each notebook's setup cell
+reads the file with `tomllib` through a small `model_config(role)` helper, repeated per notebook
+like the course's other helpers. The base URL is passed to each client, never set as
+`OPENAI_BASE_URL`. A role's `extra_body` is sent with every request: on OpenRouter it pins one
+provider (`allow_fallbacks = false`), so every run hits the same deployment at the same precision.
+The app is a reasoning model, so its reasoning is set in the config: `"none"` wherever a plain
+answer must be parsed, `"low"` for the tool-calling agent. The judge is an instruct model with no
+thinking, run at `temperature=0`; the clients retry on 429. After changing the app model, delete
+`data/golden_runs.json`; after changing the embedding model, rebuild `data/chroma_db/` with notebook 01.
 
 **LangSmith free-plan limits that affect this course:** 5k traces a month (one agent run is one
 trace; a 120-case pass is 120), traces kept 14 days, one seat, no self-hosting. Results the
@@ -127,31 +130,38 @@ and its pin is commented in `requirements.txt`; the Langfuse notebooks are plann
 
 ## Cost
 
-> **Models changed (2026-10-20):** the app runs on `deepseek-ai/DeepSeek-V4-Flash-0731` ($0.14 / $0.28 per
-> million input / output tokens) and the judge on `Qwen/Qwen3-235B-A22B-Instruct-2507` ($0.20 / $0.60),
-> both on Nebius Token Factory. Both are cheaper than the `gpt-4o-mini` / `gpt-4o` pair the costs below
-> were measured with, so treat the table as an upper bound until it is re-measured.
+Nothing here has been measured yet. Both columns are estimates of one full run per notebook,
+assuming a 120-case golden set (6 slices × 20).
 
-Approximate cost of one full run per notebook (01–09 measured as estimates from the 2026-10-19 runs; 10–14 still planned figures), assuming a 120-case golden set (6 slices × 20) and
-mid-2026 list prices (`gpt-4o-mini` $0.15 / $0.60, `gpt-4o` $2.50 / $10 per million input /
-output tokens). Re-measure from LangSmith's cost tracking once the notebooks exist.
+- **Original estimate:** made on 2026-10-19 for the first model pair, `gpt-4o-mini` as the app
+  ($0.15 / $0.60 per million input / output tokens) and `gpt-4o` as the judge ($2.50 / $10).
+  It predates the change that runs RAGAS on a 20-case subset only, so 04–05 are high.
+- **Current models:** the app is `deepseek-ai/DeepSeek-V4-Flash-0731` ($0.14 / $0.28) and the
+  judge `Qwen/Qwen3-235B-A22B-Instruct-2507` ($0.20 / $0.60), on Nebius Token Factory from
+  2026-10-20, on OpenRouter since 2026-11-18 (same models; prices per `list-model-endpoints`). This column scales the judge share of each row by the price ratio (about 12–17×
+  cheaper) and keeps the OpenAI calls at their old price: embeddings, the `gpt-4o-mini` simulated
+  customers and attack writers, the `gpt-4o` test-set generator in 03 and the `gpt-4o`
+  reference judge in 11. The range allows for the Qwen judge's occasional retries
+  (`LengthFinishReasonError` at its 8,192-token limit).
 
-| Notebook | Main cost | ≈ USD |
-|---|---|---|
-| 01–02 | Embedding the KB, 5 smoke questions | < 0.10 |
-| 03 | RAGAS test-set generation (`gpt-4o`); cached after the first run | ~0.50 |
-| 04 | Baseline run (cached) + judged retrieval, two frameworks | ~1.50 |
-| 05 | Judged generation metrics, two frameworks | ~3 |
-| 06 | Argument-correctness judge | < 0.50 |
-| 07 | Trajectory and context-preservation judges | < 0.50 |
-| 08 | Task-completion judges + simulator + 4 conversational metrics | ~1.50 |
-| 09 | DeepTeam attacks + safety rubric | ~0.80 |
-| 10 | Three custom judges + pairwise | ~6 |
-| 11 | Bias re-runs of judges | ~3 |
-| 12 | Baseline + candidate experiments | ~10 |
-| 13 | Gate itself free; each manual `evaluate` run ≈ notebook 12 | 0 / ~10 |
-| 14 | 200 simulated traces, 10% judged | ~1 |
-| **Total** | | **≈ 30–35** |
+| Notebook | Main cost | ≈ USD, original estimate | ≈ USD, current models |
+|---|---|---|---|
+| 01–02 | Embedding the KB, 5 smoke questions | < 0.10 | < 0.10 |
+| 03 | RAGAS test-set generation (`gpt-4o`); cached after the first run | ~0.50 | ~0.50 |
+| 04 | Baseline run (cached) + judged retrieval, two frameworks | ~1.50 | ~0.20 |
+| 05 | Judged generation metrics, two frameworks | ~3 | ~0.30 |
+| 06 | Argument-correctness judge | < 0.50 | < 0.05 |
+| 07 | Trajectory and context-preservation judges | < 0.50 | < 0.05 |
+| 08 | Task-completion judges + simulator + 4 conversational metrics | ~1.50 | ~0.30 |
+| 09 | DeepTeam attacks + safety rubric | ~0.80 | ~0.30 |
+| 10 | Three custom judges + pairwise | ~6 | ~0.50 |
+| 11 | Bias re-runs of judges + `gpt-4o` reference judge on the calibration subset | ~3 | ~1.30 |
+| 12 | Baseline + candidate experiments | ~10 | ~1 |
+| 13 | Gate itself free; each manual `evaluate` run ≈ notebook 12 | 0 / ~10 | 0 / ~1 |
+| 14 | 200 simulated traces, 10% judged | ~1 | ~0.20 |
+| **Total** | | **≈ 30–35** | **≈ 5–10** |
 
-Notebooks 04–05 were the biggest lever, so they now run DeepEval on every case and RAGAS on a
-20-case subset only to compare the two (notebook 08 already did); the table above predates that.
+Notebooks 01–09 have already run, so on current models about $3–6 of the total is still to
+spend, in 10–14. For actual spend, read the OpenRouter activity page (and the Nebius billing page for
+runs before 2026-11-18). LangSmith traces only the app's runs, not the judge calls (P0.12), and notebook 12
+(§16 in `EVALUATIONS.md`) is where cost gets measured per case.

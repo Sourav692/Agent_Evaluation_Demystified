@@ -47,11 +47,11 @@ The agent being evaluated is a LangGraph supervisor with three paths:
 
 | Role | Model |
 |---|---|
-| App (the agent under test) | `deepseek-ai/DeepSeek-V4-Flash-0731` on Nebius Token Factory |
-| Judge | `Qwen/Qwen3-235B-A22B-Instruct-2507` on Nebius Token Factory |
-| Embeddings | OpenAI `text-embedding-3-small` |
-| Simulated customers and attack writers | OpenAI `gpt-4o-mini` |
-| RAGAS test-set generator (cached) | OpenAI `gpt-4o` |
+| App (the agent under test) | `deepseek/deepseek-v4-flash-0731` on OpenRouter (set in `models.toml`) |
+| Judge | `qwen/qwen3-235b-a22b-2507` on OpenRouter (set in `models.toml`) |
+| Embeddings | `openai/text-embedding-3-small` on OpenRouter |
+| Simulated customers and attack writers | `openai/gpt-4o-mini` on OpenRouter |
+| RAGAS test-set generator (cached) | `openai/gpt-4o` on OpenRouter |
 
 Traces, datasets, experiments and human labels live in LangSmith (free Developer plan).
 
@@ -93,7 +93,7 @@ and `source` (hand-written or RAGAS-generated).
 ### Notebook 01: The Knowledge Base and the RAG Agent
 
 **Status:** Run, outputs kept. **Reads:** nothing, as the course starts here. **Writes:**
-`data/kb_chunks.json`, `data/chroma_db/`. **Keys:** `OPENAI_API_KEY`, `NEBIUS_API_KEY`,
+`data/kb_chunks.json`, `data/chroma_db/`. **Keys:** `OPENROUTER_API_KEY`,
 LangSmith.
 
 #### Part 1: The knowledge base
@@ -120,7 +120,7 @@ LangSmith.
 ### Notebook 02: Tools, Agents and the Supervisor Graph
 
 **Status:** Run, outputs kept. **Reads:** `data/chroma_db/`. **Writes:** `data/agent_runs.json`.
-**Keys:** `OPENAI_API_KEY`, `NEBIUS_API_KEY`, LangSmith.
+**Keys:** `OPENROUTER_API_KEY`, LangSmith.
 
 #### Part 1: The RAG pieces
 
@@ -161,7 +161,7 @@ LangSmith.
 
 **Status:** Run, outputs kept. **Reads:** `data/kb_chunks.json`. **Writes:**
 `data/golden_set_handwritten.json`, `data/ragas_candidates.json`, `data/golden_set.json`.
-**Keys:** `OPENAI_API_KEY`. **Evaluations:** §0 test case contract, §1 golden set quality.
+**Keys:** `OPENROUTER_API_KEY`. **Evaluations:** §0 test case contract, §1 golden set quality.
 
 #### Part 1: The case schema
 - One record per test question, holding the labels for retrieval, routing, tool calls, end state
@@ -192,7 +192,7 @@ LangSmith.
 
 **Status:** Run, outputs kept. **Reads:** `data/chroma_db/`, `data/golden_set.json`,
 `data/kb_chunks.json`. **Writes:** `data/golden_runs.json` (the baseline run).
-**Keys:** `OPENAI_API_KEY`, `NEBIUS_API_KEY`. **Evaluations:** §2 ranked
+**Keys:** `OPENROUTER_API_KEY`. **Evaluations:** §2 ranked
 retrieval, §3 judged retrieval.
 
 #### Part 1: The app and the baseline run
@@ -217,8 +217,7 @@ retrieval, §3 judged retrieval.
 ### Notebook 05: Generation Evaluation
 
 **Status:** Run, outputs kept. **Reads:** `data/golden_runs.json`, `data/golden_set.json`,
-`data/kb_chunks.json`. **Writes:** `data/rag_scores.json`. **Keys:** `OPENAI_API_KEY`,
-`NEBIUS_API_KEY`. **Evaluations:** §4 reference-free, §5 reference-based, §6 retriever vs
+`data/kb_chunks.json`. **Writes:** `data/rag_scores.json`. **Keys:** `OPENROUTER_API_KEY`. **Evaluations:** §4 reference-free, §5 reference-based, §6 retriever vs
 generator blame.
 
 #### Part 1: Which answers to grade
@@ -254,7 +253,7 @@ generator blame.
 
 **Status:** Run (scores are in `data/agent_scores.json`), but the outputs were not saved in the
 notebook. **Reads:** `data/chroma_db/`, `data/golden_runs.json`, `data/golden_set.json`.
-**Writes:** `data/agent_scores.json`. **Keys:** `OPENAI_API_KEY`, `NEBIUS_API_KEY`. **Evaluations:** §7 tool
+**Writes:** `data/agent_scores.json`. **Keys:** `OPENROUTER_API_KEY`. **Evaluations:** §7 tool
 calls.
 
 #### Part 1: The tools under test
@@ -293,7 +292,7 @@ calls.
 
 **Status:** Run, outputs kept. **Reads:** `data/golden_runs.json`, `data/golden_set.json`,
 `data/agent_scores.json`. **Writes:** `data/agent_scores.json` (merged). **Keys:**
-`OPENAI_API_KEY`, `NEBIUS_API_KEY`. **Evaluations:** §8 trajectory, §9 routing and handoffs.
+`OPENROUTER_API_KEY`. **Evaluations:** §8 trajectory, §9 routing and handoffs.
 
 #### Part 1: Trajectory matching
 - Strict, unordered, subset and superset matches, which say how a path differs as well as whether
@@ -328,7 +327,7 @@ calls.
 
 **Status:** Run, outputs kept. **Reads:** `data/chroma_db/`, `data/golden_runs.json`,
 `data/golden_set.json`, `data/agent_scores.json`. **Writes:** `data/agent_scores.json` (merged),
-`data/conversation_scores.json`. **Keys:** `OPENAI_API_KEY`, `NEBIUS_API_KEY`, LangSmith.
+`data/conversation_scores.json`. **Keys:** `OPENROUTER_API_KEY`, LangSmith.
 **Evaluations:** §10 task completion, §11 multi-turn conversation.
 
 #### Part 1: The end-state check
@@ -366,7 +365,7 @@ calls.
 
 **Status:** Run, outputs kept. **Reads:** `data/chroma_db/`, `data/golden_set.json`,
 `data/golden_runs.json`, `data/kb_chunks.json`. **Writes:** `data/safety_scores.json`.
-**Keys:** `OPENAI_API_KEY`, `NEBIUS_API_KEY`, LangSmith. **Evaluations:** §12 safety and
+**Keys:** `OPENROUTER_API_KEY`, `OPENAI_API_KEY` (moderation), LangSmith. **Evaluations:** §12 safety and
 adversarial.
 
 #### Part 1: The safety policy
@@ -401,7 +400,7 @@ adversarial.
 
 **Status:** Written, not yet run. **Reads:** `data/golden_set.json`, `data/golden_runs.json`,
 `data/golden_runs_gpt-4o-mini.json` (the same 121 cases on the first app model, shipped with the
-repository). **Writes:** `data/custom_judge_scores.json`. **Keys:** `NEBIUS_API_KEY` only, because
+repository). **Writes:** `data/custom_judge_scores.json`. **Keys:** `OPENROUTER_API_KEY` only, because
 nothing here runs the agent. **Evaluations:** §13 custom judges.
 
 #### Part 1: Rubric judges with `GEval`
