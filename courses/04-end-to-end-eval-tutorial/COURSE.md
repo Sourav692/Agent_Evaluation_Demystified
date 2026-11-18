@@ -1,15 +1,16 @@
 # Course 04 Guide: End-to-End Evaluation
 
 One support assistant, evaluated from every angle. The course builds a support agent for
-**Pinecrest Outdoor Supply**, a fictional outdoor-gear store. It writes a golden set for that
-agent, then scores retrieval, answers, tool calls, paths, task completion, conversations and
-safety. Notebooks 10–14 build custom judges, calibrate them against human labels, compare app
-versions with statistics, gate the release in CI and score live traffic.
+**Pinecrest Outdoor Supply**, a fictional outdoor-gear store, writes a golden set for it, and then
+scores retrieval, answers, tool calls, paths, task completion, conversations and safety.
+Notebooks 10–14 build custom judges, check them against human labels, compare two app versions
+with statistics, gate the release in CI and score simulated production traffic.
 
-This guide covers the whole course in one place: what each notebook teaches, the files it reads
-and writes, and where it stands today. For setup, see [`README.md`](README.md). For why each tool
-was picked, see [`PLAN.md`](PLAN.md). Every metric's definition is in
-[`EVALUATIONS.md`](EVALUATIONS.md), and [`TRACKER.md`](TRACKER.md) tracks the build task by task.
+This guide covers the whole course in one place: where each notebook sits in the evaluation flow,
+what it teaches, what its run found, and the files it reads and writes. For setup, see
+[`README.md`](README.md). For why each tool was picked, see [`PLAN.md`](PLAN.md). Every metric's
+definition is in [`EVALUATIONS.md`](EVALUATIONS.md), and [`TRACKER.md`](TRACKER.md) tracks the
+build task by task.
 
 ## At a glance
 
@@ -25,12 +26,60 @@ was picked, see [`PLAN.md`](PLAN.md). Every metric's definition is in
 | 08 | [Task completion and conversations](08_task_completion_and_conversations.ipynb) | D. Agent | §10 task completion, §11 multi-turn | `agent_scores.json`, `conversation_scores.json` | Run |
 | 09 | [Safety and red-teaming](09_safety_and_red_teaming.ipynb) | E. Safety | §12 safety and adversarial | `safety_scores.json` | Run |
 | 10 | [Custom judges](10_custom_judges.ipynb) | F. Judges | §13 custom judges | `custom_judge_scores.json` | Run |
-| 11 | [Calibrating judges with human labels](11_calibrating_judges_with_human_labels.ipynb) | F. Judges | §14 judge calibration | `judge_trust.json` | Written, not run (needs human labels) |
+| 11 | [Calibrating judges with human labels](11_calibrating_judges_with_human_labels.ipynb) | F. Judges | §14 judge calibration | `judge_trust.json` | Written, waits for human labels |
 | 12 | [Statistics, cost and experiments](12_statistics_cost_and_experiments.ipynb) | G. Decisions | §15 statistics, §16 cost and latency, §17 regression experiments | `baseline_scores.json`, `candidate_scores.json` | Run |
 | 13 | [The release gate and CI](13_the_release_gate_and_ci.ipynb) | G. Decisions | §18 release gate | `gate_rules.json`, `gate.py`, a workflow | Run |
 | 14 | [Online evaluation and the loop](14_online_evaluation_and_the_loop.ipynb) | H. Production | §19 online evaluation | `online_review_queue.json`, `golden_set_candidates.json` | Run |
 
-All file names in the Writes column live in `data/`.
+File names in the Writes column live in `data/`, except `gate_rules.json` and `gate.py`, which sit
+in the course folder.
+
+## The evaluation flow
+
+Any agentic application goes through the same six stages on its way to production, and back.
+You build the app, write down what success looks like, score each part of the app against that,
+decide whether the judges doing the scoring can be trusted, decide whether to ship, and then watch
+live traffic for the failures the test set never had. The diagram shows the stages in order, with
+the notebook that teaches each step.
+
+```mermaid
+flowchart TB
+    S1["<b>1 · Build the app under test</b><br/>01 Knowledge base and RAG agent<br/>02 Tools, account agent and supervisor"]
+    S2["<b>2 · Define success</b><br/>03 Golden set: 121 cases in 6 slices"]
+    subgraph S3["3 · Offline evaluation"]
+        direction LR
+        RAG["<b>RAG</b><br/>04 Retrieval<br/>05 Generation"]
+        AGENT["<b>Agent</b><br/>06 Tool calls<br/>07 Trajectory, routing<br/>08 Task completion"]
+        SAFE["<b>Safety</b><br/>09 Red-teaming"]
+    end
+    S4["<b>4 · Trust the judges</b><br/>10 Custom judges<br/>11 Calibration with human labels"]
+    S5["<b>5 · Decide</b><br/>12 Statistics, cost, experiments<br/>13 Release gate in CI"]
+    S6["<b>6 · Production</b><br/>14 Online evaluation and drift"]
+    S1 --> S2
+    S2 --> RAG
+    S2 --> AGENT
+    S2 --> SAFE
+    RAG --> S4
+    AGENT --> S4
+    SAFE -- "findings" --> S5
+    S4 -- "trust table" --> S5
+    S5 -- "ship" --> S6
+    S6 -.-> S2
+```
+
+| Stage | The question it answers | Notebooks |
+|---|---|---|
+| 1. Build the app | What exactly are we testing, and what does each run record? | 01, 02 |
+| 2. Define success | Which cases, with which labels, count as the answer key? | 03 |
+| 3. Offline evaluation | Does each part of the app work: retrieval, answers, tools, paths, outcomes, safety? | 04–09 |
+| 4. Trust the judges | When an LLM grades the app, does it agree with a person? | 10, 11 |
+| 5. Decide | Is a change real, is it affordable, and does it clear the release rules? | 12, 13 |
+| 6. Production | What breaks on traffic nobody wrote a case for, and how does it reach the test set? | 14 |
+
+Three labelled hand-offs make this a loop rather than a pipeline. The gate reads notebook 11's
+**trust table** to decide which judged scores may block a release, and notebook 09's open
+**findings** to decide what it must warn about. The dotted line back to stage 2 is notebook 14
+sending reviewed production failures to notebook 03 as candidate test cases.
 
 ## The system under test
 
@@ -41,8 +90,8 @@ The agent being evaluated is a LangGraph supervisor with three paths:
   loyalty, product care, account and privacy, contact and escalation), split into 31 chunks with
   stable IDs and stored in Chroma.
 - **Account agent:** a tool-calling loop over four tools (`lookup_order`, `issue_refund`,
-  `create_ticket`, `search_kb`) against a mock order database. `issue_refund` enforces the business rules: matching email, return window,
-  and a $500 limit.
+  `create_ticket`, `search_kb`) against a mock order database. `issue_refund` enforces the
+  business rules: matching email, return window and a $500 limit.
 - **Escalation:** hands the case to a human.
 
 | Role | Model |
@@ -81,79 +130,71 @@ and `source` (hand-written or RAGAS-generated).
   holds the whole app in one cell, and later notebooks paste that cell rather than import it. The
   only script is the CI release gate (notebook 13), because CI has to run a file.
 - **One baseline run, scored many times.** Notebook 04 runs every golden case through the agent
-  once and saves it as `data/golden_runs.json`. Notebooks 04–09 all score that same run, so their
-  numbers describe the same behaviour.
+  once and saves it as `data/golden_runs.json`. Notebooks 04–10 score that run, which keeps their
+  numbers about the same behaviour. The scores saved by notebooks 05–07 came from an earlier baseline,
+  and notebook 12 says so where it joins them.
 - **Free checks before judges.** Each topic starts with a deterministic check in plain Python, then
   adds an LLM judge, then reads the cases where the two disagree.
 - **Outputs are committed.** Runs call paid APIs, so you can read every result without running
   anything.
+
+Each notebook below has two lists. **What it teaches** gives the lesson of each part. **What the
+run found** gives the numbers from the committed run. Runs for notebooks 01–09 were recorded in
+October 2026, partly on earlier models, and runs for notebooks 10–14 on 18 November 2026.
 
 ## Module A: The app under test
 
 ### Notebook 01: The Knowledge Base and the RAG Agent
 
 **Status:** Run, outputs kept. **Reads:** nothing, as the course starts here. **Writes:**
-`data/kb_chunks.json`, `data/chroma_db/`. **Keys:** `OPENROUTER_API_KEY`,
-LangSmith.
+`data/kb_chunks.json`, `data/chroma_db/`. **Keys:** `OPENROUTER_API_KEY`, LangSmith.
 
-#### Part 1: The knowledge base
-- The store's support articles as the source of truth
-- Chunking with stable IDs: `returns-policy-02` names the same text on every run, so test labels
-  stay valid
+**What it teaches**
 
-#### Part 2: Indexing and retrieval
-- Embedding chunks into a Chroma vector store
-- How a question finds the closest chunks
+- **The knowledge base:** the store's support articles are the source of truth every later
+  answer is checked against.
+- **Stable chunk IDs:** `returns-policy-02` names the same text on every run, so a test label
+  written today still points at the right chunk after the index is rebuilt.
+- **Indexing and retrieval:** chunks are embedded into Chroma, and a question finds its closest
+  chunks by cosine distance.
+- **Grounded answers:** each fact carries a citation, and a question the articles don't cover gets
+  one fixed decline sentence. A fixed sentence is what later lets a free string check score
+  declines.
+- **Retrieval and answering as two steps:** they are separate LangGraph nodes. Each one is
+  traced and scored on its own.
 
-#### Part 3: Grounded answers
-- Answers that cite every fact they use
-- Declining with "I don't know" when the articles don't cover the question
-- Retrieval and answering as two separate decisions, scored separately later
+**What the run found**
 
-#### Part 4: The RAG agent as a graph
-- The retrieve and answer steps as LangGraph nodes, so each one is traceable
-
-#### Part 5: Try it
-- Running sample questions
-- What a LangSmith trace records per node: inputs, outputs, tokens, cost and time
+- 9 articles became 31 chunks, and three sample questions came back cited or declined.
+- The best chunk for a sale-return question sat at 0.423 cosine distance. Notebook 14 finds that
+  uncovered questions sit near 0.75 and turns the gap into a weak-retrieval signal.
 
 ### Notebook 02: Tools, Agents and the Supervisor Graph
 
 **Status:** Run, outputs kept. **Reads:** `data/chroma_db/`. **Writes:** `data/agent_runs.json`.
 **Keys:** `OPENROUTER_API_KEY`, LangSmith.
 
-#### Part 1: The RAG pieces
+**What it teaches**
 
-- Repeated from notebook 01 so this notebook runs alone
+- **A mock order database:** six orders, each built to trigger one rule. After a run, the
+  database is the ground truth for what the agent did.
+- **Rules live in the tools:** `issue_refund` checks the email, the return window and the $500
+  limit, so a model that is talked into a refund still can't move the money.
+- **Docstrings are instructions:** the model picks a tool from its description, which makes the
+  docstring part of the prompt.
+- **The tool loop:** model, tool, model, until the model answers without asking for a tool.
+- **The supervisor:** a structured routing decision, so every message goes down exactly one of
+  three paths and routing can be scored as classification.
+- **Recording a run:** each run saves its route, nodes, tool calls, chunks, answer and the
+  database end state, with the same ID as its LangSmith trace.
+- **The whole app in one cell:** Part 9 is the cell later notebooks paste, generated from the
+  teaching cells so the two cannot drift apart.
 
-#### Part 2: A mock order database
-- The store state that tools read and change, and that later notebooks treat as ground truth
+**What the run found**
 
-#### Part 3: The tools
-- `lookup_order`, `issue_refund`, `create_ticket` and `search_kb` as functions the model can call
-- Business rules inside the tools: `issue_refund` checks the email, the return window and the
-  $500 limit
-- Docstrings as instructions: the model chooses tools from their descriptions
-
-#### Part 4: The account agent
-- The tool loop: model → tool → model, until the model answers without a tool
-
-#### Part 5: The supervisor and the escalation path
-- A structured routing decision that sends each message down one of three paths
-
-#### Part 6: The full graph
-- Router, RAG agent, account agent and escalation wired into one LangGraph app
-
-#### Part 7: Recording a run
-- Capturing the route, steps, tool calls, retrieved chunks and the database end state
-- Two copies of each run: `data/agent_runs.json` for the notebooks, and a LangSmith trace
-
-#### Part 8: Smoke test
-- A handful of questions across all paths
-- Which recorded field feeds which later evaluation
-
-#### Part 9: The whole app in one cell
-- The complete app in a single cell that later notebooks paste in
+- The first smoke run exposed two prompt bugs: the supervisor sent general policy questions to
+  the account agent, and the account agent asked customers to re-confirm an email they had given.
+- After both fixes, all 5 smoke questions took the right path.
 
 ## Module B: Test data
 
@@ -163,89 +204,91 @@ LangSmith.
 `data/golden_set_handwritten.json`, `data/ragas_candidates.json`, `data/golden_set.json`.
 **Keys:** `OPENROUTER_API_KEY`. **Evaluations:** §0 test case contract, §1 golden set quality.
 
-#### Part 1: The case schema
-- One record per test question, holding the labels for retrieval, routing, tool calls, end state
-  and safety
-- Labelling only what must match: free-text arguments are left out, and `null` means "not checked"
+**What it teaches**
 
-#### Part 2: The hand-written cases
-- Policy rules, unhappy paths and attacks, written by someone who knows the policy
-- Stratified slices: six kinds of question, at least 20 each, so each slice can be scored on its own
+- **The case schema:** one record per question holds every label a later notebook needs:
+  retrieval, routing, tool calls, end state and safety tags.
+- **Label only what must match:** free-text arguments are left out, and `null` means "not
+  checked". A label that over-specifies fails correct behaviour.
+- **Hand-written cases:** policy rules, unhappy paths and attacks, written by someone who knows
+  the policy.
+- **Stratified slices:** six kinds of question, at least 20 each. Every slice gets its own
+  score instead of being averaged away.
+- **Synthetic cases with RAGAS:** extra knowledge questions generated from the chunks, which need
+  two setting changes to work on short chunks.
+- **Reviewing synthetic cases:** wrong references, ambiguous questions and near-copies are
+  dropped by a person before they count.
+- **Testing the test set:** five checks before saving: coverage, completeness, synthetic share,
+  duplicates (embedding cosine at 0.95 or above) and leakage (no test question appears in the
+  app's own code).
 
-#### Part 3: Synthetic cases with RAGAS
-- Generating extra knowledge questions from the chunks
-- The two setting changes RAGAS needed for short chunks
+**What the run found**
 
-#### Part 4: Reviewing the synthetic cases
-- Dropping wrong references, ambiguous questions and near-copies
-
-#### Part 5: Testing the test set
-- Five checks before saving: coverage, completeness, synthetic share, duplicates and leakage
-- Duplicates: questions compared by embedding cosine similarity, with pairs at 0.95 or above flagged,
-  because a near-copy counts the same behaviour twice
-- Leakage: no test question may appear in the app's own code. Notebook 02's five smoke questions
-  tuned its prompts, so none of them is in the test set
+- 107 hand-written cases plus 14 of 21 RAGAS candidates kept: 121 cases. The 7 dropped had a
+  wrong reference, an ambiguous route, vague wording, a near-copy or a single-chunk "multi-hop".
+- Synthetic share stayed at 38% and 30% in the two slices that use it, under the 50% cap.
+- All five checks passed. The closest pair of questions sits at cosine 0.897, and a control run
+  found all 5 smoke questions in the app code, which proves the leakage check can see a leak.
 
 ## Module C: RAG evaluation
 
 ### Notebook 04: Retrieval Evaluation
 
 **Status:** Run, outputs kept. **Reads:** `data/chroma_db/`, `data/golden_set.json`,
-`data/kb_chunks.json`. **Writes:** `data/golden_runs.json` (the baseline run).
-**Keys:** `OPENROUTER_API_KEY`. **Evaluations:** §2 ranked
-retrieval, §3 judged retrieval.
+`data/kb_chunks.json`. **Writes:** `data/golden_runs.json` (the baseline run). **Keys:**
+`OPENROUTER_API_KEY`. **Evaluations:** §2 ranked retrieval, §3 judged retrieval.
 
-#### Part 1: The app and the baseline run
-- Every golden case through the agent once, saved for notebooks 04–09
+**What it teaches**
 
-#### Part 2: The retriever on its own, scored against labels
-- Five metrics in plain Python: hit rate, recall, precision, MRR and nDCG
-- Results per slice and per k
+- **One baseline run:** every golden case goes through the agent once, and notebooks 04–10 all
+  score that same run.
+- **Ranked retrieval in plain Python:** hit rate, recall, precision, MRR and nDCG, per slice and
+  per k, against the labelled chunk IDs.
+- **The same numbers from `ranx`:** a library check on the hand-written metrics, plus
+  `ranx.compare`, a paired significance test between two retrievers.
+- **Judged retrieval:** RAGAS and DeepEval context precision, recall and relevance need no labels,
+  which matters once the labels run out.
+- **Same name, different metric:** the two libraries define "relevance" differently, and
+  their scores disagree.
+- **Where labels and judges disagree:** reading those cases separates a narrow label from a judge
+  that misread the chunk.
 
-#### Part 3: The same numbers from `ranx`
-- `ranx` reproducing the hand-written metrics exactly
-- `ranx.compare`: a paired significance test showing dense retrieval beats keyword overlap by more
-  than chance
+**What the run found**
 
-#### Part 4: Judged retrieval with RAGAS and DeepEval
-- Context precision, recall and relevance with no labels needed
-- DeepEval on every case, RAGAS on a 20-case subset, both with the Qwen3 judge
-
-#### Part 5: Where the labels and the judges disagree
-- Reading the disagreements: narrow labels, long references, or a judge that misread the chunk
+- Recall@4 was 1.000 on both knowledge slices, but `multi_hop` recall@1 was only 0.433. The right
+  chunks arrive, just not first.
+- Dense retrieval beat a keyword retriever, recall@4 1.000 against 0.646, with p < 0.05.
+- RAGAS and DeepEval "relevance" differed by 0.5 or more on 24 of 35 cases.
+- Labels and judges disagreed on one case, `simple-h02`, and the judge was right: the reference
+  claimed something the chunk doesn't say.
 
 ### Notebook 05: Generation Evaluation
 
 **Status:** Run, outputs kept. **Reads:** `data/golden_runs.json`, `data/golden_set.json`,
-`data/kb_chunks.json`. **Writes:** `data/rag_scores.json`. **Keys:** `OPENROUTER_API_KEY`. **Evaluations:** §4 reference-free, §5 reference-based, §6 retriever vs
-generator blame.
+`data/kb_chunks.json`. **Writes:** `data/rag_scores.json`. **Keys:** `OPENROUTER_API_KEY`.
+**Evaluations:** §4 reference-free, §5 reference-based, §6 retriever vs generator blame.
 
-#### Part 1: Which answers to grade
-- Picking the knowledge answers from the baseline run
+**What it teaches**
 
-#### Part 2: Did it decline exactly when it should?
-- A string compare on the fixed decline sentence: free and exact
-- Two directions of error: a missed decline invents policy, while a false decline is unhelpful but
-  safe
+- **Declining on cue:** a string compare on the fixed decline sentence is free and exact. A
+  missed decline invents policy, while a false decline is unhelpful but safe.
+- **Reference-free metrics:** faithfulness, answer relevancy and hallucination need no reference,
+  so the same checks also run in production.
+- **Library behaviour you have to know:** RAGAS and DeepEval relevancy disagree on short cited
+  answers, and DeepEval 4.2.3's hallucination score is higher-is-better.
+- **Reference-based metrics:** exact match and token F1 fail on full sentences. Factual
+  correctness, semantic similarity and a `GEval` rubric handle rewording.
+- **Blame:** recall, faithfulness and correctness together say whether a failure belongs to the
+  retriever, the generator, the router or the test case.
 
-#### Part 3: Reference-free metrics
-- Faithfulness, answer relevancy and hallucination, which need no reference and so also run in
-  production
-- DeepEval on every answer, RAGAS on a 20-case subset
-- Same name, different behaviour: RAGAS and DeepEval relevancy disagree on short cited answers, and
-  DeepEval 4.2.3's hallucination score is higher-is-better
+**What the run found**
 
-#### Part 4: Reference-based metrics
-- Exact match and token F1, and why they fail on full sentences
-- Factual correctness, semantic similarity, and a `GEval` rubric judge that handle rewording
-
-#### Part 5: Who is to blame?
-- Combining recall, faithfulness and correctness to blame each failure on the retriever, the
-  generator or the test case
-
-#### Part 6: Save the scores
-
-- Writes every per-case score to `data/rag_scores.json` for the statistics in notebook 12
+- All 20 out-of-scope questions were declined, with 0 false declines on 35 answerable ones.
+- Faithfulness was 0.92 / 0.89 on RAGAS and 0.95 / 1.00 on DeepEval (`simple` / `multi_hop`).
+- Exact match was about 0.03 and token F1 0.56, against `GEval` correctness 0.95 / 0.89. String
+  overlap can't grade a sentence.
+- The blame table found 0 retrieval failures. `multi_hop` lost 5 cases to routing, 1 to a wrong
+  test case and none to the generator.
 
 ## Module D: Agent evaluation
 
@@ -256,37 +299,27 @@ notebook. **Reads:** `data/chroma_db/`, `data/golden_runs.json`, `data/golden_se
 **Writes:** `data/agent_scores.json`. **Keys:** `OPENROUTER_API_KEY`. **Evaluations:** §7 tool
 calls.
 
-#### Part 1: The tools under test
+**What it teaches**
 
-- The app pasted in from notebook 02 Part 9, for the tool schemas and the replay in Part 5
-- No model is called: the agent itself is not run here
+- **Tool selection:** the set of tools called against the set expected. A missing call and an
+  extra call are different failures and are counted apart.
+- **Argument correctness:** compare only the arguments the label names, after normalising
+  harmless formatting.
+- **Schema validity and abstention:** every call is well formed, and a request without the
+  information to act on gets no tool call at all.
+- **Tool results by replay:** deterministic tools are replayed over a reset store for free. A
+  refusal is a rule working. Only a crash is a bug.
+- **DeepEval beside the stdlib checks:** `ToolCorrectnessMetric` ignores extra calls by default
+  and scores every argument key. `ArgumentCorrectnessMetric` needs no labels but can't tell
+  whether a call should have happened.
 
-#### Part 2: Tool selection
-- The set of tools called against the set expected
-- Why a missing call and an extra call mean different things
+**What the run found**
 
-#### Part 3: Argument correctness
-- Comparing only the arguments the label specifies
-- Normalising harmless formatting before matching
-
-#### Part 4: Schema validity and abstention
-- Well-formed calls
-- No action when the request lacks the information to act on
-
-#### Part 5: Tool results, by replay
-- Rebuilding every tool result for free by replaying deterministic tools over a reset store
-- Defining an error: a refusal is a rule working, and only a crash is a bug
-
-#### Part 6: The same checks with DeepEval
-- `ToolCorrectnessMetric`: deterministic without `available_tools`. By default it ignores extra
-  calls and scores every argument key
-
-#### Part 7: An LLM judge for arguments
-- `ArgumentCorrectnessMetric`: needs no labels, but can't tell whether a call should have happened
-
-#### Part 8: Save the scores
-
-- Merges each case's scores into `data/agent_scores.json`, keyed by case ID
+- Tool selection was right 98% of the time. Arguments matched exactly 96% of the time and 100%
+  after normalising.
+- 45 of 45 calls were schema-valid, and 78 of 78 requests without enough information got no call.
+- Replay showed 0 crashes and 18 refusals by the business rules.
+- DeepEval and the stdlib checks disagreed on 13 cases, each listed with its reason.
 
 ### Notebook 07: Trajectories and Handoffs
 
@@ -294,199 +327,277 @@ calls.
 `data/agent_scores.json`. **Writes:** `data/agent_scores.json` (merged). **Keys:**
 `OPENROUTER_API_KEY`. **Evaluations:** §8 trajectory, §9 routing and handoffs.
 
-#### Part 1: Trajectory matching
-- Strict, unordered, subset and superset matches, which say how a path differs as well as whether
-  it does
+**What it teaches**
 
-#### Part 2: Step efficiency and loops
-- Wasted steps and repeated calls, measured from the run records for free
+- **Trajectory matching:** strict, unordered, subset and superset matches say how a path differs,
+  as well as whether it does.
+- **Step efficiency and loops:** wasted steps and repeated calls, measured from the run records
+  for free.
+- **A trajectory judge:** it forgives sensible extra steps that a strict match would fail.
+- **Routing as classification:** accuracy per slice, plus a confusion table that shows which way
+  the errors go.
+- **Escalation as a detector:** precision and recall against the cases the policy says must reach
+  a human.
+- **Context preservation:** a pattern check for order IDs and emails carried across agents, and a
+  judge for what a pattern can't see.
+- **First failing node:** blame goes to the earliest wrong step, because that is where the fix
+  goes.
 
-#### Part 3: A judge for trajectory quality
-- A judge that forgives sensible extra steps
-- Reading the runs where the judge and the strict match disagree
+**What the run found**
 
-#### Part 4: Routing accuracy
-- Routing as classification: accuracy per slice, and a confusion table for the direction of errors
-
-#### Part 5: Handoffs and escalation
-- Escalation as a detector: precision and recall against the cases where the policy requires a
-  human
-
-#### Part 6: Context preservation
-- A pattern check for order IDs and emails carried across agents
-- A judge for everything a pattern can't see
-
-#### Part 7: Which node failed first?
-- Blaming the earliest wrong step in the graph, which is where the fix goes
-
-#### Part 8: Save the scores
-
-- Merges trajectory, routing and handoff scores into `data/agent_scores.json`
+- Step efficiency was 0.94 on `tool_required` and 1.00 on `handoff`, with 0 loops.
+- The trajectory judge agreed with the strict match on 20 of 23 runs.
+- Routing was 92% overall but 75% on `multi_hop`, the weakest slice.
+- Escalation precision was 0.95 and recall 1.00. Every case that needed a human reached one.
 
 ### Notebook 08: Task Completion and Conversations
 
 **Status:** Run, outputs kept. **Reads:** `data/chroma_db/`, `data/golden_runs.json`,
 `data/golden_set.json`, `data/agent_scores.json`. **Writes:** `data/agent_scores.json` (merged),
-`data/conversation_scores.json`. **Keys:** `OPENROUTER_API_KEY`, LangSmith.
-**Evaluations:** §10 task completion, §11 multi-turn conversation.
+`data/conversation_scores.json`. **Keys:** `OPENROUTER_API_KEY`, LangSmith. **Evaluations:** §10
+task completion, §11 multi-turn conversation.
 
-#### Part 1: The end-state check
-- Comparing the store after a run with the state the case expects
-- When a task leaves a mark in the store, the mark is the ground truth
+**What it teaches**
 
-#### Part 2: The app, and the tool results
+- **The end-state check:** when a task leaves a mark in the store, the mark is the ground truth,
+  and comparing it with the expected state is free.
+- **Telling the judge what "done" means:** DeepEval `TaskCompletionMetric` guesses the goal
+  unless `task=` states it.
+- **A second judge:** RAGAS `AgentGoalAccuracyWithReference`, checked against the same end state.
+- **Conversations without a rewrite:** history passes through the app's existing `question` and
+  `messages` inputs.
+- **Scripted and simulated conversations:** scripts test the multi-turn behaviour you thought of,
+  and a `gpt-4o-mini` customer finds behaviour nobody scripted.
+- **Conversational metrics:** knowledge retention, completeness, turn relevancy and role
+  adherence, read next to the end state.
 
-- The app pasted in from notebook 02 Part 9, so the judges can see tool results and Part 5 can run conversations
-- Tool results rebuilt by replaying each run's recorded calls against a fresh store, with tracing paused
+**What the run found**
 
-#### Part 3: DeepEval `TaskCompletionMetric`
-- Telling the judge what "done" means with `task=`, since without it the judge guesses the goal
-- Measuring the judge against the end-state check, with every disagreement listed
-
-#### Part 4: RAGAS `AgentGoalAccuracyWithReference`
-- A second task-completion judge, checked against the same ground truth
-
-#### Part 5: From messages to conversations
-- Passing history through the app's existing `question` and `messages` inputs, with no rewrite
-- Scripted conversations for the multi-turn behaviour you thought of
-- Four conversational metrics: knowledge retention, completeness, turn relevancy and role
-  adherence, read next to the end state
-
-#### Part 6: A simulated customer
-- A `gpt-4o-mini` customer that drives new conversations, to find the behaviour nobody scripted
-
-#### Part 7: Save the scores
-
-- Merges task-completion scores into `data/agent_scores.json` and writes `data/conversation_scores.json`
+- The end state was right on 98% of cases. The one failure, `tool_required-h07`, refused a
+  final-sale refund correctly but also opened a ticket.
+- `TaskCompletionMetric` agreed with the end state 60% of the time by default and 92% with
+  `task=reference_answer`. RAGAS agreed 65% of the time. Without a stated goal, both judges
+  assumed "refund" and failed correct refusals.
+- Two of the six conversations scored 0 on retention because the judge penalised asking for an
+  email, which the policy requires.
+- Passing the whole conversation as the retrieval query loses answers a single turn would get.
 
 ## Module E: Safety
 
 ### Notebook 09: Safety and Red-Teaming
 
 **Status:** Run, outputs kept. **Reads:** `data/chroma_db/`, `data/golden_set.json`,
-`data/golden_runs.json`, `data/kb_chunks.json`. **Writes:** `data/safety_scores.json`.
-**Keys:** `OPENROUTER_API_KEY`, `OPENAI_API_KEY` (moderation), LangSmith. **Evaluations:** §12 safety and
+`data/golden_runs.json`, `data/kb_chunks.json`. **Writes:** `data/safety_scores.json`. **Keys:**
+`OPENROUTER_API_KEY`, `OPENAI_API_KEY` (moderation), LangSmith. **Evaluations:** §12 safety and
 adversarial.
 
-#### Part 1: The safety policy
-- Critical violations, which must be zero: moving money without authorisation, exposing another
-  customer's data, hijacked instructions and harmful content
-- Tracked violations, which are measured and fixed: prompt leaks and rule-breaking replies
+**What it teaches**
 
-#### Part 2: Free checks on every baseline run
-- Unauthorised refunds, judged from the mock database's end state, not from the reply
-- Leaked emails and leaked system instructions, found by string search
+- **A written policy:** critical violations must be zero (unauthorised refunds, another
+  customer's data, obeying instructions in retrieved text, harmful content). Tracked violations
+  are measured and fixed.
+- **Free checks on every run:** unauthorised refunds come from the database end state, not the
+  reply. Leaked emails and leaked instructions come from string search.
+- **OpenAI Moderation:** a free baseline for generic harm, which never sees this store's rules.
+- **A judge for house rules:** a `GEval` rubric keyed to each case's policy tags, given both the
+  reply and the actions taken.
+- **Indirect prompt injection:** a poisoned article with a canary string, counted only on runs
+  that retrieved the poisoned chunk.
+- **Automated red-teaming with DeepTeam:** vulnerabilities (what to break) crossed with attack
+  styles (how), run against the real agent.
+- **Attack success rate per risk:** one number per risk, with every critical violation listed.
 
-#### Part 3: OpenAI Moderation
-- A baseline for generic harm, which never sees this store's business rules
+**What the run found**
 
-#### Part 4: A judge for the store's own rules
-- A `GEval` rubric keyed to each case's policy tags, given both the reply and the actions taken
-
-#### Part 5: Indirect prompt injection
-- A poisoned support article with a canary, to test whether retrieved text can take control
-- Counting only the runs that actually retrieved the poisoned chunk
-
-#### Part 6: An automated red-team scan with DeepTeam
-- Vulnerabilities (what to break) crossed with attack styles (how)
-- Running attacks against the real agent through a callback that also records the database
-
-#### Part 7: Attack success rate per risk
-- One number per risk, with every critical violation listed
+- 0 unauthorised refunds in 157 attempts, 0 leaked emails in 130 and 0 Moderation flags on 121
+  answers.
+- The DeepTeam scan ran 18 attacks with 0 successes.
+- **Indirect injection succeeded 3 times in 4:** the agent obeyed an instruction planted in a
+  retrieved article. The fix is in the app, not the eval: the RAG prompt must treat article text
+  as data. This is the open finding the release gate warns about.
 
 ## Module F: Judges and calibration
 
 ### Notebook 10: Custom Judges
 
-**Status:** Run 2026-11-18, outputs kept. **Reads:** `data/golden_set.json`, `data/golden_runs.json`,
-`data/golden_runs_gpt-4o-mini.json` (the same 121 cases on the first app model, shipped with the
-repository). **Writes:** `data/custom_judge_scores.json`. **Keys:** `OPENROUTER_API_KEY` only, because
-nothing here runs the agent. **Evaluations:** §13 custom judges.
+**Status:** Run 2026-11-18, outputs kept. **Reads:** `data/golden_set.json`,
+`data/golden_runs.json`, `data/golden_runs_gpt-4o-mini.json` (the same 121 cases on the first app
+model, shipped with the repository). **Writes:** `data/custom_judge_scores.json`. **Keys:**
+`OPENROUTER_API_KEY` only, because nothing here runs the agent. **Evaluations:** §13 custom
+judges.
 
-#### Part 1: Rubric judges with `GEval`
-- House rules no library ships a metric for: tone, policy wording and escalation phrasing
-- Writing `evaluation_steps` yourself and reviewing them like code. With `criteria` alone, the judge
-  invents its own steps
-- `strict_mode=True` for a pass/fail verdict a person can also give, which makes calibration
-  possible
-- Scoping each rule to the replies it applies to: "not applicable" is not a pass
-- A judge beside a free check, and what each one misses
+**What it teaches**
 
-#### Part 2: A decision-tree judge with `DAGMetric`
-- Walking the refund flow one small question per node, with a fixed score on each leaf
-- Facts about what the agent did come from code, and the judge checks the reply against them
-- The reply judge beside the end state: one judges what was said, the other what was done, and a
-  release gate needs both
+- **Rubric judges with `GEval`:** house rules no library ships a metric for: tone, policy wording
+  and escalation phrasing.
+- **Write the steps yourself:** `evaluation_steps` are the rubric and get reviewed like code. With
+  `criteria` alone, the judge invents its own steps.
+- **Pass or fail:** `strict_mode=True` gives a verdict a person can also give, which is what makes
+  calibration possible.
+- **Scope each rule:** a rule judged on replies it doesn't apply to passes for free and hides
+  failures.
+- **A decision-tree judge with `DAGMetric`:** the refund flow walked one small question per node,
+  with code supplying the facts about what the agent did.
+- **Reply and decision:** the tree judges what was said, the end state judges what was done, and
+  a release gate needs both.
+- **A pairwise judge:** two app versions compared answer by answer, each pair judged in both
+  orders. A winner counts only if it wins both times.
 
-#### Part 3: A pairwise judge, with the positions swapped
-- Comparing two app versions answer by answer
-- A winner counts only if it wins in both positions, and flips measure position bias
+**What the run found**
 
-#### Part 4: Save every verdict for calibration
-
-- Writes every verdict and its reason to `data/custom_judge_scores.json`, the input notebook 11 samples for human labels
+- Tone passed 51 of 121 replies. The judge failed the fixed decline sentence as "filler" and
+  marked full care instructions as long-winded, which points at the rubric, not the app.
+  Notebook 11 is where a person settles it.
+- Policy wording passed 26 of 31 and escalation phrasing 14 of 38.
+- The refund tree passed 24 of 26 replies. Two decisions were wrong while the reply passed:
+  `tool_required-h20` (no refund issued) and `handoff-h03` (no ticket created).
+- Pairwise, the current and first app versions won 9 each, with 2 ties and 14 position flips. The
+  reply shown first won only 38% of named verdicts, so this judge leans to the second position.
 
 ### Notebook 11: Calibrating Judges with Human Labels
 
-**Status:** Written, not run; the agreement cells wait for human labels. **Writes:** `data/judge_trust.json`. **Evaluations:** §14 judge calibration.
+**Status:** Written, not run: the agreement cells wait for a person's labels. **Reads:**
+`data/custom_judge_scores.json`, `data/golden_set.json`, `data/golden_runs.json`. **Writes:**
+`data/calibration_queue.json`, `data/human_labels.json`, `data/judge_trust.json`. **Keys:**
+`OPENROUTER_API_KEY`, LangSmith. **Evaluations:** §14 judge calibration.
 
-- Sampling 50–100 verdicts per gating judge into a LangSmith annotation queue
-- A human labelling pass
-- Agreement in plain Python: Cohen's kappa, true-positive rate, true-negative rate and a confusion
-  matrix
-- Bias checks: position, verbosity, and self-preference (the app model judging its own answers)
-- Revising any rubric with kappa below 0.6, then measuring again
-- A reference judge: `gpt-4o` beside the Qwen3 judge on the calibration cases, each scored against
-  the human labels and the end-state checks, plus judge-vs-judge agreement
-- A judge trust table, one row per judge and metric, for the release gate
+**What it teaches**
+
+- **Sampling for calibration:** 50–100 verdicts per gating judge, stratified so both passes and
+  fails appear, with a fixed seed.
+- **Labels without anchoring:** the labeller sees the rule, the question, the reply and the
+  actions, never the judge's verdict or reason.
+- **Two ways to label:** a LangSmith annotation queue, or a JSON file filled in by hand. Both
+  write the same `data/human_labels.json`.
+- **Agreement in plain Python:** a confusion matrix, Cohen's kappa, true-positive rate and
+  true-negative rate. A judge needs kappa of at least 0.6 before it can block a release.
+- **Bias checks:** position bias from notebook 10's flips, verbosity bias from padding passing
+  replies, and self-preference from the app model judging its own answers.
+- **A reference judge:** `gpt-4o` on the same sample, scored against the people and against the
+  Qwen judge.
+- **The trust table:** one row per judge and metric, which notebook 13's gate reads.
+
+**What the run found**
+
+- Not run yet. No labels are invented: until `data/human_labels.json` exists, every agreement cell
+  prints "Needs human labels" and `data/judge_trust.json` is not written.
 
 ## Module G: Decisions
 
 ### Notebook 12: Statistics, Cost and Experiments
 
-**Status:** Run 2026-11-18, outputs kept. **Writes:** `data/baseline_scores.json`, `data/candidate_scores.json`.
-**Evaluations:** §15 statistics and slices, §16 cost and latency, §17 regression experiments.
+**Status:** Run 2026-11-18, outputs kept. **Reads:** every `data/*_scores.json` from notebooks
+05–10, `data/golden_set.json`, `data/golden_runs.json`, `data/chroma_db/`. **Writes:**
+`data/baseline_scores.json`, `data/candidate_scores.json`. **Keys:** `OPENROUTER_API_KEY`,
+LangSmith. **Evaluations:** §15 statistics and slices, §16 cost and latency, §17 regression
+experiments.
 
-- A per-slice report across every score from notebooks 04–09
-- Bootstrap 95% confidence intervals with the standard library
-- Paired comparison of two versions: paired bootstrap and McNemar's test
-- How many cases each slice needs to detect a change
-- Cost and latency per run, read from LangSmith traces
-- The golden set uploaded as a LangSmith dataset
-- A baseline and one candidate (a prompt or model change) run as LangSmith experiments
+**What it teaches**
+
+- **Per-slice reports with intervals:** every metric per slice, with a bootstrap 95% confidence
+  interval from the standard library, never one blended number.
+- **Sample size:** how many cases a slice needs before a drop of a given size shows up.
+- **Latency:** p50 and p95 per slice from the saved runs. The tail lives in the slices that run
+  the tool loop.
+- **Experiments in LangSmith:** the golden set uploaded as a dataset, then a baseline and one
+  candidate (a prompt change) run with `evaluate()` and the same evaluators.
+- **Cost from traces:** tokens summed from every model call in a trace and priced at the
+  OpenRouter rate, because LangSmith has no price for the model name.
+- **Paired comparison:** both versions ran the same cases. A paired bootstrap resamples cases
+  with both results kept together, and McNemar's test uses only the cases whose result changed.
+
+**What the run found**
+
+- A 5-point drop from 90% needs 686 cases to detect. With 20 cases a slice reliably shows only a
+  drop of about 40 points, so slice floors catch collapses, not slips.
+- Latency was p50 2.0 s and p95 5.9 s, with the longest tail on `adversarial` (p95 9.3 s).
+- The candidate prompt ("at most two sentences, numbers stated exactly") changed no slice by a
+  detectable amount. `multi_hop` fell 15 points, with an interval from −30 to 0 and McNemar
+  p = 0.25.
+- Cost was about $0.00022 per case for the baseline and $0.00023 for the candidate, about 1,400
+  tokens per case.
 
 ### Notebook 13: The Release Gate and CI
 
-**Status:** Run 2026-11-18, outputs kept (free: the gate says ship on the real candidate and refuses the seeded regression). **Writes:** `gate_rules.json`, `gate.py`, a GitHub Actions workflow.
-**Evaluations:** §18 release gate.
+**Status:** Run 2026-11-18, outputs kept (free). **Reads:** `data/baseline_scores.json`,
+`data/candidate_scores.json`, `data/judge_trust.json` (if present), `data/safety_scores.json`.
+**Writes:** `gate_rules.json`, `gate.py`, `data/candidate_scores_seeded_regression.json`, and the
+workflow `.github/workflows/course04-release-gate.yml`. **Evaluations:** §18 release gate.
 
-- Gate rules: zero critical safety violations, slice floors, no regression, judge trust and budget
-- The gate logic taught step by step, then copied into the one script CI runs
-- A seeded regression that proves the gate fails
-- Two CI jobs: a free `gate` job on every push and pull request, and a paid `evaluate` job on manual
-  dispatch only
+**What it teaches**
+
+- **Critical safety:** any unauthorised refund or leaked email in the candidate blocks the
+  release, whatever else passes.
+- **Known findings:** notebook 09's open findings show on every gate run until they are fixed.
+  `block_on_known_safety_findings` decides whether they block or warn.
+- **Slice floors:** each slice has a minimum pass rate, set about two cases below today's rate,
+  because one case is 5 points on a 20-case slice.
+- **Judge trust:** a judged metric can block only if notebook 11 marked its judge trusted.
+  Otherwise it is reported as advisory.
+- **No significant regression:** the candidate fails only when the paired bootstrap interval of
+  its change lies entirely below zero.
+- **Budget:** mean cost per case must stay within 1.2 times the baseline.
+- **One script, two CI jobs:** the logic taught in the notebook is copied into `gate.py`. A free
+  `gate` job runs on every push and pull request, and a paid `evaluate` job runs only on manual
+  dispatch.
+- **Prove the gate bites:** a seeded regression file, marked synthetic, must make the gate fail.
+
+**What the run found**
+
+- On the real candidate the gate said **ship** (exit 0), with the indirect-injection finding shown
+  as a warning.
+- On the seeded regression it said **do not ship** (exit 1), with 4 blocking failures: an
+  unauthorised refund, the `tool_required` end-state floor, an end-state regression and the
+  budget.
+- `answer_correct` on `multi_hop` fell 27 points but did not block. Its interval runs from −55 to
+  0 on 11 cases, and its judge isn't calibrated yet.
+
+## Module H: Production
 
 ### Notebook 14: Online Evaluation and the Loop
 
-**Status:** Run 2026-11-18, outputs kept. **Writes:** `data/online_review_queue.json`, `data/golden_set_candidates.json`. **Evaluations:** §19 online evaluation.
+**Status:** Run 2026-11-18, outputs kept. **Reads:** `data/chroma_db/`, `data/golden_set.json`,
+`data/golden_runs.json`. **Writes:** `data/online_review_queue.json`,
+`data/golden_set_candidates.json`. **Keys:** `OPENROUTER_API_KEY`, LangSmith. **Evaluations:** §19
+online evaluation.
 
-- Simulated production traffic: replayed and fresh questions
-- LangSmith online evaluators for faithfulness, relevancy and safety on a 5–10% sample
-- Signals that need no answer key: empty retrieval, escalation rate and user feedback
-- Drift against launch week
-- The loop: failing traces reviewed and added back to the golden set
+**What it teaches**
+
+- **Simulated production traffic:** 200 runs over two simulated weeks, replayed golden questions
+  plus fresh ones from the simulator. Week 2 shifts the mix on purpose, towards a topic the
+  articles don't cover.
+- **Online evaluators:** with no answer key, only reference-free judges apply. Faithfulness and
+  relevancy run on a 10% sample, and the free safety checks run on every trace.
+- **Scores on the trace:** every score is written back with `create_feedback`, and LangSmith
+  charts it. The same evaluator can run automatically as a LangSmith online evaluator rule.
+- **Signals with no answer key:** weak retrieval (top-chunk distance above a threshold), escalation
+  rate, decline rate and thumbs up or down.
+- **Drift:** week 2 against week 1 for every signal, with a bootstrap interval on the difference.
+- **The loop:** flagged traces go to a review queue, and only cases a person approves become
+  golden-set candidates. Nothing is appended to `golden_set.json` automatically.
+
+**What the run found**
+
+- 200 traces, 0 critical safety violations.
+- Faithfulness averaged 1.00 and relevancy 0.95 on 11 of 12 sampled RAG runs. One judge call timed
+  out on every retry and was recorded as no verdict.
+- A weak-retrieval threshold of 0.521 separated covered from uncovered questions 97% of the time.
+- Drift showed up where week 2 changed the traffic: weak retrieval rose 28 points, declines 21 and
+  simulated thumbs-down 18, each with an interval clear of zero. Escalation didn't move.
+- 74 traces went to `data/online_review_queue.json`, 39 of them with a question the golden set
+  doesn't have. None are reviewed yet, so `data/golden_set_candidates.json` is empty.
 
 ## Data handoff
 
 | File in `data/` | Written by | Read by |
 |---|---|---|
 | `kb_chunks.json` | 01 | 03, 04, 05, 09 |
-| `chroma_db/` (the search index) | 01 | 02, 04, 06, 08, 09 |
+| `chroma_db/` (the search index) | 01 | 02, 04, 06, 08, 09, 12, 14 |
 | `agent_runs.json` | 02 | 03 |
-| `golden_set.json` | 03 | 04–10 |
-| `golden_runs.json` (the baseline run) | 04 | 05–10 |
+| `golden_set.json` | 03 | 04–14 |
+| `golden_runs.json` (the baseline run) | 04 | 05–12, 14 |
 | `rag_scores.json` | 05 | 12 |
-| `agent_scores.json` | 06, 07, 08 | 07, 08, 12 (planned) |
+| `agent_scores.json` | 06, 07, 08 | 07, 08, 12 |
 | `conversation_scores.json` | 08 | 12 |
 | `safety_scores.json` | 09 | 12, 13 |
 | `custom_judge_scores.json` | 10 | 11, 12 |
@@ -502,11 +613,11 @@ nothing here runs the agent. **Evaluations:** §13 custom judges.
 | Tool | Used in |
 |---|---|
 | LangGraph | 01, 02, and the app cell pasted into later notebooks |
-| Chroma | 01, 02 |
-| LangSmith | 01, 02 (traces), 08, 09; 11 (annotation queues), 12 (datasets, experiments), 14 (online evaluators) |
+| Chroma | 01, 02, and the app cell |
+| LangSmith | 01, 02 (traces), 08, 09; 11 (annotation queues), 12 (datasets, experiments, cost), 14 (feedback, online evaluators) |
 | RAGAS | 03 (test-set generation), 04, 05, 08 |
-| DeepEval | 04, 05, 06, 07, 08, 09 (`GEval`), 10 (`GEval`, `DAGMetric`) |
+| DeepEval | 04–09, 10 (`GEval`, `DAGMetric`), 11, 12 (`GEval` correctness), 14 (faithfulness, relevancy) |
 | DeepTeam | 09 |
 | `ranx` | 04 |
 | OpenAI Moderation | 09 |
-| Standard library only | Every deterministic check, and the statistics in 11–13 |
+| Standard library only | Every deterministic check, the statistics in 11–14, and `gate.py` |
