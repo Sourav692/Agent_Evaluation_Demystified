@@ -1,0 +1,20 @@
+{
+  "source_path": "courses/04-end-to-end-eval-tutorial/04_retrieval_evaluation.ipynb",
+  "source_url": "https://github.com/Sourav692/Agent_Evaluation_Demystified/blob/main/courses/04-end-to-end-eval-tutorial/04_retrieval_evaluation.ipynb",
+  "coverage": [
+    {"source_item": "Intro and learning objectives", "output_anchor": "start-with-an-answer-built-on-the-wrong-page", "status": "expanded", "reviewed": true, "review_note": "Answer only as good as its chunks, named wrong page failure, retriever measured alone; five objectives condensed to four."},
+    {"source_item": "The idea: ASCII diagram and label vs judged table", "output_anchor": "two-ways-to-grade-the-same-search", "status": "preserved", "reviewed": true, "review_note": "Text diagram redrawn as Mermaid Figure 1 with both branches, disclosed in caption; needs/cost/blind-spot table kept verbatim in meaning."},
+    {"source_item": "Part 0: setup, telemetry, retrying judge", "output_anchor": "run-the-notebook", "status": "authorized_omission", "reviewed": true, "review_note": "Environment, telemetry switches and the LengthFinishReasonError retry wrapper are setup code; theory-only rule and the user's minimal-code request exclude them.", "authorization": "User request: minimal code; course-content voice.md bans setup walkthroughs."},
+    {"source_item": "Part 1: app cell, baseline run, routes per slice", "output_anchor": "one-saved-run-that-every-later-lesson-reads", "status": "preserved", "reviewed": true, "review_note": "One run for lessons 4-9, saved and reused, record contents, full routing table matching golden_runs.json, routing scored in lesson 7. App code itself omitted as code."},
+    {"source_item": "Part 2: direct retrieval of 41 questions, example simple-h01, five metric definitions, worked example values", "output_anchor": "scoring-the-search-against-labels", "status": "expanded", "reviewed": true, "review_note": "41 questions, out_of_scope excluded, top 10 once, simple-h01 ranking, metric table, stepper walks hit 1.0, recall 0.5, precision 0.333, RR 0.333, nDCG 0.307."},
+    {"source_item": "Part 2: per-slice results at k=1,2,4 and reading", "output_anchor": "the-real-scores", "status": "expanded", "reviewed": true, "review_note": "Full results table, recall@4 gate and 0.80 target, multi_hop k=1 cap, precision@4 limit named precision ceiling."},
+    {"source_item": "Part 3: ranx qrels and run, agreement check", "output_anchor": "checking-our-maths-with-a-library", "status": "preserved", "reviewed": true, "review_note": "Qrels and run explained in plain words; all five combined scores ours vs ranx equal."},
+    {"source_item": "3.1: keyword retriever and ranx.compare paired test", "output_anchor": "is-one-search-really-better-than-another", "status": "preserved", "reviewed": true, "review_note": "Keyword overlap baseline, paired test per question, p<0.05, full compare table, link to lesson 12."},
+    {"source_item": "Part 4: judge, which chunks, metric table, DeepEval all vs RAGAS subset, per-slice judged results", "output_anchor": "grading-without-labels-an-llm-judge", "status": "preserved", "reviewed": true, "review_note": "Judge role and family separation, top-4 chunks from the run, three metrics, Table 8 values; stale output (32 vs 31 cases, RAGAS on all 32 vs code's 20) flagged in pitfall."},
+    {"source_item": "Part 5: two disagreement kinds, simple-h02, judge vs judge gaps", "output_anchor": "learn-from-the-disagreements", "status": "preserved", "reviewed": true, "review_note": "Both kinds, simple-h02 table and overclaiming reference fix in golden set, gap table, RAGAS vs DeepEval relevance definitions, lesson 11 calibration."},
+    {"source_item": "Summary and next steps", "output_anchor": "key-takeaways", "status": "preserved", "reviewed": true, "review_note": "Summary condensed into takeaways; lesson 5 link kept in the judge section and run-the-notebook."}
+  ],
+  "required_figures": ["figure-1"],
+  "required_components": [{"id": "metric-walkthrough", "type": "stepper", "count": 5}],
+  "protected_images": []
+}

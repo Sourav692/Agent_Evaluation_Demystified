@@ -1,0 +1,19 @@
+{
+  "source_path": "courses/04-end-to-end-eval-tutorial/05_generation_evaluation.ipynb",
+  "source_url": "https://github.com/Sourav692/Agent_Evaluation_Demystified/blob/main/courses/04-end-to-end-eval-tutorial/05_generation_evaluation.ipynb",
+  "coverage": [
+    {"source_item": "Intro: retrieval necessary not sufficient, objectives", "output_anchor": "start-with-the-right-chunks-and-a-wrong-answer", "status": "expanded", "reviewed": true, "review_note": "Ignore, add, answer-different-question failures named good search bad answer; four objectives; mixed-run pitfall added."},
+    {"source_item": "The idea: ASCII diagram and families table", "output_anchor": "the-plan-in-one-picture", "status": "preserved", "reviewed": true, "review_note": "Text diagram redrawn as Mermaid Figure 1 with run record, golden case, both families, lesson 4 recall and blame; families table kept with production column; judge defined."},
+    {"source_item": "Part 0: setup, retrying judge, tracing off", "output_anchor": "the-plan-in-one-picture", "status": "authorized_omission", "reviewed": true, "review_note": "Keys, telemetry and retry wrapper are setup code excluded by theory-only rule; judge-from-another-family idea kept.", "authorization": "User request: minimal code; course-content voice.md bans setup walkthroughs."},
+    {"source_item": "Part 1: three groups and misrouted list", "output_anchor": "decide-which-answers-to-grade", "status": "preserved", "reviewed": true, "review_note": "Three groups explained; counts from both runs (31/17/13 current, 35/20/6 earlier); stock question example of misroute."},
+    {"source_item": "Part 2: decline correctness", "output_anchor": "did-it-decline-exactly-when-it-should", "status": "preserved", "reviewed": true, "review_note": "Fixed sentence, string check, missed vs false decline with severity, 17 of 17, three false declines tabled."},
+    {"source_item": "Part 3: reference-free metrics, HallucinationMetric note, RAGAS subset, per-slice scores, relevancy gap reading", "output_anchor": "grade-answers-without-a-reference", "status": "preserved", "reviewed": true, "review_note": "Three metrics tabled; 4.2.3 higher-is-better note; subset design vs all-35 in saved run flagged; all ten averages; 0.90 target; citation rebuild explanation."},
+    {"source_item": "Part 4: reference-based metrics, normalisation, GEval steps, per-slice scores, lowest four", "output_anchor": "grade-answers-against-a-reference", "status": "preserved", "reviewed": true, "review_note": "Five metrics defined in plain words; citations stripped; four GEval steps; overall EM 0.029 and F1 0.556; per-slice table; lowest four with RAGAS faithfulness column clarified."},
+    {"source_item": "Part 5: blame rules, thresholds, judge error, verdicts and blame table", "output_anchor": "blame-the-retriever-the-generator-or-the-test-case", "status": "expanded", "reviewed": true, "review_note": "Decision table redrawn as Figure 2 flowchart; 0.7 vs 0.5 reasoning; top-4 recall; judge error; fixes per verdict; switcher contrasts r08 and r04; blame table; RAGAS-vs-DeepEval faithfulness rule change flagged."},
+    {"source_item": "Part 6: save rag_scores.json", "output_anchor": "save-the-scores", "status": "preserved", "reviewed": true, "review_note": "61 knowledge cases, run ID link to traces, what each group saves, lesson 12 consumer."},
+    {"source_item": "Summary and next steps", "output_anchor": "key-takeaways", "status": "preserved", "reviewed": true, "review_note": "Declines, two families, same-name-different-number, blame summarised as takeaways."}
+  ],
+  "required_figures": ["figure-1", "figure-2"],
+  "required_components": [{"id": "blame-switcher", "type": "comparison", "count": 2}],
+  "protected_images": []
+}

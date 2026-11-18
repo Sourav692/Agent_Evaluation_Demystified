@@ -1,0 +1,21 @@
+{
+  "source_path": "courses/04-end-to-end-eval-tutorial/06_tool_call_evaluation.ipynb",
+  "source_url": "https://github.com/Sourav692/Agent_Evaluation_Demystified/blob/main/courses/04-end-to-end-eval-tutorial/06_tool_call_evaluation.ipynb",
+  "coverage": [
+    {"source_item": "Intro and learning objectives", "output_anchor": "start-with-a-polite-reply-that-did-the-wrong-thing", "status": "expanded", "reviewed": true, "review_note": "Wrong tool, wrong order ID or unwanted call fails even with a good reply; named polite wrong action; four objectives kept."},
+    {"source_item": "The idea: five checks table, adversarial excluded", "output_anchor": "compare-what-was-expected-with-what-happened", "status": "expanded", "reviewed": true, "review_note": "expected_tool_calls vs recorded tool_calls, five checks table, added Figure 1, adversarial deferred to notebook 09."},
+    {"source_item": "Part 0 setup, reporting helper", "output_anchor": "run-the-notebook", "status": "authorized_omission", "reviewed": true, "review_note": "Keys, judge retry wrapper and pass-rate helper are setup code; theory-only rule and the user's minimal-code request exclude them.", "authorization": "User request: minimal code; course-content voice.md bans setup walkthroughs."},
+    {"source_item": "Part 1: tools under test, mock store, tool schemas", "output_anchor": "the-four-tools-and-the-store-they-act-on", "status": "preserved", "reviewed": true, "review_note": "Four tools with behaviour and side effects, six mock orders and their rules, reset per run; agent not run; schema as model-visible contract covered in schema section."},
+    {"source_item": "Part 2: tool selection, missing vs extra", "output_anchor": "tool-selection-missing-versus-extra", "status": "preserved", "reviewed": true, "review_note": "Set equality, missing vs extra meanings, knowledge-slice reading, per-slice results 99/101 and the two extra search_kb failures from agent_scores.json."},
+    {"source_item": "Part 3: argument correctness, exact vs normalised, h20", "output_anchor": "arguments-compare-only-what-matters", "status": "preserved", "reviewed": true, "review_note": "Only labelled args, normalisation rules, h20 capitals case, gap meaning; 23/23 normalised; exact count not saved, stated."},
+    {"source_item": "Part 4: schema validity and abstention", "output_anchor": "schema-validity-and-abstention", "status": "preserved", "reviewed": true, "review_note": "Required, unknown and string checks plus priority rule; malformed calls rare; abstention cases defined; 78/78 with slice detail."},
+    {"source_item": "Part 5: replay, faithfulness check, ok/refused/crashed", "output_anchor": "tool-results-rebuild-them-by-replay", "status": "expanded", "reviewed": true, "review_note": "Four-stage stepper: reset, re-run, verify refunds match, classify; free except search_kb; refusal is rule working; watch refusal rate."},
+    {"source_item": "Part 6: DeepEval ToolCorrectnessMetric and disagreements", "output_anchor": "two-ways-to-score-the-same-calls", "status": "expanded", "reviewed": true, "review_note": "Deterministic without available_tools; every key with partial credit; extra calls ignored; one diagram per rule plus switcher on h05 and h16; 88/101 and 13 disagreements; decision rule kept."},
+    {"source_item": "Part 7: ArgumentCorrectnessMetric judge", "output_anchor": "an-llm-judge-for-arguments-with-no-labels", "status": "preserved", "reviewed": true, "review_note": "No labels needed, cost per call, 31 judged runs, 0.5 threshold, per-slice verdicts, zero disagreement with labels, adversarial blind spot with h14, h18, h19."},
+    {"source_item": "Part 8: save scores", "output_anchor": "saving-the-scores", "status": "preserved", "reviewed": true, "review_note": "agent_scores.json keyed by case with run_id, read by notebook 12 and extended by 07 and 08."},
+    {"source_item": "Summary and next steps", "output_anchor": "key-takeaways", "status": "preserved", "reviewed": true, "review_note": "Deterministic checks, replay, refusal vs crash, DeepEval beside Python and judge limits condensed into takeaways."}
+  ],
+  "required_figures": ["figure-1", "figure-2", "figure-3"],
+  "required_components": [{"id": "replay-walkthrough", "type": "stepper", "count": 4}, {"id": "scorer-switcher", "type": "comparison", "count": 2}],
+  "protected_images": []
+}
