@@ -1,7 +1,12 @@
-# Annotated skeleton
+# Annotated skeletons
 
-A short notebook in the course 04 format, cell by cell. Comments in `<angle brackets>` are
-instructions, not content. The topic here (scoring declines) is only an example.
+Two short notebooks in the course 04 format. Comments in `<angle brackets>` are instructions,
+not content. The topics are only examples.
+
+- **A. Evaluation notebook**: scores something that exists (scoring declines), cell by cell.
+- **B. Build notebook**: constructs something (a RAG agent), Part by Part, at the end of this file.
+
+# A. Evaluation notebook
 
 ---
 
@@ -197,3 +202,73 @@ In this notebook, we learned:
 ### Next Steps
 - Notebook 06 scores the tool calls from the same run: right tool, right arguments, and no call when none is needed
 ```
+
+# B. Build notebook
+
+Same title cell, idea cell, setup and summary as A. What changes is the body: the Parts follow
+the data from raw input to a working app, and each Part prints what its step produced. This
+outline is `01_knowledge_base_and_rag_agent.ipynb`.
+
+**cell-00 · markdown**
+
+```markdown
+# 📚 01 — The Knowledge Base and the RAG Agent
+
+<What is being built, for whom, and which half of the system this is.>
+
+## Learning Objectives
+In this notebook, you will learn:
+1. **Chunking with stable IDs** - why every piece of text needs an ID that never changes
+2. **Indexing and retrieval** - how a question finds the closest chunks in a vector store
+3. **Grounded answers** - an answer that cites its sources, or says "I don't know"
+4. **Traces** - how LangSmith records each step
+
+## Prerequisites
+- The course environment and kernel (see this folder's `README.md`)
+- `OPENROUTER_API_KEY` and a LangSmith API key in the `.env` file at the repository root
+- No earlier notebook: this is where the course starts
+```
+
+**cell-01 · markdown**: `## 🗺️ The idea`, a text diagram of the flow:
+
+````markdown
+```
+ question ──► RETRIEVE: which chunks are relevant? ──► GENERATE: answer from those chunks only
+```
+````
+
+**cell-02, cell-03**: `## ⚙️ Part 0: Setup`, one sentence ("Every run of the agent becomes a
+**trace**"), then the setup cell with tracing switched **on**, ending:
+
+```python
+print("✅ Setup complete")
+print("🔑 Keys set:", {name: bool(os.getenv(name)) for name in ["OPENROUTER_API_KEY"]})
+print("📈 Traces go to LangSmith project:", os.environ["LANGSMITH_PROJECT"])
+```
+
+**Body Parts, one per objective, each a markdown cell then one or more code cells:**
+
+| Part | Heading | Code cell banner | Prints |
+|---|---|---|---|
+| 1 | `## 📄 Part 1: The knowledge base` | `LOAD THE KNOWLEDGE BASE: one markdown file per support article` | `📄 Loaded 9 articles:` and one line each |
+| 1.1 | `### 1.1 🧩 Chunking with stable IDs` + a `> **Why this matters for evaluation:**` callout | `CHUNKING: one chunk per "## " section, with an ID that never changes` | chunk count, the file written, one example chunk |
+| 2 | `## 🔍 Part 2: Indexing and retrieval` | `RETRIEVE: the top k chunks for a question` | `🔍` the top hits with IDs for one real question |
+| 3 | `## 🤖 Part 3: Grounded answers` | `GENERATE: answer from the retrieved chunks only` | `🤖` the answer with its citations, and a decline for an out-of-scope question |
+| 4 | `## 🔗 Part 4: The RAG agent as a graph` | `THE GRAPH: retrieve → generate as LangGraph nodes` | the node list, `✅ Graph compiled` |
+| 5 | `## 🧪 Part 5: Try it` | `TRY IT: three questions through the agent` | each question, its retrieved IDs and its answer |
+| 5.1 | `### 5.1 📈 What to look at in LangSmith` | (markdown only) | |
+
+Rules this outline shows:
+
+- The bare step comes first as a plain function (`retrieve()`, `generate_answer()`), the
+  framework second (the graph wraps the same functions as nodes).
+- Every Part ends by printing its output on a real example, so the learner sees the chunk, the
+  hits and the answer before moving on.
+- Try it uses a few hand-picked inputs that show the happy path and one edge case (an
+  out-of-scope question that must be declined).
+- Anything a later notebook needs is saved with its path printed (`🧩 31 chunks → data/kb_chunks.json`).
+  The next notebook in the sequence ends with the whole app in one cell
+  (`## 📦 Part N: The whole app in one cell`) so evaluation notebooks can paste it.
+
+**Last cell**: `## 📝 Summary`, one `### N.` per Part (Chunking, Retrieval and generation,
+Traces), then `### Next Steps` naming the next notebook.
