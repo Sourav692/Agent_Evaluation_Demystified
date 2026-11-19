@@ -507,6 +507,13 @@ h4{font:600 20px/1.3 var(--sans);color:var(--ink);margin:12px 0 18px;overflow-wr
 <p class="caption">Table 7: The five smoke runs from the notebook's saved output.</p>
 <p>Look closely at the last row. The reply says "I've created a support ticket for you". But the recorded run shows only one tool call, <code>issue_refund</code>, and <strong>no ticket</strong> in the store. The agent skipped <code>create_ticket</code>, broke its own instruction, and then told the customer it had done it.</p>
 <p>This is exactly why runs record the end state. Read only the reply and the case looks handled. Read the store and the customer is waiting for a ticket that does not exist. Lesson 8 checks for this gap on every case.</p>
+<h3 id="two-prompt-fixes-the-first-run-forced">Two prompt fixes the first run forced</h3>
+<p>The first smoke run failed twice, and the prompts were edited until all five paths worked:</p>
+<ol>
+<li><strong>Routing</strong>: the supervisor sent policy questions such as the sale-jacket one to the account agent. Fix: use <code>rag_agent</code> when no order ID is given, "even if they mention something they bought".</li>
+<li><strong>Hesitation</strong>: on the PC-10001 refund, the agent asked to confirm an email already given. Fix: "call the tool straight away. Never ask them to confirm details they have already given."</li>
+</ol>
+<p>Both fixes were written while looking at these five questions, so lesson 3 keeps them out of the test set.</p>
 <h2 id="one-cell-to-copy">One cell to copy</h2>
 <p>Later lessons need to run the same agent again: to score the test set, to compare a prompt change, or to attack it. Instead of importing a shared module, the notebook packs the whole app into <strong>one cell</strong> that later notebooks paste after their setup cell.</p>
 <p>The trade-off is a rule you must follow. If you change a prompt or a tool, change it in that cell too, then paste the new cell into every later notebook that runs the agent. Skip either step and those notebooks test an old version: their scores describe an agent you have already changed.</p>

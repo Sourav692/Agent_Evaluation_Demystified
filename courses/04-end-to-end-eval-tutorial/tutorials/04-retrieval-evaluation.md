@@ -31,7 +31,7 @@ So a RAG answer can only be as good as the passages it was given. We call this t
 
 ## Two ways to grade the same search
 
-There are two ways to grade a search result. Both start from the same ranked list of passage IDs.
+Both ways of grading a search start from the same ranked list of passage IDs.
 
 ```mermaid
 flowchart LR
@@ -43,8 +43,6 @@ flowchart LR
 ```
 
 *Figure 1: Two ways to grade one retrieval. Redrawn from the notebook's text diagram.*
-
-The trade-off between them is simple to state.
 
 | | Label-based | Judged |
 | --- | --- | --- |
@@ -58,7 +56,11 @@ The trade-off between them is simple to state.
 
 Lessons 4 to 9 all score **one** recorded run of the agent over the whole golden set. That way every lesson talks about the same answers. The run sends each of the 121 golden cases through the full agent once and saves a record per case: the route taken, the steps, the tool calls, the retrieved passages, the answer and the final database state. If the saved file already exists it is reused, so the run is never paid for twice.
 
-The first thing the run shows is where the supervisor sent each slice.
+Each record also carries a `run_id` that matches its LangSmith trace. LangSmith does not choose it: the code makes a random ID with `uuid.uuid4()` and passes it in as `config={"run_id": ...}`. LangChain gives the top-level run that ID, and the tracer sends it to LangSmith unchanged, so it is also the trace ID. Each inner step gets its own ID under the same trace. To debug a failed case, look up its `run_id` in LangSmith. The ID is saved even if tracing was off or the trace has expired after 14 days.
+
+Why not build the file from the traces instead? The traces lack the end state: refunds and tickets live in the mock database, not in any step. Traces also upload in background batches, need a key and network, and expire after 14 days. The record is already in memory during the run, so saving it directly is cheaper. Reading traces suits live traffic, where no in-memory run exists (lesson 14).
+
+Where the supervisor sent each slice:
 
 | Slice | RAG agent | Account agent | Escalation |
 | --- | --- | --- | --- |
@@ -91,8 +93,6 @@ Five scores each answer a different question about the list.
 
 *Table 3: The five label-based scores. MRR stands for mean reciprocal rank; nDCG for normalised discounted cumulative gain.*
 
-The walkthrough applies all five to one made-up ranking, so you can see each rule work.
-
 <div class="walkthrough learning-widget" data-stepper id="metric-walkthrough">
 <p class="widget-intro"><em>Illustrative.</em> The search returned <code>shipping-01</code>, <code>refunds-03</code>, <code>shipping-02</code>. The labels say <code>shipping-02</code> and <code>orders-04</code> hold the answer. Score it with k = 3.</p>
 <div class="step-controls" hidden role="group" aria-label="Retrieval scores"><button type="button" data-step="0" aria-pressed="false" aria-controls="metric-step-0">1. Hit rate</button><button type="button" data-step="1" aria-pressed="false" aria-controls="metric-step-1">2. Recall</button><button type="button" data-step="2" aria-pressed="false" aria-controls="metric-step-2">3. Precision</button><button type="button" data-step="3" aria-pressed="false" aria-controls="metric-step-3">4. MRR</button><button type="button" data-step="4" aria-pressed="false" aria-controls="metric-step-4">5. nDCG</button></div>
@@ -103,8 +103,6 @@ The walkthrough applies all five to one made-up ranking, so you can see each rul
 Hit rate and recall ignore order. MRR and nDCG reward putting the useful passage first, which matters because the answer model reads from the top.
 
 ### The real scores
-
-Here are the five scores for our retriever, per slice, at k = 1, 2 and 4.
 
 | Slice | k | Hit | Recall | Precision | MRR | nDCG |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -137,7 +135,7 @@ Two low numbers here are expected, not failures. A multi-hop question needs 2 or
 
 ## Is one search really better than another?
 
-A score on its own says little. The useful question is whether a change *really* helped or just got lucky. To show the test, the notebook builds a deliberately simple second retriever: **keyword overlap**, which ranks passages by how many words they share with the question. No embeddings, no model.
+The useful question is whether a change *really* helped or just got lucky. To show the test, the notebook builds a deliberately simple second retriever: **keyword overlap**, which ranks passages by how many words they share with the question. No embeddings, no model.
 
 A **paired significance test** compares the two retrievers question by question. For each of the 41 questions it takes both scores and asks whether the differences are bigger than chance would explain. A difference counts only if its p-value is below 0.05, meaning luck would produce a gap this size less than 5% of the time.
 
@@ -155,8 +153,6 @@ Dense search wins on every score, and the gap is too large to be luck. Lesson 12
 Labels exist only because someone wrote them. In production nobody has, so the alternative is an **LLM judge**: a separate model reads the question, the retrieved passages and (when there is one) the reference answer, and says whether the passages are useful. Here the judge is Qwen3 235B, from a different model family than the agent, so it never grades its own work.
 
 The judge reads the passages the answer model actually saw in the saved run: the top 4, for knowledge questions the supervisor sent to the RAG agent. That ties this lesson to lesson 5, which judges the answers written from those same passages.
-
-Two libraries offer the same three judged scores.
 
 | Judged score | Question it asks |
 | --- | --- |
@@ -199,8 +195,6 @@ The run found 1 disagreement in 32 judged cases.
 The judge was right and the label was wrong. No support article says "as well as domestically". This is the **overclaiming reference**: a reference answer that says more than the knowledge base. Every later correctness score on that case would punish the agent for not inventing the extra claim. The fix belongs in the golden set's hand-written file, followed by re-running lesson 3. The committed golden set still carries the old wording.
 
 ### Do the two judges agree with each other?
-
-The notebook also compares RAGAS and DeepEval on the cases both scored.
 
 | Judged score | Mean gap between libraries | Cases with a gap of 0.5 or more |
 | --- | --- | --- |

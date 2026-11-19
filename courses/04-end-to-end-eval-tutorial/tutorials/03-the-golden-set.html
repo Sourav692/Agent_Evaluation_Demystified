@@ -219,7 +219,6 @@ h4{font:600 20px/1.3 var(--sans);color:var(--ink);margin:12px 0 18px;overflow-wr
 <p>The rule at the end matters. If even one check fails, the file is not written, so later lessons keep reading the last good set.</p>
 <h2 id="what-one-test-case-holds">What one test case holds</h2>
 <p>A <strong>test case</strong> is one record: one customer message plus everything a later lesson needs to grade the reply. Writing all the labels on the same record means a case is written once and reused by many lessons.</p>
-<p>The fields and their readers are shown below.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -277,9 +276,10 @@ h4{font:600 20px/1.3 var(--sans);color:var(--ink);margin:12px 0 18px;overflow-wr
 <ul>
 <li><strong>Label only what must match</strong>: the refund's free-text reason is left out, because any sensible wording is fine.</li>
 <li><strong>Blank means "not checked"</strong>: an attack case may end with or without a ticket. What matters is that no refund happened, so the ticket field is left empty.</li>
+<li><strong>An empty list is still a check</strong>: <code>[]</code> tools means "no tool may run", and lesson 6 fails any call; <code>null</code> means "not checked" (attack cases only). All 14 RAGAS questions get <code>[]</code> from the notebook, not RAGAS, since the RAG agent has no tools; review catches any that need one.</li>
 </ul>
 <h2 id="six-slices-at-least-twenty-each">Six slices, at least twenty each</h2>
-<p>A <strong>slice</strong> is a group of cases that test the same kind of behaviour. The set has six.</p>
+<p>A <strong>slice</strong> is a group of cases that test the same kind of behaviour.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -326,13 +326,15 @@ h4{font:600 20px/1.3 var(--sans);color:var(--ink);margin:12px 0 18px;overflow-wr
 <p>Each slice needs enough cases for its own score to mean something. With 20 cases, one case flipping from pass to fail moves the slice score by 5 points (1 ÷ 20). With 8 cases it would move by 12.5 points, which is mostly noise. That is why the target is <strong>at least 20 per slice</strong>.</p>
 <h2 id="write-most-cases-by-hand">Write most cases by hand</h2>
 <p>Of the 121 final cases, 107 are hand-written. Only a person who knows the policy can say what the right answer is for a sale item returned after 14 days or a refund over $500.</p>
-<p>How they were written:</p>
 <ul>
 <li><strong>Knowledge slices</strong> point to real passage IDs from the knowledge base; <code>multi_hop</code> cases point to two or more.</li>
 <li><strong>Tool and handoff slices</strong> use the six mock orders from lesson 2. Each order triggers one rule: a normal refund, final sale, not delivered, over $500, or outside 30 days. Every expected end state was checked by replaying the expected tool calls against the mock database.</li>
 <li><strong>Unhappy paths on purpose</strong>: a missing email, a wrong email, an order that does not exist, a customer who only asks and does not want a refund yet.</li>
-<li><strong>No tuning questions</strong>: the five smoke questions used to adjust the agent's prompts in lesson 2 were left out. Check 5 confirms it.</li>
+<li><strong>No tuning questions</strong>: lesson 2's prompts were edited until five "smoke" questions worked, so the agent is fitted to them and none may be a test case. Check 5 searches the lesson 1 and 2 code, where those five are typed, and finds none of the 121 test questions.</li>
 </ul>
+<aside class="callout note">
+<p><strong>Example.</strong> Smoke question: "Please refund order PC-10001, my email is maya@example.com. The tent is too small." As a test case it would always pass, because the prompt was fixed for it: a practice question reused on the final exam. The set asks "Refund order PC-10001 please. Email: maya@example.com. Wrong size." instead: same order, new wording and reason.</p>
+</aside>
 <p>The hand-written pile filled four slices to exactly 20. Two fell short: <code>simple</code> had 13 and <code>multi_hop</code> had 14.</p>
 <h2 id="generate-extra-knowledge-questions">Generate extra knowledge questions</h2>
 <p>To fill the gap, we use <strong>RAGAS</strong>, an open-source evaluation library with a test-set generator. A model reads the knowledge base and writes new questions with reference answers.</p>
@@ -423,7 +425,7 @@ h4{font:600 20px/1.3 var(--sans);color:var(--ink);margin:12px 0 18px;overflow-wr
 
 <p>The 14 kept candidates split into 8 simple and 6 multi-hop, which brings those slices to 21 and 20.</p>
 <h2 id="test-the-test-set">Test the test set</h2>
-<p>Before saving, the merged 121 cases face five cheap checks. Together they decide whether any later score can be trusted.</p>
+<p>Before saving, the merged 121 cases face five cheap checks.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -488,7 +490,6 @@ h4{font:600 20px/1.3 var(--sans);color:var(--ink);margin:12px 0 18px;overflow-wr
 </tbody>
 </table></div>
 <p class="caption">Table 6: The closest pair. Similar wording, different behaviour tested, so both stay.</p>
-<p>This shows why the threshold leads to a human decision rather than an automatic delete. Close wording can still test two different things.</p>
 <h3 id="catch-leaked-questions">Catch leaked questions</h3>
 <p><strong>Leakage</strong> means a test question also appears in the app itself, in a prompt or among the questions used to tune it. Then the test measures memory, not skill. The check reads the code of lessons 1 and 2 and searches for every test question in it. None were found.</p>
 <p>A check that always says "none" could simply be broken. So it is run once on questions we <em>know</em> were used for tuning, the five smoke questions from lesson 2. It found all 5 of 5. This <strong>control run</strong> proves the check can catch what it looks for.</p>

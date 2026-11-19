@@ -216,6 +216,15 @@ Look closely at the last row. The reply says "I've created a support ticket for 
 
 This is exactly why runs record the end state. Read only the reply and the case looks handled. Read the store and the customer is waiting for a ticket that does not exist. Lesson 8 checks for this gap on every case.
 
+### Two prompt fixes the first run forced
+
+The first smoke run failed twice, and the prompts were edited until all five paths worked:
+
+1. **Routing**: the supervisor sent policy questions such as the sale-jacket one to the account agent. Fix: use `rag_agent` when no order ID is given, "even if they mention something they bought".
+2. **Hesitation**: on the PC-10001 refund, the agent asked to confirm an email already given. Fix: "call the tool straight away. Never ask them to confirm details they have already given."
+
+Both fixes were written while looking at these five questions, so lesson 3 keeps them out of the test set.
+
 ## One cell to copy
 
 Later lessons need to run the same agent again: to score the test set, to compare a prompt change, or to attack it. Instead of importing a shared module, the notebook packs the whole app into **one cell** that later notebooks paste after their setup cell.
